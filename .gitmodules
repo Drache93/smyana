@@ -1,3 +1,4 @@
 [submodule "creel"]
 	path = creel
 	url = https://github.com/Casaide/creel
+	branch = main

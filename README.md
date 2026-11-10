@@ -15,7 +15,7 @@ A first runnable version, November 2026: two grey-boxed places, twenty men, and 
 home again in miniature. Most of the game is still to come.
 
 ```sh
-git submodule update --init   # the Creel engine
+git submodule update --init --remote   # the Creel engine, at its main
 ./play.sh                     # the game (windowed: ./play.sh windowed)
 ./check.sh                    # the checks, with no window
 ./play.sh windowed season:autumn leg:fir_woods_out   # a look at any leg in any season
