@@ -247,3 +247,13 @@ beds. The debris' earth is mounds now, not plates. Picture 78.
 
 Not done: the slide leaves one tile of the ledge's lip to squeeze by, because there is no way yet for the men to clear
 it; truly blocked needs that. The ravine's bed is plain rock with a thread of water, and nothing casts a shadow into it.
+
+## Too spotty: the ground made soft (22:16 to 22:25)
+
+Dominic of picture 80: "verry spotty, ground was soft and pretty in the mockup", and he sent the two camp mock-ups
+again. The strewn leaves had ten colours from yellow to dark brown on a dark bed, each with a dark lower edge: every
+leaf stood out from its neighbours. In the mock-up the litter is one warm field that drifts between gold and orange,
+with no dark gaps. Now the leaves take seven close tones, picked by a slow noise so the carpet lies in soft drifts, on a
+bed of the same warmth, their lower edge only a little darker; the autumn grass is an olive gold near the litter in
+value, with more leaves on it, so the two run into each other. Picture 82 (ours above the target). Lesson (Claude):
+"leaves you can see" was the wrong aim; the aim is tone and softness first, detail only where it costs neither.
