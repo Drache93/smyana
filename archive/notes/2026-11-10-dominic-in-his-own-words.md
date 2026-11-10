@@ -196,3 +196,13 @@ After seeing the first runnable version (its trees were about thirteen men tall)
 
 **20:51**
 > also research the style of rhodope music
+
+**21:08** (after hearing the first piece, "Autumn dusk")
+> Thats amazing. My wife says a little too Viking feeling. "Needs more mist"
+>
+> I'm a very big believer in music of q game changing with it. We can change based on season and time. But when a battle or a danger comes, I love when the music changes to reflect, gets tenser or faster. And when its overz the music ends as fast as it began.
+>
+> The whole pace of a battle with bandits or Ottomans or hiding your men and carts is reflected by the music
+
+**21:09**
+> Branch also has conflicts

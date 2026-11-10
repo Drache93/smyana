@@ -162,3 +162,9 @@ our men, before more systems.
 
 **D-035, 2026-11-10: Trees are designed in 2D from real photos first, then made as vox.** (Dominic)
 The same order as the men: a design sheet, his sign-off, then the voxel model.
+
+**D-036, 2026-11-10: The music follows the game.** (Dominic)
+It changes with season and time of day. When a battle or a danger comes it changes to match,
+tenser or faster, and when it's over it ends as fast as it began. A fight with bandits or
+Ottomans, or hiding the men and carts, each has its pace carried by the music. How (states,
+an intensity dial, separate loops) is a proposal in `docs/music-and-sound.md`.

@@ -35,17 +35,26 @@ def hz(midi):
     return 440.0 * 2 ** ((midi - 69) / 12)
 
 
-def parse(line, start=0.0):
-    """Text phrase -> list of (start, seconds, midi or None, vibrato?)."""
-    out, t = [], start
+def parse(line, start=0.0, bpm=None):
+    """Text phrase -> list of (start, seconds, midi or None, vibrato?).
+
+    With bpm, lengths are beats instead of seconds and a grace note takes its time out of
+    the note after it, so the tune stays locked to the drum. "|" may be used to mark bars.
+    """
+    out, t, owed = [], start, 0.0
+    unit = 60 / bpm if bpm else 1.0
     for tok in line.split():
+        if tok == "|":
+            continue
         if tok.startswith("'"):
             out.append((t, GRACE, midi_of(tok[1:]), False))
             t += GRACE
+            owed = GRACE if bpm else 0.0
             continue
         vib = tok.endswith("~")
         name, dur = tok.rstrip("~").split("/")
-        dur = float(dur)
+        dur = float(dur) * unit - owed
+        owed = 0.0
         out.append((t, dur, None if name == "-" else midi_of(name), vib))
         t += dur
     return out
@@ -158,14 +167,14 @@ def noise(total, lo, hi, rng):
 
 # ---------- the voices ----------
 
-def kaval(events, total, rng):
+def kaval(events, total, rng, breath_level=0.10):
     """Shepherd's flute: nearly a pure tone, with breath around it."""
     f, amp, _ = curves(events, total, glide=0.06, attack=0.18, release=0.35,
                        vib_cents=14, vib_hz=4.8, rng=rng, swell=0.35)
     tone = harmonics(f, [1.0, 0.22, 0.10, 0.03, 0.015])
     breath = noise(total, 1200, 5000, rng) * (0.5 + 0.5 * wander(total, 9, rng) ** 2)
     onset = np.clip(np.gradient(amp) * SR / 6, 0, 1)  # a puff of air as each breath starts
-    out = amp ** 1.3 * tone + breath * (0.10 * amp + 0.25 * onset)
+    out = amp ** 1.3 * tone + breath * (breath_level * amp + 0.25 * onset)
     return out * (1 + 0.05 * wander(total, 6, rng))
 
 
@@ -178,8 +187,11 @@ def gaida_chanter(events, total, rng):
     return amp * tone
 
 
-def gaida_drone(midi, start, stop, total, rng):
-    """The long low pipe. It sags flat as the bag fills, then settles."""
+def gaida_drone(midi, start, stop, total, rng, shape=None, dark=2600):
+    """The long low pipe. It sags flat as the bag fills, then settles.
+
+    shape: optional (times, levels) to draw the loudness by hand. dark: lower is duller.
+    """
     t = np.arange(int(total * SR)) / SR
     sag = -70 * np.exp(-np.clip(t - start, 0, None) / 1.2)
     out = np.zeros(len(t))
@@ -187,23 +199,81 @@ def gaida_drone(midi, start, stop, total, rng):
     for detune, share in ((-1, 1.0), (5, 0.3)):
         cents = sag + detune + 3 * wander(total, 0.8, rng)
         out += share * harmonics(hz(midi) * 2 ** (cents / 1200), reed_weights(48, 0.22))
-    out = eq(out, bumps([(420, 160, 1.6), (1150, 300, 0.9)], 2600))
-    env = np.interp(t, [start, start + 5, stop - 9, stop], [0, 1, 1, 0])
+    out = eq(out, bumps([(420, 160, 1.6), (1150, 300, 0.9)], dark))
+    env = np.interp(t, *(shape or ([start, start + 5, stop - 9, stop], [0, 1, 1, 0])))
     return out * env * (1 + 0.04 * wander(total, 2.5, rng))
 
 
-def strings(chords, total, rng):
+def strings(chords, total, rng, rise=5.0, fall=5.0):
     """Low strings as a soft pad. chords: (start, stop, [note names], level)."""
     t = np.arange(int(total * SR)) / SR
     out = np.zeros(len(t))
     k = np.arange(1, 25)
     for start, stop, names, level in chords:
-        env = np.interp(t, [start, start + 5, stop - 5, stop], [0, level, level, 0])
+        env = np.interp(t, [start, start + rise, stop - fall, stop], [0, level, level, 0])
         for name in names:
             for detune in (-7, 0, 6):
                 cents = detune + 5 * wander(total, 0.6, rng)
                 out += env * harmonics(hz(midi_of(name)) * 2 ** (cents / 1200), 1 / k ** 1.6)
     return eq(out, bumps([(300, 200, 0.6)], 1400))
+
+
+def hum(events, total, rng, voices=3):
+    """A few men humming the tune together, mouths closed, not quite in tune with each other."""
+    out = np.zeros(int(total * SR))
+    k = np.arange(1, 13)
+    for _ in range(voices):
+        f, amp, _ = curves(events, total, glide=0.11, attack=0.45, release=0.7,
+                           vib_cents=9, vib_hz=4.4, rng=rng, swell=0.3)
+        f = f * 2 ** ((rng.uniform(-9, 9) + 6 * wander(total, 0.9, rng)) / 1200)
+        out += amp * harmonics(f, 1 / k ** 2.0)
+    return eq(out, bumps([(330, 180, 1.2)], 1100))
+
+
+def mist(spans, total, rng):
+    """Haze: single soft high notes that drift in and out on their own, never together.
+
+    spans: (start, stop, [note names]).
+    """
+    t = np.arange(int(total * SR)) / SR
+    out = np.zeros(len(t))
+    for start, stop, names in spans:
+        env = np.interp(t, [start, start + 4, stop - 4, stop], [0, 1, 1, 0])
+        for name in names:
+            swell = np.clip(0.5 + 0.9 * wander(total, 0.12, rng), 0, 1) ** 2
+            for detune in (-4, 5):
+                f = np.full(len(t), hz(midi_of(name)) * 2 ** (detune / 1200))
+                out += env * swell * harmonics(f, [1.0, 0.08])
+    return out
+
+
+def drums(hits, total, rng):
+    """The tapan, a big two-headed drum. hits: (time, kind, strength 0..1).
+
+    "boom" is the heavy beater on the low skin, "tick" the thin switch on the high skin,
+    "heart" a muffled thud for when the men are hiding.
+    """
+    n = int(total * SR)
+    low, high = np.zeros(n), np.zeros(n)
+    for when, kind, strength in hits:
+        a = int(when * SR)
+        length = min(n - a, int(1.2 * SR))
+        if length <= 0:
+            continue
+        t = np.arange(length) / SR
+        if kind == "tick":
+            high[a:a + length] += strength * (rng.standard_normal(length) * np.exp(-t / 0.022)
+                                              + 0.4 * np.sin(2 * np.pi * 1150 * t) * np.exp(-t / 0.012))
+            continue
+        if kind == "boom":
+            pitch, ring, slap = 68 + 90 * np.exp(-t / 0.03), 0.24, 0.4
+        else:
+            pitch, ring, slap = 42 + 22 * np.exp(-t / 0.05), 0.13, 0.0
+        body = np.sin(2 * np.pi * np.cumsum(pitch) / SR) * np.exp(-t / ring)
+        low[a:a + length] += strength * (body + slap * rng.standard_normal(length) * np.exp(-t / 0.006))
+    high = eq(high, lambda f: (1 / (1 + (1800 / np.maximum(f, 1)) ** 4)) / (1 + (f / 7500) ** 4))
+    low = eq(low, lambda f: 1 / (1 + (f / 1500) ** 2))
+    return low + 0.25 * high
 
 
 def wind(total, rng):

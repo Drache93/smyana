@@ -46,3 +46,5 @@ Needs Python 3 with numpy, and ffmpeg for the MP3 and Opus files.
 | Piece | What it tries |
 |---|---|
 | `spike_01_autumn_dusk.py` | Kaba gaida drone on E, a slow five-note tune on kaval, the gaida answering with its own ornaments, low strings underneath. About 1m45s. |
+| `spike_02_autumn_mist.py` | The same idea after "too Viking, needs more mist": no low drone or strings, a breathier kaval far off, men humming the answer, haze. About 1m40s. |
+| `spike_03_danger.py` | Music that follows the game: calm, hiding (heartbeat), a fight (tapan and gaida in fast 2/4), a dead stop, and the kaval alone afterwards. 80s. Lengths in the fight are written in beats (`bpm=`). |

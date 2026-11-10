@@ -64,3 +64,47 @@ None. Everything here is a proposal for Dominic to hear and react to.
 - Stems (drone / melody / strings as separate loops) so the game can thin and thicken the music.
 - Playing the MIDI through a real sample library, or giving it to a kaval or gaida player.
 - Sheep bells far off, as a sound that says people are near.
+
+## Later the same evening: more mist, and music that follows danger
+
+Dominic listened to "Autumn dusk": "Thats amazing. My wife says a little too Viking feeling.
+'Needs more mist'". He then set a direction for all the music: it changes with the game, by
+season and time, and when danger comes it gets tenser or faster, and "when its over the music
+ends as fast as it began"
+([his words](../notes/2026-11-10-dominic-in-his-own-words.md#a-first-try-at-the-music)).
+That is D-036.
+
+**"Autumn mist"** ([listen](../audio/2026-11-10/06-music-spike-autumn-mist.ogg)) is the second
+take. Claude's guess at what sounded Norse in the first, and what changed:
+
+| Too Viking | Mistier |
+|---|---|
+| A low buzzing drone, like a war horn | The drone an octave up, dull, barely there |
+| Bare fifths in low strings | No strings. Single high notes drifting in and out as haze |
+| The gaida's nasal melody pipe, close | Men humming the answer, far away |
+| A tune built on E, B and D, which sounds heroic | A tune that starts on G or B and sinks, with longer gaps |
+| A clear flute, near | Breathier, further off, a longer and duller echo |
+
+The cost: with the gaida gone it is less plainly Rhodope. The gaida comes back in the fight.
+
+**"Danger"** ([listen](../audio/2026-11-10/07-music-spike-danger.ogg)) is 80 seconds showing
+the music following the game, the states laid end to end:
+
+- 0s calm: the mist music.
+- 18s hiding: one drum stroke cuts the kaval off mid-phrase. A heartbeat that slowly quickens,
+  two low notes a half step apart, a thin high whine.
+- 38s fight: tapan and gaida at 132 beats a minute in a plain 2/4, as the research suggested.
+- 60s over: a last blow and everything stops dead. Echo and wind.
+- 65s after: the kaval alone finishes the tune.
+
+How this would work in the game (states, an intensity dial, separate loops) is written up as a
+proposal in [`docs/music-and-sound.md`](../../docs/music-and-sound.md#music-that-follows-the-game).
+
+### More bugs worth remembering
+
+- The picture of the sound that Claude used as a check turned out to lie at the low end: it
+  showed a great rumble under every flute note that wasn't there when measured. The numbers
+  are trusted now, not the picture.
+- Dominic found the branch in conflict with main: the tree work had merged meanwhile and both
+  had added to the same notes and timeline, and both had a picture numbered 38. Merged, and
+  the music picture is now 44.

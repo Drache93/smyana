@@ -38,3 +38,6 @@ One line per moment worth remembering. Newest at the bottom.
   drone, written as text and turned into sound by code, with notes on the style of Rhodope
   music. ([journal](journal/2026-11-10-first-music-spike.md),
   [listen](audio/2026-11-10/05-music-spike-autumn-dusk.ogg))
+- **2026-11-10:** "A little too Viking... Needs more mist": a second, hazier take, and Dominic's
+  rule that the music follows the game and ends as fast as it began (D-036), with a demo going
+  from calm to hiding to a fight to silence. ([journal](journal/2026-11-10-first-music-spike.md#later-the-same-evening-more-mist-and-music-that-follows-danger))
