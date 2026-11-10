@@ -48,7 +48,10 @@ def season_now() -> string: return if season_force != "": season_force else: gst
 def ticks_per_hour() -> int: return gint(route, "day_minutes", 8) * 60 * TICK_HZ / 24
 
 // The hour of the day, 0 up to 24.
+var hour_force = -1.0  // (for a look at a place at another hour: the game's hour: option)
+
 def hour_now() -> float:
+    if hour_force >= 0.0: return hour_force
     let h = float(gint(route, "start_hour", 7)) + float(run_ticks) / float(ticks_per_hour())
     return h - floor(h / 24.0) * 24.0
 

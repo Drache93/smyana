@@ -19,6 +19,7 @@ git submodule update --init   # the Creel engine
 ./play.sh                     # the game (windowed: ./play.sh windowed)
 ./check.sh                    # the checks, with no window
 ./play.sh windowed season:autumn leg:fir_woods_out   # a look at any leg in any season
+./play.sh windowed season:autumn hour:18.5 camp:52,48 zoom:2.75   # the men round a fire at dusk
 ```
 
 It needs [Lobster](https://github.com/Drache93/lobster) (`LOBSTER=/path/to/bin/lobster`, by
