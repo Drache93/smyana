@@ -57,3 +57,5 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-10:** The mock-up's clearing rebuilt as a scene to compare like with like, and trees that shade
   their own boughs (Creel's baker: a shadow exact to a voxel).
   ([journal](journal/2026-11-10-rhodope-trees-ground-and-rock.md#a-scene-to-compare-like-with-like-2220-to-2235), [engine](engine/2026-11-10-own-shadow-and-nine-levels.md))
+- **2026-11-10:** Lint for the Lobster code: `lobsterfmt`'s layout and no warnings, in `./check.sh` (D-044).
+  ([journal](journal/2026-11-10-lint-and-lobsterfmt.md))

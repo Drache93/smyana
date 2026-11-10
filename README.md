@@ -17,13 +17,15 @@ home again in miniature. Most of the game is still to come.
 ```sh
 git submodule update --init --remote   # the Creel engine, at its main
 ./play.sh                     # the game (windowed: ./play.sh windowed)
-./check.sh                    # the checks, with no window
+./check.sh                    # the checks, with no window: lint, then the whole route
+src/lint.sh --fix             # lobsterfmt's layout for every file of ours (lint lists warnings too)
 ./play.sh windowed season:autumn leg:fir_woods_out   # a look at any leg in any season
 ./play.sh windowed season:autumn hour:18.5 camp:52,48 zoom:2.75   # the men round a fire at dusk
 ```
 
 It needs [Lobster](https://github.com/Drache93/lobster) (`LOBSTER=/path/to/bin/lobster`, by
-default `~/Dev/lobster/bin/lobster`). Left click or drag to select men, double-click for all of
+default `~/Dev/lobster/bin/lobster`), with `lobsterfmt` built beside it (`cmake --build build --target
+lobster lobsterfmt` in its `dev/`). Left click or drag to select men, double-click for all of
 them, right click to send them or to fell a young tree. Arrows or WASD move the camera. Walk
 every man into the far edge of a place to move on.
 

@@ -56,8 +56,8 @@ let shot_at = if arg_of("at") != "": string_to_float(arg_of("at")) else: 4.0
 let script = arg_of("script")  // "tour": the men walk the whole route by themselves (captures, and timing the loads)
 let debug_line = has_s(args, "debug")
 hour_force = if arg_of("hour") != "": string_to_float(arg_of("hour")) else: -1.0  // hour:16.5: this place at that hour, for a look
-season_force = arg_of("season")  // season:autumn: this place in another season, for a look
-let shots_dir = arg_of("shots")  // a picture every few seconds into this folder (with script:tour)
+season_force = arg_of("season")                                                   // season:autumn: this place in another season, for a look
+let shots_dir = arg_of("shots")                                                   // a picture every few seconds into this folder (with script:tour)
 var shots_n = 0
 var shots_next = 3.0
 var wall_s = 0.0
@@ -84,11 +84,11 @@ def men_centre() -> float2:
 // ------------------------------------------------------------------ what the view remembers of a place
 
 class Prop:
-    kind:int  // 0 an old tree, 1 a young tree, 2 a stump, 3 a rock outcrop, 4 loose slabs, 5 undergrowth (its leaves by season), 6 a fallen log
-    pick:int  // which of its shapes
+    kind:int     // 0 an old tree, 1 a young tree, 2 a stump, 3 a rock outcrop, 4 loose slabs, 5 undergrowth (its leaves by season), 6 a fallen log
+    pick:int     // which of its shapes
     name:string  // its picture (an old tree's trunk; a young beech's without its season)
-    sp:string  // an old tree's kind: beech, pine, spruce
-    at:float2  // its foot, art px
+    sp:string    // an old tree's kind: beech, pine, spruce
+    at:float2    // its foot, art px
     cell:int
 
 var props = []::Prop
@@ -370,7 +370,7 @@ class Drawable:
     ay:float
     col:float4
     fade:float  // 1 whole .. 0 gone
-    kind:int  // 0 what stands up (it hides the shade under it), 1 a shadow on the ground, 2 a man (he stands in the shade)
+    kind:int    // 0 what stands up (it hides the shade under it), 1 a shadow on the ground, 2 a man (he stands in the shade)
 
 var draws = []::Drawable
 var fires = []::float2  // the camp's fires, art px: where each one's foot is (draw_fire)
@@ -390,8 +390,8 @@ def prev_pos(i:int) -> int, int:
     return if found: p_x[at] else: u_x[i], if found: p_y[at] else: u_y[i]
 
 let SASH = float4 { 0.66, 0.19, 0.16, 1.0 }  // the sash's red (the men's 'team' colour)
-let ART_UP = 58.8                              // art px a tile of height
-var eyes = []::float2                          // where the men are on the picture: crowns over them fade
+let ART_UP = 58.8                            // art px a tile of height
+var eyes = []::float2                        // where the men are on the picture: crowns over them fade
 
 def collect_men(alpha:float):
     eyes = []
@@ -760,8 +760,8 @@ zoom = max(1.0, floor(float(gl.window_size().y) / 325.0 * 4.0) / 4.0)
 if arg_of("zoom") != "": zoom = string_to_float(arg_of("zoom"))  // zoom:2.75: the camera this close, for a look beside a mock-up
 
 // A frame of words while something long is made (the first start bakes the men and the trees).
-var waiting_lines = [ "Smyana" ]
-var waiting_t0 = seconds_elapsed()
+let waiting_lines = [ "Smyana" ]
+let waiting_t0 = seconds_elapsed()
 def waiting_frame():
     if not gl.frame(): return
     gl.clear(float4 { 0.03, 0.03, 0.025, 1.0 })

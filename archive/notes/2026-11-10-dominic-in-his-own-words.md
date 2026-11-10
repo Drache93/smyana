@@ -286,3 +286,11 @@ After seeing the first runnable version (its trees were about thirteen men tall)
 
 **22:26** (of the comparison scene, picture 84)
 > Stream also has a bank, slight depth in mock up
+
+## Lobster style and the formatter
+
+**22:08**
+> Meantime, check we're using our lobster skill and ideally the formatter too
+
+**22:11**
+> primarily to ensure high quality and therefore less bugs ideally

@@ -10,7 +10,7 @@ class Man:
     name:string
     look:int  // which of the looks in men.json
     hp:int
-    carry:int = 0           // his load: how much, and of what ("" nothing)
+    carry:int = 0  // his load: how much, and of what ("" nothing)
     carry_kind:string = ""
     uid:int = 0  // his unit in the place that's loaded (ids start again in every place)
     alive:bool = true
@@ -26,8 +26,8 @@ var route = jobj()
 var men_data = jobj()
 var men = []::Man
 var leg_id = ""
-var arrived_by = ""  // the edge the men came in by
-var run_ticks = 0    // the clock: sim ticks since the run began, the walks between places included
+var arrived_by = ""      // the edge the men came in by
+var run_ticks = 0        // the clock: sim ticks since the run began, the walks between places included
 var gates_armed = false  // the men have walked clear of the edge they came in by: a gate can take them out again
 var gate_names = []::string
 var gate_rects = []::[int]  // tiles: x0, y0, x1, y1
