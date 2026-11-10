@@ -106,14 +106,19 @@ def cell_hash(c:int) -> int: return ((c * 2654435761) >> 7) & 0xFFFF
 def old_kind(wood:string, pick:int) -> string, int:
     let r = (pick / 3) % 8
     var sp = if r < 4: "beech" elif r < 6: "oak" elif r < 7: "hornbeam" else: "pine"
-    if wood == "deep": sp = if r < 6: "tall" elif r < 7: "beech" else: "hornbeam"
+    if wood == "deep": sp = if r < 6: "tall" elif r < 7: "spruce" else: "beech"
     if wood == "conifer": sp = if r < 5: "spruce" elif r < 7: "pine" else: "beech"
     return sp, pick % (if sp == "pine": PINE_KINDS else: 3)
 
 def leafy(sp:string) -> bool: return sp == "beech" or sp == "oak" or sp == "hornbeam"
 
+// Where the year's leaves lie thin in a broadleaf wood (x, y in mask samples): grass shows and herbs grow there.
+def open_ground(x:int, y:int) -> bool:
+    return cell_hash((y / 11) * W * MASK_K + x / 11 + 6007) % 100 < 45
+
 def build_props():
     props = []
+    let debris_t = str_index(tr_names, "rubble")
     props_version = map_version
     let wood = gstr(su_map, "wood", "beech")
     let old = str_index(tr_names, "tree")
@@ -133,7 +138,12 @@ def build_props():
             let fir = wood != "beech" and (h / 7) % 4 != 0
             props.push(Prop { 1, h / 7, if fir: "yspruce{(h / 7) % YOUNG_KINDS}" else: "young{(h / 7) % YOUNG_KINDS}", if fir: "spruce" else: "beech", centre, c })
         elif t == stump: props.push(Prop { 2, 0, "stump", "", centre, c })
-        elif t == rock: props.push(Prop { 3, 0, "rock{(h / 7) % ROCK_KINDS}", "", off, c })
+        elif t == rock:
+            props.push(Prop { 3, 0, "rock{(h / 7) % ROCK_KINDS}", "", off, c })
+        elif t == debris_t:
+            // a landslide's debris (#20): a heap of earth and broken rock on each tile, a broken trunk here and there
+            props.push(Prop { 3, 0, "rubble{(h / 7) % RUBBLE_KINDS}", "", off + iso(float((h / 5) % 500) - 250.0, float((h / 23) % 500) - 250.0), c })
+            if (h / 3) % 5 == 0: props.push(Prop { 6, 0, "log{h % LOG_KINDS}", "", off + iso(float(h % 500) - 250.0, float((h / 9) % 500) - 250.0), c })
         elif t == grass and (h / 11) % 3 == 0:
             // slabs lie loose beside the rock they split from
             let x = c % W
@@ -150,6 +160,14 @@ def build_props():
             if h2 % 100 < (if drift: 62 else: 7): props.push(Prop { 5, 0, "fern{h2 % FERN_KINDS}", "", off, c })
             if drift and h2 % 7 < 3:
                 props.push(Prop { 5, 0, "fern{(h2 / 3) % FERN_KINDS}", "", centre + iso(float((h2 / 11) % 700) - 350.0, float((h2 / 17) % 700) - 350.0), c })
+            // (low herbs in pale patches of their own, a few tiles across)
+            // (they grow where the litter lies thin: build_litter's open ground, so a drift of herbs fills each gap in the leaves)
+            let patch = open_ground((c % W) * MASK_K + MASK_K / 2, (c / W) * MASK_K + MASK_K / 2) or cell_hash((c / W / 3) * W + (c % W) / 3 + 7001) % 8 < 1
+            if patch:
+                for(3) k:
+                    let h3 = cell_hash(c * 3 + k + 80021)
+                    if h3 % 10 < 7: props.push(Prop { 5, 0, "herb{(h3 / 5) % HERB_KINDS}", "", centre + iso(float((h3 / 23) % 900) - 450.0, float((h3 / 29) % 900) - 450.0), c })
+            if (h2 / 100) % 100 >= 90 and (h2 / 100) % 100 < 94: props.push(Prop { 5, 0, "sapling", "", centre, c })
             if (h2 / 100) % 100 < 6: props.push(Prop { 5, 0, "bush{h2 % BUSH_KINDS}", "", centre + iso(float((h2 / 13) % 600) - 300.0, float((h2 / 19) % 600) - 300.0), c })
             elif (h2 / 100) % 100 == 99: props.push(Prop { 6, 0, "log{h2 % LOG_KINDS}", "", centre, c })
 
@@ -165,7 +183,7 @@ def build_litter():
     let r = int(LITTER_REACH * 3.2 * float(MASK_K)) + 1
     for(props) pr:
         if pr.kind == 0 or pr.kind == 2:
-            let reach = (if pr.kind == 0: (if leafy(pr.sp): LITTER_REACH else: 1.0) else: 0.6) * (if season_now() == "autumn" and leafy(pr.sp): 1.9 else: 1.0) * (0.8 + 0.4 * float(cell_hash(pr.cell) % 100) / 100.0)
+            let reach = (if pr.kind == 0: (if leafy(pr.sp): LITTER_REACH else: 1.0) else: 0.6) * (if season_now() == "autumn" and leafy(pr.sp): 1.25 else: 1.0) * (0.8 + 0.4 * float(cell_hash(pr.cell) % 100) / 100.0)
             let cx = float(pr.cell % W) + 0.5
             let cy = float(pr.cell / W) + 0.5
             let lobe = float(cell_hash(pr.cell) % 360)
@@ -183,9 +201,26 @@ def build_litter():
     // autumn in a broadleaf wood: the year's leaves lie over nearly everything, thinner in the open
     if season_now() == "autumn" and gstr(su_map, "wood", "beech") == "beech":
         for(h) y: for(w) x:
+            // (not everywhere: in the open the grass, herbs and bare earth still show between the drifts)
             let patch = float(cell_hash((y / 3) * w + x / 3 + 5003) % 100) / 100.0
-            a[y * w + x] = max(a[y * w + x], 0.42 + 0.3 * patch)
-    prop_tex = gl.create_texture(map(h) y: map(w) x: float4 { a[y * w + x], 0.0, 0.0, 0.0 }, texture_format_clamp | texture_format_nomipmap)
+            let open = open_ground(x, y)
+            if not open: a[y * w + x] = max(a[y * w + x], 0.3 + 0.4 * patch)
+            elif patch > 0.7: a[y * w + x] = max(a[y * w + x], 0.3)
+    // scree under a landslide's debris (the shader's G), reaching a little past it and ragged
+    let sc = map(w * h): 0.0
+    let debris_t = str_index(tr_names, "rubble")
+    for(terrain) t, c:
+        if t == debris_t:
+            let sx = (c % W) * MASK_K + MASK_K / 2
+            let sy = (c / W) * MASK_K + MASK_K / 2
+            let rr = MASK_K
+            for(rr * 2 + 1) dy: for(rr * 2 + 1) dx:
+                let x = sx + dx - rr
+                let y = sy + dy - rr
+                if x >= 0 and y >= 0 and x < w and y < h:
+                    let v = clamp(1.4 - magnitude(float2 { float(dx - rr), float(dy - rr) }) / float(rr) * (0.9 + 0.3 * float(cell_hash(c + x * 7 + y * 13) % 100) / 100.0), 0.0, 1.0)
+                    if v > sc[y * w + x]: sc[y * w + x] = v
+    prop_tex = gl.create_texture(map(h) y: map(w) x: float4 { a[y * w + x], sc[y * w + x], 0.0, 0.0 }, texture_format_clamp | texture_format_nomipmap)
     ground_stale = true
 
 // The view of a place just loaded: its ground and its trees in this season, the camera on the men.
@@ -201,7 +236,7 @@ def view_enter(between):
     selected = []
     if run_over(): return
     // the ground's own textures: a beech wood's leaf litter and grass, or a conifer wood's needles and moss
-    ground_atlas_tex = gl.load_texture("../data/ground/atlas" + (if gstr(su_map, "wood", "beech") != "beech": "_conifer" else: "") + (if season_now() == "autumn": "_autumn" else: "") + ".png", texture_format_clamp | texture_format_nomipmap | texture_format_nearest_mag | texture_format_nearest_min)
+    ground_atlas_tex = gl.load_texture("../data/ground/atlas" + (if gstr(su_map, "wood", "beech") != "beech": "_conifer" else: "") + (if season_now() == "autumn": "_autumn" elif season_now() == "winter": "_winter" else: "") + ".png", texture_format_clamp | texture_format_nomipmap | texture_format_nearest_mag | texture_format_nearest_min)
     build_masks()
     build_wear()
     bake_season(season_now(), between)
@@ -340,9 +375,16 @@ def collect_props():
                     add(frame_at.get(crown + ".shadow", -1), pr.at.x, pr.at.y, -39999.0, float4_1)
                     add(frame_at.get(crown, -1), pr.at.x, pr.at.y, pr.at.y + 0.2, float4_1, crown_fade(pr.at, pr.sp))
             elif pr.kind == 1:
-                let name = if pr.sp == "spruce": pr.name else: pr.name + "." + (if bare: "bare" else: season)
-                add(frame_at.get(name + ".shadow", -1), pr.at.x, pr.at.y, -39998.0, float4_1)
-                add(frame_at.get(name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
+                if pr.sp == "spruce":
+                    add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39998.0, float4_1)
+                    add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
+                else:
+                    // (a young beech: its wood, and over it this season's leaves)
+                    add(frame_at.get(pr.name + ".bare.shadow", -1), pr.at.x, pr.at.y, -39998.0, float4_1)
+                    add(frame_at.get(pr.name + ".bare", -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
+                    if not bare:
+                        add(frame_at.get(pr.name + "." + season + ".shadow", -1), pr.at.x, pr.at.y, -39998.0, float4_1)
+                        add(frame_at.get(pr.name + "." + season, -1), pr.at.x, pr.at.y, pr.at.y + 0.1, float4_1, 1.0, 2)
             elif pr.kind == 2:
                 add(frame_at.get("stump", -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
             elif pr.kind == 5:
@@ -647,7 +689,7 @@ route_load()
 atmo_data = lib_data("atmosphere.json")
 for(atmo_problems(atmo_data)) why: print why
 sun_from_data()
-zoom = max(1.0, floor(float(gl.window_size().y) / 450.0 * 4.0) / 4.0)
+zoom = max(1.0, floor(float(gl.window_size().y) / 325.0 * 4.0) / 4.0)
 if arg_of("zoom") != "": zoom = string_to_float(arg_of("zoom"))  // zoom:2.75: the camera this close, for a look beside a mock-up
 
 // A frame of words while something long is made (the first start bakes the men and the trees).

@@ -189,6 +189,42 @@ After seeing the first runnable version (its trees were about thirteen men tall)
 **20:48**
 > If needed, design the trees in 2D first based on real world pics. and then make the vox
 
+**21:03** (of the beech design sheet)
+> Looks good!
+
+**21:21** (of the vox beech in the game and the spruce design sheet)
+> Those are still much bigger than mockup and you've gone for very soft style. Again, what are you testing there?
+
+**21:22**
+> Your 2D design was much closer to our original mockup, but you implemented it soft and cloudy. Why?
+
+**21:23** (with a picture: the beech clearing after leaf-fall, the same as `archive/images/2026-11-10/23-route-beech-after-leaf-fall.jpg`)
+> This is our target, please work towards it, ans start a other thread on the lighting and mood
+
+**21:24**
+> With caveat that picture was also mockup, its just closest we have to rich and deep environment that draws a player in
+
+**21:25**
+> Any engine changes needed are possible also I'd limiting us
+
+**21:41** (asked whether the other tree kinds still need a 2D sheet first)
+> Skip 2D
+
+**21:55** (in the lighting thread, of the new look)
+> Should be harder edged too. Biggest difference with the design is evryhting crisp and sharp. Our new stuff is looking soft so far, engine issue?
+
+**21:59** (of the first landslide)
+> Landslide looks pretty bad. Unclear its source, and scale of rocks looks really wrong. Just piles of square rocks?
+
+**22:01** (in the lighting thread, of the shadows beside the target)
+> Shadows very close now. Unsure if lighting work needed still until the ground texture and bushes are done
+
+**22:02** (in the project chat, of the trees and lighting pull requests)
+> Two open PRS with conflicts
+
+**22:07** (of the rebuilt landslide, picture 76)
+> I think better if landslides are smaller and more focuses. Like on a pass above a cliff face, so we o ly have a very tight space to go, and its blocked
+
 ## A first try at the music
 
 **20:49**

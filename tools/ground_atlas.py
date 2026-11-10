@@ -53,10 +53,70 @@ def make(seed, ramp, coarse=6, fine=40, grain=0.25, fleck=None, fleck_n=0, heigh
     return np.dstack([rgb, h * 255]).astype(np.uint8)
 
 
-def tiles(wood, autumn):
+def strew(tile, seed, n, colours, length=(4.0, 6.5), lift=0.0):
+    """Fallen leaves on a tile, each one a leaf: a pointed oval a few texels long at its own angle, lying over the
+    ones before it, its lower edge a shade darker so it stands off what it lies on."""
+    rng = np.random.default_rng(seed)
+    rgb = tile[:, :, :3].astype(float)
+    hgt = tile[:, :, 3].astype(float)
+    cols = np.array([hexc(c) for c in colours])
+    R = 5
+    yy, xx = np.mgrid[-R:R + 1, -R:R + 1]
+    for _ in range(n):
+        cx, cy = rng.integers(0, N, 2)
+        a = rng.random() * np.pi
+        ln = rng.uniform(*length) / 2
+        wd = ln * rng.uniform(0.5, 0.68)
+        u = xx * np.cos(a) + yy * np.sin(a)
+        v = -xx * np.sin(a) + yy * np.cos(a)
+        inside = (np.abs(u) / ln) ** 1.5 + (np.abs(v) / wd) ** 1.5 <= 1.0
+        col = cols[rng.integers(0, len(cols))] * rng.uniform(0.9, 1.08)
+        under = inside & ~np.roll(inside, -1, axis=0)  # its lowest texels
+        ys = (cy + yy) % N
+        xs = (cx + xx) % N
+        rgb[ys[inside], xs[inside]] = col
+        rgb[ys[under], xs[under]] = col * 0.72
+        hgt[ys[inside], xs[inside]] = np.clip(hgt[ys[inside], xs[inside]] + lift * 255, 0, 255)
+    return np.dstack([np.clip(rgb, 0, 255), hgt]).astype(np.uint8)
+
+
+def tufts(tile, seed, n, colours):
+    """Tufts of grass: a few blades each, two to four texels tall, leaning."""
+    rng = np.random.default_rng(seed)
+    out = tile.copy()
+    cols = np.array([hexc(c) for c in colours])
+    for _ in range(n):
+        cx, cy = rng.integers(0, N, 2)
+        for b in range(rng.integers(2, 5)):
+            x = cx + rng.integers(-2, 3)
+            lean = rng.integers(-1, 2)
+            col = cols[rng.integers(0, len(cols))]
+            tall = rng.integers(2, 5)
+            for k in range(tall):
+                out[(cy - k) % N, (x + (lean if k >= tall - 1 else 0)) % N, :3] = col * (0.8 + 0.2 * k / tall)
+    return out
+
+
+def pebbles(tile, seed, n, colours):
+    """Small stones: two or three texels, a light top and a dark foot."""
+    rng = np.random.default_rng(seed)
+    out = tile.copy()
+    cols = np.array([hexc(c) for c in colours])
+    for _ in range(n):
+        cx, cy = rng.integers(0, N, 2)
+        col = cols[rng.integers(0, len(cols))]
+        w = rng.integers(2, 4)
+        for k in range(w):
+            out[cy, (cx + k) % N, :3] = col
+            out[(cy + 1) % N, (cx + k) % N, :3] = col * 0.6
+    return out
+
+
+def tiles(wood, season):
     """The sixteen grounds of a place. Beech wood: mountain grass, a thick copper litter of beech leaves, warm grey
     gneiss. Conifer wood: moss and bilberry where the beech has grass, a dark rusty floor of needles."""
     conifer = wood == "conifer"
+    autumn = season == "autumn"
     grass = ["#3a4f2a", "#44592e", "#4e6433", "#586f39"] if conifer else ["#46602f", "#516d34", "#5c7a3a", "#688841"]
     dark = ["#26391f", "#2d4324", "#354d29", "#3d582f"] if conifer else ["#2f4727", "#37532c", "#405f32", "#4a6c39"]
     litter = ["#33271a", "#3f2f1e", "#4b3823", "#584229"] if conifer else ["#573a1f", "#6b4724", "#7f552a", "#946431"]
@@ -65,7 +125,7 @@ def tiles(wood, autumn):
         litter = litter if conifer else ["#7a4319", "#9a551a", "#bb6a1c", "#d8851f"]
         fleck = ["#f2b21e", "#e8701a", "#c4341a", "#f6cf4a", "#8a3a14", "#ff9a22"]
         grass = ["#4a5a2c", "#566630", "#637335", "#70803a"] if not conifer else grass
-    return {
+    t = {
         0: make(1, grass, blades=0.06, height=0.55),                                                             # grass (conifer: moss)
         1: make(2, ["#6d6a3a", "#7c7842", "#8c874c", "#9b9657"], blades=0.05, height=0.5),                        # dry grass
         2: make(3, dark, blades=0.08, height=0.6),                                                                # dark grass
@@ -81,9 +141,39 @@ def tiles(wood, autumn):
         12: make(13, ["#4a5a2e", "#556634", "#61733b", "#6d8043"] if not conifer else dark, blades=0.06, height=0.55),  # olive grass
         13: make(14, ["#55602f", "#606b35", "#6c773c", "#788344"], blades=0.03, grain=0.3, height=0.45),          # worn grass
     }
+    # the forest floor is leaves you can see, not a speckle: this year's fall in autumn, last year's brown the rest of
+    # the year; and a wood's grass and trail have leaves and tufts and stones on them too
+    if not conifer:
+        if autumn:
+            fall = ["#e9b030", "#e09a24", "#d8851f", "#c96a18", "#f2c84a", "#b85a17", "#9a4a16", "#7a3a14", "#d8a03a", "#c4401a"]
+            t[10] = strew(make(11, ["#3e2613", "#4a2d15", "#573518", "#643d1b"], fine=50, grain=0.3, height=0.45), 111, 5200, fall, lift=0.04)
+            for k, n in ((0, 420), (1, 500), (2, 700), (3, 380), (12, 520), (13, 520)):
+                t[k] = strew(tufts(t[k], 200 + k, 900, ["#7f8f40", "#93a04a", "#a8ad55", "#6c7c38"]), 300 + k, n, fall)
+            t[4] = strew(pebbles(t[4], 404, 260, ["#9b9485", "#b0a896", "#857e70"]), 304, 380, fall)
+            t[9] = strew(pebbles(t[9], 409, 160, ["#9b9485", "#857e70"]), 309, 700, fall)
+        elif season != "winter":
+            old = ["#8a5c2c", "#7a4f26", "#9a6a34", "#6b4420", "#a87a3c", "#5a3a1c"]
+            t[10] = strew(make(11, ["#3d2a18", "#48321c", "#543a20", "#604324"], fine=50, grain=0.3, height=0.45), 111, 4600, old, lift=0.04)
+            for k in (0, 2, 3, 12, 13):
+                t[k] = tufts(t[k], 200 + k, 1100, ["#6f8f44", "#7fa04c", "#5c7a3a", "#8cab55"])
+            t[4] = strew(pebbles(t[4], 404, 260, ["#9b9485", "#b0a896", "#857e70"]), 304, 120, old)
+    else:
+        t[4] = pebbles(t[4], 404, 260, ["#9b9485", "#b0a896", "#857e70"])
+    if season == "winter":
+        # the first snow: thin and blue-white in the open with grass tips through it, thinner still under the trees
+        # where the fallen leaves show, trodden to slush on the trail
+        snow = ["#c3ccd8", "#d4dbe4", "#e3e8ed", "#f2f4f5"]
+        tips = ["#6d7a45", "#8a7a4a", "#56603a"]
+        for k, n in ((0, 500), (1, 900), (2, 350), (3, 600), (12, 500), (13, 1200)):
+            t[k] = make(20 + k, snow, coarse=7, fine=30, grain=0.12, fleck=tips, fleck_n=n, height=0.6)
+        t[10] = make(31, ["#a9aeb2", "#bfc4c7", "#d5d8d9", "#e8e9e8"], fine=50, grain=0.3, fleck=["#8a4a1c", "#6b4724", "#b0702a", "#4b3823"], fleck_n=1500 if conifer else 3500, height=0.5, leaf=not conifer)
+        t[4] = make(32, ["#5f5648", "#716859", "#8a8478", "#a9a69f"], fine=60, grain=0.4, height=0.35)
+        t[9] = make(33, ["#5a4d3c", "#6d6252", "#8d877c", "#b4b2ad"], grain=0.4, height=0.4)
+    return t
 
 
-for wood, autumn, name in (("beech", False, "atlas"), ("conifer", False, "atlas_conifer"), ("beech", True, "atlas_autumn"), ("conifer", True, "atlas_conifer_autumn")):
+for wood, autumn, name in (("beech", "", "atlas"), ("conifer", "", "atlas_conifer"), ("beech", "autumn", "atlas_autumn"), ("conifer", "autumn", "atlas_conifer_autumn"),
+                           ("beech", "winter", "atlas_winter"), ("conifer", "winter", "atlas_conifer_winter")):
     sheet = np.zeros((N * 4, N * 4, 4), np.uint8)
     for k, t in tiles(wood, autumn).items():
         sheet[(k // 4) * N:(k // 4 + 1) * N, (k % 4) * N:(k % 4 + 1) * N] = t

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Draws a tree's 2D design sheet (art/trees/design/<kind>.png): its sizes beside a man, and its look in each season.
 The design comes first and the voxel model is made from it (D-035). Run from the repo's root:
-python3 tools/tree_design.py   (numpy and Pillow)"""
-import math, random
+python3 tools/tree_design.py [beech|spruce]   (Pillow)"""
+import math, random, sys
 from PIL import Image, ImageDraw, ImageFont
 
 PX = 46          # px a metre on the sheet, at the game's scale (a man is 1.7 m)
@@ -27,7 +27,7 @@ def font(size):
     return ImageFont.load_default()
 
 
-def limb(d, a, b, wa, wb, rng):
+def limb(d, a, b, wa, wb, rng, BARK=BARK):
     """a tapered limb from a to b, lit from the left: three strokes, light to dark across it"""
     steps = max(2, int(math.dist(a, b) / 3))
     for i in range(steps + 1):
@@ -168,4 +168,166 @@ def beech_sheet():
     print("art/trees/design/beech.png")
 
 
-beech_sheet()
+SPRUCE_BARK = [(158, 126, 104), (126, 96, 78), (94, 70, 58), (62, 46, 40)]   # thin red-brown scales, greyer with age
+NEEDLE = [(98, 132, 78), (56, 92, 56), (32, 62, 42), (18, 38, 30)]           # dark, a little blue: lit top to deep shade
+TIP = (156, 196, 84)                                                         # the new shoots of May
+CONE = [(176, 124, 70), (128, 84, 48)]
+SNOW = [(246, 247, 250), (206, 214, 226)]
+
+
+def bough(d, a, length, side, lift, pal, rng, tips=False, snow=False, cones=0, belly=0.16):
+    """a spruce bough from a on the trunk: out, sagging, its tip turned up again, with the branchlets hanging from it
+    like a comb. lift: 1 rises (near the top), 0 lies level, -1 droops (low down)."""
+    pts = []
+    n = max(4, int(length / 5))
+    for i in range(n + 1):
+        t = i / n
+        sag = -lift * 0.34 * t + belly * math.sin(math.pi * t) - 0.1 * t * t * t * (1 if lift < 0.6 else 0)
+        pts.append((a[0] + side * length * t, a[1] + length * sag))
+    hang = length * 0.2 + 3
+    for i, (x, y) in enumerate(pts):            # the hanging branchlets: dark, longest in the middle of the bough
+        t = i / n
+        h = hang * (0.35 + 0.65 * math.sin(math.pi * min(1.0, t * 0.9 + 0.1)))
+        for k in range(3):
+            xx = x + rng.uniform(-3, 3)
+            hh = h * rng.uniform(0.5, 1.0)
+            d.line([(xx, y), (xx + side * rng.uniform(-1, 2), y + hh)], fill=pal[3 if k == 0 else 2], width=3)
+    for i, (x, y) in enumerate(pts):            # the top of the bough: lit
+        t = i / n
+        r = 2.2 + 3.2 * (1 - t) + length * 0.012
+        d.ellipse([x - r * 1.5, y - r, x + r * 1.5, y + r * 0.7], fill=pal[1])
+    for i, (x, y) in enumerate(pts):
+        t = i / n
+        r = 1.6 + 2.2 * (1 - t) + length * 0.008
+        if rng.random() < 0.75: d.ellipse([x - r * 1.5, y - r * 1.3, x + r * 0.9, y - r * 0.1], fill=pal[0])
+        if snow and rng.random() < 0.9:
+            d.ellipse([x - r * 1.9, y - r * 1.9, x + r * 1.9, y - r * 0.2], fill=SNOW[0])
+            d.ellipse([x - r * 1.2, y - r * 0.7, x + r * 1.9, y - r * 0.1], fill=SNOW[1])
+    if tips:
+        for (x, y) in pts[n // 2:]:
+            for k in range(2): 
+                xx, yy = x + rng.uniform(-4, 4), y + rng.uniform(-3, hang * 0.6)
+                d.ellipse([xx - 1.6, yy - 1.6, xx + 1.6, yy + 1.6], fill=TIP)
+        x, y = pts[-1]
+        d.ellipse([x - 3, y - 3, x + 3, y + 3], fill=TIP)
+    for k in range(cones):                      # cones hang, long and thin, from the outer half of the top boughs
+        x, y = pts[rng.randrange(n // 2, n + 1)]
+        x += rng.uniform(-3, 3)
+        d.ellipse([x - 2.6, y + 2, x + 2.6, y + 15], fill=CONE[1])
+        d.ellipse([x - 2.6, y + 2, x + 0.6, y + 14], fill=CONE[0])
+
+
+def spruce(d, x, ground, height, girth, season, seed, bole=0.06, spread=0.2, stand=False):
+    """Norway spruce. bole: how far up the trunk is clear of live boughs. stand: grown among others, so the lower
+    trunk carries dead stubs and no green."""
+    rng = random.Random(seed)
+    H = height * PX
+    r0 = girth * PX / 2
+    top = (x + rng.uniform(-0.006, 0.006) * H, ground - H)
+    # the foot: shallow roots running out along the ground, no deep flare
+    d.polygon([(x - r0 * 2.2, ground), (x - r0, ground - r0 * 1.2), (x + r0, ground - r0 * 1.2), (x + r0 * 2.2, ground)], fill=SPRUCE_BARK[2])
+    d.polygon([(x - r0 * 2.2, ground), (x - r0, ground - r0 * 1.2), (x - r0 * 0.3, ground - r0 * 1.2), (x - r0 * 0.8, ground)], fill=SPRUCE_BARK[0])
+    limb(d, (x, ground - r0 * 0.6), top, r0, 1.2, rng, SPRUCE_BARK)
+    for i in range(int(H * max(bole, 0.1) / 9)):        # the bark: small round scales
+        yy = ground - r0 - rng.random() * H * max(bole, 0.1)
+        xx = x + rng.uniform(-0.8, 0.7) * r0
+        d.arc([xx - 4, yy - 3, xx + 4, yy + 5], 200, 340, fill=SPRUCE_BARK[3])
+    base = ground - H * bole
+    if stand:                                           # dead stubs and thin dead boughs below the green
+        for i in range(int(height * 1.4)):
+            yy = ground - H * (0.12 + rng.random() * (bole - 0.14))
+            side = rng.choice((-1, 1))
+            ln = rng.uniform(0.02, 0.07) * H
+            d.line([(x, yy), (x + side * ln, yy + ln * rng.uniform(0.1, 0.5))], fill=SPRUCE_BARK[3], width=2)
+    levels = max(5, int((H * (1 - bole)) / (H * 0.022 + 9)))
+    rows = []
+    for i in range(levels):
+        t = i / (levels - 1)                            # 0 the lowest live whorl, 1 the tip
+        y = base + (top[1] + H * 0.035 - base) * t
+        ln = H * spread * (1 - t) ** 0.8 * rng.uniform(0.86, 1.08) + H * 0.012
+        if stand and t < 0.12: ln *= 0.55 + t * 3       # the lowest live boughs in a stand are thin and short
+        lift = -1.0 + 2.0 * min(1.0, t * 1.25)          # droop at the foot, level in the middle, rising at the top
+        rows.append((y, ln, lift, t))
+    pal = NEEDLE
+    for (y, ln, lift, t) in rows:                       # low boughs first: each whorl overlaps the one below
+        # the boughs that come toward us: a dark heap over the trunk
+        w = ln * 0.42
+        for k in range(int(4 + w / 5)):
+            xx, yy = x + rng.gauss(0, 0.4) * w, y + rng.uniform(-0.02, 0.2) * ln + 3
+            d.line([(xx, yy), (xx, yy + ln * 0.16 + 4)], fill=pal[3 if rng.random() < 0.6 else 2], width=4)
+        nc = 1 if (height > 8 and t > 0.62 and t < 0.94 and rng.random() < 0.7) else 0
+        for side in (-1, 1):
+            bough(d, (x, y), ln * rng.uniform(0.9, 1.05), side, lift, pal, rng, tips=season == "spring",
+                  snow=season == "winter", cones=nc if season != "spring" else 0)
+        for k in range(int(2 + w / 9)):                 # light on the near boughs
+            xx, yy = x + rng.gauss(-0.15, 0.4) * w, y + rng.uniform(-0.03, 0.06) * ln
+            d.ellipse([xx - 5, yy - 2.5, xx + 5, yy + 2.5], fill=pal[1 if rng.random() < 0.7 else 0])
+            if season == "winter" and rng.random() < 0.6: d.ellipse([xx - 6, yy - 5, xx + 6, yy - 0.5], fill=SNOW[0])
+    # the leader: one straight spike
+    d.line([(top[0], top[1] + H * 0.05), (top[0], top[1] - H * 0.012)], fill=pal[2], width=3)
+    if season == "spring": d.line([(top[0], top[1] + H * 0.012), (top[0], top[1] - H * 0.012)], fill=TIP, width=3)
+
+
+def spruce_sheet():
+    W, Hh = 2700, 1900
+    im = Image.new("RGB", (W, Hh), BG)
+    d = ImageDraw.Draw(im)
+    f1, f2, f3 = font(40), font(22), font(17)
+    d.text((40, 26), "Norway spruce, Picea abies (смърч)", font=f1, fill=INK)
+    d.text((40, 78), "Design sheet 2: sizes beside a man, and the year. Game scale: an old spruce is about eight men tall "
+                     "(a real one is twenty or more). Taller and far narrower than the beech.", font=f2, fill=INK)
+    g1 = 900
+    d.line([(30, g1), (W - 30, g1)], fill=(150, 132, 104), width=3)
+    man(d, 110, g1)
+    d.text((70, g1 + 12), "a man", font=f3, fill=INK)
+    sizes = [("sapling", 1.5, 0.05, 0.04, 0.3, False, 11), ("young: can be felled", 4.6, 0.16, 0.05, 0.25, False, 12),
+             ("mature, in the open:\ngreen to the ground", 9.2, 0.42, 0.06, 0.21, False, 13),
+             ("old: can't be felled", 13.2, 0.7, 0.16, 0.19, False, 14),
+             ("in a stand: bare bole,\ndead stubs, green high up", 12.4, 0.5, 0.52, 0.15, True, 15),
+             ("deep wood: bole to the sky", 16.5, 0.72, 0.72, 0.13, True, 16)]
+    xs = [290, 520, 900, 1420, 1900, 2380]
+    for (name, h, girth, bole, spread, stand, seed), x in zip(sizes, xs):
+        spruce(d, x, g1, h, girth, "summer", seed, bole, spread, stand)
+        d.multiline_text((x - 110, g1 + 30), name, font=f3, fill=INK)
+    g2 = 1620
+    d.line([(30, g2), (W - 30, g2)], fill=(150, 132, 104), width=3)
+    seasons = [("spring: bright new tips", "spring"), ("summer", "summer"), ("autumn: unchanged,\ndark against the beech", "autumn"),
+               ("winter: snow lies on\nthe boughs and bends them", "winter")]
+    for i, (label, s) in enumerate(seasons):
+        x = 260 + i * 470
+        spruce(d, x, g2, 9.6, 0.42, s, 21, 0.07, 0.2)
+        d.multiline_text((x - 110, g2 + 30), label, font=f3, fill=INK)
+    # the two shapes a bough takes, close up
+    bx = 2150
+    rng = random.Random(4)
+    d.text((bx - 60, g2 - 470), "a bough, close up", font=f2, fill=INK)
+    limb(d, (bx, g2 - 60), (bx, g2 - 410), 26, 22, rng, SPRUCE_BARK)
+    for k in range(40):
+        yy = g2 - 70 - rng.random() * 330
+        xx = bx + rng.uniform(-18, 16)
+        d.arc([xx - 6, yy - 4, xx + 6, yy + 7], 200, 340, fill=SPRUCE_BARK[3])
+    bough(d, (bx + 20, g2 - 360), 300, 1, 0.9, NEEDLE, rng, cones=3, belly=0.07)
+    bough(d, (bx + 20, g2 - 250), 330, 1, 0.0, NEEDLE, rng, belly=0.07)
+    bough(d, (bx + 20, g2 - 140), 330, 1, -0.9, NEEDLE, rng, belly=0.07)
+    d.text((bx + 360, g2 - 440), "top: rises", font=f3, fill=INK)
+    d.text((bx + 380, g2 - 250), "middle: level", font=f3, fill=INK)
+    d.multiline_text((bx + 380, g2 - 90), "low: droops,\ntip turns up", font=f3, fill=INK)
+    notes = [
+        "Shape: a narrow spire with one straight leader. Boughs in whorls: rising near the top, level in the middle, drooping low down with the tips turned up again.",
+        "Branchlets hang from each bough like a comb or a curtain, so every bough is lit along its top and dark beneath. Long thin cones hang from the top third.",
+        "Bark: thin red-brown scales, greyer on old trunks. Roots are shallow and run out along the ground: a fallen spruce lifts a whole plate of earth.",
+        "In the open it is green to the ground. In a stand the lower boughs die: a bare bole with grey stubs, and the green starts high up. That is the deep-wood tree.",
+        "The year: it never changes colour. Bright tips in May, snow in winter. In autumn it is the dark that the beech's copper burns against.",
+        "The floor under spruce: brown needles, moss on rocks and logs, bilberry. Dim and green, where the beech floor is copper and open.",
+    ]
+    for i, n in enumerate(notes): d.text((40, 1706 + i * 28), n, font=f3, fill=INK)
+    sx = 2150
+    for j, (name, cols) in enumerate([("bark", SPRUCE_BARK), ("needles", NEEDLE), ("new tips, cones", [TIP] + CONE), ("snow", SNOW)]):
+        d.text((sx, 1706 + j * 28), name, font=f3, fill=INK)
+        for k, c in enumerate(cols): d.rectangle([sx + 150 + k * 34, 1704 + j * 28, sx + 180 + k * 34, 1728 + j * 28], fill=c, outline=(150, 132, 104))
+    im.save("art/trees/design/spruce.png")
+    print("art/trees/design/spruce.png")
+
+
+SHEETS = {"beech": beech_sheet, "spruce": spruce_sheet}
+for name in sys.argv[1:] or SHEETS: SHEETS[name]()

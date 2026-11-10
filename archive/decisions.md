@@ -163,6 +163,16 @@ our men, before more systems.
 **D-035, 2026-11-10: Trees are designed in 2D from real photos first, then made as vox.** (Dominic)
 The same order as the men: a design sheet, his sign-off, then the voxel model.
 
+**D-036, 2026-11-10: Trees are sized in men from the mock-ups, and every frame is checked beside the target before it is shown.** (Dominic's correction, Claude's rule)
+Dominic: "Those are still much bigger than mockup and you've gone for very soft style." Measured against the beech
+clearing mock-up, an old tree is about six men tall with a trunk a quarter to a third of a man wide; the first vox
+beech was about nine men tall with a trunk wider than a man is tall, because it was sized in metres with the wrong man.
+The vox tool now takes its sizes in men (a man stands 40 voxels at 112 voxels a tile). The beech is a slim bole,
+boughs, branches and twigs that show, and leaves as dabs in clusters at the twigs' ends; after leaf-fall the old trees
+keep only some clusters. The target is picture 23 (Dominic: "This is our target", with the caveat that it is also a
+mock-up, "just closest we have to rich and deep environment that draws a player in"). Engine changes are allowed where
+the engine limits the look (Dominic). Lighting and mood are worked in their own thread.
+
 **D-037, 2026-11-10: The light is a low afternoon sun, and its shadows join into one deep shade.** (Dominic: picture 23 is the target; Claude: how, Proposal)
 The art is baked under a sun 26 degrees up, so everything casts long shadows the same way. The
 shadows are drawn into one shade that whatever stands in it shares, and the lit ground takes a
@@ -173,6 +183,10 @@ stands out of dark woods. Rays run through the gaps and mist lies in the shade. 
 **D-038, 2026-11-10: The campfire is only for a look until fire is part of the game.** (Claude)
 `camp:<x>,<y>` puts the men round a fire to check its light. Fire as a system (feeding the men,
 drawing danger) is still to come and will use the same fire and glow.
+
+**D-039, 2026-11-10: No 2D sheet before a tree's model any more.** (Dominic: "Skip 2D")
+Supersedes the sheet-first step of D-035. The beech's sheet showed the design held; the fault was in the model. The
+other kinds go straight to models, each checked beside the mock-ups (D-036) before it is shown.
 
 **D-040, 2026-11-10: Shadows are a normal, soft shade, not long dark ones.** (Dominic)
 "Design the shadows at much less dark. Normal show shade basically." Supersedes D-037's low sun
