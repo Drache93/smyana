@@ -8,7 +8,7 @@
 // Baked coarse (TREE_K voxels a tile) and drawn larger: a giant at the men's fineness would take minutes to bake.
 
 let TREE_K = 64.0  // voxels a tile (the .vox trees are made at this: tools/tree_vox.py)
-let TREE_BAKE = "trees 15"
+let TREE_BAKE = "trees 16"
 let VOX_K = 112.0   // voxels a tile in the .vox trees: nearly twice as fine as the rest, so twigs and leaves are crisp
 let VOX_UNIT = 7.0
 let PINE_KINDS = 2
@@ -266,30 +266,76 @@ let FERN_KINDS = 3
 let BUSH_KINDS = 2
 let LOG_KINDS = 2
 
-// A fern (bracken): fronds arching out from one foot and drooping at their tips.
+// The undergrowth is made as fine as the .vox trees: tiles in, a grid whose unit is VOX_UNIT voxels.
+let UF = VOX_K / VOX_UNIT  // grid units a tile
+
+def fine_grid(look:vglook, reach:float, h:float, seed:int) -> vgrid:
+    return vg_new(look, float3 { -reach, -reach, 0.0 } * UF, float3 { reach, reach, h } * UF, VOX_UNIT, seed)
+
+// One leaf: a dab two or three voxels across (c and r in tiles).
+def leaf_dab(g:vgrid, c:float3, r:float, tone:float):
+    vg_capsule(g, c * UF, (c + float3 { 0.0, 0.0, r * 0.2 }) * UF, r * UF, r * UF * 0.8, VG_LEAF, false, tone)
+
+def twig(g:vgrid, a:float3, b:float3, r:float, m:int, tone:float):
+    vg_capsule(g, a * UF, b * UF, r * UF, r * UF * 0.8, m, false, tone)
+
+// A fern (bracken): fronds arching out from one foot and drooping at their tips, each a rib with leaflets down both
+// sides, shorter toward the tip.
 def fern(look:vglook, kind:int) -> vgrid:
     let rng = grng(1300 + kind)
-    let g = vg_new(look, float3 { -0.4, -0.4, 0.0 }, float3 { 0.4, 0.4, 0.4 }, TREE_K, 1300 + kind)
+    let g = fine_grid(look, 0.42, 0.34, 1300 + kind)
     let n = 6 + kind
     for(n) i:
         let a = float(i) * 360.0 / float(n) + randf_range(rng, -20.0, 20.0)
-        let reach = randf_range(rng, 0.2, 0.32)
+        let reach = randf_range(rng, 0.22, 0.34)
+        let rise = randf_range(rng, 0.13, 0.2)
         let d = float3 { cos(a), sin(a), 0.0 }
-        let mid = d * (reach * 0.5) + float3 { 0.0, 0.0, randf_range(rng, 0.13, 0.2) }
-        let tone = randf_range(rng, -0.6, 0.7)
-        vg_capsule(g, float3_0, mid, 0.022, 0.034, VG_LEAF, false, tone)
-        vg_capsule(g, mid, d * reach + float3 { 0.0, 0.0, 0.07 }, 0.034, 0.014, VG_LEAF, false, tone)
+        let side = float3 { -sin(a), cos(a), 0.0 }
+        let tone = randf_range(rng, -0.5, 0.6)
+        var last = float3_0
+        let steps = 9
+        for(steps) k:
+            let t = float(k + 1) / float(steps)
+            // (up fast, then over and down a little at the tip)
+            let at = d * (reach * t) + float3 { 0.0, 0.0, rise * sin(t * 125.0) + 0.02 }
+            twig(g, last, at, 0.008, VG_LEAF, tone - 0.3)
+            let w = 0.075 * (1.0 - t * 0.85) * (if t < 0.25: t * 4.0 else: 1.0)
+            if w > 0.012:
+                for(2) sd:
+                    let out = side * (if sd == 0: w else: -w)
+                    twig(g, at, at + out + float3 { 0.0, 0.0, -w * 0.25 }, 0.011, VG_LEAF, tone + (if sd == 0: 0.2 else: -0.1))
+            last = at
     return g
 
-// A low bush: a few stems and a heap of small leaf clumps.
+// A low bush: a few stems, and its leaves as dabs in clusters at their ends.
 def bush(look:vglook, kind:int) -> vgrid:
     let rng = grng(1400 + kind)
-    let g = vg_new(look, float3 { -0.45, -0.45, 0.0 }, float3 { 0.45, 0.45, 0.55 }, TREE_K, 1400 + kind)
-    let rough = vg_field(g, 0.12, 1401 + kind)
-    for(5 + kind * 2) i:
-        let c = float3 { randf_range(rng, -0.2, 0.2), randf_range(rng, -0.2, 0.2), randf_range(rng, 0.12, 0.3) }
-        vg_capsule(g, float3 { c.x * 0.3, c.y * 0.3, 0.0 }, c, 0.015, 0.01, VG_BARK)
-        vg_blob(g, c, randf_range(rng, 0.09, 0.15), 1.1, 0.7, rough, VG_LEAF, randf_range(rng, -0.7, 0.8), 0.2, nil, 0.0)
+    let g = fine_grid(look, 0.42, 0.5, 1400 + kind)
+    for(6 + kind * 2) i:
+        let c = float3 { randf_range(rng, -0.2, 0.2), randf_range(rng, -0.2, 0.2), randf_range(rng, 0.1, 0.27) }
+        twig(g, float3 { c.x * 0.25, c.y * 0.25, 0.0 }, c, 0.009, VG_BARK, 0.0)
+        let tone = randf_range(rng, -0.5, 0.7)
+        for(9):
+            let p = c + float3 { randf_range(rng, -0.07, 0.07), randf_range(rng, -0.07, 0.07), randf_range(rng, -0.04, 0.06) }
+            leaf_dab(g, p, randf_range(rng, 0.014, 0.022), tone + randf_range(rng, -0.3, 0.3))
+    return g
+
+// A patch of low herbs: many small pale leaves on short stems, ragged at its edge (the pale drifts of the target
+// picture's clearing).
+let HERB_KINDS = 3
+def herbs(look:vglook, kind:int) -> vgrid:
+    let rng = grng(1450 + kind)
+    let g = fine_grid(look, 0.5, 0.2, 1450 + kind)
+    let lobes = 3 + kind
+    for(lobes) l:
+        let lc = float3 { randf_range(rng, -0.22, 0.22), randf_range(rng, -0.22, 0.22), 0.0 }
+        let lr = randf_range(rng, 0.1, 0.2)
+        for(int(lr * 170.0)):
+            let a = randf_range(rng, 0.0, 360.0)
+            let rr = lr * sqrt(randf(rng))
+            let top = lc + float3 { cos(a) * rr, sin(a) * rr, randf_range(rng, 0.03, 0.1) }
+            twig(g, float3 { top.x, top.y, 0.0 }, top, 0.006, VG_LEAF, -0.6)
+            leaf_dab(g, top, randf_range(rng, 0.011, 0.018), randf_range(rng, -0.3, 0.8))
     return g
 
 // A fallen trunk, long down, moss along its top.
@@ -316,6 +362,14 @@ def under_look(season:string, kind:int, moss:bool) -> vglook:
     if season == "autumn" and not moss and kind % 3 == 0: leaf = autumn_leaf("oak", 0)
     if season == "autumn" and not moss and kind % 3 == 2: leaf = [ float3 { 0.93, 0.86, 0.38 }, float3 { 0.74, 0.68, 0.26 }, float3 { 0.42, 0.40, 0.14 }, float3 { 0.98, 0.94, 0.56 } ]
     if moss: leaf = [ float3 { 0.36, 0.50, 0.20 }, float3 { 0.26, 0.38, 0.16 }, float3 { 0.16, 0.25, 0.12 }, float3 { 0.44, 0.52, 0.22 } ]
+    return vglook { leaf, [ float3 { 0.20, 0.17, 0.14 }, float3 { 0.28, 0.24, 0.20 }, float3 { 0.37, 0.32, 0.26 }, float3 { 0.46, 0.40, 0.33 } ],
+                    [ float3 { 0.3, 0.3, 0.3 }, float3 { 0.5, 0.5, 0.5 } ], false, false, false }
+
+// The low herbs: pale yellow green, paler still in autumn.
+def herb_look(season:string, kind:int) -> vglook:
+    var leaf = [ float3 { 0.66, 0.76, 0.34 }, float3 { 0.46, 0.60, 0.26 }, float3 { 0.24, 0.36, 0.16 }, float3 { 0.80, 0.84, 0.44 } ]
+    if season == "autumn": leaf = [ float3 { 0.90, 0.86, 0.46 }, float3 { 0.68, 0.68, 0.32 }, float3 { 0.36, 0.38, 0.16 }, float3 { 0.98, 0.94, 0.60 } ]
+    if season == "autumn" and kind == 2: leaf = [ float3 { 0.74, 0.78, 0.36 }, float3 { 0.52, 0.60, 0.26 }, float3 { 0.28, 0.36, 0.15 }, float3 { 0.86, 0.86, 0.46 } ]
     return vglook { leaf, [ float3 { 0.20, 0.17, 0.14 }, float3 { 0.28, 0.24, 0.20 }, float3 { 0.37, 0.32, 0.26 }, float3 { 0.46, 0.40, 0.33 } ],
                     [ float3 { 0.3, 0.3, 0.3 }, float3 { 0.5, 0.5, 0.5 } ], false, false, false }
 
@@ -457,13 +511,14 @@ def bake_season(season:string, between):
             between()
         for(YOUNG_KINDS) kind: tree_onto(vs, "young{kind}.{season}", vox_tree(leaf_look("beech", season, kind + 1), VOX_TREES[4 + kind], true), true)
         tree_onto(vs, "sapling.{season}", vox_tree(leaf_look("beech", season, 0), "beech_sapling_0", true), true)
+        for(FERN_KINDS) kind: tree_onto(vs, "fern{kind}.{season}", fern(under_look(season, kind, false), kind), true)
+        for(BUSH_KINDS) kind: tree_onto(vs, "bush{kind}.{season}", bush(under_look(season, kind + 1, false), kind), true)
+        for(HERB_KINDS) kind: tree_onto(vs, "herb{kind}.{season}", herbs(herb_look(season, kind), kind), true)
         sheet_finish(vs, vox_draw_k(), true)
         trees_bake_s = seconds_elapsed() - t0
     if sheet_load(s, tree_draw_k): return
     for(BROADLEAVES) sp: for(LEAF_KINDS) kind:
         if sp != "beech": tree_onto(s, "{sp}{kind}.crown.{season}", leaf_crown(leaf_look(sp, season, kind), sp, kind, if season == "autumn": 0.8 else: 1.0), true, 1.5)
         between()
-    for(FERN_KINDS) kind: tree_onto(s, "fern{kind}.{season}", fern(under_look(season, kind, false), kind), true)
-    for(BUSH_KINDS) kind: tree_onto(s, "bush{kind}.{season}", bush(under_look(season, kind + 1, false), kind), true)
     sheet_finish(s, tree_draw_k, true)
     trees_bake_s = seconds_elapsed() - t0

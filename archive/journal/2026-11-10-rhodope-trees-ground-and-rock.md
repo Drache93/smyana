@@ -153,3 +153,12 @@ all beech.
 
 Still short of the target: the woods are too thin now the trees are the right size, the bark and twigs are too pale,
 the undergrowth is still the coarse grey-box, and the light, shade and haze (their own thread).
+
+Later the same evening: the beech wood made closer (old trees under two tiles apart, young clumps placed first so
+there are still trees to fell), the bark darkened, bare twiglets added, and the undergrowth (#8) rebuilt as fine as the
+trees: ferns as ribs with leaflets, bushes as stems with leaf dabs, and pale patches of low herbs like those in the
+target's clearing.
+
+![A closer wood, darker bark](../images/2026-11-10/49-closer-beech-wood-darker-bark.png)
+
+![Fine ferns and herb patches](../images/2026-11-10/50-fine-ferns-and-herb-patches.png)

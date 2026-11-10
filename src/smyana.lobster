@@ -150,6 +150,9 @@ def build_props():
             if h2 % 100 < (if drift: 62 else: 7): props.push(Prop { 5, 0, "fern{h2 % FERN_KINDS}", "", off, c })
             if drift and h2 % 7 < 3:
                 props.push(Prop { 5, 0, "fern{(h2 / 3) % FERN_KINDS}", "", centre + iso(float((h2 / 11) % 700) - 350.0, float((h2 / 17) % 700) - 350.0), c })
+            // (low herbs in pale patches of their own, a few tiles across)
+            let patch = cell_hash((c / W / 3) * W + (c % W) / 3 + 7001) % 8 < 2
+            if patch and (h2 / 7) % 10 < 8: props.push(Prop { 5, 0, "herb{(h2 / 5) % HERB_KINDS}", "", centre + iso(float((h2 / 23) % 500) - 250.0, float((h2 / 29) % 500) - 250.0), c })
             if (h2 / 100) % 100 >= 90 and (h2 / 100) % 100 < 94: props.push(Prop { 5, 0, "sapling", "", centre, c })
             if (h2 / 100) % 100 < 6: props.push(Prop { 5, 0, "bush{h2 % BUSH_KINDS}", "", centre + iso(float((h2 / 13) % 600) - 300.0, float((h2 / 19) % 600) - 300.0), c })
             elif (h2 / 100) % 100 == 99: props.push(Prop { 6, 0, "log{h2 % LOG_KINDS}", "", centre, c })
