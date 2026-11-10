@@ -217,3 +217,14 @@ big trees are saved in pieces (`<name>.cXYZ.vox`). The baker's per-voxel dither 
 at in the lighting thread.
 
 ![Trees at the men's fineness](../images/2026-11-10/74-trees-at-the-mens-fineness.png)
+
+## The landslide, rebuilt (22:05)
+
+Dominic of the first one: "Landslide looks pretty bad. Unclear its source, and scale of rocks looks really wrong. Just
+piles of square rocks?" It was the outcrop model dropped on the trail. Now there is a crag above the trail that let go,
+and from it a tongue of earth, broken rock of many sizes and snapped logs that widens down the slope and covers the
+trail, with scree on the ground under it (a new terrain, "rubble", which men can't walk). The outcrops are thin beds
+that dip, not blocks. Picture 76. Still wrong: the earth heaps read as flat plates with ridged edges, not as slumped soil.
+
+Main (the lighting thread's shade and crisp settings) was merged into this branch at 22:04; young beeches and the
+undergrowth now stand in the shade like the men.
