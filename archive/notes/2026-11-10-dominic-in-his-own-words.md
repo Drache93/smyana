@@ -97,3 +97,8 @@ built from clearings. It isn't ours and isn't kept here; Smyana's look doesn't c
 
 **17:59**
 > Yes, the majority of the work will be done in November. We have started in the game engine, obviously redoing the lighting and stuff. But all the trees, the forest, the foliage, I mean, everything is going to be done in November, and it's not going to be from Age of Anything. I think very little art will come from Age of Anything, if any. It'll be primarily newly made, but all the trees and stuff will all be replaced. On that note, if you haven't already added it into the archive, the Bulgarian man that we designed also needs to go into the archive as the first step that we did. Well, not the very first step, but yeah, one of the first stages we did. And yeah, although that stage, we might reuse that art in Age of Anything, it was of course created specifically for testing for this, for how the art would look in the new game.
+
+## The men
+
+**18:04**
+> With the men, while we're here, we might as well finish just designing them because they look great. We probably need a few other looks so we can randomize some things, like change some hats, change some cloaks. So we should quickly make a few alternative looks for them. And the most important part is their rifles with the specific look, swan-tailed, sorry, swallow-tailed butts on the rifles, which is the traditional look. And of course, there's stone hammers.
