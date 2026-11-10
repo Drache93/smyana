@@ -166,3 +166,14 @@ about 660 and 1300 Hz, which is just what a phone alarm is, and through a small 
 deep notes under them vanish, leaving only the whine. A lesson for the bench: a long, pure,
 unmoving tone in that range always reads as a machine. The ruins wait for research into what
 "ancient" should sound like here (Thracian and Roman music, old chant) before a third try.
+
+### A sound of its own
+
+Dominic: "The music has a general tangerine dream feel to it I really like." (Tangerine Dream:
+the German electronic group, known for long synthesiser pieces and film scores.)
+
+This matters for how the final music is made. The bench's voices were meant as stand-ins, to be
+replaced by a sample library or real players. But the thing Dominic likes is the stand-ins'
+own sound: Rhodope tunes, drones and ornaments played on plainly synthesised voices. That may
+be the game's sound, not a step towards it: old music heard through an electronic haze, with
+real voices or one real instrument on top where a track needs it. To confirm with him.

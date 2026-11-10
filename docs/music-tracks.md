@@ -121,5 +121,7 @@ composing job, and it should come before the calm tracks are finished so they ca
 
 1. Is 24 the right size, or should some calm tracks be merged (for example one per season)?
 2. Should hiding and fight each have a night or winter version, or is one enough?
-3. The sketches are synthesised stand-ins. For the real thing: a sample library, real players
-   for the exposed parts, or both (see "Sourcing options" in the music plan)?
+3. The sketches are synthesised. Dominic likes that sound in itself ("a general tangerine dream
+   feel to it I really like", 2026-11-10). So: keep the synthesised voices as the game's own
+   sound, with real singing or one real instrument on top where a track needs it, in place of
+   replacing everything with a sample library or players? Claude's recommendation: yes.
