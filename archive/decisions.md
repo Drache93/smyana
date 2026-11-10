@@ -168,3 +168,9 @@ It changes with season and time of day. When a battle or a danger comes it chang
 tenser or faster, and when it's over it ends as fast as it began. A fight with bandits or
 Ottomans, or hiding the men and carts, each has its pace carried by the music. How (states,
 an intensity dial, separate loops) is a proposal in `docs/music-and-sound.md`.
+
+**D-037, 2026-11-10: The game swaps whole music tracks.** (Dominic)
+Calm music plays, then a sudden swap to fight music, and back again. One recording does not
+blend from one mood into another. This sets aside the layered "intensity dial" Claude proposed
+under D-036 unless swapping proves too blunt. A proposed list of 24 tracks is in
+`docs/music-tracks.md`.

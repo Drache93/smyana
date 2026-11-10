@@ -105,11 +105,13 @@ How that could work. **Proposal** by Claude; a first sketch of it can be heard i
 6. **Season and hour set the calm piece** (the palette in rule 2 of "Music direction"), and
    night makes everything thinner and lower.
 
-**What the game needs for this.** Each piece is made as separate loops ("stems": drone, tune,
-drum, tension) that the game starts, stops and fades on its own clock. The game sends two
-values: the state, and an intensity from 0 to 1 worked out from how many enemies are near, how
-close, and whether the men are seen. Fight loops are cut to whole bars so they can stop on a
-beat. Creel has no music system yet; that will need an issue.
+**What the game needs for this.** Dominic, later on 2026-11-10: "We would swap tracks, not
+record one that mixes. So wed be playing calm, then sudden swap to fight music and them back
+again potentially" (D-037). So each state is its own track, and the game cuts between whole
+tracks. The first idea here, layers faded in and out by an intensity dial (rule 3), is set
+aside unless swapping proves too blunt. Danger tracks start on their first sound and loop;
+a single drum blow covers the cut when danger ends. Creel has no music system yet; that will
+need an issue. The full list of tracks is in [`music-tracks.md`](music-tracks.md).
 
 ## The intro folk song (stretch goal)
 

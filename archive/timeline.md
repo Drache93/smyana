@@ -41,3 +41,7 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-10:** "A little too Viking... Needs more mist": a second, hazier take, and Dominic's
   rule that the music follows the game and ends as fast as it began (D-036), with a demo going
   from calm to hiding to a fight to silence. ([journal](journal/2026-11-10-first-music-spike.md#later-the-same-evening-more-mist-and-music-that-follows-danger))
+- **2026-11-10:** The game will swap whole music tracks (D-037). A proposed list of 24 tracks,
+  and five more sketches trying tambura, gadulka, bells and two-part singing: a fight, hiding,
+  morning, autumn dusk again, the ruins. ([track list](../docs/music-tracks.md),
+  [journal](journal/2026-11-10-first-music-spike.md#later-still-a-track-list-and-the-other-instruments))

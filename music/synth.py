@@ -256,7 +256,7 @@ def drums(hits, total, rng):
     n = int(total * SR)
     low, high = np.zeros(n), np.zeros(n)
     for when, kind, strength in hits:
-        a = int(when * SR)
+        a = max(0, int(when * SR))
         length = min(n - a, int(1.2 * SR))
         if length <= 0:
             continue
@@ -268,12 +268,77 @@ def drums(hits, total, rng):
         if kind == "boom":
             pitch, ring, slap = 68 + 90 * np.exp(-t / 0.03), 0.24, 0.4
         else:
-            pitch, ring, slap = 42 + 22 * np.exp(-t / 0.05), 0.13, 0.0
+            pitch, ring, slap = 58 + 30 * np.exp(-t / 0.05), 0.13, 0.0
         body = np.sin(2 * np.pi * np.cumsum(pitch) / SR) * np.exp(-t / ring)
         low[a:a + length] += strength * (body + slap * rng.standard_normal(length) * np.exp(-t / 0.006))
     high = eq(high, lambda f: (1 / (1 + (1800 / np.maximum(f, 1)) ** 4)) / (1 + (f / 7500) ** 4))
     low = eq(low, lambda f: 1 / (1 + (f / 1500) ** 2))
     return low + 0.25 * high
+
+
+def tambura(events, total, rng):
+    """Long-necked lute with doubled strings: a bright pluck that dies away."""
+    n = int(total * SR)
+    out = np.zeros(n)
+    for start, dur, midi, _ in events:
+        if midi is None:
+            continue
+        a = int(start * SR)
+        length = min(n - a, int(min(max(dur * 1.5, 0.5), 3.0) * SR))
+        if length <= 0:
+            continue
+        t = np.arange(length) / SR
+        note = np.zeros(length)
+        for detune in (-5, 6):  # the two strings of a pair are never quite together
+            f = hz(midi) * 2 ** (detune / 1200)
+            for k in range(1, 21):
+                if k * f > SR * 0.45:
+                    break
+                note += k ** -0.9 * np.exp(-t * (1.2 + 0.5 * k)) * np.sin(2 * np.pi * k * f * t + rng.uniform(0, 6.28))
+        note *= np.minimum(1, t / 0.002) * np.clip((length / SR - t) / 0.05, 0, 1)
+        out[a:a + length] += note * rng.uniform(0.8, 1.0)
+    return eq(out, bumps([(900, 400, 0.8), (2500, 800, 0.6)], 6000))
+
+
+def gadulka(events, total, rng):
+    """Bowed fiddle held on the knee: hoarse, close, with a quick wide vibrato."""
+    f, amp, _ = curves(events, total, glide=0.04, attack=0.09, release=0.18,
+                       vib_cents=20, vib_hz=5.6, rng=rng, swell=0.25)
+    tone = harmonics(f, 1 / np.arange(1, 31))
+    tone = eq(tone, bumps([(520, 200, 1.5), (1400, 400, 1.2), (2700, 600, 0.8)], 5000))
+    scrape = noise(total, 2000, 6000, rng) * 0.04  # rosin on the string
+    return amp * (tone + scrape * np.abs(tone).max())
+
+
+def voice(events, total, rng, singers=2):
+    """Open-throated singing on "ah", the hard bright village sound, a few singers as one."""
+    out = np.zeros(int(total * SR))
+    k = np.arange(1, 31)
+    for _ in range(singers):
+        f, amp, _ = curves(events, total, glide=0.07, attack=0.12, release=0.4,
+                           vib_cents=5, vib_hz=5.0, rng=rng, swell=0.15)
+        f = f * 2 ** ((rng.uniform(-7, 7) + 5 * wander(total, 1.1, rng)) / 1200)
+        out += amp * harmonics(f, 1 / k ** 1.1)
+    return eq(out, bumps([(850, 160, 3.0), (1250, 200, 2.5), (2900, 400, 2.0)], 4500))
+
+
+def bells(hits, total, rng):
+    """Sheep and goat bells, far off. hits: (time, midi, strength). Dull clanks, not chimes."""
+    n = int(total * SR)
+    out = np.zeros(n)
+    for when, midi, strength in hits:
+        a = max(0, int(when * SR))
+        length = min(n - a, int(0.9 * SR))
+        if length <= 0:
+            continue
+        t = np.arange(length) / SR
+        for ratio, lvl, ring in ((1, 1.0, 0.22), (2.09, 0.6, 0.15), (2.83, 0.5, 0.11), (5.3, 0.25, 0.06)):
+            out[a:a + length] += strength * lvl * np.sin(2 * np.pi * hz(midi) * ratio * t) * np.exp(-t / ring)
+    return out
+
+
+def shift(events, semitones):
+    return [(s, d, None if m is None else m + semitones, v) for s, d, m, v in events]
 
 
 def wind(total, rng):
@@ -312,6 +377,30 @@ def level(x, db):
     mono = x if x.ndim == 1 else x.mean(axis=0)
     loud = np.sort(np.abs(mono))[len(mono) // 2:]
     return x * (10 ** (db / 20) / (np.sqrt(np.mean(loud ** 2)) + 1e-12))
+
+
+def mixdown(parts, rng, echo=4.5, predelay=0.03, dark=3500, wet=1.0):
+    """parts: (sound, loudness in dB, left-right -1..1, how much direct, how much echo)."""
+    dry = send = 0
+    for sound, db, where, direct, far in parts:
+        sound = level(sound, db)
+        st = sound if sound.ndim == 2 else pan(sound, where)
+        dry = dry + direct * st
+        send = send + far * st
+    return dry + wet * reverb(send, echo, rng, predelay, dark)
+
+
+def finish(name, stereo, fade_in=0.5, fade_out=4.0, midi=None):
+    """Write out/<name>.wav, .mp3 and .ogg (and .mid when given tracks)."""
+    import pathlib
+    out = pathlib.Path(__file__).resolve().parent / "out"
+    out.mkdir(exist_ok=True)
+    write_wav(out / f"{name}.wav", stereo, fade_in, fade_out)
+    encode(out / f"{name}.wav", out / f"{name}.mp3", "-b:a", "192k")
+    encode(out / f"{name}.wav", out / f"{name}.ogg", "-c:a", "libopus", "-b:a", "72k")
+    if midi:
+        write_midi(out / f"{name}.mid", midi)
+    print("wrote", name)
 
 
 def write_wav(path, stereo, fade_in=0.5, fade_out=4.0):

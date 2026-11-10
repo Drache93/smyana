@@ -206,3 +206,8 @@ After seeing the first runnable version (its trees were about thirteen men tall)
 
 **21:09**
 > Branch also has conflicts
+
+**21:19** (after hearing "Autumn mist" and "Danger")
+> Mist too soft now. But honestly they're all usable for different portions. Direction is great, the "other instruments" you mentioned and all the research should be tried - ideally we plan how many tracks and type/style.
+>
+> I liked the bagpipes form first one. Danger was a bit repetitive in the "creepy" noise but I get what you're going for, speed up was good but not really fighting music. The speed up felt more like spring or morning time, not totally wrong but not really enough. We would swap tracks, not record one that mixes. So wed be playing calm, then sudden swap to fight music and them back again potentially. But again, all goos

@@ -108,3 +108,31 @@ proposal in [`docs/music-and-sound.md`](../../docs/music-and-sound.md#music-that
 - Dominic found the branch in conflict with main: the tree work had merged meanwhile and both
   had added to the same notes and timeline, and both had a picture numbered 38. Merged, and
   the music picture is now 44.
+
+## Later still: a track list, and the other instruments
+
+Dominic on the second pair: "Mist too soft now. But honestly they're all usable for different
+portions." He liked the bagpipes from the first piece. The hiding music's "creepy" noise was
+repetitive. The fast part "felt more like spring or morning time", not a fight. And the game
+would swap whole tracks, not play one recording that blends moods (D-037). He asked for the
+other instruments and the research to be tried, and for a plan of how many tracks and what kind
+([his words](../notes/2026-11-10-dominic-in-his-own-words.md#a-first-try-at-the-music)).
+
+So Claude wrote [`docs/music-tracks.md`](../../docs/music-tracks.md), a proposed list of 24
+tracks (about 40 minutes), and five more sketches, each a separate file that starts at once and
+ends cleanly so it can be swapped in:
+
+| Listen | What it tries | What is new in it |
+|---|---|---|
+| [08 fight](../audio/2026-11-10/08-music-fight.ogg) | A real fight: faster (152 beats a minute), lower, hammering on two or three notes, with an F natural a half step over the home note for threat | Tambura strummed, gadulka an octave under the gaida |
+| [09 hiding](../audio/2026-11-10/09-music-hiding.ogg) | Tension with nothing regular in it, so it can't turn into a repeating noise | Low gadulka, single damped tambura notes, a heartbeat that comes and goes |
+| [10 morning](../audio/2026-11-10/10-music-morning.ogg) | The quick bright tune, moved to where Dominic heard it | Tambura rocking figure, sheep bells up the slope |
+| [11 autumn dusk, second take](../audio/2026-11-10/11-music-autumn-dusk-second-take.ogg) | Between "too Viking" and "too soft": the bagpipes back, in some mist, no low strings | |
+| [12 ruins](../audio/2026-11-10/12-music-ruins.ogg) | Two-part drone singing, kept rare, for the Roman ruins | Open-throated women's voices a step apart |
+
+The F natural in the fight is Claude's choice for menace and is outside the five-note scale;
+the research says the kaba gaida's scale is plain except for its third, so a real piper may
+not have that note. To check.
+
+The synthesised voices in "ruins" are the weakest stand-in so far. That track is there to judge
+the idea of two voices rubbing a step apart, not the sound of the singers.
