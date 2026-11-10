@@ -270,3 +270,18 @@ still (Claude's list): the back of the wood is lit ground between trunks where t
 stream is about twice as wide (a tile); the trail is a wide grey patch, not a thin tan path; the trees' branches carry
 no shade of their own (Dominic: "The trees in the example had shadows in the branches too. Our pic still looks like big
 bright omni light on everything"); no tents, fireplace or animals yet (their own thread).
+
+## Branch shade, a stream's bank, a thin trail (22:25 to 22:50)
+
+Three things the comparison scene showed, each fixed against it (the engine side is in
+`archive/engine/2026-11-10-own-shadow-and-nine-levels.md`):
+
+- The trees shade their own boughs and trunks now (picture 86). The baker had been stepping over anything as thin as
+  a bough.
+- The stream runs below a low earth bank and is narrower than its tile (picture 88). Dominic: "Stream also has a bank,
+  slight depth in mock up".
+- The trail is a path about a man wide, in a soft tan, drawn through the middle of its tiles and eased where they step
+  (`build_trail`), not a tile-wide grey patch (picture 90). The men still walk the same tiles.
+
+Still open against the mock-up: the stream is wider and darker than its pale blue one; the back of the wood (the
+lighting thread); the camp's things (their own thread).

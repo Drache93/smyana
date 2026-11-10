@@ -156,7 +156,7 @@ def tiles(wood, season):
             t[10] = strew(make(11, ["#c8802a", "#cf892c", "#d6922e", "#dc9a30"], coarse=4, fine=12, grain=0.04, height=0.45), 111, 3600, fall, lift=0.04)
             for k, n in ((0, 520), (1, 560), (2, 640), (3, 480), (12, 560), (13, 560)):
                 t[k] = strew(tufts(t[k], 200 + k, 500, ["#7f8f40", "#8a9846", "#75853c"]), 300 + k, n, fall)
-            t[4] = strew(pebbles(make(5, ["#806c4c", "#877250", "#8e7854", "#957e58"], fine=30, grain=0.08, height=0.35), 404, 60, ["#a39a86", "#968d7a"]), 304, 200, fall)
+            t[4] = strew(pebbles(make(5, ["#9c8358", "#a48b5e", "#ac9364", "#b49b6a"], fine=30, grain=0.08, height=0.35), 404, 60, ["#a39a86", "#968d7a"]), 304, 200, fall)
             t[9] = strew(make(10, ["#6e5a3e", "#746042", "#7a6546", "#806a4a"], grain=0.1, height=0.4), 309, 500, fall)
         elif season != "winter":
             old = ["#8a5c2c", "#845628", "#90622f", "#7c5126", "#966834"]

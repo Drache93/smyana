@@ -175,6 +175,55 @@ def build_props():
             if (h2 / 100) % 100 < 6: props.push(Prop { 5, 0, "bush{h2 % BUSH_KINDS}", "", centre + iso(float((h2 / 13) % 600) - 300.0, float((h2 / 19) % 600) - 300.0), c })
             elif (h2 / 100) % 100 == 99: props.push(Prop { 6, 0, "log{h2 % LOG_KINDS}", "", centre, c })
 
+// The trail is a path a man or two wide, not a road a tile wide (the mock-ups: a thin tan line through the leaves).
+// Creel's worn ground is kept a tile at a time and spreads, so the trail itself is painted finer into the paths'
+// texture (its "trail" channel): through the middle of the trail's tiles, eased where they step, a third of a tile
+// wide. Where the men wear the ground off the trail still shows as Creel draws it.
+let TRAIL_K = 8  // samples a tile
+
+def build_trail():
+    let trail = str_index(tr_names, "trail")
+    let ford = str_index(tr_names, "ford")
+    def on(x:int, y:int) -> bool: return x >= 0 and y >= 0 and x < W and y < H and (terrain[y * W + x] == trail or terrain[y * W + x] == ford)
+    // each trail tile's point on the path: the middle of the trail tiles round it
+    def mid(x:int, y:int) -> float2:
+        var sum = float2_0
+        var n = 0.0
+        for(5) dy: for(5) dx:
+            if on(x + dx - 2, y + dy - 2):
+                let wgt = if dx == 2 and dy == 2: 2.0 else: 1.0
+                sum += float2 { float(x + dx - 2) + 0.5, float(y + dy - 2) + 0.5 } * wgt
+                n += wgt
+        return sum / n
+    let w = W * TRAIL_K
+    let h = H * TRAIL_K
+    let a = map(w * h): 0.0
+    let r = 0.2
+    for(H) y: for(W) x:
+        if on(x, y):
+            let p = mid(x, y)
+            for([ int2 { 1, 0 }, int2 { 0, 1 }, int2 { 1, 1 }, int2 { -1, 1 } ]) d:
+                if on(x + d.x, y + d.y):
+                    let q = mid(x + d.x, y + d.y)
+                    let lo = min(p, q) - r * 2.0
+                    let hi = max(p, q) + r * 2.0
+                    for(int((hi.y - lo.y) * float(TRAIL_K)) + 1) j: for(int((hi.x - lo.x) * float(TRAIL_K)) + 1) i:
+                        let sx = int(lo.x * float(TRAIL_K)) + i
+                        let sy = int(lo.y * float(TRAIL_K)) + j
+                        if sx >= 0 and sy >= 0 and sx < w and sy < h:
+                            let c = float2 { (float(sx) + 0.5) / float(TRAIL_K), (float(sy) + 0.5) / float(TRAIL_K) }
+                            let t = clamp(dot(c - p, q - p) / max(dot(q - p, q - p), 0.0001), 0.0, 1.0)
+                            let v = clamp(1.5 - magnitude(c - p - (q - p) * t) / r, 0.0, 1.0)
+                            if v > a[sy * w + sx]: a[sy * w + sx] = v
+    paths_tex = gl.create_texture(map(h) y: map(w) x: float4 { a[y * w + x], 0.0, 0.0, 0.0 }, texture_format_clamp | texture_format_nomipmap)
+    ground_stale = true
+
+// The worn ground for the shader, without the trail's own tiles (build_trail draws those).
+def trail_wear():
+    let trail = str_index(tr_names, "trail")
+    wear_tex = gl.create_texture(map(H) y: map(W) x: float4 { (if y * W + x < wear.length and terrain[y * W + x] != trail: float(wear[y * W + x]) else: 0.0) / 255.0, 0.0, 0.0, 0.0 }, texture_format_clamp | texture_format_nomipmap)
+    ground_stale = true
+
 // Leaf litter on the ground under the giants: Creel's ground shader lays its forest floor where prop_tex's red is
 // strong, and its own masks only make it so in a solid wood, not under one great tree. So after build_masks, the
 // litter is painted here: full under each giant's crown, fading out at its edge.
@@ -246,7 +295,8 @@ def view_enter(between):
     ground_water_edge = gfloat(su_map, "water_edge", 0.62)
     build_masks()
     build_relief()
-    build_wear()
+    trail_wear()
+    build_trail()
     bake_season(season_now(), between)
     build_props()
     build_litter()
@@ -434,7 +484,7 @@ def draw_world(alpha:float):
         build_masks()
         build_litter()
     if tick - wear_tick >= 40:
-        build_wear()
+        trail_wear()
         wear_tick = tick
     let ws = float(gl.window_size())
     let cam_px = float2 { floor(cam.x * zoom), floor(cam.y * zoom) } / zoom
