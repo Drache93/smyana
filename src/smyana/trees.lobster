@@ -19,7 +19,7 @@ let SPRUCE_KINDS = 3
 let YOUNG_KINDS = 2
 let ROCK_KINDS = 4
 let SLAB_KINDS = 2
-var tree_draw_k = 1.0   // art px a baked px (set at the bake: Creel's art scale decides)
+var tree_draw_k = 1.0  // art px a baked px (set at the bake: Creel's art scale decides)
 def vox_draw_k() -> float: return WB_PX / ART_K / VOX_K
 var trees_bake_s = 0.0  // how long the last bake took (0: read from bake_cache/)
 var trees_season = ""   // the season whose crowns are loaded
@@ -358,7 +358,7 @@ def rubble(look:vglook, kind:int) -> vgrid:
         rock_plate(g, at, sz, sz * randf_range(rng, 0.5, 0.9), sz * randf_range(rng, 0.4, 0.85), randf_range(rng, 0.0, 180.0), VG_ROCK, randf_range(rng, -0.5, 0.5), randf_range(rng, -0.8, 0.8), 1300 + n * 53 + kind)
     // the earth between and under them: low rounded mounds (not plates), round the rock already lying there
     let lumpy = vg_field(g, 0.09, 1251 + kind)
-    for(6) n:
+    for(6):
         let at = float3 { randf_range(rng, -0.45, 0.45), randf_range(rng, -0.45, 0.45), 0.0 }
         let r = randf_range(rng, 0.2, 0.4)
         vg_blob(g, at, r, randf_range(rng, 3.0, 5.0), 0.5, lumpy, VG_BARK, randf_range(rng, -0.5, 0.4), 0.0, nil, 0.0)

@@ -28,6 +28,7 @@ On `main` at the time (after PR #25):
   left to Creel. A "use `let`" warning doesn't count when another file assigns that name. `--fix` writes the formatting.
 - `./check.sh` runs lint first, so a check fails on layout or a warning.
 - `route.lobster` formatted, `men_view.lobster`'s two globals made `let`.
-- `smyana.lobster` and `trees.lobster` were left alone while PR #29 changes them, so as not to cause conflicts; they are
-  fixed with it.
+- `smyana.lobster` and `trees.lobster` were left alone until PR #29 merged, then formatted on this branch (whitespace
+  only), `waiting_lines` and `waiting_t0` made `let`, and #29's unused loop variable `n` dropped (`for(6):`, same rocks).
+  After that `src/lint.sh` reports nothing and the whole route still plays through.
 - CLAUDE.md and README say how to run it and where `lobsterfmt` comes from.
