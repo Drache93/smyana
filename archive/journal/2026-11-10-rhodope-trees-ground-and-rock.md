@@ -189,22 +189,22 @@ crown; the spruce a spire of drooping whorls. The old stand-in trees built in co
 The autumn ground is no longer all orange: the leaf carpet lies in drifts, with grass, herbs and bare earth showing
 between them in the open (the lighting work found that the target's ground is mixed, and that is what its light needs).
 
-![Autumn ground in drifts](../images/2026-11-10/56-autumn-ground-not-all-orange.png)
+![Autumn ground in drifts](../images/2026-11-10/69-autumn-ground-not-all-orange.png)
 
 Winter (#11): a first-snow ground (`tools/ground_atlas.py`, `atlas_winter.png`): thin blue-white snow in the open with
 grass tips through it, the fallen leaves showing under the trees, slush on the trail, and the bare trees' long shadows
 across it. No snow lies on the boughs or the men yet.
 
-![First snow in the beech wood](../images/2026-11-10/57-first-snow-in-the-beech-wood.png)
+![First snow in the beech wood](../images/2026-11-10/70-first-snow-in-the-beech-wood.png)
 
 The stream and the trail narrowed from two tiles to one, and trees set close round each clearing. A tile is still
 about three men across, so the stream is about twice as wide as the target's: the ground is drawn tile by tile, and
 going narrower needs either a smaller tile or a ground that can draw a strip inside one. Not decided.
 
-![The stream and trail, one tile wide](../images/2026-11-10/58-narrower-stream-and-trail.png)
+![The stream and trail, one tile wide](../images/2026-11-10/71-narrower-stream-and-trail.png)
 
 A first landslide (#20): in the deep fir woods the trail is buried under fallen gneiss with broken trunks and loose
 slabs in it (`slide` in `tools/make_places.py`), found after it has happened. The men have to walk round it. It is
 only a look and a blocked way so far: nothing to clear or climb, and it is the same on the way home.
 
-![The landslide across the trail](../images/2026-11-10/59-landslide-across-the-fir-woods-trail.png)
+![The landslide across the trail](../images/2026-11-10/72-landslide-across-the-fir-woods-trail.png)
