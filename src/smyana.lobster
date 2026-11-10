@@ -288,7 +288,10 @@ def sun_from_data():
     // light in four hard bands
     vg_dither = gfloat(sun, "dither", 1.0)
     vg_leaf_tones = gfloat(sun, "leaf_tones", 5.0)
-    bake_light = "sun {elev} {vg_dither} {vg_leaf_tones}"
+    // (a model's own shadow, exact to a voxel: a crown shades its boughs and trunk; and how deep that shade is)
+    vg_sun_shadow = gint(sun, "self_shadow", 1) != 0
+    vg_shade = gfloat(sun, "self_shade", 0.4)
+    bake_light = "sun {elev} {vg_dither} {vg_leaf_tones} {vg_sun_shadow} {vg_shade}"
 
 def mood_tick():
     var m = mood_now()

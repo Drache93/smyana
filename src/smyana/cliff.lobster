@@ -11,7 +11,7 @@ def cliff_shaders() -> string:
         UNIFORMS mvp
         gl_Position = mvp * apos;
         iface = atc;
-        iinfo = vec4(acolor.r * 3.0, acolor.g, acolor.b * 3.0, 0.0);   // the rim's height, which way it faces, the foot's height
+        iinfo = vec4(acolor.r * 9.0, acolor.g, acolor.b * 9.0, 0.0);   // the rim's height, which way it faces, the foot's height
     PIXEL
         INPUTS iface:2 iinfo:4
         UNIFORM float art_px

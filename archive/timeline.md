@@ -54,3 +54,6 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-10:** Fallen leaves you can see on the ground, herbs in drifts, and the landslide moved to a
   ledge between a crag and a real cliff (Creel's high ground, first use; a gneiss cliff face).
   ([journal](journal/2026-11-10-rhodope-trees-ground-and-rock.md#ground-you-can-read-and-a-landslide-on-a-ledge-2210-to-2240))
+- **2026-11-10:** The mock-up's clearing rebuilt as a scene to compare like with like, and trees that shade
+  their own boughs (Creel's baker: a shadow exact to a voxel).
+  ([journal](journal/2026-11-10-rhodope-trees-ground-and-rock.md#a-scene-to-compare-like-with-like-2220-to-2235), [engine](engine/2026-11-10-own-shadow-and-nine-levels.md))
