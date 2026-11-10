@@ -37,7 +37,7 @@ each of these in its own code for now.
 
 ## Decisions
 
-- D-023: Smyana is its own program on Creel, with Creel as a pinned submodule.
+- D-024: Smyana is its own program on Creel, with Creel as a pinned submodule.
 
 ## Left to do
 

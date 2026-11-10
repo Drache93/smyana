@@ -122,6 +122,9 @@ built from clearings. It isn't ours and isn't kept here; Smyana's look doesn't c
 **19:04**
 > Unrelated UI should be extremely minimal, if not 0, so focus is on environment
 
+**19:10**
+> Fixing a bridge, fording a river, landslide some of the environmental obsticals. For now landslide after the fact not a live event
+
 ## The first runnable version
 
 **19:12**

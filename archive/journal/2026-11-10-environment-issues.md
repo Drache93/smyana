@@ -48,3 +48,9 @@ into the issues.
   can't be made from Claude's tools, so those issues say **Needs Creel work** at the top instead.
 - Left for their own groups of issues: the village set and cinematics, caches as a mechanic, the
   wolves, bears and patrols, and the sound of the forest.
+
+## Later: the obstacles
+
+Dominic added the environmental obstacles: fixing a bridge, fording a river, and a landslide,
+which for now is found after it has happened rather than seen happening (D-023). They went up
+as #20 under the parent, and #16 (the ground) now points to it.

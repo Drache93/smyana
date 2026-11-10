@@ -63,11 +63,11 @@ second, which says nothing about Dominic's Mac.
 
 ## Decisions
 
-- D-023: Smyana is its own program on Creel, with Creel as a pinned submodule.
-- D-024: The route is a file of legs, and the men leave a place by standing together in a gate.
-- D-025: What the run carries and what a place remembers, for now.
-- D-026: A size budget for a place.
-- D-027: Old trees can't be felled, young ones can, and crowns fade over the men.
+- D-024: Smyana is its own program on Creel, with Creel as a pinned submodule.
+- D-025: The route is a file of legs, and the men leave a place by standing together in a gate.
+- D-026: What the run carries and what a place remembers, for now.
+- D-027: A size budget for a place.
+- D-028: Old trees can't be felled, young ones can, and crowns fade over the men.
 
 ## Direction changes
 
