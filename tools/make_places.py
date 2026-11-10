@@ -56,18 +56,22 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
         for y in range(cy - r, cy + r + 1):
             for x in range(cx - r, cx + r + 1):
                 if (x - cx) ** 2 + (y - cy) ** 2 <= r * r + rng.uniform(-1.5, 1.5): put(x, y, "#")
-    # the stream: north to south, two tiles wide, a ford where the trail crosses
+    # the stream: north to south, a tile wide (two or three men: it is a stream, as in the mock-ups, not a river), with
+    # no gaps at its bends, a ford where the trail crosses
     if stream_x >= 0:
         sw = noise1(rng, h, 8)
+        last = None
         for y in range(h):
             sx = int(round(stream_x + sw[y] * 5))
-            for x in (sx, sx + 1): put(x, y, "~", ".#")
+            for x in range(min(sx, sx if last is None else last), max(sx, sx if last is None else last) + 1): put(x, y, "~", ".#")
+            last = sx
         for y in range(h):
             for x in range(w):
                 if g[y][x] == "~" and abs(y - trail_y[x]) <= 1: g[y][x] = "="
-    # the trail itself, two tiles wide (not through the ford)
+    # the trail itself, a tile wide and unbroken (not through the ford)
     for x in range(w):
-        for y in (trail_y[x], trail_y[x] + 1): put(x, y, ":", ".#")
+        a, b = trail_y[x], trail_y[max(0, x - 1)]
+        for y in range(min(a, b), max(a, b) + 1): put(x, y, ":", ".#")
 
     def near(x, y, chars, r):
         for yy in range(max(0, y - r), min(h, y + r + 1)):
@@ -93,6 +97,8 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
         x, y = rng.randrange(2, w - 2), rng.randrange(2, h - 2)
         if g[y][x] != "." or in_clearing(x, y) or near(x, y, ":=~", 1) or near(x, y, "t", 1): continue
         gap = 2.0 if rim(x, y) else old_gap  # (the rim is a wall of trees)
+        # (round a clearing the trees stand close, so it is a small lit room in a dark wood, as in the target picture)
+        if any(r * r < (x - cx) ** 2 + (y - cy) ** 2 <= (r + 2.2) ** 2 for (cx, cy, r) in clearings): gap = 1.15
         if any((x - ox) ** 2 + (y - oy) ** 2 < gap * gap for ox, oy in olds): continue
         olds.append((x, y))
         g[y][x] = "T"
@@ -120,7 +126,7 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
 
 # The beech valley (the first place, and the last before home): open old beech wood, a stream, meadows.
 place("beech_valley", "beech", 1878, 96, 64, west_y=33, east_y=28, stream_x=52, old_gap=1.7, old_fill=1.4, young_clumps=26,
-      clearings=[(9, 33, 6), (30, 36, 5), (70, 24, 8)], rocks=[(30, 12, 3), (61, 50, 4), (84, 40, 2)])
+      clearings=[(9, 33, 4), (30, 36, 3), (50, 31, 3.2), (70, 24, 4)], rocks=[(30, 12, 3), (61, 50, 4), (84, 40, 2)])
 # The deep fir woods: closer, darker, more rock, no stream. (Drawn with the same trees for now.)
 place("fir_woods", "deep", 1879, 96, 64, west_y=28, east_y=36, stream_x=-1, old_gap=1.4, old_fill=1.8, young_clumps=34,
       clearings=[(48, 30, 5)], rocks=[(20, 44, 4), (40, 14, 3), (66, 20, 5), (78, 50, 3)])

@@ -196,3 +196,9 @@ grass tips through it, the fallen leaves showing under the trees, slush on the t
 across it. No snow lies on the boughs or the men yet.
 
 ![First snow in the beech wood](../images/2026-11-10/57-first-snow-in-the-beech-wood.png)
+
+The stream and the trail narrowed from two tiles to one, and trees set close round each clearing. A tile is still
+about three men across, so the stream is about twice as wide as the target's: the ground is drawn tile by tile, and
+going narrower needs either a smaller tile or a ground that can draw a strip inside one. Not decided.
+
+![The stream and trail, one tile wide](../images/2026-11-10/58-narrower-stream-and-trail.png)
