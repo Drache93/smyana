@@ -162,3 +162,14 @@ our men, before more systems.
 
 **D-035, 2026-11-10: Trees are designed in 2D from real photos first, then made as vox.** (Dominic)
 The same order as the men: a design sheet, his sign-off, then the voxel model.
+
+**D-037, 2026-11-10: The light is a low afternoon sun, and its shadows join into one deep shade.** (Dominic: picture 23 is the target; Claude: how, Proposal)
+The art is baked under a sun 26 degrees up, so everything casts long shadows the same way. The
+shadows are drawn into one shade that whatever stands in it shares, and the lit ground takes a
+warm sun colour; places with a lot of shade round them go darker and greyer, so a lit clearing
+stands out of dark woods. Rays run through the gaps and mist lies in the shade. All of it is in
+`data/atmosphere.json`, per mood.
+
+**D-038, 2026-11-10: The campfire is only for a look until fire is part of the game.** (Claude)
+`camp:<x>,<y>` puts the men round a fire to check its light. Fire as a system (feeding the men,
+drawing danger) is still to come and will use the same fire and glow.

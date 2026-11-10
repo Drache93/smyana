@@ -34,3 +34,6 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-10:** The trees brought down to the mock-ups' size, with tree size set per place
   (whole trees, or trunks fading to the sky), the Rhodopes' own kinds, a rich autumn, and
   gneiss outcrops. ([journal](journal/2026-11-10-rhodope-trees-ground-and-rock.md))
+- **2026-11-10:** The light worked toward the target picture: a low sun with long shadows, one
+  deep shade, rays and mist in the air, darker woods round a lit clearing, and a campfire.
+  ([journal](journal/2026-11-10-lighting-and-mood.md), [engine](engine/2026-11-10-sun-and-shade.md))

@@ -54,6 +54,7 @@ let shot = arg_of("shot")
 let shot_at = if arg_of("at") != "": string_to_float(arg_of("at")) else: 4.0
 let script = arg_of("script")  // "tour": the men walk the whole route by themselves (captures, and timing the loads)
 let debug_line = has_s(args, "debug")
+hour_force = if arg_of("hour") != "": string_to_float(arg_of("hour")) else: -1.0  // hour:16.5: this place at that hour, for a look
 season_force = arg_of("season")  // season:autumn: this place in another season, for a look
 let shots_dir = arg_of("shots")  // a picture every few seconds into this folder (with script:tour)
 var shots_n = 0
@@ -230,6 +231,21 @@ def mood_now() -> string:
                 last_at = at
     return if best != "": best else: last  // (before the day's first: still the night before)
 
+// The sun the art is baked under (atmosphere.json's "sun"): how high it stands, degrees. Low, it casts the long
+// shadows of the mock-ups (a late autumn afternoon). The shafts in the air point back at it on the screen.
+def sun_from_data():
+    let sun = gobj(atmo_data, "sun")
+    let elev = gfloat(sun, "elevation", 48.0)
+    VM_SUN = float3 { -elev, VM_SUN.y, 0.0 }
+    let view = euler(VM_VIEW)
+    let d = light_along(VM_SUN)  // where the light goes; on the screen, the way the shadows fall
+    let fall = normalize(float2 { dot(d, view.x), -dot(d, view.y) })
+    // the men's shadows the same way (their baker's ground is x right, y away, seen at 30 degrees: half as deep)
+    let toward = normalize(float2 { -fall.x, 2.0 * fall.y })
+    vx_SUN = normalize(float3 { toward.x, toward.y, tan(elev) })
+    atmo_sun_dir = normalize(float2 { -fall.x, fall.y })  // (towards the sun, y up)
+    bake_light = "sun {elev}"
+
 def mood_tick():
     var m = mood_now()
     // (a season's own light where there is one: "day.autumn")
@@ -249,18 +265,20 @@ class Drawable:
     ay:float
     col:float4
     fade:float  // 1 whole .. 0 gone
+    kind:int  // 0 what stands up (it hides the shade under it), 1 a shadow on the ground, 2 a man (he stands in the shade)
 
 var draws = []::Drawable
+var fires = []::float2  // the camp's fires, art px: where each one's foot is (draw_fire)
 var view_lo = float2_0
 var view_hi = float2_0
 
-def add(f:int, x:float, y:float, sort_y:float, col:float4, fade:float = 1.0):
+def add(f:int, x:float, y:float, sort_y:float, col:float4, fade:float = 1.0, kind:int = -1):
     if f < 0: return
     let fr = frames[f]
     let x0 = x - float(fr.ox) * fr.k
     let y0 = y - float(fr.oy) * fr.k
     if x0 < view_hi.x and y0 < view_hi.y and x0 + float(fr.w) * fr.k > view_lo.x and y0 + float(fr.h) * fr.k > view_lo.y:
-        draws.push(Drawable { sort_y, draws.length, f, x, y, col, fade })
+        draws.push(Drawable { sort_y, draws.length, f, x, y, col, fade, if kind >= 0: kind elif sort_y < -39000.0: 1 else: 0 })
 
 def prev_pos(i:int) -> int, int:
     let found, at = binary_search(p_id, u_id[i])
@@ -287,9 +305,9 @@ def collect_men(alpha:float):
             let step = int(man_walked.get(u_id[i], 0.0) / man_cycle() * float(MEN_STEPS)) % MEN_STEPS
             let facing = (d + 2) % 8
             let p = iso(x, y)
-            add(frame_at.get(man_shadow_name(m.look, facing), -1), p.x, p.y, p.y - 0.5, float4_1)
-            add(frame_at.get(man_frame_name(m.look, if moving: 1 + step else: 0, facing), -1), p.x, p.y, p.y, SASH)
-            if u_carry[i] > 0: add(frame_at.get("load.wood", -1), p.x + 3.0, p.y - 27.0, p.y + 0.1, float4_1)
+            add(frame_at.get(man_shadow_name(m.look, facing), -1), p.x, p.y, p.y - 0.5, float4_1, 1.0, 1)
+            add(frame_at.get(man_frame_name(m.look, if moving: 1 + step else: 0, facing), -1), p.x, p.y, p.y, SASH, 1.0, 2)
+            if u_carry[i] > 0: add(frame_at.get("load.wood", -1), p.x + 3.0, p.y - 27.0, p.y + 0.1, float4_1, 1.0, 2)
             eyes.push(p - float2 { 0.0, 16.0 })
 
 // How much of a giant's crown shows: it thins out over any man it would hide.
@@ -320,16 +338,16 @@ def collect_props():
             elif pr.kind == 1:
                 let name = if pr.sp == "spruce": pr.name else: pr.name + "." + (if bare: "bare" else: season)
                 add(frame_at.get(name + ".shadow", -1), pr.at.x, pr.at.y, -39998.0, float4_1)
-                add(frame_at.get(name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1)
+                add(frame_at.get(name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
             elif pr.kind == 2:
-                add(frame_at.get("stump", -1), pr.at.x, pr.at.y, pr.at.y, float4_1)
+                add(frame_at.get("stump", -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
             elif pr.kind == 5:
                 if not bare:
                     add(frame_at.get(pr.name + "." + season + ".shadow", -1), pr.at.x, pr.at.y, -39996.0, float4_1)
-                    add(frame_at.get(pr.name + "." + season, -1), pr.at.x, pr.at.y, pr.at.y, float4_1)
+                    add(frame_at.get(pr.name + "." + season, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
             else:
                 add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39997.0, float4_1)
-                add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1)
+                add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, if pr.kind == 3: 0 else: 2)
 
 // An ellipse on the ground (2:1) round p.
 def draw_ring(p:float2, r:float, col:float4):
@@ -364,6 +382,36 @@ def draw_world(alpha:float):
     let ws = float(gl.window_size())
     let cam_px = float2 { floor(cam.x * zoom), floor(cam.y * zoom) } / zoom
     sprite_snap = zoom
+    view_lo = from_screen(float2_0) - float2_1
+    view_hi = from_screen(ws) + float2_1
+    draws = []
+    collect_men(alpha)
+    collect_props()
+    draws.push(Drawable { -30000.0, draws.length, -4, 0.0, 0.0, float4_1, 1.0, 3 })  // the rings: on the ground, over the shadows
+    for(fires) p, i: draws.push(Drawable { p.y, draws.length, -5, float(i), 0.0, float4_1, 1.0, 3 })
+    qsort_in_place(draws) a, b: a.y < b.y or (a.y == b.y and a.seq < b.seq)
+    // the ground's shadows into the light's shade buffer, where they join into one shade (a low sun's long shadows
+    // overlap everywhere in a wood), then what stands up out of them wipes them off itself: the trees and rocks are lit
+    // by their own bake; the men keep the shade they stand in
+    let shading = atmo_shading()
+    if shading:
+        atmo_shade_begin()
+        gl.blend(blend_none)
+        gl.scale(0.5):
+            gl.translate(ws / 2.0):
+                gl.scale(zoom):
+                    gl.translate(-cam_px):
+                        b_sheet = -1
+                        sprite_shader = "atmo_shade_cast"
+                        for(draws) d: if d.kind == 1: sprite(d.f, d.x, d.ay, d.col)
+                        flush_sprites()
+                        gl.blend(blend_alpha)
+                        b_sheet = -1
+                        sprite_shader = "atmo_shade_clear"
+                        for(draws) d: if d.kind == 0 and d.f >= 0: sprite(d.f, d.x, d.ay, float4 { d.fade, 0.0, 0.0, 1.0 })
+                        flush_sprites()
+                        sprite_shader = "sprite"
+        gl.blend(blend_alpha)
     let atmo_drawn = atmo_begin(float4 { 0.04, 0.05, 0.04, 1.0 })
     let stale_was = ground_stale
     let step_was = ground_tex_step
@@ -374,24 +422,57 @@ def draw_world(alpha:float):
     gl.translate(ws / 2.0):
         gl.scale(zoom):
             gl.translate(-cam_px):
-                view_lo = from_screen(float2_0) - float2_1
-                view_hi = from_screen(ws) + float2_1
-                draws = []
-                collect_men(alpha)
-                collect_props()
-                draws.push(Drawable { -30000.0, draws.length, -4, 0.0, 0.0, float4_1, 1.0 })  // the rings: on the ground, over the shadows
-                qsort_in_place(draws) a, b: a.y < b.y or (a.y == b.y and a.seq < b.seq)
                 b_sheet = -1
                 for(draws) d:
                     if d.f == -4:
                         flush_sprites()
                         draw_rings(alpha)
                         b_sheet = -1
+                    elif d.f == -5:
+                        flush_sprites()
+                        draw_fire(int(d.x))
+                        b_sheet = -1
+                    elif shading and d.kind == 1: pass()
                     elif d.fade < 1.0: sprite_faded(d.f, d.x, d.ay, d.col, d.fade)
                     else: sprite(d.f, d.x, d.ay, d.col)
                 flush_sprites()
+                fires_glow()
     sprite_snap = 1.0
     if atmo_on: atmo_end(cam_px, zoom, 1.5)
+
+// The camp's fires (for now only for a look: the camp option lights one among the men at dusk): stones, two logs and
+// flames drawn unlit, a glow each in the light (atmosphere.json's "glows": "building_fire"), and a thread of smoke.
+
+def draw_fire(i:int):
+    let p = fires[i]
+    let t = gl.time()
+    gl.set_shader("color")
+    gl.translate(p): gl.scale(1.7):
+        for(9) k:  // the ring of stones
+            let a = float(k) * 40.0
+            gl.color(float4 { 0.28, 0.26, 0.24, 1.0 }):
+                gl.translate(float2 { cos(a) * 7.0 - 1.5, sin(a) * 3.5 - 1.0 }): gl.rect(float2 { 3.0, 2.0 })
+        for([ -1.0, 1.0 ]) side:  // two logs, crossed
+            gl.color(float4 { 0.22, 0.14, 0.08, 1.0 }):
+                gl.translate(float2 { -5.0, -1.5 + side * 0.8 }):
+                    gl.rotate_z(float2 { cos(side * 14.0), sin(side * 14.0) }): gl.rect(float2 { 10.0, 2.0 })
+        for(5) k:  // the flames: tongues that lick up and fall back
+            let ph = t * (5.0 + float(k) * 1.3) * 57.29578 + float(k * 71 + i * 13)
+            let h = 5.0 + 3.5 * (0.5 + 0.5 * sin(ph))
+            let x = (float(k) - 2.0) * 1.6 + sin(ph * 0.7) * 0.6
+            let w = 2.4 - abs(float(k) - 2.0) * 0.4
+            let col = if k == 2: float4 { 1.0, 0.8, 0.35, 1.0 } elif k % 2 == 1: float4 { 0.98, 0.52, 0.14, 1.0 } else: float4 { 0.82, 0.28, 0.08, 1.0 }
+            gl.color(col):
+                gl.translate(float2 { x - w / 2.0, -h - 1.0 }): gl.rect(float2 { w, h * (if k == 2: 1.15 else: 0.85) })
+        for(6) k:  // a thread of smoke, drifting
+            let u = (t * 0.35 + float(k) / 6.0) % 1.0
+            gl.color(float4 { 0.62, 0.6, 0.58, 0.28 * (1.0 - u) }):
+                gl.translate(float2 { sin(u * 200.0 + float(i) * 40.0) * 3.0 + u * 10.0 - 2.0, -12.0 - u * 46.0 }): gl.rect(float2 { 3.0 + u * 7.0, 3.0 + u * 5.0 })
+
+def fires_glow():
+    if not atmo_on or not fires.length: return
+    let src = atmo_source("building_fire")
+    for(fires) p, i: atmo_glow(src, (p - float2 { 0.0, 4.0 }) / 1.5, float3 { 1.0, 0.6, 0.25 }, 1.0, float(i) * 3.1)
 
 // ------------------------------------------------------------------ words on the screen (the letter, the end)
 
@@ -561,7 +642,9 @@ lib_load("../data")
 route_load()
 atmo_data = lib_data("atmosphere.json")
 for(atmo_problems(atmo_data)) why: print why
+sun_from_data()
 zoom = max(1.0, floor(float(gl.window_size().y) / 450.0 * 4.0) / 4.0)
+if arg_of("zoom") != "": zoom = string_to_float(arg_of("zoom"))  // zoom:2.75: the camera this close, for a look beside a mock-up
 
 // A frame of words while something long is made (the first start bakes the men and the trees).
 var waiting_lines = [ "Smyana" ]
@@ -579,6 +662,22 @@ bake_men(): waiting_frame()
 bake_trees(): waiting_frame()
 run_begin()
 if arg_of("leg") != "": enter_leg(arg_of("leg"), "west")  // leg:<id>: start at this leg of the route, for a look
+// camp or camp:<x>,<y>: the men round a fire (at that tile), for a look at the camp's light
+if has_s(args, "camp") or arg_of("camp") != "":
+    let at = arg_of("camp")
+    if at != "":
+        let xy = map(tokenize(at, ",", " ")) v: string_to_int(v)
+        let c = int2 { xy[0] * TILE + 500, xy[1] * TILE + 500 }
+        for(u_x.length) i:
+            let a = float(i) * 360.0 / float(max(1, u_x.length)) + 11.0
+            let r = 1300.0 + float((i * 7) % 5) * 380.0
+            u_x[i] = c.x + int(cos(a) * r)
+            u_y[i] = c.y + int(sin(a) * r)
+        p_id = []
+        cam = iso(float(c.x), float(c.y))
+        fires = [ cam ]
+    else:
+        fires = [ men_centre() + float2 { 0.0, 6.0 } ]
 view_enter(): waiting_frame()
 if arg_of("look") != "":  // look:<x>,<y>: the camera on this tile
     let xy = tokenize(arg_of("look"), ",", " ")
