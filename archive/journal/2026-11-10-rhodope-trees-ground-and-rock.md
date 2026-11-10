@@ -216,4 +216,4 @@ every tree, rock and plant is baked at the men's fineness. A .vox model can't be
 big trees are saved in pieces (`<name>.cXYZ.vox`). The baker's per-voxel dither and the screen's haze are being looked
 at in the lighting thread.
 
-![Trees at the men's fineness](../images/2026-11-10/73-trees-at-the-mens-fineness.png)
+![Trees at the men's fineness](../images/2026-11-10/74-trees-at-the-mens-fineness.png)
