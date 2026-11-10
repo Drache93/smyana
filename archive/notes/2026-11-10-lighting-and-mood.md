@@ -38,3 +38,7 @@ comparison needs a wood as close as the mock-up's.
 
 Summary (Claude): the smudges were Claude's air and woods layers, and the soft shadow edges were a
 blur Claude added. The target is crisp: hard-edged light shade, sharp art.
+
+## On the crisp pass (22:00)
+
+> Much closer!
