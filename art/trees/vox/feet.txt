@@ -5,3 +5,15 @@ beech_mature_0 70 89
 beech_mature_1 91 77
 beech_old_0 98 102
 beech_old_1 119 91
+oak_mature_0 92 90
+oak_old_0 99 113
+oak_old_1 112 108
+hornbeam_mature_0 71 77
+hornbeam_old_0 74 83
+hornbeam_old_1 76 65
+pine_mature_0 71 58
+pine_old_0 80 85
+pine_old_1 71 89
+spruce_mature_0 43 43
+spruce_old_0 52 51
+spruce_old_1 51 54

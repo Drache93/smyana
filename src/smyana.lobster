@@ -104,9 +104,8 @@ def cell_hash(c:int) -> int: return ((c * 2654435761) >> 7) & 0xFFFF
 // (deep: the high dark woods, where the trunks run up out of sight and only the understorey is a tree's whole height)
 def old_kind(wood:string, pick:int) -> string, int:
     let r = (pick / 3) % 8
-    // (only the beech is made from its design yet: the others join it as their models are made, D-035)
-    var sp = "beech"
-    if wood == "deep": sp = if r < 7: "tall" else: "beech"
+    var sp = if r < 4: "beech" elif r < 6: "oak" elif r < 7: "hornbeam" else: "pine"
+    if wood == "deep": sp = if r < 6: "tall" elif r < 7: "spruce" else: "beech"
     if wood == "conifer": sp = if r < 5: "spruce" elif r < 7: "pine" else: "beech"
     return sp, pick % (if sp == "pine": PINE_KINDS else: 3)
 

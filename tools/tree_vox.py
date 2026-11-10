@@ -85,7 +85,7 @@ def dabs(m, tip, reach, count, cling, rng):
         sub[inside & ~up & (sub == 0)] = CLING_LOW if cling else UNDER
 
 
-def beech(height, girth, bole, spread, boughs, seed):
+def broadleaf(height, girth, bole, spread, boughs, seed, cling=0.4, stout=1.0, fill=16):
     """As on the sheet and in the target picture: a flared foot, one clean slim silver bole, boughs that rise steeply
     from the fork and then spread, each breaking into branches and fine twigs that can be seen, and the leaves in
     clusters of dabs at the twigs' ends. Sizes in men: height, the trunk's width, how far up the clean bole goes (of the
@@ -139,26 +139,80 @@ def beech(height, girth, bole, spread, boughs, seed):
 
     for i in range(boughs):
         az = 2 * math.pi * (i + rng.uniform(-0.25, 0.25)) / boughs
-        bough(fork - [0, 0, rng.uniform(0, 0.12) * H * bole], az, S * rng.uniform(0.6, 0.9), top * rng.uniform(0.5, 0.85), r0 * 0.52)
+        bough(fork - [0, 0, rng.uniform(0, 0.12) * H * bole], az, S * rng.uniform(0.6, 0.9), top * rng.uniform(0.5, 0.85), r0 * 0.52 * stout)
     bough(fork, rng.uniform(0, 6.28), S * 0.12, top * 0.95, r0 * 0.6)              # the leader
     for tip in tips:
-        cling = rng.random() < 0.4
-        dabs(m, tip, 2.6 * F, 10 if cling else 13, cling, rng)
+        clings = rng.random() < cling
+        dabs(m, tip, 2.6 * F, 10 if clings else 13, clings, rng)
         # (summer's body: more leaves round each twig's end, none of which outlast the fall)
-        dabs(m, tip + np.array([rng.gauss(0, 1), rng.gauss(0, 1), rng.uniform(-0.2, 0.8)]) * 3.0 * F, 3.4 * F, 16, False, rng)
+        dabs(m, tip + np.array([rng.gauss(0, 1), rng.gauss(0, 1), rng.uniform(-0.2, 0.8)]) * 3.0 * F, 3.4 * F, fill, False, rng)
     return m
 
 
-SIZES = {  # in men, measured from the route mock-ups (an old tree six men tall, its trunk a quarter of a man wide)
-    "sapling": (1.1, 0.06, 0.35, 0.4, 3), "young": (2.7, 0.13, 0.4, 0.9, 4),
-    "mature": (4.5, 0.22, 0.36, 1.6, 5), "old": (5.5, 0.28, 0.36, 2.0, 6),
+def spruce(height, girth, bole, spread, seed):
+    """Norway spruce: a narrow spire on one straight trunk, boughs in whorls that droop and turn up at the tip, the
+    needles in dabs along each bough. Sizes in men, as broadleaf's."""
+    rng = random.Random(seed)
+    m = Model()
+    H = height * MAN
+    r0 = girth * MAN / 2
+    S = spread * MAN
+    cx = cy = N / 2
+    m.capsule((cx, cy, 0), (cx, cy, r0 * 1.6), r0 * 1.5, r0, BARK)
+    m.capsule((cx, cy, 0), (cx, cy, H), r0, 0.6 * F, BARK)
+    for i in range(int(height * 1.2)):                   # dead stubs below the green
+        z = rng.uniform(0.25, 1.0) * H * bole
+        a = rng.uniform(0, 6.28)
+        l = rng.uniform(0.15, 0.4) * S
+        m.capsule((cx, cy, z), (cx + math.cos(a) * l, cy + math.sin(a) * l, z - l * 0.2), 0.6 * F, 0.45 * F, BARK)
+    z = H * bole
+    while z < H * 0.97:
+        t = (z - H * bole) / (H * (1 - bole))
+        reach = S * (1 - t) ** 0.8 + 1.5 * F
+        n = 4 if t > 0.85 else 7
+        turn = rng.uniform(0, 6.28)
+        for i in range(n):
+            a = turn + i * 6.283 / n + rng.uniform(-0.2, 0.2)
+            l = reach * rng.uniform(0.8, 1.1)
+            droop = l * (0.5 - t * 0.6)
+            steps = max(2, int(l / (2.2 * F)))
+            last = np.array([cx, cy, z])
+            for k in range(steps):
+                u = (k + 1) / steps
+                at = np.array([cx + math.cos(a) * l * u, cy + math.sin(a) * l * u, z - droop * u * u + (droop * 0.2 if k == steps - 1 else 0)])
+                m.capsule(last, at, 0.55 * F, 0.45 * F, BARK)
+                dabs(m, at, 0.5 * F, 2, False, rng)
+                dabs(m, at - [0, 0, 1.6 * F], 0.4 * F, 1, False, rng)   # the hanging branchlets
+                last = at
+        z += (2.6 + 2.0 * t) * F
+    return m
+
+
+def make(kind, name, h, g, b, s, n, seed):
+    if kind == "spruce": return spruce(h, g, b, s, seed)
+    if kind == "oak": return broadleaf(h, g, b, s, n, seed, cling=0.65, stout=1.3, fill=20)        # holds its russet leaves
+    if kind == "hornbeam": return broadleaf(h, g, b, s, n, seed, cling=0.35, stout=0.9, fill=14)
+    if kind == "pine": return broadleaf(h, g, b, s, n, seed, cling=0.0, stout=1.0, fill=10)        # a bare bole, a high flat crown
+    return broadleaf(h, g, b, s, n, seed)
+
+
+# In men, measured from the route mock-ups (an old tree five or six men tall, its trunk a quarter to a third of a man
+# wide): height, the trunk's width, how far up the clean bole goes, the crown's half width, boughs.
+KINDS = {
+    "beech": {"sapling": (1.1, 0.06, 0.35, 0.4, 3), "young": (2.7, 0.13, 0.4, 0.9, 4), "mature": (4.5, 0.22, 0.36, 1.6, 5), "old": (5.5, 0.28, 0.36, 2.0, 6)},
+    "oak": {"mature": (4.0, 0.3, 0.3, 1.6, 5), "old": (5.0, 0.4, 0.28, 1.95, 6)},
+    "hornbeam": {"mature": (3.4, 0.17, 0.32, 1.1, 5), "old": (4.2, 0.22, 0.3, 1.4, 6)},
+    "pine": {"mature": (5.0, 0.2, 0.62, 1.1, 4), "old": (5.6, 0.26, 0.64, 1.4, 5)},
+    "spruce": {"mature": (5.0, 0.2, 0.12, 0.95, 0), "old": (6.1, 0.26, 0.16, 1.15, 0)},
 }
 lines = []
-for name, (h, g, b, s, n) in SIZES.items():
-    for variant in range(2 if name in ("mature", "old", "young") else 1):
-        tag = "%s_%d" % (name, variant)
-        size, foot, count = beech(h, g, b, s, n, 100 + len(lines)).save("art/trees/vox/beech_%s.vox" % tag)
-        lines.append("beech_%s %d %d" % (tag, foot[0], foot[1]))
-        print("beech_%s: %s voxels %d, foot %s" % (tag, size, count, foot))
+for kind, sizes in KINDS.items():
+    for name, (h, g, b, s, n) in sizes.items():
+        for variant in range(2 if name in ("old", "young") or (kind == "beech" and name == "mature") else 1):
+            tag = "%s_%s_%d" % (kind, name, variant)
+            size, foot, count = make(kind, name, h, g, b, s, n, 100 + len(lines)).save("art/trees/vox/%s.vox" % tag)
+            assert max(size) <= 256, (tag, size)
+            lines.append("%s %d %d" % (tag, foot[0], foot[1]))
+            print("%s: %s voxels %d, foot %s" % (tag, size, count, foot))
 # (where each trunk's foot is in its model: x y, voxels from the model's corner)
 open("art/trees/vox/feet.txt", "w").write("\n".join(lines) + "\n")

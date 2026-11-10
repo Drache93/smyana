@@ -206,3 +206,6 @@ After seeing the first runnable version (its trees were about thirteen men tall)
 
 **21:25**
 > Any engine changes needed are possible also I'd limiting us
+
+**21:41** (asked whether the other tree kinds still need a 2D sheet first)
+> Skip 2D

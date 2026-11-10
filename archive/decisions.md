@@ -172,3 +172,7 @@ boughs, branches and twigs that show, and leaves as dabs in clusters at the twig
 keep only some clusters. The target is picture 23 (Dominic: "This is our target", with the caveat that it is also a
 mock-up, "just closest we have to rich and deep environment that draws a player in"). Engine changes are allowed where
 the engine limits the look (Dominic). Lighting and mood are worked in their own thread.
+
+**D-037, 2026-11-10: No 2D sheet before a tree's model any more.** (Dominic: "Skip 2D")
+Supersedes the sheet-first step of D-035. The beech's sheet showed the design held; the fault was in the model. The
+other kinds go straight to models, each checked beside the mock-ups (D-036) before it is shown.

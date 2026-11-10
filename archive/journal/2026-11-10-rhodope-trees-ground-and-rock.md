@@ -177,3 +177,11 @@ fade over the men (#7) set to the new, smaller beech.
 ![Summer](../images/2026-11-10/52-beech-wood-summer-new-style.png)
 
 ![Autumn](../images/2026-11-10/53-beech-wood-autumn-new-style.png)
+
+Dominic: "Skip 2D" (D-037). Oak, hornbeam, pine and spruce made straight as models with the same tool: the oak
+stout and wide, keeping most of its russet leaves; the hornbeam small and narrow; the pine a bare bole with a high
+crown; the spruce a spire of drooping whorls. The old stand-in trees built in code are gone.
+
+![Beech, oak, hornbeam and pine together](../images/2026-11-10/54-mixed-wood-beech-oak-hornbeam-pine.png)
+
+![The fir woods with a whole spruce](../images/2026-11-10/55-fir-woods-with-whole-spruce.png)

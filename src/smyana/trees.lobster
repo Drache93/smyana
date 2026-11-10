@@ -1,19 +1,18 @@
-// ------------------------------------------------------------------ the trees, grey-boxed
-// Stand-ins built voxel by voxel with Creel's prop baker (view/voxel_grid.lobster), so the size of the forest can be
-// felt before the real trees are drawn (issue #6), in the Rhodopes' own kinds, at the size of the route mock-ups (archive/images/2026-11-10/19 to
-// 23; Dominic, 2026-11-10: "Need to keep to the designs"): an old tree is about six men tall with a trunk a man wide
-// and a crown five or six men across; a young tree is two or three men tall (a man is about 0.57 of a tile). A giant is three pictures: its trunk, its shadow on the
-// ground, and its crown, which fades when a man is under it so he can be seen. The crowns are baked once a season
-// (their colour), behind the letter home, and kept in bake_cache/.
-// Baked coarse (TREE_K voxels a tile) and drawn larger: a giant at the men's fineness would take minutes to bake.
+// ------------------------------------------------------------------ the trees
+// Baked voxel by voxel with Creel's prop baker (view/voxel_grid.lobster), in the Rhodopes' own kinds, at the size of
+// the route mock-ups (archive/images/2026-11-10/19 to 23; Dominic, 2026-11-10: "Need to keep to the designs"; D-036):
+// an old tree is five or six men tall with a trunk a quarter to a third of a man wide; a young tree is two or three
+// men tall. The whole trees are .vox models (art/trees/vox/, made by tools/tree_vox.py). An old tree is three
+// pictures: its wood, its shadow on the ground, and its leaves, which fade when a man is under them so he can be
+// seen. The leaves are baked once a season (their colour), behind the letter home, and kept in bake_cache/.
 
-let TREE_K = 64.0  // voxels a tile (the .vox trees are made at this: tools/tree_vox.py)
-let TREE_BAKE = "trees 19"
+let TREE_K = 64.0  // voxels a tile for the load of wood (baked at twice this)
+let TREE_BAKE = "trees 20"
 let VOX_K = 112.0   // voxels a tile in the .vox trees: nearly twice as fine as the rest, so twigs and leaves are crisp
 // The baker's light, shade and occlusion reach a few of the grid's units. A grid here is built in tiles, far too big a
 // unit (everything shaded flat), so before a grid is drawn its unit is made a sixteenth of a tile.
 let LIGHT_UNITS = 16.0
-let PINE_KINDS = 2
+let PINE_KINDS = 3
 let SPRUCE_KINDS = 3
 let YOUNG_KINDS = 2
 let ROCK_KINDS = 4
@@ -73,102 +72,8 @@ def gneiss_look() -> vglook:
                     true, false, false }
 
 // Where a tree's crown is centred over its foot, and how far it spreads (tiles): what fades over a man.
-def crown_up(sp:string) -> float: return if sp == "beech": 1.35 elif sp == "oak": 1.7 elif sp == "hornbeam": 1.5 elif sp == "pine": 2.6 else: 1.9
-def crown_reach(sp:string) -> float: return if sp == "beech": 0.8 elif sp == "oak": 1.4 elif sp == "hornbeam": 0.85 elif sp == "pine": 0.8 else: 0.7
-
-// A broadleaf's build: fork height from..to, bough reach from..to, trunk radius, a leaf layer's radius, how flat it is.
-def leaf_build(sp:string) -> [float]:
-    return if sp == "oak": [ 0.95, 1.2, 0.7, 0.95, 0.17, 0.6, 1.45 ] elif sp == "hornbeam": [ 0.85, 1.05, 0.32, 0.48, 0.085, 0.42, 1.35 ] else: [ 1.3, 1.6, 0.55, 0.8, 0.13, 0.56, 2.1 ]
-
-def leaf_seed(sp:string, kind:int) -> int: return 500 + (if sp == "oak": 37 elif sp == "hornbeam": 74 else: 0) + kind
-
-// An old broadleaf's frame: where its trunk forks, where each bough ends, and the twigs off each bough (tiles from
-// its foot). The trunk's picture has the wood; the crown's has the leaves, clustered at the twigs' tips.
-def leaf_frame(sp:string, kind:int) -> float3, [float3], [float3]:
-    let rng = grng(leaf_seed(sp, kind))
-    let b = leaf_build(sp)
-    let top = float3 { randf_range(rng, -0.1, 0.1), randf_range(rng, -0.1, 0.1), randf_range(rng, b[0], b[1]) }
-    let n = 5 + kind % 2
-    let ends = map(n) i:
-        let a = float(i) * 360.0 / float(n) + randf_range(rng, -25.0, 25.0)
-        let out = randf_range(rng, b[2], b[3])
-        // (the last goes nearly straight up: the leader)
-        if i == n - 1: top + float3 { cos(a) * out * 0.2, sin(a) * out * 0.2, b[3] * 1.15 }
-        else: top + float3 { cos(a) * out, sin(a) * out, randf_range(rng, 0.3, 0.75) * b[3] / 0.8 }
-    let twigs = []::float3
-    for(ends) e:
-        for(4) t:
-            let a = randf_range(rng, 0.0, 360.0)
-            let out = randf_range(rng, 0.18, 0.4) * b[3] / 0.8
-            twigs.push(e + float3 { cos(a) * out, sin(a) * out, randf_range(rng, 0.0, 0.35) * b[3] / 0.8 })
-    return top, ends, twigs
-
-def leaf_trunk(look:vglook, sp:string, kind:int) -> vgrid:
-    let top, ends, twigs = leaf_frame(sp, kind)
-    let r = leaf_build(sp)[4]
-    let g = vg_new(look, float3 { -1.6, -1.6, 0.0 }, float3 { 1.6, 1.6, 3.2 }, TREE_K, leaf_seed(sp, kind))
-    vg_capsule(g, float3_0, top, r, r * 0.7, VG_BARK)
-    vg_cylinder(g, float3_0, float3 { 0.0, 0.0, 0.18 }, r * 1.45, r, VG_BARK)  // the foot's flare
-    for(ends) e, i:
-        vg_capsule(g, top * 0.86, e, r * 0.5, r * 0.2, VG_BARK)
-        for(4) t: vg_capsule(g, top * 0.86 + (e - top * 0.86) * (0.55 + 0.15 * float(t)), twigs[i * 4 + t], r * 0.2, r * 0.1, VG_BARK)
-    return g
-
-// A broadleaf's leaves: small clusters at the tips of its twigs and along its boughs, each its own tone, with the
-// branches and the sky showing between them. full: how much of its leaf it has (autumn's are thinning).
-def leaf_crown(look:vglook, sp:string, kind:int, full:float) -> vgrid:
-    let top, ends, twigs = leaf_frame(sp, kind)
-    let b = leaf_build(sp)
-    let pr = b[5] / 0.56
-    let rng = grng(leaf_seed(sp, kind) + 200)
-    let g = vg_new(look, float3 { -2.1, -2.1, 0.5 }, float3 { 2.1, 2.1, 3.5 }, TREE_K, leaf_seed(sp, kind) + 200)
-    let rough = vg_field(g, 0.1, leaf_seed(sp, kind) + 201)
-    def cluster(c:float3, n:int, spread:float, size:float):
-        for(n) i:
-            if randf(rng) < full:
-                let at = c + vg_gauss3(rng) * spread
-                vg_blob(g, at, randf_range(rng, 0.1, 0.17) * size, 1.25, 0.8, rough, VG_LEAF, randf_range(rng, -0.4, 0.5), 0.22, nil, 0.0)
-    for(twigs) t: cluster(t, 6, 0.13 * pr, pr)
-    for(ends) e: cluster(e, 7, 0.17 * pr, pr * 1.15)
-    for(ends) e: cluster(top * 0.86 + (e - top * 0.86) * 0.6, 3, 0.12 * pr, pr)
-    return g
-
-def pine_frame(kind:int) -> float3, [float3]:
-    let rng = grng(520 + kind)
-    let top = float3 { randf_range(rng, -0.2, 0.2), randf_range(rng, -0.1, 0.1), randf_range(rng, 2.3, 2.7) }
-    let ends = map(3) n:
-        let a = float(n) * 120.0 + randf_range(rng, -30.0, 30.0)
-        let out = randf_range(rng, 0.4, 0.55)
-        top + float3 { cos(a) * out, sin(a) * out, randf_range(rng, -0.1, 0.15) }
-    return top, ends
-
-def pine_trunk(look:vglook, kind:int) -> vgrid:
-    let top, ends = pine_frame(kind)
-    let g = vg_new(look, float3 { -0.9, -0.9, 0.0 }, float3 { 0.9, 0.9, 3.1 }, TREE_K, 520 + kind)
-    vg_capsule(g, float3_0, top, 0.1, 0.055, VG_BARK)
-    for(ends) e: vg_capsule(g, top * 0.9, e, 0.04, 0.02, VG_BARK)
-    // a dead snag or two lower down
-    vg_capsule(g, top * 0.6, top * 0.6 + float3 { 0.22, 0.1, 0.05 }, 0.025, 0.012, VG_BARK)
-    return g
-
-def pine_crown(look:vglook, kind:int) -> vgrid:
-    let top, ends = pine_frame(kind)
-    let rng = grng(720 + kind)
-    let g = vg_new(look, float3 { -1.3, -1.3, 1.8 }, float3 { 1.3, 1.3, 3.4 }, TREE_K, 720 + kind)
-    let rough = vg_field(g, 0.25, 721 + kind)
-    let gaps = vg_field(g, 0.35, 722 + kind)
-    for(ends) e: vg_blob(g, e + float3 { 0.0, 0.0, 0.08 }, randf_range(rng, 0.36, 0.46), 1.9, 0.6, rough, VG_LEAF, randf_range(rng, -0.5, 0.4), 0.14, gaps, 0.66)
-    vg_blob(g, top + float3 { 0.0, 0.0, 0.3 }, 0.5, 1.8, 0.6, rough, VG_LEAF, 0.3, 0.14, gaps, 0.66)
-    return g
-
-def spruce_height(kind:int) -> float: return 3.1 + float(kind) * 0.3
-
-def spruce_trunk(look:vglook, kind:int) -> vgrid:
-    let h = spruce_height(kind)
-    let g = vg_new(look, float3 { -0.4, -0.4, 0.0 }, float3 { 0.4, 0.4, h + 0.1 }, TREE_K, 540 + kind)
-    vg_capsule(g, float3_0, float3 { 0.0, 0.0, h }, 0.1, 0.02, VG_BARK)
-    vg_cylinder(g, float3_0, float3 { 0.0, 0.0, 0.14 }, 0.15, 0.1, VG_BARK)
-    return g
+def crown_up(sp:string) -> float: return if sp == "beech": 1.35 elif sp == "oak": 1.2 elif sp == "hornbeam": 1.0 elif sp == "pine": 1.7 else: 1.2
+def crown_reach(sp:string) -> float: return if sp == "beech": 0.8 elif sp == "oak": 0.8 elif sp == "hornbeam": 0.55 elif sp == "pine": 0.55 else: 0.45
 
 // A deep wood's spruce or fir: a bare dark trunk with dead snags, far taller than the picture shows. Its top is
 // faded out when it's baked (tree_onto's fade), so the trunks run up out of sight: the canopy is over the camera.
@@ -190,39 +95,7 @@ def tall_trunk(look:vglook, kind:int) -> vgrid:
         if n % 3 == 0: vg_capsule(g, tip * 0.6 + float3 { 0.0, 0.0, z * 0.4 }, tip + float3 { 0.03, -0.02, -0.06 }, 0.006, 0.005, VG_BARK)
     return g
 
-// A spire of drooping tiers, wide at the bottom, from `low` to the tip (the young one's start at the ground).
-def spire(g:vgrid, seed:int, low:float, h:float, wide:float, step:float):
-    let rng = grng(seed)
-    let rough = vg_field(g, 0.2, seed + 1)
-    var z = low
-    while z < h:
-        let t = (z - low) / (h - low)
-        let r = wide * pow(1.0 - t, 0.85) + 0.05
-        let c = float3 { randf_range(rng, -0.05, 0.05), randf_range(rng, -0.05, 0.05), z }
-        vg_blob(g, c, r, 2.6, 0.55, rough, VG_LEAF, randf_range(rng, -0.5, 0.5), 0.18, nil, 0.0)
-        z += step * (0.85 + 0.3 * randf(rng))
-
-def spruce_crown(look:vglook, kind:int) -> vgrid:
-    let h = spruce_height(kind)
-    let g = vg_new(look, float3 { -1.0, -1.0, 0.5 }, float3 { 1.0, 1.0, h + 0.3 }, TREE_K, 740 + kind)
-    spire(g, 740 + kind, 0.75, h + 0.1, 0.62 + float(kind) * 0.05, 0.2)
-    return g
-
-// A young beech, whole: thin, two or three men tall. bare: no leaves (winter).
-def young_tree(look:vglook, kind:int, bare:bool) -> vgrid:
-    let rng = grng(900 + kind)
-    let g = vg_new(look, float3 { -0.6, -0.6, 0.0 }, float3 { 0.6, 0.6, 1.7 }, TREE_K, 900 + kind)
-    let top = float3 { randf_range(rng, -0.08, 0.08), randf_range(rng, -0.08, 0.08), randf_range(rng, 0.75, 1.0) }
-    vg_capsule(g, float3_0, top, 0.06, 0.035, VG_BARK)
-    for(3) n:
-        let a = float(n) * 120.0 + randf_range(rng, 0.0, 60.0)
-        vg_capsule(g, top * 0.7, top + float3 { cos(a) * 0.25, sin(a) * 0.25, 0.2 }, 0.03, 0.02, VG_BARK)
-    if not bare:
-        let rough = vg_field(g, 0.2, 901 + kind)
-        vg_blob(g, top + float3 { 0.0, 0.0, 0.12 }, randf_range(rng, 0.36, 0.44), 1.7, 0.5, rough, VG_LEAF, randf_range(rng, -0.3, 0.3), 0.12, nil, 0.0)
-        vg_blob(g, top + float3 { 0.05, 0.0, 0.36 }, randf_range(rng, 0.24, 0.3), 1.6, 0.5, rough, VG_LEAF, randf_range(rng, -0.3, 0.3), 0.12, nil, 0.0)
-    return g
-
+// A young spruce, whole.
 def young_spruce(look:vglook, kind:int) -> vgrid:
     // (one and a half to two and a half men tall: whorls of drooping boughs, each a twig with needles in dabs)
     let rng = grng(940 + kind)
@@ -258,12 +131,14 @@ def tree_stump(look:vglook) -> vgrid:
 // A tree designed in 2D (art/trees/design/) and made as a voxel model (art/trees/vox/, tools/tree_vox.py). Its palette
 // index says what each voxel is: 1..4 bark, 10 leaves lit from above, 11 mid, 12 their underside. The model is baked
 // as two pictures, its wood and its leaves, so the leaves can be coloured by the season and fade over a man.
-let VOX_TREES = [ "beech_old_0", "beech_old_1", "beech_mature_0", "beech_mature_1", "beech_young_0", "beech_young_1", "beech_sapling_0" ]
+// An old tree's three looks are two old models and a mature one.
+def vox_name(sp:string, kind:int) -> string: return sp + [ "_old_0", "_old_1", "_mature_0" ][kind]
 var vox_feet = []::string  // art/trees/vox/feet.txt, in tokens: name, x, y, ...
 
 def vox_tree_text() -> string:
     var t = read_file("../art/trees/vox/feet.txt") or ""
-    for(VOX_TREES) name: t += sha256_text(read_file("../art/trees/vox/{name}.vox") or "")
+    let names = tokenize(t, " \n", "")
+    for(names.length / 3) i: t += sha256_text(read_file("../art/trees/vox/{names[i * 3]}.vox") or "")
     return sha256_text(t)
 
 // leaves: the model's leaves alone, or its wood alone.
@@ -332,7 +207,7 @@ def fern(look:vglook, kind:int) -> vgrid:
 def bush(look:vglook, kind:int) -> vgrid:
     let rng = grng(1400 + kind)
     let g = fine_grid(look, 0.42, 0.5, 1400 + kind)
-    for(6 + kind * 2) i:
+    for(6 + kind * 2):
         let c = float3 { randf_range(rng, -0.2, 0.2), randf_range(rng, -0.2, 0.2), randf_range(rng, 0.1, 0.27) }
         twig(g, float3 { c.x * 0.25, c.y * 0.25, 0.0 }, c, 0.009, VG_BARK, 0.0)
         let tone = randf_range(rng, -0.5, 0.7)
@@ -348,7 +223,7 @@ def herbs(look:vglook, kind:int) -> vgrid:
     let rng = grng(1450 + kind)
     let g = fine_grid(look, 0.5, 0.2, 1450 + kind)
     let lobes = 3 + kind
-    for(lobes) l:
+    for(lobes):
         let lc = float3 { randf_range(rng, -0.22, 0.22), randf_range(rng, -0.22, 0.22), 0.0 }
         let lr = randf_range(rng, 0.1, 0.2)
         for(int(lr * 170.0)):
@@ -367,7 +242,7 @@ def fallen_log(look:vglook, kind:int) -> vgrid:
     let d = float3 { cos(a), sin(a), 0.0 } * (0.45 + float(kind) * 0.15)
     let up = float3 { 0.0, 0.0, 0.055 }
     let rough = vg_field(g, 0.1, 1501 + kind)
-    for(4) i:
+    for(4):
         let t = randf_range(rng, -0.8, 0.8)
         vg_blob(g, d * t + float3 { 0.0, 0.0, 0.1 }, 0.05, 2.0, 0.6, rough, VG_LEAF, randf_range(rng, -0.4, 0.2), 0.2, nil, 0.0)
     vg_cylinder(g, up - d, up + d, 0.055, 0.045, VG_BARK)
@@ -473,75 +348,62 @@ def tree_onto(s:Sheet, name:string, g:vgrid, shadow:bool, shade_k:float = 1.0, f
 // between(): so the window can draw.
 def bake_trees(between):
     tree_draw_k = WB_PX / ART_K / TREE_K
-    let s = sheet_new("trees", "{TREE_BAKE} {TREE_K} {WB_PX} {vox_tree_text()}", 4096)
-    let rs = sheet_new("rocks", "{TREE_BAKE} {VOX_K} {WB_PX}", 2048)
-    let ls = sheet_new("load", "{TREE_BAKE} {TREE_K} {WB_PX}", 256)
     let t0 = seconds_elapsed()
     let beech = beech_look("summer")
     let spruce = spruce_look()
-    // (the .vox trees: twice as fine, on a sheet of their own)
-    let vs = sheet_new("beech", "{TREE_BAKE} {VOX_K} {WB_PX} {vox_tree_text()}", 4096)
+    let pine = pine_look()
+    // the broadleaves' wood, and what stands or lies under them
+    let vs = sheet_new("wood", "{TREE_BAKE} {VOX_K} {WB_PX} {vox_tree_text()}", 4096)
     if not sheet_load(vs, vox_draw_k()):
-        for(LEAF_KINDS) kind:
-            tree_onto(vs, "beech{kind}", vox_tree(beech, VOX_TREES[kind], false), true)
+        for(BROADLEAVES) sp: for(LEAF_KINDS) kind:
+            tree_onto(vs, "{sp}{kind}", vox_tree(leaf_look(sp, "summer", kind), vox_name(sp, kind), false), true)
             between()
-        for(YOUNG_KINDS) kind: tree_onto(vs, "young{kind}.bare", vox_tree(beech, VOX_TREES[4 + kind], false), true)
-        for(SPRUCE_KINDS) kind:
-            tree_onto(vs, "tall{kind}", tall_trunk(spruce, kind), true, 0.5, 0.22)
-            between()
-        for(YOUNG_KINDS) kind: tree_onto(vs, "yspruce{kind}", young_spruce(spruce, kind), true)
+        for(YOUNG_KINDS) kind: tree_onto(vs, "young{kind}.bare", vox_tree(beech, "beech_young_{kind}", false), true)
         tree_onto(vs, "stump", tree_stump(beech), true)
         for(LOG_KINDS) kind: tree_onto(vs, "log{kind}", fallen_log(under_look("summer", kind, true), kind), true)
         sheet_finish(vs, vox_draw_k(), true)
         trees_bake_s = seconds_elapsed() - t0
-    if sheet_load(s, tree_draw_k) and sheet_load(rs, vox_draw_k()) and sheet_load(ls, tree_draw_k / 2.0): return
-    let pine = pine_look()
-    for(BROADLEAVES) sp: for(LEAF_KINDS) kind:
-        // (beech is made as .vox, from its design sheet: two old ones and a mature one, on the sheet above)
-        if sp != "beech": tree_onto(s, "{sp}{kind}", leaf_trunk(leaf_look(sp, "summer", kind), sp, kind), true)
-        between()
-    between()
-    for(PINE_KINDS) kind:
-        tree_onto(s, "pine{kind}", pine_trunk(pine, kind), true)
-        tree_onto(s, "pine{kind}.crown.ever", pine_crown(pine, kind), true, 0.45)
-    between()
-    for(SPRUCE_KINDS) kind:
-        tree_onto(s, "spruce{kind}", spruce_trunk(spruce, kind), true)
-        tree_onto(s, "spruce{kind}.crown.ever", spruce_crown(spruce, kind), true, 0.6)
-        between()
-    sheet_finish(s, tree_draw_k, true)
+    // the evergreens, whole, and the deep wood's trunks
+    let cs = sheet_new("conifers", "{TREE_BAKE} {VOX_K} {WB_PX} {vox_tree_text()}", 4096)
+    if not sheet_load(cs, vox_draw_k()):
+        for(LEAF_KINDS) kind:
+            tree_onto(cs, "pine{kind}", vox_tree(pine, vox_name("pine", kind), false), true)
+            tree_onto(cs, "pine{kind}.crown.ever", vox_tree(pine, vox_name("pine", kind), true), true, 0.6)
+            tree_onto(cs, "spruce{kind}", vox_tree(spruce, vox_name("spruce", kind), false), true)
+            tree_onto(cs, "spruce{kind}.crown.ever", vox_tree(spruce, vox_name("spruce", kind), true), true, 0.8)
+            tree_onto(cs, "tall{kind}", tall_trunk(spruce, kind), true, 0.5, 0.22)
+            between()
+        for(YOUNG_KINDS) kind: tree_onto(cs, "yspruce{kind}", young_spruce(spruce, kind), true)
+        sheet_finish(cs, vox_draw_k(), true)
+        trees_bake_s = seconds_elapsed() - t0
+    let rs = sheet_new("rocks", "{TREE_BAKE} {VOX_K} {WB_PX}", 2048)
+    let ls = sheet_new("load", "{TREE_BAKE} {TREE_K} {WB_PX}", 256)
+    if sheet_load(rs, vox_draw_k()) and sheet_load(ls, tree_draw_k / 2.0): return
     let gneiss = gneiss_look()
     for(ROCK_KINDS) kind: tree_onto(rs, "rock{kind}", outcrop(gneiss, kind), true)
     for(SLAB_KINDS) kind: tree_onto(rs, "slabs{kind}", slab_pile(gneiss, kind), true)
     sheet_finish(rs, vox_draw_k(), true)
-    // (the load is baked finer than the trees: a sheet of its own, drawn at its own size)
+    // (the load is baked finer still: a sheet of its own, drawn at its own size)
     tree_onto(ls, "load.wood", wood_load(beech), false)
     sheet_finish(ls, tree_draw_k / 2.0, false)
     trees_bake_s = seconds_elapsed() - t0
 
-// This season's leaves on the beeches, old and young (winter has none: the bare ones are drawn).
+// This season's leaves on the broadleaves, old and young, and the undergrowth's (winter has none: the bare wood shows).
 def bake_season(season:string, between):
     if season == trees_season or season == "winter": return
     trees_season = season
     if frame_at.get("beech0.crown.{season}", -1) >= 0: return  // (baked or read earlier this run)
-    let s = sheet_new("trees_{season}", "{TREE_BAKE} {TREE_K} {WB_PX} {vox_tree_text()}", 4096)
     let t0 = seconds_elapsed()
-    let vs = sheet_new("beech_{season}", "{TREE_BAKE} {VOX_K} {WB_PX} {vox_tree_text()}", 4096)
-    if not sheet_load(vs, vox_draw_k()):
-        // (after leaf-fall an old beech keeps only some of its leaves; the young ones keep theirs)
-        for(LEAF_KINDS) kind:
-            tree_onto(vs, "beech{kind}.crown.{season}", vox_tree(leaf_look("beech", season, kind), VOX_TREES[kind], true, season == "autumn"), true, 1.5)
-            between()
-        for(YOUNG_KINDS) kind: tree_onto(vs, "young{kind}.{season}", vox_tree(leaf_look("beech", season, kind + 1), VOX_TREES[4 + kind], true), true)
-        tree_onto(vs, "sapling.{season}", vox_tree(leaf_look("beech", season, 0), "beech_sapling_0", true), true)
-        for(FERN_KINDS) kind: tree_onto(vs, "fern{kind}.{season}", fern(under_look(season, kind, false), kind), true)
-        for(BUSH_KINDS) kind: tree_onto(vs, "bush{kind}.{season}", bush(under_look(season, kind + 1, false), kind), true)
-        for(HERB_KINDS) kind: tree_onto(vs, "herb{kind}.{season}", herbs(herb_look(season, kind), kind), true)
-        sheet_finish(vs, vox_draw_k(), true)
-        trees_bake_s = seconds_elapsed() - t0
-    if sheet_load(s, tree_draw_k): return
+    let vs = sheet_new("leaves_{season}", "{TREE_BAKE} {VOX_K} {WB_PX} {vox_tree_text()}", 4096)
+    if sheet_load(vs, vox_draw_k()): return
+    // (after leaf-fall an old tree keeps only some of its leaves: the oak most; the young ones keep theirs)
     for(BROADLEAVES) sp: for(LEAF_KINDS) kind:
-        if sp != "beech": tree_onto(s, "{sp}{kind}.crown.{season}", leaf_crown(leaf_look(sp, season, kind), sp, kind, if season == "autumn": 0.8 else: 1.0), true, 1.5)
+        tree_onto(vs, "{sp}{kind}.crown.{season}", vox_tree(leaf_look(sp, season, kind), vox_name(sp, kind), true, season == "autumn"), true, 1.5)
         between()
-    sheet_finish(s, tree_draw_k, true)
+    for(YOUNG_KINDS) kind: tree_onto(vs, "young{kind}.{season}", vox_tree(leaf_look("beech", season, kind + 1), "beech_young_{kind}", true), true)
+    tree_onto(vs, "sapling.{season}", vox_tree(leaf_look("beech", season, 0), "beech_sapling_0", true), true)
+    for(FERN_KINDS) kind: tree_onto(vs, "fern{kind}.{season}", fern(under_look(season, kind, false), kind), true)
+    for(BUSH_KINDS) kind: tree_onto(vs, "bush{kind}.{season}", bush(under_look(season, kind + 1, false), kind), true)
+    for(HERB_KINDS) kind: tree_onto(vs, "herb{kind}.{season}", herbs(herb_look(season, kind), kind), true)
+    sheet_finish(vs, vox_draw_k(), true)
     trees_bake_s = seconds_elapsed() - t0
