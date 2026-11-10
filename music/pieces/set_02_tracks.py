@@ -9,6 +9,8 @@ starts at once and ends cleanly so it can be cut to and from.
     06 morning      the bright quick tune he heard as "spring or morning": kaval, tambura, bells.
     07 autumn dusk  between spikes 01 and 02: the bagpipes back, in some mist.
     08 ruins        two women's voices a step apart over a held note, in a stone echo.
+    08 ruins2       second take, "more mystic and ancient": a deep held note, overtones, bronze.
+    09 song         a man's voice on a vowel over the drone, answered by the gaida. No words.
 
 Run all:   python3 music/pieces/set_02_tracks.py
 Run some:  python3 music/pieces/set_02_tracks.py fight ruins
@@ -196,7 +198,73 @@ def ruins():
              midi=[("Held voices", 52, held), ("Moving voice", 52, moving)])
 
 
-TRACKS = {"fight": fight, "hiding": hiding, "morning": morning, "dusk": dusk, "ruins": ruins}
+# ---------------------------------------------------------------- 08b ruins, second take
+
+def ruins2():
+    """After "ruins generally need more mystic and ancient feel".
+
+    Older than the village's music, so it steps outside it: no pipes, no five-note tune.
+    Men hold one deep note. Its natural overtones glint above it. Something bronze is struck
+    and left to ring. One far voice chants on three notes, the middle one pitched between the
+    piano's keys. A low kaval speaks once at the end, the men's own world looking in.
+    """
+    rng = np.random.default_rng(1869)
+    total = 84.0
+    deep = lines([(1.0, "A2/11 -/1.2 A2/12 -/1.2 A2/11.5 -/1.2 A2/12 -/1.2 A2/13 -/1.2 A2/10")])
+    deeper = s.shift(lines([(4.0, "A2/13 -/1.5 A2/14 -/1.5 A2/13 -/1.5 A2/14 -/1.5 A2/12")]), -12)
+    chant = lines([
+        (16.0, "A3/3.0 B3/2.2 A3/1.2 G3/2.5 A3/5.0~"),
+        (36.0, "A3/1.5 B3/2.0 C4/3.5~ B3/1.6 A3/1.2 G3/2.0 A3/5.5~"),
+        (58.0, "C4/3.0~ B3/2.4 A3/6.0~"),
+    ])
+    quarter = s.midi_of("B3")
+    chant = [(a, d, m - 0.5 if m == quarter else m, v) for a, d, m, v in chant]   # B, a quarter-tone flat
+    kaval = lines([(68.0, "E4/3.2~ D4/0.8 E4/0.7 A3/7.5~")])
+    hits = [(0.3, s.midi_of("A2"), 1.0), (30.0, s.midi_of("E2"), 0.7), (54.5, s.midi_of("A2"), 0.9)]
+    mix = s.mixdown([
+        (s.hum(deep, total, rng, voices=4), -24, -0.2, 0.5, 0.8),
+        (s.hum(deeper, total, rng, voices=3), -27, 0.2, 0.6, 0.6),
+        (s.overtones(110.0, [6, 7, 8, 9, 10, 11, 12], 6.0, total - 4, total, rng), -29, 0.0, 0.15, 1.0),
+        (s.struck(hits, total, rng), -24, 0.1, 0.5, 1.0),
+        (s.voice(chant, total, rng, singers=2, vowel="oh"), -23, 0.35, 0.1, 1.0),
+        (s.kaval(kaval, total, rng, breath_level=0.3), -27, -0.4, 0.2, 1.0),
+        (s.wind(total, rng), -40, 0, 1.0, 0.0),
+    ], rng, echo=10.0, predelay=0.09, dark=2600, wet=1.2)
+    s.finish("track_08_ruins_take2", mix, fade_in=0.02, fade_out=8.0)
+
+
+# ---------------------------------------------------------------- 09 a sung line, without words
+
+def song():
+    """After "What about singing?": what this bench can do, and where it stops.
+
+    One man sings the autumn dusk tune on an open vowel over the gaida's drone, and the gaida
+    answers him, as the pipe does for a singer in the Rhodopes. There are no words: the bench
+    can hold a vowel and slide between notes, but it cannot form consonants or the catches in
+    the throat that make this singing what it is. It shows where a voice would sit.
+    """
+    rng = np.random.default_rng(1870)
+    total = 62.0
+    man = lines([
+        (4.0, "B3/3.0~ 'D4 B3/0.5 A3/0.8 B3/0.5 D4/2.6~ 'E4 D4/0.4 B3/1.0 A3/0.5 G3/0.6 A3/3.4~"),
+        (33.0, "B3/0.6 D4/0.6 E4/3.2~ 'G4 E4/0.5 D4/0.9 'E4 D4/0.3 B3/1.2 A3/0.5 G3/0.7 A3/0.5 G3/0.5 E3/5.0~"),
+    ])
+    gaida = lines([
+        (19.0, "'B4 E4/2.4~ 'B4 E4/0.4 D4/0.5 E4/0.5 G4/0.9 A4/2.2~ 'B4 A4/0.4 G4/0.8 'B4 G4/0.3 E4/0.5 D4/0.5 E4/2.8~"),
+        (49.0, "'B4 G4/0.5 'B4 E4/0.5 D4/0.6 'B4 E4/5.0~"),
+    ])
+    drone = s.gaida_drone(s.midi_of("E2"), 0.5, total - 1, total, rng, dark=1500)
+    mix = s.mixdown([
+        (s.voice(man, total, rng, singers=1, vowel="ah"), -20, 0.1, 0.6, 0.8),
+        (s.gaida_chanter(gaida, total, rng), -23, -0.3, 0.7, 0.5),
+        (drone, -27, -0.2, 0.7, 0.4),
+        (s.wind(total, rng), -40, 0, 1.0, 0.0),
+    ], rng, echo=5.0, predelay=0.05, dark=3200)
+    s.finish("track_09_song_without_words", mix, fade_in=1.0, fade_out=5.0,
+             midi=[("Voice", 52, man), ("Kaba gaida", 109, gaida)])
+
+
+TRACKS = {"fight": fight, "hiding": hiding, "morning": morning, "dusk": dusk, "ruins": ruins, "ruins2": ruins2, "song": song}
 
 if __name__ == "__main__":
     for name in sys.argv[1:] or TRACKS:

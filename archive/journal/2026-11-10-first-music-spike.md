@@ -136,3 +136,22 @@ not have that note. To check.
 
 The synthesised voices in "ruins" are the weakest stand-in so far. That track is there to judge
 the idea of two voices rubbing a step apart, not the sound of the singers.
+
+## Last of the evening: older ruins, singing, and an issue
+
+Dominic: "Ruins generally need more mystic and ancient feel. But otherwise all good", then
+"What about singing?", then "The tracks plan should be added as an issue with audio label".
+
+- **Ruins, second take** ([listen](../audio/2026-11-10/13-music-ruins-second-take.ogg)). The
+  first try used the village's own two-part singing, which is old but still of the village.
+  The ruins are older than the village, so the second take steps outside its music: men holding
+  one very deep note, that note's natural overtones fading in and out above it (two of them
+  fall between the keys of a piano, which is what makes them sound strange), bronze struck and
+  left to ring, one far voice chanting on three notes with the middle one a quarter-tone flat,
+  and an echo twice as long. A low kaval speaks once at the end.
+- **Singing** ([listen](../audio/2026-11-10/14-music-song-without-words.ogg)). A man's voice on
+  an open vowel sings the autumn dusk tune over the drone and the gaida answers him. It is the
+  limit of what the bench can do: a vowel, no words. Where singing belongs and the three ways
+  to get it (Dominic or a friend, an AI singing tool, a real Rhodope singer) are written up in
+  [`docs/music-tracks.md`](../../docs/music-tracks.md#singing).
+- **The issue.** The track list is now issue #26, with a new "audio" label.

@@ -3,7 +3,7 @@
 Status: **Proposal** by Claude, 2026-11-10, asked for by Dominic ("ideally we plan how many
 tracks and type/style"). Built on the music plan ([`music-and-sound.md`](music-and-sound.md)),
 the style research ([`rhodope-music-style.md`](rhodope-music-style.md)) and his reactions to
-the first eight sketches. Nothing here is agreed until he says so.
+the sketches. Tracked in issue #26. Nothing here is agreed until he says so.
 
 ## How tracks are used (decided)
 
@@ -54,7 +54,7 @@ So every track is made to be cut to and from:
 
 | # | Track | Instruments and style | Length | Sketch |
 |---|---|---|---|---|
-| 17 | Roman ruins | Two women's voices a step apart over a held note, in a stone echo. The rare two-part singing of Nedelino, kept for this. | 1–2 min | 12 ruins |
+| 17 | Roman ruins | "More mystic and ancient feel" (Dominic). Older than the village's music, so outside it: men holding one deep note, its natural overtones glinting above, bronze struck and left to ring, one far voice chanting on three notes, a huge echo. The first try (two women's voices a step apart) was not ancient enough. | 1–2 min | 12, then 13 ruins second take |
 | 18 | A man dies | A short lament, one voice, half sung and half spoken. | 1 min | |
 | 19 | The fire at night | The men hum or sing the main theme together in rough unison. Could be sung in the world, not as score. | 2 min | (hum in 06) |
 
@@ -78,11 +78,38 @@ So every track is made to be cut to and from:
 | Gadulka (fiddle) | Yes | Dusk and night, hiding, fight (low). |
 | Tapan (drum) | Yes | Danger only. Hearing it should always mean trouble. |
 | Men humming | Yes | Autumn, the fire. |
-| Women's voices, two-part | Yes | Ruins only. |
+| Women's voices, two-part | Yes | Tried for the ruins and not ancient enough. Perhaps the village. |
 | Bells (chan) | Yes | Summer and spring: a flock means people near. |
-| Solo singing voice | No | Winter night, the lament, the intro. Needs a real singer. |
+| Solo singing voice | A vowel only | Winter night, the lament, the intro. Needs a real singer. See "Singing". |
+| Deep held voices, overtones, struck bronze | Yes | Ruins only. |
 | Zurna and davul | No | Ottomans only. |
 | Low strings | Yes | Dropped from calm music (they made the first piece sound "Viking"). Maybe the ending. |
+
+## Singing
+
+Dominic asked "What about singing?" (2026-11-10). Where voices belong, and how to get them.
+
+**Where.** Six tracks want a voice: winter night (7), the lament (18), the fire (19), the
+intro (20), leaving the village (21) and the homecoming (22). The ruins (17) and autumn day (3)
+use voices as colour, without words.
+
+**What the bench can do.** Hold a vowel and slide between notes: humming, a far chant, a
+guide for where a sung line sits (sketch 14, "song without words"). It cannot sing words, or
+make the catches in the throat that this style is known for.
+
+**Ways to get real singing**, cheapest first:
+
+1. *Dominic or a friend sings.* The men at the fire are masons, not performers. Rough unison
+   humming or singing recorded on a phone could be exactly right for track 19, and it would be
+   ours.
+2. *AI singing tools.* Allowed by the competition with disclosure. The risk is quality: the
+   ornaments and open-throated tone of Rhodope singing are what these tools get wrong, and
+   Bulgarian words more so. Worth one test before ruling it in or out.
+3. *One real Rhodope singer, recorded remotely.* The best result for the exposed tracks (7, 18,
+   20). Our MIDI and sketches are the guide they sing to. This is what the music plan recommends.
+
+**Words.** Tracks with words need a Bulgarian text. An old song's words are free to use (see
+"What is free to use" in the music plan); new words need a Bulgarian speaker to write or check.
 
 ## One theme through it all
 

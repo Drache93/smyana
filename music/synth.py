@@ -310,8 +310,14 @@ def gadulka(events, total, rng):
     return amp * (tone + scrape * np.abs(tone).max())
 
 
-def voice(events, total, rng, singers=2):
-    """Open-throated singing on "ah", the hard bright village sound, a few singers as one."""
+VOWELS = {
+    "ah": ([(850, 160, 3.0), (1250, 200, 2.5), (2900, 400, 2.0)], 4500),   # hard and bright
+    "oh": ([(450, 150, 3.0), (800, 180, 2.0), (2600, 400, 0.6)], 2600),    # rounder, darker, further off
+}
+
+
+def voice(events, total, rng, singers=2, vowel="ah"):
+    """Open-throated singing, a few singers as one. "ah" is the bright village sound."""
     out = np.zeros(int(total * SR))
     k = np.arange(1, 31)
     for _ in range(singers):
@@ -319,7 +325,7 @@ def voice(events, total, rng, singers=2):
                            vib_cents=5, vib_hz=5.0, rng=rng, swell=0.15)
         f = f * 2 ** ((rng.uniform(-7, 7) + 5 * wander(total, 1.1, rng)) / 1200)
         out += amp * harmonics(f, 1 / k ** 1.1)
-    return eq(out, bumps([(850, 160, 3.0), (1250, 200, 2.5), (2900, 400, 2.0)], 4500))
+    return eq(out, bumps(*VOWELS[vowel]))
 
 
 def bells(hits, total, rng):
@@ -334,6 +340,37 @@ def bells(hits, total, rng):
         t = np.arange(length) / SR
         for ratio, lvl, ring in ((1, 1.0, 0.22), (2.09, 0.6, 0.15), (2.83, 0.5, 0.11), (5.3, 0.25, 0.06)):
             out[a:a + length] += strength * lvl * np.sin(2 * np.pi * hz(midi) * ratio * t) * np.exp(-t / ring)
+    return out
+
+
+def overtones(fundamental, partials, start, stop, total, rng):
+    """The natural overtones of one low note, each fading in and out by itself.
+
+    These are not notes of any scale: the 7th and 11th fall between the keys of a piano,
+    which is why they sound old and strange. Throat singers and long pipes make them.
+    """
+    t = np.arange(int(total * SR)) / SR
+    env = np.interp(t, [start, start + 6, stop - 6, stop], [0, 1, 1, 0])
+    out = np.zeros(len(t))
+    for k in partials:
+        swell = np.clip(0.35 + 1.0 * wander(total, 0.1, rng), 0, 1) ** 2
+        f = np.full(len(t), fundamental * k) * 2 ** (3 * wander(total, 0.3, rng) / 1200)
+        out += env * swell * harmonics(f, [1.0]) / k ** 0.5
+    return out
+
+
+def struck(hits, total, rng):
+    """Something big struck once and left to ring: bronze, or a stone slab. hits: (time, midi, strength)."""
+    n = int(total * SR)
+    out = np.zeros(n)
+    for when, midi, strength in hits:
+        a = max(0, int(when * SR))
+        length = min(n - a, int(14 * SR))
+        t = np.arange(length) / SR
+        for ratio, lvl, ring in ((1, 1.0, 4.5), (1.48, 0.5, 3.5), (2.41, 0.6, 2.4), (3.07, 0.3, 1.6), (4.6, 0.25, 0.8)):
+            beat = 1 + 0.3 * np.sin(2 * np.pi * rng.uniform(0.3, 0.9) * t)   # the slow wobble of a big bell
+            out[a:a + length] += strength * lvl * beat * np.sin(2 * np.pi * hz(midi) * ratio * t) * np.exp(-t / ring)
+        out[a:a + length] *= np.minimum(1, np.arange(length) / (0.004 * SR)) if a else 1
     return out
 
 
