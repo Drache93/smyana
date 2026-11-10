@@ -42,7 +42,8 @@ def leg_of(id:string) -> JV: return at(at(route, "legs"), id)
 def leg_now() -> JV: return leg_of(leg_id)
 def place_now() -> string: return gstr(leg_now(), "place", "")
 def run_over() -> bool: return gbool(leg_now(), "end", false)
-def season_now() -> string: return gstr(leg_now(), "season", "summer")
+var season_force = ""  // (for a look at a place in another season: the game's season: option)
+def season_now() -> string: return if season_force != "": season_force else: gstr(leg_now(), "season", "summer")
 
 def ticks_per_hour() -> int: return gint(route, "day_minutes", 8) * 60 * TICK_HZ / 24
 

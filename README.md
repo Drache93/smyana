@@ -18,6 +18,7 @@ home again in miniature. Most of the game is still to come.
 git submodule update --init   # the Creel engine
 ./play.sh                     # the game (windowed: ./play.sh windowed)
 ./check.sh                    # the checks, with no window
+./play.sh windowed season:autumn leg:fir_woods_out   # a look at any leg in any season
 ```
 
 It needs [Lobster](https://github.com/Drache93/lobster) (`LOBSTER=/path/to/bin/lobster`, by
