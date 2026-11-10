@@ -257,3 +257,16 @@ with no dark gaps. Now the leaves take seven close tones, picked by a slow noise
 bed of the same warmth, their lower edge only a little darker; the autumn grass is an olive gold near the litter in
 value, with more leaves on it, so the two run into each other. Picture 82 (ours above the target). Lesson (Claude):
 "leaves you can see" was the wrong aim; the aim is tone and softness first, detail only where it costs neither.
+
+## A scene to compare like with like (22:20 to 22:35)
+
+Dominic: "please recreate the scene with river on the right, full trees at the back, clearing, so we can compare
+better", then "add the tents, fireplace, and our horses while there - get another thread to make them. So we can cleanly
+compare it all in one go". `tools/make_scene.py` lays the mock-up's clearing out tile for tile as its own place
+(`camp_clearing`, the look-only leg `camp_look`): the fire left of the middle, the trail from it to the stream, the
+stream in at the right and out at the bottom, the wood thick at the back. Shot with
+`leg:camp_look camp:28,31 look:30,30 hour:16 zoom:2.75`. Picture 84 is the first cut above the target. What differs
+still (Claude's list): the back of the wood is lit ground between trunks where the mock-up's is dark and misty; the
+stream is about twice as wide (a tile); the trail is a wide grey patch, not a thin tan path; the trees' branches carry
+no shade of their own (Dominic: "The trees in the example had shadows in the branches too. Our pic still looks like big
+bright omni light on everything"); no tents, fireplace or animals yet (their own thread).

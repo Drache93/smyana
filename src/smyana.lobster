@@ -731,7 +731,8 @@ if has_s(args, "camp") or arg_of("camp") != "":
         let ty = c.y / TILE
         let old = str_index(tr_names, "tree")
         let grass = str_index(tr_names, "grass")
-        for(31) dy: for(31) dx:
+        // (a place laid out as a scene keeps its own trees)
+        for(if gint(su_map, "scene", 0) != 0: 0 else: 31) dy: for(31) dx:
             let x = tx + dx - 15
             let y = ty + dy - 15
             if x >= 0 and y >= 0 and x < W and y < H:

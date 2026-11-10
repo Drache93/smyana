@@ -22,6 +22,10 @@
    "place": "beech_valley", "name": "The beech valley, going home", "season": "spring",
    "exits": { "west": { "to": "home", "arrive": "", "hours": 3, "letter": "almost_home" } }
   },
+  "camp_look": {
+   "_doc": "Not on the route: the mock-up's beech clearing (archive picture 23), to compare the game beside it. leg:camp_look camp:29,31",
+   "place": "camp_clearing", "name": "The beech clearing after leaf-fall", "season": "autumn", "exits": {}
+  },
   "home": { "end": true, "name": "Home" }
  },
  "letters": {
