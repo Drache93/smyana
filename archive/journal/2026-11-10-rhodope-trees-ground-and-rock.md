@@ -178,7 +178,7 @@ fade over the men (#7) set to the new, smaller beech.
 
 ![Autumn](../images/2026-11-10/53-beech-wood-autumn-new-style.png)
 
-Dominic: "Skip 2D" (D-037). Oak, hornbeam, pine and spruce made straight as models with the same tool: the oak
+Dominic: "Skip 2D" (D-039). Oak, hornbeam, pine and spruce made straight as models with the same tool: the oak
 stout and wide, keeping most of its russet leaves; the hornbeam small and narrow; the pine a bare bole with a high
 crown; the spruce a spire of drooping whorls. The old stand-in trees built in code are gone.
 
