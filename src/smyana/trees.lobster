@@ -8,13 +8,16 @@
 // Baked coarse (TREE_K voxels a tile) and drawn larger: a giant at the men's fineness would take minutes to bake.
 
 let TREE_K = 64.0  // voxels a tile (the .vox trees are made at this: tools/tree_vox.py)
-let TREE_BAKE = "trees 12"
+let TREE_BAKE = "trees 14"
+let VOX_K = 112.0   // voxels a tile in the .vox trees: nearly twice as fine as the rest, so twigs and leaves are crisp
+let VOX_UNIT = 7.0
 let PINE_KINDS = 2
 let SPRUCE_KINDS = 3
 let YOUNG_KINDS = 2
 let ROCK_KINDS = 4
 let SLAB_KINDS = 2
 var tree_draw_k = 1.0   // art px a baked px (set at the bake: Creel's art scale decides)
+def vox_draw_k() -> float: return WB_PX / ART_K / VOX_K
 var trees_bake_s = 0.0  // how long the last bake took (0: read from bake_cache/)
 var trees_season = ""   // the season whose crowns are loaded
 
@@ -240,7 +243,7 @@ def vox_tree_text() -> string:
     return sha256_text(t)
 
 // leaves: the model's leaves alone, or its wood alone.
-def vox_tree(look:vglook, name:string, leaves:bool) -> vgrid:
+def vox_tree(look:vglook, name:string, leaves:bool, cling:bool = false) -> vgrid:
     if not vox_feet.length: vox_feet = tokenize(read_file("../art/trees/vox/feet.txt") or "", " \n", "")
     let at = find(vox_feet): _ == name
     assert at >= 0
@@ -248,11 +251,13 @@ def vox_tree(look:vglook, name:string, leaves:bool) -> vgrid:
     let f = vox_parse(assert read_file("../art/trees/vox/{name}.vox"))
     assert f.error == "" and f.models.length == 1
     let m = f.models[0]
-    let g = vg_new(look, float(int3_0 - foot - int3_1) / TREE_K, float(m.size - foot + int3_1) / TREE_K, TREE_K, 2000 + at)
+    // (the grid's unit is 16 voxels, not a tile: the baker's light reaches a few units, which has to be within the tree)
+    let g = vg_new(look, float(int3_0 - foot - int3_1) / VOX_UNIT, float(m.size - foot + int3_1) / VOX_UNIT, VOX_UNIT, 2000 + at)
     for(m.xyz) p, i:
         let idx = m.idx[i]
         let q = p - foot - g.lo
-        if leaves and idx >= 10: vg_set(g, vg_index(g, q.x, q.y, q.z), VG_LEAF, if idx == 10: 0.5 elif idx == 11: 0.0 else: -0.6)
+        // (13, 14: the leaves that cling after leaf-fall; cling: only those, on the bare twigs)
+        if leaves and idx >= (if cling: 13 else: 10): vg_set(g, vg_index(g, q.x, q.y, q.z), VG_LEAF, if idx == 10 or idx == 13: 0.5 elif idx == 11: 0.0 else: -0.6)
         elif not leaves and idx < 10: vg_set(g, vg_index(g, q.x, q.y, q.z), VG_BARK, 0.0)
     return g
 
@@ -395,15 +400,23 @@ def bake_trees(between):
     let s = sheet_new("trees", "{TREE_BAKE} {TREE_K} {WB_PX} {vox_tree_text()}", 4096)
     let rs = sheet_new("rocks", "{TREE_BAKE} {TREE_K} {WB_PX}", 1024)
     let ls = sheet_new("load", "{TREE_BAKE} {TREE_K} {WB_PX}", 256)
-    if sheet_load(s, tree_draw_k) and sheet_load(rs, tree_draw_k) and sheet_load(ls, tree_draw_k / 2.0): return
     let t0 = seconds_elapsed()
     let beech = beech_look("summer")
+    // (the .vox trees: twice as fine, on a sheet of their own)
+    let vs = sheet_new("beech", "{TREE_BAKE} {VOX_K} {WB_PX} {vox_tree_text()}", 4096)
+    if not sheet_load(vs, vox_draw_k()):
+        for(LEAF_KINDS) kind:
+            tree_onto(vs, "beech{kind}", vox_tree(beech, VOX_TREES[kind], false), true)
+            between()
+        for(YOUNG_KINDS) kind: tree_onto(vs, "young{kind}.bare", vox_tree(beech, VOX_TREES[4 + kind], false), true)
+        sheet_finish(vs, vox_draw_k(), true)
+        trees_bake_s = seconds_elapsed() - t0
+    if sheet_load(s, tree_draw_k) and sheet_load(rs, tree_draw_k) and sheet_load(ls, tree_draw_k / 2.0): return
     let pine = pine_look()
     let spruce = spruce_look()
     for(BROADLEAVES) sp: for(LEAF_KINDS) kind:
-        // (beech is made as .vox, from its design sheet: two old ones and a mature one)
-        if sp == "beech": tree_onto(s, "beech{kind}", vox_tree(beech, VOX_TREES[kind], false), true)
-        else: tree_onto(s, "{sp}{kind}", leaf_trunk(leaf_look(sp, "summer", kind), sp, kind), true)
+        // (beech is made as .vox, from its design sheet: two old ones and a mature one, on the sheet above)
+        if sp != "beech": tree_onto(s, "{sp}{kind}", leaf_trunk(leaf_look(sp, "summer", kind), sp, kind), true)
         between()
     between()
     for(PINE_KINDS) kind:
@@ -416,7 +429,6 @@ def bake_trees(between):
         tree_onto(s, "tall{kind}", tall_trunk(spruce, kind), true, 0.5, 0.62)
         between()
     for(YOUNG_KINDS) kind:
-        tree_onto(s, "young{kind}.bare", vox_tree(beech, VOX_TREES[4 + kind], false), true)
         tree_onto(s, "yspruce{kind}", young_spruce(spruce, kind), true)
     tree_onto(s, "stump", tree_stump(beech), true)
     for(LOG_KINDS) kind: tree_onto(s, "log{kind}", fallen_log(under_look("summer", kind, true), kind), true)
@@ -436,16 +448,21 @@ def bake_season(season:string, between):
     trees_season = season
     if frame_at.get("beech0.crown.{season}", -1) >= 0: return  // (baked or read earlier this run)
     let s = sheet_new("trees_{season}", "{TREE_BAKE} {TREE_K} {WB_PX} {vox_tree_text()}", 4096)
-    if sheet_load(s, tree_draw_k): return
     let t0 = seconds_elapsed()
+    let vs = sheet_new("beech_{season}", "{TREE_BAKE} {VOX_K} {WB_PX} {vox_tree_text()}", 4096)
+    if not sheet_load(vs, vox_draw_k()):
+        // (after leaf-fall an old beech keeps only some of its leaves; the young ones keep theirs)
+        for(LEAF_KINDS) kind:
+            tree_onto(vs, "beech{kind}.crown.{season}", vox_tree(leaf_look("beech", season, kind), VOX_TREES[kind], true, season == "autumn"), true, 1.5)
+            between()
+        for(YOUNG_KINDS) kind: tree_onto(vs, "young{kind}.{season}", vox_tree(leaf_look("beech", season, kind + 1), VOX_TREES[4 + kind], true), true)
+        tree_onto(vs, "sapling.{season}", vox_tree(leaf_look("beech", season, 0), "beech_sapling_0", true), true)
+        sheet_finish(vs, vox_draw_k(), true)
+        trees_bake_s = seconds_elapsed() - t0
+    if sheet_load(s, tree_draw_k): return
     for(BROADLEAVES) sp: for(LEAF_KINDS) kind:
-        if sp == "beech": tree_onto(s, "beech{kind}.crown.{season}", vox_tree(leaf_look(sp, season, kind), VOX_TREES[kind], true), true, 1.5)
-        else: tree_onto(s, "{sp}{kind}.crown.{season}", leaf_crown(leaf_look(sp, season, kind), sp, kind, if season == "autumn": 0.8 else: 1.0), true, 1.5)
+        if sp != "beech": tree_onto(s, "{sp}{kind}.crown.{season}", leaf_crown(leaf_look(sp, season, kind), sp, kind, if season == "autumn": 0.8 else: 1.0), true, 1.5)
         between()
-    // the young ones turn too: one gold, one red
-    // (a young beech: its wood is in the shared sheet as young<k>.bare, its leaves here)
-    for(YOUNG_KINDS) kind: tree_onto(s, "young{kind}.{season}", vox_tree(leaf_look("beech", season, kind + 1), VOX_TREES[4 + kind], true), true)
-    tree_onto(s, "sapling.{season}", vox_tree(leaf_look("beech", season, 0), "beech_sapling_0", true), true)
     for(FERN_KINDS) kind: tree_onto(s, "fern{kind}.{season}", fern(under_look(season, kind, false), kind), true)
     for(BUSH_KINDS) kind: tree_onto(s, "bush{kind}.{season}", bush(under_look(season, kind + 1, false), kind), true)
     sheet_finish(s, tree_draw_k, true)

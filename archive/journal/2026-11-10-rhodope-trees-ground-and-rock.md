@@ -132,3 +132,24 @@ and snow in winter. Drawn from what is known of the tree, not yet checked agains
 is made from it until Dominic has looked.
 
 ![The spruce design sheet](../images/2026-11-10/46-spruce-design-sheet.png)
+
+## The beech rebuilt against the target (Dominic's correction)
+
+Dominic, of the first vox beech and the spruce sheet: "Those are still much bigger than mockup and you've gone for
+very soft style. Again, what are you testing there?" and "Your 2D design was much closer to our original mockup, but
+you implemented it soft and cloudy. Why?" He was right. Claude had tested that sheet to vox to game worked, not the look
+beside the mock-up. Three causes of the softness: leaves scattered as single voxels, each voxel only a pixel or two of
+dithered shade, and the baker's light reaching 64 voxels where it should reach a few (the grid's unit was a whole
+tile), which flattened every tree to one tone. And the size was wrong by half again (D-036).
+
+Rebuilt: sizes in men, a slim silver bole, boughs, branches and twigs, leaves as dabs in clusters, baked nearly twice
+as fine on sheets of their own, with the grid's unit small so the baker's light and shade work within the tree. The
+camera is closer, so a man is the size he is in the mock-ups. Until the other kinds have models, the beech valley is
+all beech.
+
+![The target, and the game now](../images/2026-11-10/47-beech-beside-the-target.png)
+
+![The men by the rebuilt beeches](../images/2026-11-10/48-beech-rebuilt-with-the-men.png)
+
+Still short of the target: the woods are too thin now the trees are the right size, the bark and twigs are too pale,
+the undergrowth is still the coarse grey-box, and the light, shade and haze (their own thread).

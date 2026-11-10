@@ -104,7 +104,8 @@ def cell_hash(c:int) -> int: return ((c * 2654435761) >> 7) & 0xFFFF
 // (deep: the high dark woods, where the trunks run up out of sight and only the understorey is a tree's whole height)
 def old_kind(wood:string, pick:int) -> string, int:
     let r = (pick / 3) % 8
-    var sp = if r < 4: "beech" elif r < 6: "oak" elif r < 7: "hornbeam" else: "pine"
+    // (only the beech is made from its design yet: the others join it as their models are made, D-035)
+    var sp = "beech"
     if wood == "deep": sp = if r < 6: "tall" elif r < 7: "beech" else: "hornbeam"
     if wood == "conifer": sp = if r < 5: "spruce" elif r < 7: "pine" else: "beech"
     return sp, pick % (if sp == "pine": PINE_KINDS else: 3)
@@ -569,7 +570,7 @@ lib_load("../data")
 route_load()
 atmo_data = lib_data("atmosphere.json")
 for(atmo_problems(atmo_data)) why: print why
-zoom = max(1.0, floor(float(gl.window_size().y) / 450.0 * 4.0) / 4.0)
+zoom = max(1.0, floor(float(gl.window_size().y) / 325.0 * 4.0) / 4.0)
 
 // A frame of words while something long is made (the first start bakes the men and the trees).
 var waiting_lines = [ "Smyana" ]

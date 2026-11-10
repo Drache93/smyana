@@ -162,3 +162,13 @@ our men, before more systems.
 
 **D-035, 2026-11-10: Trees are designed in 2D from real photos first, then made as vox.** (Dominic)
 The same order as the men: a design sheet, his sign-off, then the voxel model.
+
+**D-036, 2026-11-10: Trees are sized in men from the mock-ups, and every frame is checked beside the target before it is shown.** (Dominic's correction, Claude's rule)
+Dominic: "Those are still much bigger than mockup and you've gone for very soft style." Measured against the beech
+clearing mock-up, an old tree is about six men tall with a trunk a quarter to a third of a man wide; the first vox
+beech was about nine men tall with a trunk wider than a man is tall, because it was sized in metres with the wrong man.
+The vox tool now takes its sizes in men (a man stands 40 voxels at 112 voxels a tile). The beech is a slim bole,
+boughs, branches and twigs that show, and leaves as dabs in clusters at the twigs' ends; after leaf-fall the old trees
+keep only some clusters. The target is picture 23 (Dominic: "This is our target", with the caveat that it is also a
+mock-up, "just closest we have to rich and deep environment that draws a player in"). Engine changes are allowed where
+the engine limits the look (Dominic). Lighting and mood are worked in their own thread.

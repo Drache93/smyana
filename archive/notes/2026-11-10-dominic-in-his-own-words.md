@@ -191,3 +191,18 @@ After seeing the first runnable version (its trees were about thirteen men tall)
 
 **21:03** (of the beech design sheet)
 > Looks good!
+
+**21:21** (of the vox beech in the game and the spruce design sheet)
+> Those are still much bigger than mockup and you've gone for very soft style. Again, what are you testing there?
+
+**21:22**
+> Your 2D design was much closer to our original mockup, but you implemented it soft and cloudy. Why?
+
+**21:23** (with a picture: the beech clearing after leaf-fall, the same as `archive/images/2026-11-10/23-route-beech-after-leaf-fall.jpg`)
+> This is our target, please work towards it, ans start a other thread on the lighting and mood
+
+**21:24**
+> With caveat that picture was also mockup, its just closest we have to rich and deep environment that draws a player in
+
+**21:25**
+> Any engine changes needed are possible also I'd limiting us
