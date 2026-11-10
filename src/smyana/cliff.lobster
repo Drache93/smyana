@@ -1,7 +1,8 @@
 // ------------------------------------------------------------------ a cliff's face: gneiss
 // Creel draws high ground's faces with its "cliff" shader, coursed earth and stone. Smyana's cliffs are the Rhodopes'
-// gneiss (D-032, D-033): thin beds that dip, long along the face, each with a lit top edge and a shadow under it,
-// broken by upright joints, moss on the lip, a fallen leaf caught on a ledge here and there, darker toward the foot.
+// gneiss (D-032, D-033): massive rock in a few close tones, split by wandering fractures, its grain as broken dipping
+// lines, a ledge now and then, moss on the lip and where water seeps, darker toward the foot. (The first try was thin
+// regular beds with joints; Dominic: "The cliff are bricks?")
 // Same name, loaded after Creel's, so it takes its place. The helpers are Creel's own (the head of TERRAIN_SHADERS).
 
 def cliff_shaders() -> string:
@@ -24,29 +25,33 @@ def cliff_shaders() -> string:
         vec2 p = floor(vec2(iface.x * 35.8 * 1.5 + side * 300.0, (rim - iface.y) * level_px * 1.5));
         float depth = max((rim - foot) * level_px * 1.5, 1.0);
         float k = clamp(p.y / depth, 0.0, 1.0);
-        // the beds: 3 to 6 px thick, dipping along the face, waving a little
-        float hw = p.y + p.x * 0.17 + (vnoise(vec2(p.x * 0.03, 3.0)) - 0.5) * 9.0;
-        float course = floor(hw / 4.5);
-        float cy = fract(hw / 4.5);
-        float off = hash(vec2(course, 7.0)) * 61.0;
-        float bw = 22.0 + 40.0 * hash(vec2(course, 3.0));
-        float bx = floor((p.x + off) / bw);
-        float fx = fract((p.x + off) / bw);
-        float tone = floor(hash(vec2(bx, course)) * 4.0) / 3.0;
-        vec3 col = mix(vec3(0.44, 0.42, 0.38), vec3(0.69, 0.65, 0.57), tone);
-        // (a warm rusty bed now and then, and a recessed one in shadow)
-        if (hash(vec2(course, 11.0)) > 0.82) col *= vec3(1.08, 0.96, 0.82);
-        if (hash(vec2(course, 13.0)) > 0.8) col *= 0.74;
-        if (cy < 0.24) col *= 1.14;                                       // a bed's lit top edge
-        else if (cy > 0.76) col *= 0.66;                                  // the shadow under it
-        if (fx * bw < 1.0 && hash(vec2(bx, course + 9.0)) > 0.3) col *= 0.55;  // a joint
-        // upright cracks through many beds
-        float crack = floor((p.x + 13.0) / 37.0);
-        float cxp = mod(p.x + 13.0, 37.0) - 18.0 - floor((hash(vec2(crack, floor(p.y / 9.0))) - 0.5) * 3.0);
-        if (cxp == 0.0 && hash(vec2(crack, 5.0)) > 0.4 && p.y > hash(vec2(crack, 6.0)) * depth * 0.5) col *= 0.5;
-        // moss in patches on the beds' tops, a leaf caught on a ledge
-        if (vnoise(p * 0.09 + 40.0) > 0.7 && cy < 0.5 && hash(p) > 0.35) col = mix(col, vec3(0.34, 0.42, 0.19), 0.7);
-        if (cy < 0.24 && hash(p + 17.0) > 0.975) col = hash(p + 3.0) > 0.5 ? vec3(0.80, 0.50, 0.14) : vec3(0.62, 0.30, 0.10);
+        // Massive rock, not masonry: broad patches of a few close tones, split into uneven upright blocks by
+        // fractures that wander, with the gneiss' grain as broken dipping lines and a ledge now and then.
+        float fxw = p.x + floor((vnoise(vec2(p.y * 0.035, 5.0 + floor(p.x / 90.0))) - 0.5) * 9.0);
+        float block = floor(fxw / 47.0 + (hash(vec2(floor(p.y / 70.0), 2.0)) - 0.5) * 0.6);
+        float v = vnoise(p * vec2(0.018, 0.04)) * 0.55 + vnoise(p * vec2(0.06, 0.1) + 7.0) * 0.3 + (hash(vec2(block, 1.0)) - 0.5) * 0.16 + bay * 0.08 + 0.1;
+        vec3 col = ramp4(vec3(0.40, 0.385, 0.36), vec3(0.50, 0.48, 0.44), vec3(0.59, 0.565, 0.51), vec3(0.68, 0.645, 0.57), v);
+        // (warm rusty stains in places)
+        if (vnoise(p * vec2(0.03, 0.02) + 21.0) > 0.7) col *= vec3(1.07, 0.97, 0.84);
+        // the grain: thin lines that dip along the face, broken, unevenly spaced
+        float hw = p.y + p.x * 0.24 + (vnoise(vec2(p.x * 0.02, 3.0)) - 0.5) * 16.0;
+        float grain = vnoise(vec2(hw * 0.45, p.x * 0.01));
+        if (abs(grain - 0.5) < 0.035 && vnoise(p * 0.045 + 9.0) > 0.42) col *= 0.74;
+        // a ledge: its shadow, and its lit top above that
+        float lg = fract(hw / 43.0 + hash(vec2(block, 4.0)));
+        if (hash(vec2(block, floor(hw / 43.0 + hash(vec2(block, 4.0))))) > 0.35) {
+            if (lg < 0.07) col *= 1.13;
+            else if (lg < 0.16) col *= 0.62;
+        }
+        // the fractures between blocks, and a few that stop short
+        float fr = fract(fxw / 47.0 + (hash(vec2(floor(p.y / 70.0), 2.0)) - 0.5) * 0.6) * 47.0;
+        if (fr < 1.0) col *= 0.5;
+        else if (fr < 2.0) col *= 1.1;
+        float f2 = floor(fxw / 19.0);
+        if (floor(mod(fxw, 19.0)) == floor(hash(vec2(f2, 3.0)) * 19.0) && hash(vec2(f2, floor(p.y / 31.0))) > 0.72) col *= 0.66;
+        // moss where water seeps, a leaf caught on a ledge
+        if (vnoise(p * 0.07 + 40.0) > 0.72 && hash(p) > 0.4) col = mix(col, vec3(0.33, 0.40, 0.19), 0.65);
+        if (lg < 0.07 && hash(p + 17.0) > 0.97) col = hash(p + 3.0) > 0.5 ? vec3(0.80, 0.50, 0.14) : vec3(0.62, 0.30, 0.10);
         // the lip: the ground's own cover hanging over the edge
         float lip = 2.0 + floor(3.0 * vnoise(vec2(p.x * 0.3, 2.0))) + (hash(vec2(p.x, 5.0)) > 0.8 ? 2.0 : 0.0);
         if (p.y < lip) {
@@ -56,7 +61,7 @@ def cliff_shaders() -> string:
             col *= 0.55;
         }
         col *= side > 0.5 ? 1.0 : 0.7;                                    // (the face turned from the sun)
-        col *= mix(1.0, 0.62, floor(clamp(k + bay * 0.2, 0.0, 0.999) * 4.0) / 3.0);
+        col *= mix(1.0, 0.7, floor(clamp(k + bay * 0.2, 0.0, 0.999) * 4.0) / 3.0);
         // scree at the foot
         float scree = 3.0 + floor(4.0 * vnoise(vec2(p.x * 0.25, 9.0)));
         if (depth - p.y < scree && hash(p + 31.0) > 0.45) col = mix(col, vec3(0.40, 0.38, 0.33), 0.7);

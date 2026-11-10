@@ -285,3 +285,25 @@ Three things the comparison scene showed, each fixed against it (the engine side
 
 Still open against the mock-up: the stream is wider and darker than its pale blue one; the back of the wood (the
 lighting thread); the camp's things (their own thread).
+
+## The pass again: a cliff above it (22:50 to 23:10)
+
+Dominic of picture 78: "rock slide starting to make sense. But the rest of that image is really bad. The cliff are
+bricks? there's no cliff above? just piles of big rocks, there's the trees being cut off (mixing biomes here badly,
+including trees and pushes on a mountain edge path?) and really low quality greyish ground on the left."
+
+Each one, and what was done:
+
+- *Bricks:* the face was thin regular beds with joints. Now massive rock in a few close tones, wandering fractures,
+  broken grain lines, a ledge here and there (`src/smyana/cliff.lobster`).
+- *No cliff above:* the "wall" was outcrop models standing on flat ground. With nine ground levels in Creel the place
+  stands at 4, a bluff above the ledge at 8 and the gorge's bed at 0: four levels of real cliff each way.
+- *Trees cut off, biomes mixed:* no old trees stand within the pass or for a way below the gorge (the deep wood's tall
+  trunks ran out of the top of the picture in front of the cliff); below the gorge the wood starts again with young
+  trees.
+- *Greyish ground:* the bed was Creel's flat rock. The ledge and bluff are mountain turf now, stony only by the slide;
+  scree has stones you can see, in close tones.
+
+Picture 94 is the first try at this, kept as a bug: everything bare, a brown waste. Picture 92 is where it stands.
+Still wrong (Claude): the faces' fractures run too straight and upright, the river in the gorge is a pool with a ring of
+bank, the trail fades out under the scree by the slide.

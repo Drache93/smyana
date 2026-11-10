@@ -166,6 +166,11 @@ def tiles(wood, season):
             t[4] = strew(pebbles(t[4], 404, 260, ["#9b9485", "#b0a896", "#857e70"]), 304, 120, old)
     else:
         t[4] = pebbles(t[4], 404, 260, ["#9b9485", "#b0a896", "#857e70"])
+    # bare mountain ground and scree: stones you can see, of many sizes, lying on stony earth with a tuft between them
+    t[11] = tufts(strew(strew(make(12, ["#77705f", "#7b7463", "#7f7867", "#837c6b"], coarse=5, fine=16, grain=0.05, height=0.55),
+                              512, 420, ["#8a8374", "#8f8879", "#857e6f", "#948d7d"], length=(6.0, 13.0), edge=0.86, drift=False),
+                        513, 500, ["#8c8576", "#888172", "#928b7b"], length=(3.0, 6.0), edge=0.88, drift=False),
+                 514, 140, ["#6f7a3c", "#7d8742", "#5f6a34"])
     if season == "winter":
         # the first snow: thin and blue-white in the open with grass tips through it, thinner still under the trees
         # where the fallen leaves show, trodden to slush on the trail

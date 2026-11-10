@@ -130,6 +130,7 @@ def build_props():
     let stump = str_index(tr_names, "stump")
     let rock = str_index(tr_names, "rock")
     let grass = str_index(tr_names, "grass")
+    let bare_p = str_index(tr_names, "bare")
     for(terrain) t, c:
         let h = cell_hash(c)
         let centre = gp(float((c % W) * 1000 + 500), float((c / W) * 1000 + 500))
@@ -142,12 +143,15 @@ def build_props():
             let fir = wood != "beech" and (h / 7) % 4 != 0
             props.push(Prop { 1, h / 7, if fir: "yspruce{(h / 7) % YOUNG_KINDS}" else: "young{(h / 7) % YOUNG_KINDS}", if fir: "spruce" else: "beech", centre, c })
         elif t == stump: props.push(Prop { 2, 0, "stump", "", centre, c })
-        elif t == rock and (has_heights == 0 or level[c] > 0):  // (a ravine's bed is bare rock: nothing stands in it)
+        elif t == rock:
             props.push(Prop { 3, 0, "rock{(h / 7) % ROCK_KINDS}", "", off, c })
         elif t == debris_t:
             // a landslide's debris (#20): a heap of earth and broken rock on each tile, a broken trunk here and there
             props.push(Prop { 3, 0, "rubble{(h / 7) % RUBBLE_KINDS}", "", off + iso(float((h / 5) % 500) - 250.0, float((h / 23) % 500) - 250.0), c })
             if (h / 3) % 5 == 0: props.push(Prop { 6, 0, "log{h % LOG_KINDS}", "", off + iso(float(h % 500) - 250.0, float((h / 9) % 500) - 250.0), c })
+        elif t == bare_p and level[c] > 0 and (h / 13) % 6 == 0:
+            // bare mountain ground: a few loose slabs and stones lie on it
+            props.push(Prop { 4, 0, "slabs{(h / 7) % SLAB_KINDS}", "", off, c })
         elif t == grass and (h / 11) % 3 == 0:
             // slabs lie loose beside the rock they split from
             let x = c % W
@@ -262,8 +266,9 @@ def build_litter():
     // scree under a landslide's debris (the shader's G), reaching a little past it and ragged
     let sc = map(w * h): 0.0
     let debris_t = str_index(tr_names, "rubble")
+    let bare_t = str_index(tr_names, "bare")
     for(terrain) t, c:
-        if t == debris_t:
+        if t == debris_t or t == bare_t:
             let sx = (c % W) * MASK_K + MASK_K / 2
             let sy = (c / W) * MASK_K + MASK_K / 2
             let rr = MASK_K
