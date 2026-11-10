@@ -44,3 +44,11 @@ blur Claude added. The target is crisp: hard-edged light shade, sharp art.
 > Much closer!
 
 > Shadows very close now. Unsure if lighting work needed still until the ground texture and bushes are done
+
+## After the crisp pass merged (22:18)
+
+> merged for now. But between lighting and ground we still have bunch more work. The trees in the example had shadows in the branches too. Our pic still looks like big bright omni light on everything
+
+Summary (Claude): the light still falls the same everywhere. In the mock-up the trees carry
+shade in their branches (the trees thread took that, in how trees are baked) and the wood behind
+the clearing is dark and misty, so the clearing reads as a lit room in a dark wood (this thread).

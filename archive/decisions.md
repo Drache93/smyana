@@ -224,3 +224,9 @@ with no warnings, as in Age of Anything. `src/lint.sh` checks both and `./check.
 The tents, fireplace, woodpile, horses and mules are `.vox` models one voxel a pixel, like the men, baked with their
 palette's colours under the props' light rather than Creel's per-material ramps (a rug's stripes and a horse's coat
 need real colours). Sizes are taken from the camp mock-up, a little bigger than real ponies and tents.
+
+**D-046, 2026-11-10: A closed wood is in shade, and a clearing is the lit room in it.** (Dominic's
+direction, Claude's how) Dominic: "Our pic still looks like big bright omni light on everything." The
+ground under a closed canopy lies in shade, and it goes darker and misty there, while clearings and
+open woods keep the sun. This is crisp, pixel for pixel, as D-041 asks. It replaces the blurred
+darker-woods ring that D-041 switched off.

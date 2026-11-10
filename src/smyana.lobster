@@ -93,6 +93,21 @@ class Prop:
     cell:int
 
 var props = []::Prop
+// How closed the wood is overhead round each prop (0 open .. 1 deep in a wood; old trees only): deep in a wood an old
+// tree's crown shade spreads till it meets its neighbours', so the floor under the canopy lies in shade and a clearing
+// is the lit room in it (the mock-ups' look, picture 23). From atmosphere.json sun: canopy (how far a crown's shade
+// spreads at most, 0 off), canopy_reach (tiles round it that count), canopy_trees (that many old trees there: fully closed).
+var canopy = []::float
+var canopy_spread = 0.0
+var canopy_reach = 3
+var canopy_trees = 14.0
+var canopy_dim = 0.0  // (sun.canopy_dim: how much darker a tree under a closed canopy is drawn)
+class Canopy:
+    f:int
+    x:float
+    y:float
+    s:float
+var canopies = []::Canopy
 var props_version = -1
 var wear_tick = -1000
 var clock_s = 0.0
@@ -120,6 +135,21 @@ def leafy(sp:string) -> bool: return sp == "beech" or sp == "oak" or sp == "horn
 // Where the year's leaves lie thin in a broadleaf wood (x, y in mask samples): grass shows and herbs grow there.
 def open_ground(x:int, y:int) -> bool:
     return cell_hash((y / 11) * W * MASK_K + x / 11 + 6007) % 100 < 45
+
+def build_canopy():
+    let old = str_index(tr_names, "tree")
+    canopy = map(props) pr:
+        if pr.kind != 0 or canopy_spread <= 0.0: 0.0
+        else:
+            let x = pr.cell % W
+            let y = pr.cell / W
+            var n = 0
+            for(canopy_reach * 2 + 1) j:
+                for(canopy_reach * 2 + 1) i:
+                    let u = x + i - canopy_reach
+                    let v = y + j - canopy_reach
+                    if u >= 0 and v >= 0 and u < W and v < H and terrain[v * W + u] == old: n++
+            smoothstep(canopy_trees * 0.35, canopy_trees, float(n - 1))
 
 def build_props():
     props = []
@@ -186,6 +216,8 @@ def build_props():
         let stands = map(camp) e: gp(as_float(e.a[1]), as_float(e.a[2]))
         props = filter(props) pr: pr.kind != 5 or not exists(stands) q: abs(pr.at.x - q.x) < 60.0 and abs(pr.at.y - q.y) < 34.0
         for(camp) e, i: props.push(Prop { 4, 0, as_str(e.a[0]), "", stands[i], 0 })
+
+    build_canopy()
 
 // The trail is a path a man or two wide, not a road a tile wide (the mock-ups: a thin tan line through the leaves).
 // Creel's worn ground is kept a tile at a time and spreads, so the trail itself is painted finer into the paths'
@@ -358,6 +390,10 @@ def sun_from_data():
     vg_sun_shadow = gint(sun, "self_shadow", 1) != 0
     vg_shade = gfloat(sun, "self_shade", 0.4)
     bake_light = "sun {elev} {vg_dither} {vg_leaf_tones} {vg_sun_shadow} {vg_shade}"
+    canopy_spread = gfloat(sun, "canopy", 0.0)
+    canopy_reach = int(gfloat(sun, "canopy_reach", 3.0))
+    canopy_trees = gfloat(sun, "canopy_trees", 14.0)
+    canopy_dim = gfloat(sun, "canopy_dim", 0.0)
 
 def mood_tick():
     var m = mood_now()
@@ -436,18 +472,24 @@ def crown_fade(foot:float2, sp:string) -> float:
 def collect_props():
     let season = season_now()
     let bare = season == "winter"
-    for(props) pr:
+    canopies = []
+    for(props) pr, pidx:
         if pr.at.x > view_lo.x - 700.0 and pr.at.x < view_hi.x + 250.0 and pr.at.y > view_lo.y - 300.0 and pr.at.y < view_hi.y + 620.0:
             if pr.kind == 0:
+                // (deep in a wood a tree stands under its neighbours' crowns: drawn darker, as the floor round it is)
+                let dim = float4 { 1.0, 1.0, 1.0, 1.0 - canopy_dim * (if pidx < canopy.length: canopy[pidx] else: 0.0) }
                 add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -40000.0, float4_1)
-                add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1)
+                add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, dim)
                 let crown = if pr.sp == "tall": "spruce{pr.pick}.crown.ever" else: pr.name + ".crown." + (if leafy(pr.sp): season else: "ever")
                 if pr.sp == "tall":
                     // its crown is out of sight overhead: only its shade reaches the ground
                     add(frame_at.get(crown + ".shadow", -1), pr.at.x, pr.at.y, -39999.0, float4_1)
                 elif not leafy(pr.sp) or not bare:
                     add(frame_at.get(crown + ".shadow", -1), pr.at.x, pr.at.y, -39999.0, float4_1)
-                    add(frame_at.get(crown, -1), pr.at.x, pr.at.y, pr.at.y + 0.2, float4_1, crown_fade(pr.at, pr.sp))
+                    add(frame_at.get(crown, -1), pr.at.x, pr.at.y, pr.at.y + 0.2, dim, crown_fade(pr.at, pr.sp))
+                if (pr.sp == "tall" or not leafy(pr.sp) or not bare) and pidx < canopy.length and canopy[pidx] > 0.0:
+                    let f = frame_at.get(crown + ".shadow", -1)
+                    if f >= 0: canopies.push(Canopy { f, pr.at.x, pr.at.y, 1.0 + (canopy_spread - 1.0) * canopy[pidx] })
             elif pr.kind == 1:
                 if pr.sp == "spruce":
                     add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39998.0, float4_1)
@@ -528,6 +570,16 @@ def draw_world(alpha:float):
                         b_sheet = -1
                         sprite_shader = "atmo_shade_cast"
                         for(draws) d: if d.kind == 1: sprite(d.f, d.x, d.ay, d.col)
+                        flush_sprites()
+                        b_sheet = -1
+                        sprite_shader = "atmo_shade_canopy"
+                        // (the canopy overhead: a crown's shade grown about its middle, as far as the wood is closed)
+                        for(canopies) cp:
+                            let fr = frames[cp.f]
+                            let x0 = cp.x - float(fr.ox) * fr.k
+                            let y0 = cp.y - float(fr.oy) * fr.k
+                            let mid = float2 { x0 + float(fr.w) * fr.k * 0.5, y0 + float(fr.h) * fr.k * 0.5 }
+                            sprite_xf(cp.f, [ fr.k * cp.s, 0.0, 0.0, fr.k * cp.s, mid.x + (x0 - mid.x) * cp.s, mid.y + (y0 - mid.y) * cp.s ], float4_1)
                         flush_sprites()
                         gl.blend(blend_alpha)
                         b_sheet = -1

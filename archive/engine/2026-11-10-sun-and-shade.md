@@ -29,6 +29,14 @@ Before and after: ![before](../images/2026-11-10/60-light-before-flat-day.jpg)
 ## Decisions
 - D-037: The light is a low afternoon sun, and its shadows join into one deep shade.
 
+## Canopy shade (evening, Claude)
+A new shader, `atmo_shade_canopy`, draws into the shade buffer the way `atmo_shade_cast` does. It
+also sets the buffer's green channel, which marks deep wood. The atmosphere pass reads that channel
+pixel for pixel. `woods` darkens and greys deep wood, and `mist` now lays the haze over deep wood
+only, not over all shade. This replaces the blurred ring of taps that `woods` used to sample, which
+smudged (D-041). A game that never draws canopy shade sees no change. Smyana uses it to spread an
+old tree's crown shade as wide as the wood round it is closed (D-046).
+
 ## Left to do
 - The sun is fixed for the whole run. Moving it with the hour needs a re-bake or a few baked
   hours to fade between.
