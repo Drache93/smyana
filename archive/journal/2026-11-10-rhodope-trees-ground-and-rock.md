@@ -100,3 +100,9 @@ never shows. It still reads as flat poster shapes next to the picture. Dominic's
 the trees in 2D from real photos first, then make the vox (D-035).
 
 ![The second pass: leaf carpet, clusters, undergrowth. Still not the style](../images/2026-11-10/42-autumn-second-pass.png)
+
+The first design sheet, for beech, drawn by `tools/tree_design.py`. It was drawn from what
+Claude knows of the tree, not from photos: the session's network couldn't reach any, so it
+still needs checking against real pictures before the vox is made.
+
+![Beech design sheet: sizes beside a man, and the year](../images/2026-11-10/43-beech-design-sheet.png)
