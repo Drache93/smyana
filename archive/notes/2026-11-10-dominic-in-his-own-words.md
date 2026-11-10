@@ -169,3 +169,22 @@ After seeing the first runnable version (its trees were about thirteen men tall)
 
 **20:32**
 > Autumn should most likely be the poster boy for the game
+
+**20:42**
+> We have open issues for rhodope trees, mood, undergrowth etc. Are you checking those and updating? I'd like to focus on look first, so we get those pictures with our people for reference all perfected
+
+**20:43** (of the route pictures, sending the autumn camp one)
+> The are mockuoa right? Because they dont match our final style
+
+**20:45**
+> The style you're doing  isnt matching our design. Is that because you're doing mock up still and not finalised?
+>
+> Rest of pictures are in archive.
+>
+> Rocks are gniess yes. Used for roofs and walls along with wood
+
+**20:46**
+> Great
+
+**20:48**
+> If needed, design the trees in 2D first based on real world pics. and then make the vox

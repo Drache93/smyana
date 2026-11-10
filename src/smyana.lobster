@@ -79,7 +79,7 @@ def men_centre() -> float2:
 // ------------------------------------------------------------------ what the view remembers of a place
 
 class Prop:
-    kind:int  // 0 an old tree, 1 a young tree, 2 a stump, 3 a rock outcrop, 4 loose slabs
+    kind:int  // 0 an old tree, 1 a young tree, 2 a stump, 3 a rock outcrop, 4 loose slabs, 5 undergrowth (its leaves by season), 6 a fallen log
     pick:int  // which of its shapes
     name:string  // its picture (an old tree's trunk; a young beech's without its season)
     sp:string  // an old tree's kind: beech, pine, spruce
@@ -142,6 +142,15 @@ def build_props():
                 let n = c + d
                 if n >= 0 and n < W * H and abs(n % W - x) <= 1 and terrain[n] == rock: by_rock = true
             if by_rock and y >= 0: props.push(Prop { 4, 0, "slabs{(h / 7) % SLAB_KINDS}", "", off, c })
+        if t == grass:
+            // the undergrowth (#8): bracken in drifts, a bush here and there, now and then a fallen trunk
+            let drift = cell_hash((c / W / 4) * W + (c % W) / 4 + 9001) % 8 < 3
+            let h2 = cell_hash(c + 40507)
+            if h2 % 100 < (if drift: 62 else: 7): props.push(Prop { 5, 0, "fern{h2 % FERN_KINDS}", "", off, c })
+            if drift and h2 % 7 < 3:
+                props.push(Prop { 5, 0, "fern{(h2 / 3) % FERN_KINDS}", "", centre + iso(float((h2 / 11) % 700) - 350.0, float((h2 / 17) % 700) - 350.0), c })
+            if (h2 / 100) % 100 < 6: props.push(Prop { 5, 0, "bush{h2 % BUSH_KINDS}", "", centre + iso(float((h2 / 13) % 600) - 300.0, float((h2 / 19) % 600) - 300.0), c })
+            elif (h2 / 100) % 100 == 99: props.push(Prop { 6, 0, "log{h2 % LOG_KINDS}", "", centre, c })
 
 // Leaf litter on the ground under the giants: Creel's ground shader lays its forest floor where prop_tex's red is
 // strong, and its own masks only make it so in a solid wood, not under one great tree. So after build_masks, the
@@ -170,6 +179,11 @@ def build_litter():
                     let d = magnitude(o) / (reach * (1.0 + 0.28 * sin(atan2(o) * 3.0 + lobe) + 0.15 * sin(atan2(o) * 7.0 + lobe * 2.0)))
                     let v = clamp((1.0 - d) * 1.3, 0.0, 0.85)
                     if v > a[y * w + x]: a[y * w + x] = v
+    // autumn in a broadleaf wood: the year's leaves lie over nearly everything, thinner in the open
+    if season_now() == "autumn" and gstr(su_map, "wood", "beech") == "beech":
+        for(h) y: for(w) x:
+            let patch = float(cell_hash((y / 3) * w + x / 3 + 5003) % 100) / 100.0
+            a[y * w + x] = max(a[y * w + x], 0.42 + 0.3 * patch)
     prop_tex = gl.create_texture(map(h) y: map(w) x: float4 { a[y * w + x], 0.0, 0.0, 0.0 }, texture_format_clamp | texture_format_nomipmap)
     ground_stale = true
 
@@ -217,7 +231,10 @@ def mood_now() -> string:
     return if best != "": best else: last  // (before the day's first: still the night before)
 
 def mood_tick():
-    let m = mood_now()
+    var m = mood_now()
+    // (a season's own light where there is one: "day.autumn")
+    let own = m + "." + season_now()
+    for(gobj(atmo_data, "moods").keys) name: if name == own: m = own
     if m != atmo_mood and m != "":
         let why = atmo_set(atmo_data, m)
         if why != "": print why
@@ -306,6 +323,10 @@ def collect_props():
                 add(frame_at.get(name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1)
             elif pr.kind == 2:
                 add(frame_at.get("stump", -1), pr.at.x, pr.at.y, pr.at.y, float4_1)
+            elif pr.kind == 5:
+                if not bare:
+                    add(frame_at.get(pr.name + "." + season + ".shadow", -1), pr.at.x, pr.at.y, -39996.0, float4_1)
+                    add(frame_at.get(pr.name + "." + season, -1), pr.at.x, pr.at.y, pr.at.y, float4_1)
             else:
                 add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39997.0, float4_1)
                 add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1)
@@ -463,6 +484,13 @@ def order_tick():
         mark_at = iso(float(x), float(y))
     mark_t = gl.time()
 
+// The camera stays over the place, far enough in from its edge that the view never runs off the map (the place has a
+// rim of forest that deep: the map's "rim").
+def cam_keep():
+    let rim = float(gint(su_map, "rim", 0)) * 1000.0
+    let t = iso_inv(cam)
+    cam = iso(clamp(t.x, rim, float(W * 1000) - rim), clamp(t.y, rim, float(H * 1000) - rim))
+
 def camera_tick():
     let ws = float(gl.window_size())
     let m = mouse_px()
@@ -484,9 +512,7 @@ def camera_tick():
     if wheel < 0: zoom = max(0.75, zoom - 0.25)
     if gl.button("f") == 1: cam = men_centre()
     // (the camera stays over the place)
-    let lo = iso(0.0, float(H * 1000))
-    let hi = iso(float(W * 1000), 0.0)
-    cam = float2 { clamp(cam.x, lo.x, hi.x), clamp(cam.y, 0.0, iso(float(W * 1000), float(H * 1000)).y) }
+    cam_keep()
 
 // ------------------------------------------------------------------ the tour (script:tour): the men walk the route alone
 
@@ -519,7 +545,9 @@ def tour_tick():
         if exits.keys.length:
             let r = gate_rects[gate_index(exits.keys[0])]
             issue_cmd(0, CMD_MOVE, ids, (r[0] + r[2] + 1) * TILE / 2, (r[1] + r[3] + 1) * TILE / 2, 0, 0)
-    if tick % 5 == 0: cam += (men_centre() - cam) * 0.08
+    if tick % 5 == 0:
+        cam += (men_centre() - cam) * 0.08
+        cam_keep()
 
 // ------------------------------------------------------------------ the start
 

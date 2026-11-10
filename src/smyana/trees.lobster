@@ -7,8 +7,8 @@
 // (their colour), behind the letter home, and kept in bake_cache/.
 // Baked coarse (TREE_K voxels a tile) and drawn larger: a giant at the men's fineness would take minutes to bake.
 
-let TREE_K = 64.0  // voxels a tile
-let TREE_BAKE = "trees 8"
+let TREE_K = 80.0  // voxels a tile
+let TREE_BAKE = "trees 11"
 let PINE_KINDS = 2
 let SPRUCE_KINDS = 3
 let YOUNG_KINDS = 2
@@ -28,10 +28,10 @@ let LEAF_KINDS = 3
 
 def autumn_leaf(sp:string, kind:int) -> [float3]:
     // sun, mid, shade, dry
-    let gold = [ float3 { 0.98, 0.78, 0.16 }, float3 { 0.88, 0.60, 0.10 }, float3 { 0.60, 0.36, 0.07 }, float3 { 1.0, 0.88, 0.36 } ]
-    let orange = [ float3 { 0.97, 0.56, 0.12 }, float3 { 0.85, 0.39, 0.08 }, float3 { 0.56, 0.22, 0.06 }, float3 { 0.99, 0.72, 0.20 } ]
-    let red = [ float3 { 0.88, 0.27, 0.12 }, float3 { 0.70, 0.16, 0.09 }, float3 { 0.42, 0.09, 0.07 }, float3 { 0.96, 0.46, 0.14 } ]
-    let russet = [ float3 { 0.80, 0.45, 0.16 }, float3 { 0.64, 0.31, 0.11 }, float3 { 0.40, 0.18, 0.07 }, float3 { 0.86, 0.62, 0.22 } ]
+    let gold = [ float3 { 1.0, 0.76, 0.14 }, float3 { 0.82, 0.52, 0.08 }, float3 { 0.36, 0.20, 0.05 }, float3 { 1.0, 0.88, 0.36 } ]
+    let orange = [ float3 { 1.0, 0.52, 0.10 }, float3 { 0.78, 0.32, 0.06 }, float3 { 0.30, 0.11, 0.04 }, float3 { 1.0, 0.70, 0.18 } ]
+    let red = [ float3 { 0.92, 0.25, 0.10 }, float3 { 0.64, 0.13, 0.07 }, float3 { 0.26, 0.05, 0.05 }, float3 { 0.98, 0.46, 0.12 } ]
+    let russet = [ float3 { 0.84, 0.44, 0.14 }, float3 { 0.60, 0.27, 0.09 }, float3 { 0.26, 0.11, 0.05 }, float3 { 0.90, 0.62, 0.20 } ]
     if sp == "beech": return [ orange, gold, red ][kind % 3]
     if sp == "oak": return [ russet, orange, russet ][kind % 3]
     return [ gold, gold, orange ][kind % 3]
@@ -76,42 +76,55 @@ def leaf_build(sp:string) -> [float]:
 
 def leaf_seed(sp:string, kind:int) -> int: return 500 + (if sp == "oak": 37 elif sp == "hornbeam": 74 else: 0) + kind
 
-// An old broadleaf's frame: where its trunk forks, and where each bough ends (tiles from its foot).
-def leaf_frame(sp:string, kind:int) -> float3, [float3]:
+// An old broadleaf's frame: where its trunk forks, where each bough ends, and the twigs off each bough (tiles from
+// its foot). The trunk's picture has the wood; the crown's has the leaves, clustered at the twigs' tips.
+def leaf_frame(sp:string, kind:int) -> float3, [float3], [float3]:
     let rng = grng(leaf_seed(sp, kind))
     let b = leaf_build(sp)
     let top = float3 { randf_range(rng, -0.1, 0.1), randf_range(rng, -0.1, 0.1), randf_range(rng, b[0], b[1]) }
-    let ends = map(4 + kind % 2) n:
-        let a = float(n) * 360.0 / float(4 + kind % 2) + randf_range(rng, -25.0, 25.0)
+    let n = 5 + kind % 2
+    let ends = map(n) i:
+        let a = float(i) * 360.0 / float(n) + randf_range(rng, -25.0, 25.0)
         let out = randf_range(rng, b[2], b[3])
-        top + float3 { cos(a) * out, sin(a) * out, randf_range(rng, 0.3, 0.65) * b[3] / 0.8 }
-    return top, ends
+        // (the last goes nearly straight up: the leader)
+        if i == n - 1: top + float3 { cos(a) * out * 0.2, sin(a) * out * 0.2, b[3] * 1.15 }
+        else: top + float3 { cos(a) * out, sin(a) * out, randf_range(rng, 0.3, 0.75) * b[3] / 0.8 }
+    let twigs = []::float3
+    for(ends) e:
+        for(4) t:
+            let a = randf_range(rng, 0.0, 360.0)
+            let out = randf_range(rng, 0.18, 0.4) * b[3] / 0.8
+            twigs.push(e + float3 { cos(a) * out, sin(a) * out, randf_range(rng, 0.0, 0.35) * b[3] / 0.8 })
+    return top, ends, twigs
 
 def leaf_trunk(look:vglook, sp:string, kind:int) -> vgrid:
-    let top, ends = leaf_frame(sp, kind)
+    let top, ends, twigs = leaf_frame(sp, kind)
     let r = leaf_build(sp)[4]
-    let g = vg_new(look, float3 { -1.2, -1.2, 0.0 }, float3 { 1.2, 1.2, 2.6 }, TREE_K, leaf_seed(sp, kind))
+    let g = vg_new(look, float3 { -1.6, -1.6, 0.0 }, float3 { 1.6, 1.6, 3.2 }, TREE_K, leaf_seed(sp, kind))
     vg_capsule(g, float3_0, top, r, r * 0.7, VG_BARK)
     vg_cylinder(g, float3_0, float3 { 0.0, 0.0, 0.18 }, r * 1.45, r, VG_BARK)  // the foot's flare
-    for(ends) e: vg_capsule(g, top * 0.86, e, r * 0.5, r * 0.23, VG_BARK)
-    vg_capsule(g, top, top + float3 { 0.0, 0.0, 0.6 }, r * 0.65, r * 0.27, VG_BARK)
+    for(ends) e, i:
+        vg_capsule(g, top * 0.86, e, r * 0.5, r * 0.2, VG_BARK)
+        for(4) t: vg_capsule(g, top * 0.86 + (e - top * 0.86) * (0.55 + 0.15 * float(t)), twigs[i * 4 + t], r * 0.2, r * 0.1, VG_BARK)
     return g
 
-// A broadleaf's leaves: a layer over each bough and more above (a beech's lie flat, an oak's heap up round).
-def leaf_crown(look:vglook, sp:string, kind:int) -> vgrid:
-    let top, ends = leaf_frame(sp, kind)
+// A broadleaf's leaves: small clusters at the tips of its twigs and along its boughs, each its own tone, with the
+// branches and the sky showing between them. full: how much of its leaf it has (autumn's are thinning).
+def leaf_crown(look:vglook, sp:string, kind:int, full:float) -> vgrid:
+    let top, ends, twigs = leaf_frame(sp, kind)
     let b = leaf_build(sp)
     let pr = b[5] / 0.56
     let rng = grng(leaf_seed(sp, kind) + 200)
-    let g = vg_new(look, float3 { -2.1, -2.1, 0.6 }, float3 { 2.1, 2.1, 3.3 }, TREE_K, leaf_seed(sp, kind) + 200)
-    let rough = vg_field(g, 0.3, leaf_seed(sp, kind) + 201)
-    let gaps = vg_field(g, 0.4, leaf_seed(sp, kind) + 202)
-    for(ends) e:
-        vg_blob(g, e + float3 { 0.0, 0.0, 0.1 }, randf_range(rng, 0.5, 0.62) * pr, b[6], 0.6, rough, VG_LEAF, randf_range(rng, -0.5, 0.5), 0.1, gaps, 0.68)
-        let off = float3 { randf_range(rng, -0.3, 0.3), randf_range(rng, -0.3, 0.3), randf_range(rng, 0.3, 0.45) } * pr
-        vg_blob(g, e + off, randf_range(rng, 0.36, 0.48) * pr, b[6], 0.6, rough, VG_LEAF, randf_range(rng, -0.6, 0.6), 0.1, gaps, 0.68)
-    vg_blob(g, top + float3 { 0.0, 0.0, 0.75 } * pr, 0.62 * pr, b[6] * 0.9, 0.6, rough, VG_LEAF, 0.2, 0.1, gaps, 0.68)
-    vg_blob(g, top + float3 { 0.1, -0.05, 1.1 } * pr, 0.42 * pr, b[6] * 0.85, 0.6, rough, VG_LEAF, 0.4, 0.1, gaps, 0.68)
+    let g = vg_new(look, float3 { -2.1, -2.1, 0.5 }, float3 { 2.1, 2.1, 3.5 }, TREE_K, leaf_seed(sp, kind) + 200)
+    let rough = vg_field(g, 0.1, leaf_seed(sp, kind) + 201)
+    def cluster(c:float3, n:int, spread:float, size:float):
+        for(n) i:
+            if randf(rng) < full:
+                let at = c + vg_gauss3(rng) * spread
+                vg_blob(g, at, randf_range(rng, 0.1, 0.17) * size, 1.25, 0.8, rough, VG_LEAF, randf_range(rng, -0.4, 0.5), 0.22, nil, 0.0)
+    for(twigs) t: cluster(t, 6, 0.13 * pr, pr)
+    for(ends) e: cluster(e, 7, 0.17 * pr, pr * 1.15)
+    for(ends) e: cluster(top * 0.86 + (e - top * 0.86) * 0.6, 3, 0.12 * pr, pr)
     return g
 
 def pine_frame(kind:int) -> float3, [float3]:
@@ -213,6 +226,64 @@ def tree_stump(look:vglook) -> vgrid:
     vg_cylinder(g, float3 { 0.0, 0.0, 0.16 }, float3 { 0.0, 0.0, 0.2 }, 0.07, 0.07, VG_WOOD, true)
     return g
 
+// ------------------------------------------------------------------ the undergrowth (issue #8), grey-boxed
+let FERN_KINDS = 3
+let BUSH_KINDS = 2
+let LOG_KINDS = 2
+
+// A fern (bracken): fronds arching out from one foot and drooping at their tips.
+def fern(look:vglook, kind:int) -> vgrid:
+    let rng = grng(1300 + kind)
+    let g = vg_new(look, float3 { -0.4, -0.4, 0.0 }, float3 { 0.4, 0.4, 0.4 }, TREE_K, 1300 + kind)
+    let n = 6 + kind
+    for(n) i:
+        let a = float(i) * 360.0 / float(n) + randf_range(rng, -20.0, 20.0)
+        let reach = randf_range(rng, 0.2, 0.32)
+        let d = float3 { cos(a), sin(a), 0.0 }
+        let mid = d * (reach * 0.5) + float3 { 0.0, 0.0, randf_range(rng, 0.13, 0.2) }
+        let tone = randf_range(rng, -0.6, 0.7)
+        vg_capsule(g, float3_0, mid, 0.022, 0.034, VG_LEAF, false, tone)
+        vg_capsule(g, mid, d * reach + float3 { 0.0, 0.0, 0.07 }, 0.034, 0.014, VG_LEAF, false, tone)
+    return g
+
+// A low bush: a few stems and a heap of small leaf clumps.
+def bush(look:vglook, kind:int) -> vgrid:
+    let rng = grng(1400 + kind)
+    let g = vg_new(look, float3 { -0.45, -0.45, 0.0 }, float3 { 0.45, 0.45, 0.55 }, TREE_K, 1400 + kind)
+    let rough = vg_field(g, 0.12, 1401 + kind)
+    for(5 + kind * 2) i:
+        let c = float3 { randf_range(rng, -0.2, 0.2), randf_range(rng, -0.2, 0.2), randf_range(rng, 0.12, 0.3) }
+        vg_capsule(g, float3 { c.x * 0.3, c.y * 0.3, 0.0 }, c, 0.015, 0.01, VG_BARK)
+        vg_blob(g, c, randf_range(rng, 0.09, 0.15), 1.1, 0.7, rough, VG_LEAF, randf_range(rng, -0.7, 0.8), 0.2, nil, 0.0)
+    return g
+
+// A fallen trunk, long down, moss along its top.
+def fallen_log(look:vglook, kind:int) -> vgrid:
+    let rng = grng(1500 + kind)
+    let g = vg_new(look, float3 { -0.7, -0.7, 0.0 }, float3 { 0.7, 0.7, 0.3 }, TREE_K, 1500 + kind)
+    let a = randf_range(rng, 0.0, 180.0)
+    let d = float3 { cos(a), sin(a), 0.0 } * (0.45 + float(kind) * 0.15)
+    let up = float3 { 0.0, 0.0, 0.075 }
+    let rough = vg_field(g, 0.1, 1501 + kind)
+    for(4) i:
+        let t = randf_range(rng, -0.8, 0.8)
+        vg_blob(g, d * t + float3 { 0.0, 0.0, 0.14 }, 0.07, 2.0, 0.6, rough, VG_LEAF, randf_range(rng, -0.4, 0.2), 0.2, nil, 0.0)
+    vg_cylinder(g, up - d, up + d, 0.075, 0.06, VG_BARK)
+    vg_cylinder(g, up - d * 1.03, up - d, 0.068, 0.068, VG_WOOD, true)
+    vg_cylinder(g, up + d, up + d * 1.03, 0.055, 0.055, VG_WOOD, true)
+    return g
+
+// The undergrowth's leaves by season: bracken goes bronze and gold in autumn, the bushes yellow and red.
+def under_look(season:string, kind:int, moss:bool) -> vglook:
+    var leaf = [ float3 { 0.44, 0.62, 0.24 }, float3 { 0.29, 0.47, 0.19 }, float3 { 0.16, 0.30, 0.14 }, float3 { 0.60, 0.68, 0.28 } ]
+    if season == "spring": leaf = [ float3 { 0.56, 0.74, 0.30 }, float3 { 0.40, 0.60, 0.24 }, float3 { 0.22, 0.38, 0.16 }, float3 { 0.70, 0.80, 0.40 } ]
+    // (autumn: one bracken bronze, one still green, one gone pale yellow)
+    if season == "autumn" and not moss and kind % 3 == 0: leaf = autumn_leaf("oak", 0)
+    if season == "autumn" and not moss and kind % 3 == 2: leaf = [ float3 { 0.93, 0.86, 0.38 }, float3 { 0.74, 0.68, 0.26 }, float3 { 0.42, 0.40, 0.14 }, float3 { 0.98, 0.94, 0.56 } ]
+    if moss: leaf = [ float3 { 0.36, 0.50, 0.20 }, float3 { 0.26, 0.38, 0.16 }, float3 { 0.16, 0.25, 0.12 }, float3 { 0.44, 0.52, 0.22 } ]
+    return vglook { leaf, [ float3 { 0.20, 0.17, 0.14 }, float3 { 0.28, 0.24, 0.20 }, float3 { 0.37, 0.32, 0.26 }, float3 { 0.46, 0.40, 0.33 } ],
+                    [ float3 { 0.3, 0.3, 0.3 }, float3 { 0.5, 0.5, 0.5 } ], false, false, false }
+
 // A plate of rock: w by d by th, turned by `turn` degrees about c, its foot at c.z.
 def rock_plate(g:vgrid, c:float3, w:float, d:float, th:float, turn:float, m:int, tone:float):
     let reach = max(w, d) * 1.5
@@ -276,7 +347,7 @@ def tree_onto(s:Sheet, name:string, g:vgrid, shadow:bool, shade_k:float = 1.0, f
     if shadow:
         let art, shade = vm_split_shadow(bytes, w, h)
         if shade_k != 1.0:
-            for(w * h) px: write_int8_le(shade, px * 4 + 3, int(float(shade[px * 4 + 3]) * shade_k))
+            for(w * h) px: write_int8_le(shade, px * 4 + 3, min(235, int(float(shade[px * 4 + 3]) * shade_k)))
         if fade > 0.0:
             let rows = int(float(h) * fade)
             for(rows) y: for(w) x:
@@ -291,7 +362,7 @@ def tree_onto(s:Sheet, name:string, g:vgrid, shadow:bool, shade_k:float = 1.0, f
 // between(): so the window can draw.
 def bake_trees(between):
     tree_draw_k = WB_PX / ART_K / TREE_K
-    let s = sheet_new("trees", "{TREE_BAKE} {TREE_K} {WB_PX}", 2048)
+    let s = sheet_new("trees", "{TREE_BAKE} {TREE_K} {WB_PX}", 4096)
     let rs = sheet_new("rocks", "{TREE_BAKE} {TREE_K} {WB_PX}", 1024)
     let ls = sheet_new("load", "{TREE_BAKE} {TREE_K} {WB_PX}", 256)
     if sheet_load(s, tree_draw_k) and sheet_load(rs, tree_draw_k) and sheet_load(ls, tree_draw_k / 2.0): return
@@ -314,6 +385,7 @@ def bake_trees(between):
         tree_onto(s, "young{kind}.bare", young_tree(beech, kind, true), true)
         tree_onto(s, "yspruce{kind}", young_spruce(spruce, kind), true)
     tree_onto(s, "stump", tree_stump(beech), true)
+    for(LOG_KINDS) kind: tree_onto(s, "log{kind}", fallen_log(under_look("summer", kind, true), kind), true)
     sheet_finish(s, tree_draw_k, true)
     let gneiss = gneiss_look()
     for(ROCK_KINDS) kind: tree_onto(rs, "rock{kind}", outcrop(gneiss, kind), true)
@@ -329,13 +401,15 @@ def bake_season(season:string, between):
     if season == trees_season or season == "winter": return
     trees_season = season
     if frame_at.get("beech0.crown.{season}", -1) >= 0: return  // (baked or read earlier this run)
-    let s = sheet_new("trees_{season}", "{TREE_BAKE} {TREE_K} {WB_PX}", 2048)
+    let s = sheet_new("trees_{season}", "{TREE_BAKE} {TREE_K} {WB_PX}", 4096)
     if sheet_load(s, tree_draw_k): return
     let t0 = seconds_elapsed()
     for(BROADLEAVES) sp: for(LEAF_KINDS) kind:
-        tree_onto(s, "{sp}{kind}.crown.{season}", leaf_crown(leaf_look(sp, season, kind), sp, kind), true, 0.45)
+        tree_onto(s, "{sp}{kind}.crown.{season}", leaf_crown(leaf_look(sp, season, kind), sp, kind, if season == "autumn": 0.8 else: 1.0), true, 1.5)
         between()
     // the young ones turn too: one gold, one red
     for(YOUNG_KINDS) kind: tree_onto(s, "young{kind}.{season}", young_tree(leaf_look("beech", season, kind + 1), kind, false), true)
+    for(FERN_KINDS) kind: tree_onto(s, "fern{kind}.{season}", fern(under_look(season, kind, false), kind), true)
+    for(BUSH_KINDS) kind: tree_onto(s, "bush{kind}.{season}", bush(under_look(season, kind + 1, false), kind), true)
     sheet_finish(s, tree_draw_k, true)
     trees_bake_s = seconds_elapsed() - t0

@@ -151,3 +151,14 @@ the richest colour in the leaves and on the ground, and is what the game is show
 Outcrops stand as stacked flat beds, and loose slabs lie beside them, because this is the stone
 the walls and roofs at home are made of. That it is warm grey gneiss is Claude's reading and
 needs Dominic's check.
+
+**D-033, 2026-11-10: The rock is gneiss, used with wood for roofs and walls.** (Dominic)
+Confirms the Proposal in D-032.
+
+**D-034, 2026-11-10: The look comes first, and the archive's pictures are the target.** (Dominic)
+The route pictures are the design to match, in style as well as layout. What's in the engine so
+far is a grey-box stand-in. Work on the look until those pictures can be made in the engine with
+our men, before more systems.
+
+**D-035, 2026-11-10: Trees are designed in 2D from real photos first, then made as vox.** (Dominic)
+The same order as the men: a design sheet, his sign-off, then the voxel model.

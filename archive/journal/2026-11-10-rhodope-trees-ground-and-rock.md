@@ -44,6 +44,9 @@ What changed, all still stand-ins built in code until the real art (#6):
 - D-030: The tree kinds come from Dominic's list of the Rhodopes' trees.
 - D-031: Autumn is the game's poster season.
 - D-032: The rock is gneiss in flat slabs, as outcrops and loose building stone.
+- D-033: Dominic confirms gneiss, used with wood for roofs and walls.
+- D-034: The look comes first, and the archive's pictures are the target.
+- D-035: Trees are designed in 2D from real photos first, then made as vox.
 
 ## Direction changes
 
@@ -80,3 +83,20 @@ For the size it replaced, see [picture 33](../images/2026-11-10/33-beech-valley-
 - The edge of a map needs a wall of forest or a camera limit (#5).
 - The autumn leg is the fir woods, where most trees are evergreen. Whether the route should put
   a broadleaf place in autumn is for #5.
+
+## Later the same evening: the look comes first
+
+Dominic asked whether the open issues were being checked and updated (they hadn't been: Claude
+then posted where #4, #6, #7 and #11 stand) and said he wants the look first, so the archive's
+pictures can be made in the engine with our men. Claude first took the pictures as a guide to
+size and layout only, which was wrong: Dominic said the style being built doesn't match the
+design, and the pictures are the target (D-034). He confirmed gneiss (D-033).
+
+A second pass the same evening got closer in layout but not in style: broadleaves rebuilt as
+branches with clusters of leaves, bracken, bushes and fallen logs (#8), an autumn leaf carpet
+over the whole floor of a broadleaf wood, deeper shade under the crowns, a warm autumn mood,
+and a rim of thick forest round each place with the camera kept inside it, so the map's edge
+never shows. It still reads as flat poster shapes next to the picture. Dominic's answer: design
+the trees in 2D from real photos first, then make the vox (D-035).
+
+![The second pass: leaf carpet, clusters, undergrowth. Still not the style](../images/2026-11-10/42-autumn-second-pass.png)
