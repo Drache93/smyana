@@ -106,7 +106,7 @@ def old_kind(wood:string, pick:int) -> string, int:
     let r = (pick / 3) % 8
     // (only the beech is made from its design yet: the others join it as their models are made, D-035)
     var sp = "beech"
-    if wood == "deep": sp = if r < 6: "tall" elif r < 7: "beech" else: "hornbeam"
+    if wood == "deep": sp = if r < 7: "tall" else: "beech"
     if wood == "conifer": sp = if r < 5: "spruce" elif r < 7: "pine" else: "beech"
     return sp, pick % (if sp == "pine": PINE_KINDS else: 3)
 

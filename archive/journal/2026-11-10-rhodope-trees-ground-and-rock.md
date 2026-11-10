@@ -162,3 +162,11 @@ target's clearing.
 ![A closer wood, darker bark](../images/2026-11-10/49-closer-beech-wood-darker-bark.png)
 
 ![Fine ferns and herb patches](../images/2026-11-10/50-fine-ferns-and-herb-patches.png)
+
+The flat light turned out to be every model's fault, not only the vox trees': each grid is built in tiles, and the
+baker's light reaches a few of the grid's units, so it reached across the whole tree. Now every grid's unit is made a
+sixteenth of a tile just before it is drawn (`LIGHT_UNITS`), and logs, the stump, the rocks, the deep-wood trunks and
+the young spruces are built as fine as the vox trees. The deep fir woods have slim dark trunks with dead snags, a
+quarter to a third of a man wide as in their mock-up, and stand closer.
+
+![The deep fir woods](../images/2026-11-10/51-deep-fir-woods-slim-dark-trunks.png)
