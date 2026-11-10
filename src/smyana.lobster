@@ -149,6 +149,7 @@ def build_props():
             if h2 % 100 < (if drift: 62 else: 7): props.push(Prop { 5, 0, "fern{h2 % FERN_KINDS}", "", off, c })
             if drift and h2 % 7 < 3:
                 props.push(Prop { 5, 0, "fern{(h2 / 3) % FERN_KINDS}", "", centre + iso(float((h2 / 11) % 700) - 350.0, float((h2 / 17) % 700) - 350.0), c })
+            if (h2 / 100) % 100 >= 90 and (h2 / 100) % 100 < 94: props.push(Prop { 5, 0, "sapling", "", centre, c })
             if (h2 / 100) % 100 < 6: props.push(Prop { 5, 0, "bush{h2 % BUSH_KINDS}", "", centre + iso(float((h2 / 13) % 600) - 300.0, float((h2 / 19) % 600) - 300.0), c })
             elif (h2 / 100) % 100 == 99: props.push(Prop { 6, 0, "log{h2 % LOG_KINDS}", "", centre, c })
 
@@ -318,9 +319,16 @@ def collect_props():
                     add(frame_at.get(crown + ".shadow", -1), pr.at.x, pr.at.y, -39999.0, float4_1)
                     add(frame_at.get(crown, -1), pr.at.x, pr.at.y, pr.at.y + 0.2, float4_1, crown_fade(pr.at, pr.sp))
             elif pr.kind == 1:
-                let name = if pr.sp == "spruce": pr.name else: pr.name + "." + (if bare: "bare" else: season)
-                add(frame_at.get(name + ".shadow", -1), pr.at.x, pr.at.y, -39998.0, float4_1)
-                add(frame_at.get(name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1)
+                if pr.sp == "spruce":
+                    add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39998.0, float4_1)
+                    add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1)
+                else:
+                    // (a young beech: its wood, and over it this season's leaves)
+                    add(frame_at.get(pr.name + ".bare.shadow", -1), pr.at.x, pr.at.y, -39998.0, float4_1)
+                    add(frame_at.get(pr.name + ".bare", -1), pr.at.x, pr.at.y, pr.at.y, float4_1)
+                    if not bare:
+                        add(frame_at.get(pr.name + "." + season + ".shadow", -1), pr.at.x, pr.at.y, -39998.0, float4_1)
+                        add(frame_at.get(pr.name + "." + season, -1), pr.at.x, pr.at.y, pr.at.y + 0.1, float4_1)
             elif pr.kind == 2:
                 add(frame_at.get("stump", -1), pr.at.x, pr.at.y, pr.at.y, float4_1)
             elif pr.kind == 5:

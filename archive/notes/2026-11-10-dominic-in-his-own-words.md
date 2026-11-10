@@ -188,3 +188,6 @@ After seeing the first runnable version (its trees were about thirteen men tall)
 
 **20:48**
 > If needed, design the trees in 2D first based on real world pics. and then make the vox
+
+**21:03** (of the beech design sheet)
+> Looks good!

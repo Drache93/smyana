@@ -106,3 +106,18 @@ Claude knows of the tree, not from photos: the session's network couldn't reach 
 still needs checking against real pictures before the vox is made.
 
 ![Beech design sheet: sizes beside a man, and the year](../images/2026-11-10/43-beech-design-sheet.png)
+
+Dominic's answer to the sheet: "Looks good!" So the beech was made as vox from it
+(`tools/tree_vox.py` writes `art/trees/vox/beech_*.vox`: a sapling, two young, two mature, two
+old). The palette index says what each voxel is (bark, or a leaf lit from above, mid, or
+beneath), and the game bakes the wood and the leaves as separate pictures, so the leaves take
+the season's colour and still fade over a man. The first try filled the crown solid, and from
+the game's camera the layers vanished into one lump; thinner sprays with air between them
+brought them back.
+
+![The vox beech in autumn, with the men](../images/2026-11-10/44-vox-beech-autumn.png)
+
+![The same place in summer](../images/2026-11-10/45-vox-beech-summer.png)
+
+Still to do on beech: the crown hides most of the branches, the light on it is flatter than the
+target pictures, and the oak, hornbeam, pine and spruce are still the old stand-ins.
