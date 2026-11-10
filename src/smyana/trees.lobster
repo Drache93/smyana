@@ -7,7 +7,7 @@
 // seen. The leaves are baked once a season (their colour), behind the letter home, and kept in bake_cache/.
 
 let TREE_K = 64.0  // voxels a tile for the load of wood (baked at twice this)
-let TREE_BAKE = "trees 21"
+let TREE_BAKE = "trees 24"
 // Voxels a tile in the trees, rocks and undergrowth: one voxel is one pixel of Creel's art (WB_PX at its art scale of
 // 3), as the men's are, so they are as crisp as the men (Dominic, 2026-11-10: "evryhting crisp and sharp").
 let VOX_K = 135.7645
@@ -290,35 +290,67 @@ def herb_look(season:string, kind:int) -> vglook:
     return vglook { leaf, [ float3 { 0.20, 0.17, 0.14 }, float3 { 0.28, 0.24, 0.20 }, float3 { 0.37, 0.32, 0.26 }, float3 { 0.46, 0.40, 0.33 } ],
                     [ float3 { 0.3, 0.3, 0.3 }, float3 { 0.5, 0.5, 0.5 } ], false, false, false }
 
-// A plate of rock: w by d by th, turned by `turn` degrees about c, its foot at c.z.
-def rock_plate(g:vgrid, c:float3, w:float, d:float, th:float, turn:float, m:int, tone:float):
-    let reach = max(w, d) * 1.5
-    vg_box(g, float3 { c.x - reach, c.y - reach, c.z }, float3 { c.x + reach, c.y + reach, c.z + th }) i, p:
+// A slab of rock: about w by d by th, turned by `turn` degrees about c, its foot at c.z, its outline broken (no two
+// alike, none square), and dipping: its bed rises `dip` for each tile along its length, as gneiss beds lie tilted.
+def rock_plate(g:vgrid, c:float3, w:float, d:float, th:float, turn:float, m:int, tone:float, dip:float = 0.0, seed:int = 0):
+    let reach = max(w, d) * 1.4
+    let rise = abs(dip) * reach
+    let p1 = float(seed % 360)
+    let p2 = float((seed / 7) % 360)
+    vg_box(g, float3 { c.x - reach, c.y - reach, c.z - rise }, float3 { c.x + reach, c.y + reach, c.z + th + rise }) i, p:
         let u = (p.x - c.x) * cos(turn) + (p.y - c.y) * sin(turn)
         let v = -(p.x - c.x) * sin(turn) + (p.y - c.y) * cos(turn)
-        // (a corner knocked off, so no two plates are the same oblong)
-        if abs(u) < w and abs(v) < d and abs(u) / w + abs(v) / d < 1.7 and p.z >= c.z and p.z < c.z + th: vg_set(g, i, m, tone)
+        let a = atan2(float2 { u / w, v / d })
+        let edge = 1.0 + 0.16 * sin(a * 3.0 + p1) + 0.1 * sin(a * 5.0 + p2) + 0.06 * sin(a * 9.0 + p1 * 2.0)
+        let z = p.z - u * dip
+        // (blunt corners, not round ones: a slab breaks along joints)
+        if pow(abs(u / w), 8.0) + pow(abs(v / d), 8.0) < pow(edge, 8.0) * 0.8 and z >= c.z and z < c.z + th and p.z >= 0.0: vg_set(g, i, m, tone)
 
-// A gneiss outcrop: thick flat beds lying one on another, each a little smaller and a little turned, so it stands in
-// steps of slabs (the rock splits along its bedding: that's what makes it a building stone).
+// A gneiss outcrop: many thin beds lying one on another and dipping the same way, each stepping back and a little
+// turned, a man or two high (the rock splits along its bedding: that's what makes it a building stone).
 def outcrop(look:vglook, kind:int) -> vgrid:
     let rng = grng(1100 + kind)
-    let beds = [ 3, 4, 6, 2 ][kind]
-    let g = vg_new(look, float3 { -0.95, -0.95, 0.0 }, float3 { 0.95, 0.95, 1.2 }, VOX_K, 1100 + kind)
+    let beds = [ 7, 9, 12, 5 ][kind]
+    let g = vg_new(look, float3 { -0.95, -0.95, 0.0 }, float3 { 0.95, 0.95, 1.1 }, VOX_K, 1100 + kind)
     var z = 0.0
     var c = float2 { 0.0, 0.0 }
-    var w = randf_range(rng, 0.6, 0.72)
-    var d = randf_range(rng, 0.5, 0.62)
-    let turn0 = randf_range(rng, -20.0, 20.0)
+    var w = randf_range(rng, 0.55, 0.7)
+    var d = randf_range(rng, 0.42, 0.56)
+    let turn0 = randf_range(rng, -25.0, 25.0)
+    let dip = randf_range(rng, 0.12, 0.3) * (if kind % 2: 1.0 else: -1.0)
     for(beds) n:
-        let th = randf_range(rng, 0.1, 0.19)
-        rock_plate(g, float3 { c.x, c.y, z }, w, d, th, turn0 + randf_range(rng, -9.0, 9.0), VG_ROCK, if n % 2: 0.3 else: -0.25)
+        let th = randf_range(rng, 0.035, 0.085)
+        rock_plate(g, float3 { c.x, c.y, z }, w, d, th, turn0 + randf_range(rng, -7.0, 7.0), VG_ROCK, randf_range(rng, -0.4, 0.4), dip, 1100 + kind * 31 + n * 97)
         z += th
-        c += float2 { randf_range(rng, -0.12, 0.12), randf_range(rng, -0.1, 0.1) }
-        w *= randf_range(rng, 0.66, 0.9)
-        d *= randf_range(rng, 0.66, 0.9)
-    // a fallen block at its foot
-    rock_plate(g, float3 { 0.55, -0.45, 0.0 }, 0.2, 0.14, 0.1, turn0 + 30.0, VG_ROCK, 0.1)
+        c += float2 { randf_range(rng, -0.1, 0.06), randf_range(rng, -0.07, 0.07) }
+        w *= randf_range(rng, 0.8, 0.97)
+        d *= randf_range(rng, 0.8, 0.97)
+    // blocks that have come off it
+    for(3) n:
+        let at = float3 { randf_range(rng, 0.4, 0.75) * (if n == 1: -1.0 else: 1.0), randf_range(rng, -0.6, 0.6), 0.0 }
+        rock_plate(g, at, randf_range(rng, 0.06, 0.13), randf_range(rng, 0.05, 0.1), randf_range(rng, 0.03, 0.07), randf_range(rng, 0.0, 180.0), VG_ROCK, 0.1, randf_range(rng, -0.3, 0.3), 1190 + n)
+    return g
+
+// A landslide's debris on one tile (#20): a low heap of earth with broken rock in it at every size, from fist stones to
+// a block as big as a man, lying at all angles. Its look's bark is the earth.
+let RUBBLE_KINDS = 6
+def rubble(look:vglook, kind:int) -> vgrid:
+    let rng = grng(1250 + kind)
+    // (wider than its tile, so the heaps run into one another and no tile shows)
+    let g = vg_new(look, float3 { -1.0, -1.0, 0.0 }, float3 { 1.0, 1.0, 0.6 }, VOX_K, 1250 + kind)
+    // the earth: low, uneven, spread wide
+    for(9) n:
+        let at = float3 { randf_range(rng, -0.5, 0.5), randf_range(rng, -0.5, 0.5), 0.0 }
+        rock_plate(g, at, randf_range(rng, 0.25, 0.48), randf_range(rng, 0.2, 0.4), randf_range(rng, 0.015, 0.07), randf_range(rng, 0.0, 180.0), VG_BARK, 0.0, randf_range(rng, -0.08, 0.08), 1260 + n + kind * 13)
+    // the rock in it: many small, some middling, in some heaps one block as big as a man; nothing in the middle
+    let bigs = if kind % 3 == 0: 1 else: 0
+    let mids = 6 + (kind * 5) % 7
+    for(60 + kind * 9) n:
+        let big = n < bigs
+        let mid = n < bigs + mids
+        let sz = if big: randf_range(rng, 0.13, 0.19) elif mid: randf_range(rng, 0.05, 0.1) else: randf_range(rng, 0.016, 0.042)
+        let at = float3 { randf_range(rng, -0.7, 0.7), randf_range(rng, -0.7, 0.7), randf_range(rng, 0.0, 0.05) }
+        rock_plate(g, at, sz, sz * randf_range(rng, 0.5, 0.9), sz * randf_range(rng, 0.4, 0.85), randf_range(rng, 0.0, 180.0), VG_ROCK, randf_range(rng, -0.5, 0.5), randf_range(rng, -0.8, 0.8), 1300 + n * 53 + kind)
     return g
 
 // Loose slabs split from the rock: the stone a wall or a roof is made of.
@@ -403,6 +435,9 @@ def bake_trees(between):
     let gneiss = gneiss_look()
     for(ROCK_KINDS) kind: tree_onto(rs, "rock{kind}", outcrop(gneiss, kind), true)
     for(SLAB_KINDS) kind: tree_onto(rs, "slabs{kind}", slab_pile(gneiss, kind), true)
+    let debris = gneiss_look()
+    debris.bark = [ float3 { 0.19, 0.15, 0.11 }, float3 { 0.27, 0.21, 0.15 }, float3 { 0.35, 0.28, 0.20 }, float3 { 0.44, 0.36, 0.26 } ]
+    for(RUBBLE_KINDS) kind: tree_onto(rs, "rubble{kind}", rubble(debris, kind), true)
     sheet_finish(rs, vox_draw_k(), true)
     // (the load is baked finer still: a sheet of its own, drawn at its own size)
     tree_onto(ls, "load.wood", wood_load(beech), false)

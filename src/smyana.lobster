@@ -113,8 +113,7 @@ def leafy(sp:string) -> bool: return sp == "beech" or sp == "oak" or sp == "horn
 
 def build_props():
     props = []
-    let slide_cells = []::int
-    for(glist(su_map, "slide")) xy: slide_cells.push(as_int(xy.a[1]) * W + as_int(xy.a[0]))
+    let debris_t = str_index(tr_names, "rubble")
     props_version = map_version
     let wood = gstr(su_map, "wood", "beech")
     let old = str_index(tr_names, "tree")
@@ -136,10 +135,10 @@ def build_props():
         elif t == stump: props.push(Prop { 2, 0, "stump", "", centre, c })
         elif t == rock:
             props.push(Prop { 3, 0, "rock{(h / 7) % ROCK_KINDS}", "", off, c })
-            // a landslide (#20) is rock that lies on the trail: broken trunks and loose slabs lie in it
-            if (find(slide_cells) sc: sc == c) >= 0:
-                props.push(Prop { 6, 0, "log{h % LOG_KINDS}", "", off + iso(float(h % 500) - 250.0, float((h / 9) % 500) - 250.0), c })
-                props.push(Prop { 4, 0, "slabs{(h / 5) % SLAB_KINDS}", "", off + iso(float((h / 3) % 600) - 300.0, float((h / 13) % 600) - 300.0), c })
+        elif t == debris_t:
+            // a landslide's debris (#20): a heap of earth and broken rock on each tile, a broken trunk here and there
+            props.push(Prop { 3, 0, "rubble{(h / 7) % RUBBLE_KINDS}", "", off + iso(float((h / 5) % 500) - 250.0, float((h / 23) % 500) - 250.0), c })
+            if (h / 3) % 5 == 0: props.push(Prop { 6, 0, "log{h % LOG_KINDS}", "", off + iso(float(h % 500) - 250.0, float((h / 9) % 500) - 250.0), c })
         elif t == grass and (h / 11) % 3 == 0:
             // slabs lie loose beside the rock they split from
             let x = c % W
@@ -198,7 +197,21 @@ def build_litter():
             let open = cell_hash((y / 11) * w + x / 11 + 6007) % 100 < 45
             if not open: a[y * w + x] = max(a[y * w + x], 0.3 + 0.4 * patch)
             elif patch > 0.7: a[y * w + x] = max(a[y * w + x], 0.3)
-    prop_tex = gl.create_texture(map(h) y: map(w) x: float4 { a[y * w + x], 0.0, 0.0, 0.0 }, texture_format_clamp | texture_format_nomipmap)
+    // scree under a landslide's debris (the shader's G), reaching a little past it and ragged
+    let sc = map(w * h): 0.0
+    let debris_t = str_index(tr_names, "rubble")
+    for(terrain) t, c:
+        if t == debris_t:
+            let sx = (c % W) * MASK_K + MASK_K / 2
+            let sy = (c / W) * MASK_K + MASK_K / 2
+            let rr = MASK_K
+            for(rr * 2 + 1) dy: for(rr * 2 + 1) dx:
+                let x = sx + dx - rr
+                let y = sy + dy - rr
+                if x >= 0 and y >= 0 and x < w and y < h:
+                    let v = clamp(1.4 - magnitude(float2 { float(dx - rr), float(dy - rr) }) / float(rr) * (0.9 + 0.3 * float(cell_hash(c + x * 7 + y * 13) % 100) / 100.0), 0.0, 1.0)
+                    if v > sc[y * w + x]: sc[y * w + x] = v
+    prop_tex = gl.create_texture(map(h) y: map(w) x: float4 { a[y * w + x], sc[y * w + x], 0.0, 0.0 }, texture_format_clamp | texture_format_nomipmap)
     ground_stale = true
 
 // The view of a place just loaded: its ground and its trees in this season, the camera on the men.

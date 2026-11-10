@@ -6,7 +6,7 @@ or edit a map's rows by hand afterwards (then don't run this again for that plac
 Run from the repo's root: python3 tools/make_places.py"""
 import json, math, random
 
-LEGEND = {".": "grass", ":": "trail", "T": "tree", "t": "young_tree", "#": "rock", "~": "water", "=": "ford"}
+LEGEND = {".": "grass", ":": "trail", "T": "tree", "t": "young_tree", "#": "rock", "~": "water", "=": "ford", "%": "rubble"}
 
 
 def noise1(rng, n, step):
@@ -73,15 +73,22 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
         a, b = trail_y[x], trail_y[max(0, x - 1)]
         for y in range(min(a, b), max(a, b) + 1): put(x, y, ":", ".#")
 
-    # a landslide, found after it has happened (#20): fallen rock across the trail, a few tiles wide, to be walked round
-    slides = []
+    # a landslide, found after it has happened (#20): a crag above the trail has let go, and its debris has run down
+    # in a tongue that widens to a fan across the trail and a little beyond. No tree stands in its path. The men walk
+    # round its toe.
     if slide:
-        sx, r = slide[0] + RIM, slide[1]
-        for y in range(trail_y[sx] - r, trail_y[sx] + r + 1):
-            for x in range(sx - 1, sx + 2):
-                if abs(y - trail_y[sx]) + abs(x - sx) * 2 <= r + rng.randrange(0, 2) and g[y][x] in ".:":
-                    g[y][x] = "#"
-                    slides.append([x, y])
+        sx, run = slide[0] + RIM, slide[1]
+        top = trail_y[sx] - run
+        for y in range(top - 5, top + 1):                      # the crag it came from, its lower face broken open
+            for x in range(sx - 4, sx + 5):
+                if (x - sx) ** 2 + (y - (top - 2)) ** 2 <= 9 + rng.uniform(-1.5, 1.5): put(x, y, "#", ".:")
+        for y in range(top + 1, trail_y[sx] + 4):
+            t = (y - top) / (run + 3)
+            half = 0.8 + 2.4 * t * t + rng.uniform(-0.3, 0.3)
+            lean = int(round(1.5 * t))                           # (it ran a little to one side)
+            for x in range(sx - 4, sx + 6):
+                if abs(x - sx - lean) <= half: put(x, y, "%", ".:")
+        clearings = clearings + [(sx, trail_y[sx] + 2, 5.5)]     # open ground round the toe, so there is a way round
 
     def near(x, y, chars, r):
         for yy in range(max(0, y - r), min(h, y + r + 1)):
@@ -105,7 +112,7 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
     olds = []
     for _ in range(int(w * h * old_fill)):
         x, y = rng.randrange(2, w - 2), rng.randrange(2, h - 2)
-        if g[y][x] != "." or in_clearing(x, y) or near(x, y, ":=~", 1) or near(x, y, "t", 1): continue
+        if g[y][x] != "." or in_clearing(x, y) or near(x, y, ":=~%", 1) or near(x, y, "t", 1): continue
         gap = 2.0 if rim(x, y) else old_gap  # (the rim is a wall of trees)
         # (round a clearing the trees stand close, so it is a small lit room in a dark wood, as in the target picture)
         if any(r * r < (x - cx) ** 2 + (y - cy) ** 2 <= (r + 2.2) ** 2 for (cx, cy, r) in clearings): gap = 1.15
@@ -123,8 +130,6 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
         # which trees stand here and which ground lies under them: beech (broadleaves at their whole height),
         # conifer (pine and spruce at their whole height), deep (the high dark woods: trunks running up out of sight)
         "wood": wood,
-        # tiles of fallen rock (a landslide): the game draws them as a slope of blocks, earth and broken trees
-        "slide": slides,
         "rows": ["".join(r) for r in g],
     }
     with open("data/maps/%s.json" % pid, "w") as f:
@@ -141,4 +146,4 @@ place("beech_valley", "beech", 1878, 96, 64, west_y=33, east_y=28, stream_x=52, 
       clearings=[(9, 33, 4), (30, 36, 3), (50, 31, 3.2), (70, 24, 4)], rocks=[(30, 12, 3), (61, 50, 4), (84, 40, 2)])
 # The deep fir woods: closer, darker, more rock, no stream. (Drawn with the same trees for now.)
 place("fir_woods", "deep", 1879, 96, 64, west_y=28, east_y=36, stream_x=-1, old_gap=1.4, old_fill=1.8, young_clumps=34,
-      clearings=[(48, 30, 5)], rocks=[(20, 44, 4), (40, 14, 3), (66, 20, 5), (78, 50, 3)], slide=(62, 4))
+      clearings=[(48, 30, 5)], rocks=[(20, 44, 4), (40, 14, 3), (66, 20, 5), (78, 50, 3)], slide=(62, 8))

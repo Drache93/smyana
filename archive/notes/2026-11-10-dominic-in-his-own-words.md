@@ -209,3 +209,9 @@ After seeing the first runnable version (its trees were about thirteen men tall)
 
 **21:41** (asked whether the other tree kinds still need a 2D sheet first)
 > Skip 2D
+
+**21:55** (in the lighting thread, of the new look)
+> Should be harder edged too. Biggest difference with the design is evryhting crisp and sharp. Our new stuff is looking soft so far, engine issue?
+
+**21:59** (of the first landslide)
+> Landslide looks pretty bad. Unclear its source, and scale of rocks looks really wrong. Just piles of square rocks?
