@@ -23,3 +23,6 @@ One line per moment worth remembering. Newest at the bottom.
   ([his words](notes/2026-11-10-dominic-in-his-own-words.md))
 - **2026-11-10:** The men's looks to mix at random (5 hats, 3 coats, 6 cloaks, an older face), the
   swallow-tail rifle and the masons' tools. ([image](images/2026-11-10/30-men-random-mix.png))
+- **2026-11-10:** The environment broken into GitHub issues (#3, with 15 sub-issues), including one
+  tracking Creel's lighting work (Casaide/creel#5). Each place on the route is its own map, and
+  the UI stays as close to none as possible. ([journal](journal/2026-11-10-environment-issues.md))
