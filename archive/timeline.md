@@ -31,3 +31,7 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-10:** The first runnable version: Smyana as its own program on Creel, two grey-boxed
   places, twenty men who can be ordered about, and the walk out and home again with a letter
   between places (#4). ([journal](journal/2026-11-10-first-runnable-version.md))
+- **2026-11-10:** A first try at the music: "Autumn dusk", a slow kaval tune over a kaba gaida
+  drone, written as text and turned into sound by code, with notes on the style of Rhodope
+  music. ([journal](journal/2026-11-10-first-music-spike.md),
+  [listen](audio/2026-11-10/05-music-spike-autumn-dusk.ogg))

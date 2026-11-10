@@ -132,3 +132,11 @@ built from clearings. It isn't ours and isn't kept here; Smyana's look doesn't c
 
 **20:02** (after the session working on it was cut off part way)
 > Try again
+
+## A first try at the music
+
+**20:49**
+> Let's get a fable agent thread working on first music, it doesn't need to be the final one or main intro music. Just a spike into style and feel and how well compose it
+
+**20:51**
+> also research the style of rhodope music

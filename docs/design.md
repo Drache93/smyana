@@ -251,7 +251,8 @@ Age of Anything look, with darker, moodier lighting.
   and the village.
 - **Audio.** Wind in the canopy, birds, distant wolves, the crunch of snow, the fire. The
   soundscape changes with the season, from busy summer to near-silent winter. The music plan is
-  in [`music-and-sound.md`](music-and-sound.md).
+  in [`music-and-sound.md`](music-and-sound.md), with notes on the style in
+  [`rhodope-music-style.md`](rhodope-music-style.md) and the first sketches in [`music/`](../music/README.md).
 
 ## Engine: what Creel needs
 
