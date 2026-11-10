@@ -3,9 +3,9 @@
 // baked by Creel's voxel module into sprites: standing and eight steps of the walk, from eight sides, and his shadow.
 
 let MEN_STEPS = 8
-var MEN_DRAW_K = 1.1 / vx_RES  // art px a baked px
+let MEN_DRAW_K = 1.1 / vx_RES  // art px a baked px
 let MEN_BAKE = "men 1"         // (raise the number when the bake changes: the saved sheets are made again)
-var men_looks = []::vx_unit_def
+let men_looks = []::vx_unit_def
 var men_bake_s = 0.0  // how long the bake took (0: read from bake_cache/)
 
 def man_frame_name(look:int, pose:int, facing:int) -> string: return "man{look}.{pose}.{facing}"  // pose 0: standing, 1..8: the walk

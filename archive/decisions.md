@@ -210,3 +210,7 @@ Calm music plays, then a sudden swap to fight music, and back again. One recordi
 blend from one mood into another. This sets aside the layered "intensity dial" Claude proposed
 under D-036 unless swapping proves too blunt. A proposed list of 24 tracks is in
 `docs/music-tracks.md`.
+
+**D-044, 2026-11-10: Our Lobster is formatted and warning-free.** (Dominic)
+For quality and fewer bugs, every Lobster file of ours is in `lobsterfmt`'s layout (Lobster's style guide) and compiles
+with no warnings, as in Age of Anything. `src/lint.sh` checks both and `./check.sh` runs it, before every commit.

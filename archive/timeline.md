@@ -51,3 +51,5 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-10:** The ruins made "more mystic and ancient", a first sung line without words,
   and the track list put up as issue #26 under a new audio label.
   ([journal](journal/2026-11-10-first-music-spike.md#last-of-the-evening-older-ruins-singing-and-an-issue))
+- **2026-11-10:** Lint for the Lobster code: `lobsterfmt`'s layout and no warnings, in `./check.sh` (D-044).
+  ([journal](journal/2026-11-10-lint-and-lobsterfmt.md))
