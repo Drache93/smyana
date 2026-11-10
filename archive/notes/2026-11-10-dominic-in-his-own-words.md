@@ -62,6 +62,9 @@ Times are UTC.
 >
 > i cant think of any games played under a canopy, or with trees at that real scale. Can you find any?
 
+*(With this message Dominic shared a screenshot from another studio's game as an example of a forest
+built from clearings. It isn't ours and isn't kept here; Smyana's look doesn't come from it.)*
+
 **10:19**
 > lets try it out. Mock it up, but higher quality so i get a real feel for it, use fable
 
