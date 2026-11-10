@@ -51,5 +51,8 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-10:** The ruins made "more mystic and ancient", a first sung line without words,
   and the track list put up as issue #26 under a new audio label.
   ([journal](journal/2026-11-10-first-music-spike.md#last-of-the-evening-older-ruins-singing-and-an-issue))
+- **2026-11-10:** Fallen leaves you can see on the ground, herbs in drifts, and the landslide moved to a
+  ledge between a crag and a real cliff (Creel's high ground, first use; a gneiss cliff face).
+  ([journal](journal/2026-11-10-rhodope-trees-ground-and-rock.md#ground-you-can-read-and-a-landslide-on-a-ledge-2210-to-2240))
 - **2026-11-10:** Lint for the Lobster code: `lobsterfmt`'s layout and no warnings, in `./check.sh` (D-044).
   ([journal](journal/2026-11-10-lint-and-lobsterfmt.md))

@@ -263,6 +263,14 @@ After seeing the first runnable version (its trees were about thirteen men tall)
 **21:33**
 > The music has a general tangerine dream feel to it I really like
 
+**22:07**
+> 25 has conflicts again
+
+**22:15** (with a close crop of the new ground: the strewn leaves and herb drifts, picture 80)
+> verry spotty, ground was soft and pretty in the mockup
+
+**22:16** (no words: two of the route mock-ups sent again as the reference for the ground, the beech clearing after leaf-fall, `archive/images/2026-11-10/23-route-beech-after-leaf-fall.jpg`, and the same camp in summer)
+
 ## Lobster style and the formatter
 
 **22:08**

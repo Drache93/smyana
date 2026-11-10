@@ -211,6 +211,11 @@ blend from one mood into another. This sets aside the layered "intensity dial" C
 under D-036 unless swapping proves too blunt. A proposed list of 24 tracks is in
 `docs/music-tracks.md`.
 
+**D-043, 2026-11-10: A landslide is small and blocks a tight pass.** (Dominic)
+"I think better if landslides are smaller and more focuses. Like on a pass above a cliff face, so we o ly have a very
+tight space to go, and its blocked." The fir woods' slide lies across a ledge between a crag and a ravine, using Creel's
+high ground for the first time (Claude: how). Until the men can clear a slide, one tile of the ledge's lip stays open.
+
 **D-044, 2026-11-10: Our Lobster is formatted and warning-free.** (Dominic)
 For quality and fewer bugs, every Lobster file of ours is in `lobsterfmt`'s layout (Lobster's style guide) and compiles
 with no warnings, as in Age of Anything. `src/lint.sh` checks both and `./check.sh` runs it, before every commit.

@@ -7,7 +7,7 @@
 // seen. The leaves are baked once a season (their colour), behind the letter home, and kept in bake_cache/.
 
 let TREE_K = 64.0  // voxels a tile for the load of wood (baked at twice this)
-let TREE_BAKE = "trees 25"
+let TREE_BAKE = "trees 27"
 // Voxels a tile in the trees, rocks and undergrowth: one voxel is one pixel of Creel's art (WB_PX at its art scale of
 // 3), as the men's are, so they are as crisp as the men (Dominic, 2026-11-10: "evryhting crisp and sharp").
 let VOX_K = 135.7645
@@ -248,18 +248,20 @@ def bush(look:vglook, kind:int) -> vgrid:
 // picture's clearing).
 let HERB_KINDS = 3
 def herbs(look:vglook, kind:int) -> vgrid:
+    // (no stems that show: small leaves close to the ground, thick at a lobe's middle and thinning to single plants)
     let rng = grng(1450 + kind)
     let g = fine_grid(look, 0.5, 0.2, 1450 + kind)
     let lobes = 3 + kind
     for(lobes):
-        let lc = float3 { randf_range(rng, -0.22, 0.22), randf_range(rng, -0.22, 0.22), 0.0 }
-        let lr = randf_range(rng, 0.1, 0.2)
-        for(int(lr * 170.0)):
+        let lc = float3 { randf_range(rng, -0.2, 0.2), randf_range(rng, -0.2, 0.2), 0.0 }
+        let lr = randf_range(rng, 0.14, 0.27)
+        for(int(lr * 150.0)):
             let a = randf_range(rng, 0.0, 360.0)
-            let rr = lr * sqrt(randf(rng))
-            let top = lc + float3 { cos(a) * rr, sin(a) * rr, randf_range(rng, 0.03, 0.1) }
-            twig(g, float3 { top.x, top.y, 0.0 }, top, 0.006, VG_LEAF, -0.6)
-            leaf_dab(g, top, randf_range(rng, 0.011, 0.018), randf_range(rng, -0.3, 0.8))
+            let rr = lr * randf(rng)
+            let low = randf(rng) < 0.35
+            let top = lc + float3 { cos(a) * rr, sin(a) * rr, if low: 0.012 else: randf_range(rng, 0.025, 0.07) }
+            if abs(top.x) < 0.47 and abs(top.y) < 0.47:
+                leaf_dab(g, top, randf_range(rng, 0.008, 0.013), if low: randf_range(rng, -0.9, -0.4) else: randf_range(rng, -0.2, 0.8))
     return g
 
 // A fallen trunk, long down, moss along its top.
@@ -292,7 +294,7 @@ def under_look(season:string, kind:int, moss:bool) -> vglook:
 // The low herbs: pale yellow green, paler still in autumn.
 def herb_look(season:string, kind:int) -> vglook:
     var leaf = [ float3 { 0.66, 0.76, 0.34 }, float3 { 0.46, 0.60, 0.26 }, float3 { 0.24, 0.36, 0.16 }, float3 { 0.80, 0.84, 0.44 } ]
-    if season == "autumn": leaf = [ float3 { 0.90, 0.86, 0.46 }, float3 { 0.68, 0.68, 0.32 }, float3 { 0.36, 0.38, 0.16 }, float3 { 0.98, 0.94, 0.60 } ]
+    if season == "autumn": leaf = [ float3 { 0.80, 0.79, 0.30 }, float3 { 0.60, 0.65, 0.25 }, float3 { 0.31, 0.38, 0.15 }, float3 { 0.91, 0.87, 0.42 } ]
     if season == "autumn" and kind == 2: leaf = [ float3 { 0.74, 0.78, 0.36 }, float3 { 0.52, 0.60, 0.26 }, float3 { 0.28, 0.36, 0.15 }, float3 { 0.86, 0.86, 0.46 } ]
     return vglook { leaf, [ float3 { 0.20, 0.17, 0.14 }, float3 { 0.28, 0.24, 0.20 }, float3 { 0.37, 0.32, 0.26 }, float3 { 0.46, 0.40, 0.33 } ],
                     [ float3 { 0.3, 0.3, 0.3 }, float3 { 0.5, 0.5, 0.5 } ], false, false, false }
@@ -345,10 +347,6 @@ def rubble(look:vglook, kind:int) -> vgrid:
     let rng = grng(1250 + kind)
     // (wider than its tile, so the heaps run into one another and no tile shows)
     let g = vg_new(look, float3 { -1.0, -1.0, 0.0 }, float3 { 1.0, 1.0, 0.6 }, VOX_K, 1250 + kind)
-    // the earth: low, uneven, spread wide
-    for(9) n:
-        let at = float3 { randf_range(rng, -0.5, 0.5), randf_range(rng, -0.5, 0.5), 0.0 }
-        rock_plate(g, at, randf_range(rng, 0.25, 0.48), randf_range(rng, 0.2, 0.4), randf_range(rng, 0.015, 0.07), randf_range(rng, 0.0, 180.0), VG_BARK, 0.0, randf_range(rng, -0.08, 0.08), 1260 + n + kind * 13)
     // the rock in it: many small, some middling, in some heaps one block as big as a man; nothing in the middle
     let bigs = if kind % 3 == 0: 1 else: 0
     let mids = 6 + (kind * 5) % 7
@@ -358,6 +356,12 @@ def rubble(look:vglook, kind:int) -> vgrid:
         let sz = if big: randf_range(rng, 0.13, 0.19) elif mid: randf_range(rng, 0.05, 0.1) else: randf_range(rng, 0.016, 0.042)
         let at = float3 { randf_range(rng, -0.7, 0.7), randf_range(rng, -0.7, 0.7), randf_range(rng, 0.0, 0.05) }
         rock_plate(g, at, sz, sz * randf_range(rng, 0.5, 0.9), sz * randf_range(rng, 0.4, 0.85), randf_range(rng, 0.0, 180.0), VG_ROCK, randf_range(rng, -0.5, 0.5), randf_range(rng, -0.8, 0.8), 1300 + n * 53 + kind)
+    // the earth between and under them: low rounded mounds (not plates), round the rock already lying there
+    let lumpy = vg_field(g, 0.09, 1251 + kind)
+    for(6) n:
+        let at = float3 { randf_range(rng, -0.45, 0.45), randf_range(rng, -0.45, 0.45), 0.0 }
+        let r = randf_range(rng, 0.2, 0.4)
+        vg_blob(g, at, r, randf_range(rng, 3.0, 5.0), 0.5, lumpy, VG_BARK, randf_range(rng, -0.5, 0.4), 0.0, nil, 0.0)
     return g
 
 // Loose slabs split from the rock: the stone a wall or a roof is made of.
