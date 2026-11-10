@@ -16,6 +16,15 @@ game competition whose theme is "Shift". Read [`README.md`](README.md) and
 Skim [`archive/decisions.md`](archive/decisions.md) so you don't undo a deliberate choice.
 Items in `docs/design.md` marked **Proposal** aren't agreed.
 
+## Lobster code (Dominic, 2026-11-10)
+
+For quality, and so fewer bugs: every Lobster file of ours is in `lobsterfmt`'s layout, and our files compile with no
+warnings. `src/lint.sh` checks both (`--fix` formats); `./check.sh` runs it first. Run `./check.sh` before every commit
+and push, and fix a warning rather than living with it. `lobsterfmt` is in the Lobster fork (`dev/lobsterfmt`, built
+beside `bin/lobster`); its layout is Lobster's [style guide](https://github.com/Drache93/lobster/blob/master/docs/source/style_guide.md),
+and new code follows that guide too. A global that's never assigned again is a `let`. Creel's own warnings are Creel's
+to fix, in its repo.
+
 ## The archive (keep it up to date)
 
 `archive/` records how the game is made: pictures, notes, decisions, direction changes, bugs.
