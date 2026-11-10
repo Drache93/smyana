@@ -324,7 +324,7 @@ def collect_props():
     let season = season_now()
     let bare = season == "winter"
     for(props) pr:
-        if pr.at.x > view_lo.x - 250.0 and pr.at.x < view_hi.x + 250.0 and pr.at.y > view_lo.y - 100.0 and pr.at.y < view_hi.y + 620.0:
+        if pr.at.x > view_lo.x - 700.0 and pr.at.x < view_hi.x + 250.0 and pr.at.y > view_lo.y - 300.0 and pr.at.y < view_hi.y + 620.0:
             if pr.kind == 0:
                 add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -40000.0, float4_1)
                 add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1)
@@ -674,6 +674,20 @@ if has_s(args, "camp") or arg_of("camp") != "":
             u_x[i] = c.x + int(cos(a) * r)
             u_y[i] = c.y + int(sin(a) * r)
         p_id = []
+        // (and a clearing in a close wood round it, as in the mock-up: open within three tiles, thick trees beyond)
+        let tx = c.x / TILE
+        let ty = c.y / TILE
+        let old = str_index(tr_names, "tree")
+        let grass = str_index(tr_names, "grass")
+        for(31) dy: for(31) dx:
+            let x = tx + dx - 15
+            let y = ty + dy - 15
+            if x >= 0 and y >= 0 and x < W and y < H:
+                let cell = y * W + x
+                let d = sqrt(float((dx - 15) * (dx - 15) + (dy - 15) * (dy - 15)))
+                if d < 3.0 and terrain[cell] == old: terrain[cell] = grass
+                elif d >= 3.6 and terrain[cell] == grass and cell_hash(cell + 777) % 100 < int(min(60.0, (d - 3.0) * 25.0)): terrain[cell] = old
+        map_version++
         cam = iso(float(c.x), float(c.y))
         fires = [ cam ]
     else:

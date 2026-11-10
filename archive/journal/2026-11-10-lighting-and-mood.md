@@ -33,6 +33,7 @@ New options for a look: `hour:<h>`, `zoom:<z>` and `camp[:x,y]`.
 ## Decisions
 - D-037: The light is a low afternoon sun, and its shadows join into one deep shade (Proposal).
 - D-038: The campfire is only for a look until fire is part of the game.
+- D-040: Shadows are a normal, soft shade (Dominic), superseding the deep shade of D-037.
 
 ## Pictures
 ![Before: the flat day](../images/2026-11-10/60-light-before-flat-day.jpg)
@@ -61,3 +62,20 @@ flat. That's the trees and places work (the trees thread, PR #25).
 - The sun moving through the day (re-baking the shadows, or baking a few hours and fading).
 - Moods blending as the hour changes instead of switching (#14).
 - Fire as a game system: it feeds the men and draws danger (the design doc).
+
+## Second pass: a normal shade (later the same evening)
+Dominic found the first pass's shadows messy, stretched and far too dark
+([his words](../notes/2026-11-10-lighting-and-mood.md#on-the-first-lighting-pass-2148-and-2149)).
+The sun went up from 26 to 40 degrees, so shadows are about as long as things are tall. The
+shade is now a light multiply (about 0.6 of the light, not 0.25). It barely loses colour, and the
+mist and darker-woods effects are half as strong. The shadows still join into one shade rather
+than overlapping, which was the "overlapping" mess. Long shadows from trees just off the left of
+the screen were being cut off. Trees are now drawn from further out, so their shadows come in
+whole.
+
+For a fairer comparison, `camp:<x>,<y>` now also clears three tiles round the fire and thickens
+the wood beyond, like the mock-up's clearing. Pictures 56 and 57 were rendered with the trees
+thread's new trees (PR #25) merged in locally, since those are the trees that will ship.
+
+![Lighter shade, a closer wood, the target on the left](../images/2026-11-10/56-lighter-shade-closer-wood-beside-the-target.jpg)
+![The same at dusk](../images/2026-11-10/57-lighter-shade-dusk-beside-the-target.jpg)

@@ -173,3 +173,8 @@ stands out of dark woods. Rays run through the gaps and mist lies in the shade. 
 **D-038, 2026-11-10: The campfire is only for a look until fire is part of the game.** (Claude)
 `camp:<x>,<y>` puts the men round a fire to check its light. Fire as a system (feeding the men,
 drawing danger) is still to come and will use the same fire and glow.
+
+**D-040, 2026-11-10: Shadows are a normal, soft shade, not long dark ones.** (Dominic)
+"Design the shadows at much less dark. Normal show shade basically." Supersedes D-037's low sun
+and deep shade: the sun stands at 40 degrees and the shade is a light multiply in every mood.
+The shadows still join into one shade where they overlap.
