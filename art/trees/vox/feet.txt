@@ -1,7 +1,7 @@
-beech_sapling_0 29 24
-beech_young_0 45 58
-beech_young_1 44 47
-beech_mature_0 90 86
-beech_mature_1 63 70
-beech_old_0 115 95
-beech_old_1 110 82
+beech_sapling_0 26 28
+beech_young_0 49 47
+beech_young_1 48 46
+beech_mature_0 68 83
+beech_mature_1 91 77
+beech_old_0 91 99
+beech_old_1 105 79

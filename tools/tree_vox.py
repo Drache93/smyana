@@ -115,6 +115,10 @@ def beech(height, girth, bole, spread, boughs, seed):
             tw = at + np.array([math.cos(a2), math.sin(a2), rng.uniform(-0.1, 0.7)]) * length
             m.capsule(at, tw, 0.7 * F, 0.5 * F, BARK)
             tips.append(tw)
+            for q in range(2):                           # bare twiglets: the bristle that shows after leaf-fall
+                a3 = a2 + rng.uniform(-1.5, 1.5)
+                t3 = at + (tw - at) * rng.uniform(0.3, 0.9)
+                m.capsule(t3, t3 + np.array([math.cos(a3), math.sin(a3), rng.uniform(0.0, 0.9)]) * length * rng.uniform(0.5, 0.9), 0.5 * F, 0.42 * F, BARK)
 
     def bough(start, az, out, up, r):
         d = np.array([math.cos(az), math.sin(az), 0.0])
@@ -145,7 +149,7 @@ def beech(height, girth, bole, spread, boughs, seed):
 
 SIZES = {  # in men, measured from the route mock-ups (an old tree six men tall, its trunk a quarter of a man wide)
     "sapling": (1.1, 0.06, 0.35, 0.4, 3), "young": (2.7, 0.13, 0.4, 0.9, 4),
-    "mature": (4.5, 0.22, 0.36, 1.6, 5), "old": (5.7, 0.28, 0.36, 2.0, 6),
+    "mature": (4.5, 0.22, 0.36, 1.6, 5), "old": (5.5, 0.28, 0.36, 2.0, 6),
 }
 lines = []
 for name, (h, g, b, s, n) in SIZES.items():

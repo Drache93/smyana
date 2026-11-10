@@ -78,15 +78,6 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
     def in_clearing(x, y):
         return any((x - cx) ** 2 + (y - cy) ** 2 <= r * r for (cx, cy, r) in clearings)
 
-    # the old trees: giants, a few tiles apart so the men walk between them, off the trail and the water
-    olds = []
-    for _ in range(int(w * h * old_fill)):
-        x, y = rng.randrange(2, w - 2), rng.randrange(2, h - 2)
-        if g[y][x] != "." or in_clearing(x, y) or near(x, y, ":=~", 1): continue
-        gap = 2.0 if rim(x, y) else old_gap  # (the rim is a wall of trees)
-        if any((x - ox) ** 2 + (y - oy) ** 2 < gap * gap for ox, oy in olds): continue
-        olds.append((x, y))
-        g[y][x] = "T"
     # young trees: clumps to fell, never touching each other on all sides (a man must reach each one)
     for _ in range(young_clumps):
         cx, cy = rng.randrange(RIM + 3, w - RIM - 3), rng.randrange(RIM + 3, h - RIM - 3)
@@ -95,6 +86,16 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
             x, y = cx + rng.randrange(-3, 4), cy + rng.randrange(-3, 4)
             if 1 <= x < w - 1 and 1 <= y < h - 1 and g[y][x] == "." and not near(x, y, ":=~", 0) and not near(x, y, "tT", 1):
                 g[y][x] = "t"
+    # the old trees: a tile or two apart so the men walk between them, off the trail and the water, and clear of
+    # the young clumps (placed first, so a close wood still has trees to fell)
+    olds = []
+    for _ in range(int(w * h * old_fill)):
+        x, y = rng.randrange(2, w - 2), rng.randrange(2, h - 2)
+        if g[y][x] != "." or in_clearing(x, y) or near(x, y, ":=~", 1) or near(x, y, "t", 1): continue
+        gap = 2.0 if rim(x, y) else old_gap  # (the rim is a wall of trees)
+        if any((x - ox) ** 2 + (y - oy) ** 2 < gap * gap for ox, oy in olds): continue
+        olds.append((x, y))
+        g[y][x] = "T"
     gates = {"west": [RIM, trail_y[RIM] - 3, RIM + 3, trail_y[RIM] + 4], "east": [w - RIM - 4, trail_y[w - RIM - 1] - 3, w - RIM - 1, trail_y[w - RIM - 1] + 4]}
     doc = {
         "schema": "aow.map/2", "id": pid, "width": w, "height": h, "legend": LEGEND,
@@ -118,7 +119,7 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
 
 
 # The beech valley (the first place, and the last before home): open old beech wood, a stream, meadows.
-place("beech_valley", "beech", 1878, 96, 64, west_y=33, east_y=28, stream_x=52, old_gap=2.9, old_fill=0.7, young_clumps=26,
+place("beech_valley", "beech", 1878, 96, 64, west_y=33, east_y=28, stream_x=52, old_gap=1.7, old_fill=1.4, young_clumps=26,
       clearings=[(9, 33, 6), (30, 36, 5), (70, 24, 8)], rocks=[(30, 12, 3), (61, 50, 4), (84, 40, 2)])
 # The deep fir woods: closer, darker, more rock, no stream. (Drawn with the same trees for now.)
 place("fir_woods", "deep", 1879, 96, 64, west_y=28, east_y=36, stream_x=-1, old_gap=2.1, old_fill=0.9, young_clumps=34,

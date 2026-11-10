@@ -8,7 +8,7 @@
 // Baked coarse (TREE_K voxels a tile) and drawn larger: a giant at the men's fineness would take minutes to bake.
 
 let TREE_K = 64.0  // voxels a tile (the .vox trees are made at this: tools/tree_vox.py)
-let TREE_BAKE = "trees 14"
+let TREE_BAKE = "trees 15"
 let VOX_K = 112.0   // voxels a tile in the .vox trees: nearly twice as fine as the rest, so twigs and leaves are crisp
 let VOX_UNIT = 7.0
 let PINE_KINDS = 2
@@ -45,7 +45,7 @@ def leaf_look(sp:string, season:string, kind:int) -> vglook:
     if sp == "hornbeam": leaf = [ float3 { 0.52, 0.66, 0.26 }, float3 { 0.35, 0.51, 0.19 }, float3 { 0.19, 0.33, 0.14 }, float3 { 0.62, 0.66, 0.28 } ]
     if season == "spring": leaf = map(leaf) c: c * 1.12 + float3 { 0.12, 0.14, 0.06 }
     if season == "autumn": leaf = autumn_leaf(sp, kind)
-    var bark = [ float3 { 0.30, 0.30, 0.28 }, float3 { 0.42, 0.42, 0.39 }, float3 { 0.54, 0.53, 0.49 }, float3 { 0.66, 0.65, 0.60 } ]
+    var bark = [ float3 { 0.17, 0.16, 0.16 }, float3 { 0.29, 0.28, 0.27 }, float3 { 0.42, 0.41, 0.39 }, float3 { 0.58, 0.57, 0.53 } ]
     if sp == "oak": bark = [ float3 { 0.20, 0.17, 0.14 }, float3 { 0.28, 0.24, 0.20 }, float3 { 0.37, 0.32, 0.26 }, float3 { 0.46, 0.40, 0.33 } ]
     // (a beech's bark is smooth: no ridges up it)
     return vglook { leaf, bark, [ float3 { 0.3, 0.3, 0.3 }, float3 { 0.5, 0.5, 0.5 } ], false, true, sp != "beech" }
