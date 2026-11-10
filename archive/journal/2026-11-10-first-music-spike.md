@@ -49,7 +49,7 @@ None. Everything here is a proposal for Dominic to hear and react to.
 
 ## Pictures
 
-![The piece as a picture: time runs left to right, pitch goes up. The steady bands at the bottom are the drone, the bright moving line is the tune.](../images/2026-11-10/38-music-spike-spectrogram.png)
+![The piece as a picture: time runs left to right, pitch goes up. The steady bands at the bottom are the drone, the bright moving line is the tune.](../images/2026-11-10/44-music-spike-spectrogram.png)
 
 ## Funny moments and bugs worth remembering
 

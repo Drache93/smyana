@@ -31,6 +31,9 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-10:** The first runnable version: Smyana as its own program on Creel, two grey-boxed
   places, twenty men who can be ordered about, and the walk out and home again with a letter
   between places (#4). ([journal](journal/2026-11-10-first-runnable-version.md))
+- **2026-11-10:** The trees brought down to the mock-ups' size, with tree size set per place
+  (whole trees, or trunks fading to the sky), the Rhodopes' own kinds, a rich autumn, and
+  gneiss outcrops. ([journal](journal/2026-11-10-rhodope-trees-ground-and-rock.md))
 - **2026-11-10:** A first try at the music: "Autumn dusk", a slow kaval tune over a kaba gaida
   drone, written as text and turned into sound by code, with notes on the style of Rhodope
   music. ([journal](journal/2026-11-10-first-music-spike.md),

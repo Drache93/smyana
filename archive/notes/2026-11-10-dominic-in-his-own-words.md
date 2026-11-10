@@ -133,6 +133,62 @@ built from clearings. It isn't ours and isn't kept here; Smyana's look doesn't c
 **20:02** (after the session working on it was cut off part way)
 > Try again
 
+## The trees, the ground and the rock
+
+After seeing the first runnable version (its trees were about thirteen men tall):
+
+**20:25**
+> Those trees are crazy size. Need to keep to the designs
+
+**20:25**
+> Most importantly correct trees and ground and rocks for the region. The rocks in that region are key to house building etc
+
+**20:30**
+> Also mockup has some locations with "normal RTS sized" trees. And other times (per our planned work) trees fading off to the sky
+
+**20:31**
+> Coniferous Trees (Evergreens)
+>
+> Mostly found in the higher and cooler Western Rhodopes:
+> • Norway Spruce (Picea abies)
+> • Scots Pine & Black Pine (Pinus sylvestris & Pinus nigra)
+> • Silver Fir (Abies alba)
+> • Dwarf Mountain Pine (Pinus mugo - on high summits)
+>
+> Deciduous Trees (Broadleaved)
+>
+> Widespread across lower altitudes, river valleys, and the Eastern Rhodopes:
+> • Oaks: Downy oak (Quercus pubescens), sessile oak, Hungarian oak (Quercus frainetto)
+> • Beech: European beech (Fagus sylvatica) and Eastern beech (Fagus orientalis)
+> • Hornbeam: Oriental hornbeam (Carpinus orientalis) and common hornbeam
+> • Ash: Flowering ash (Fraxinus ornus)
+> • Other Broadleaved & Riparian Trees: Oriental plane (Platanus orientalis along riverbanks), maples, limes, black alder, white willow, wild pear, and elm
+
+**20:32**
+> Autumn the red, oranges and yellows are Soooo rich. Huge part of the games mood
+
+**20:32**
+> Autumn should most likely be the poster boy for the game
+
+**20:42**
+> We have open issues for rhodope trees, mood, undergrowth etc. Are you checking those and updating? I'd like to focus on look first, so we get those pictures with our people for reference all perfected
+
+**20:43** (of the route pictures, sending the autumn camp one)
+> The are mockuoa right? Because they dont match our final style
+
+**20:45**
+> The style you're doing  isnt matching our design. Is that because you're doing mock up still and not finalised?
+>
+> Rest of pictures are in archive.
+>
+> Rocks are gniess yes. Used for roofs and walls along with wood
+
+**20:46**
+> Great
+
+**20:48**
+> If needed, design the trees in 2D first based on real world pics. and then make the vox
+
 ## A first try at the music
 
 **20:49**
