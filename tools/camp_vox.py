@@ -16,12 +16,12 @@ NAMES = ["CANVAS", "CANVAS2", "CANVAS3", "INSIDE", "POLE", "POLE2", "ROPE",
          "RED", "BLACK", "WHITE", "OCHRE", "BROWN", "BLUE", "GREEN",
          "STONE", "STONE2", "STONE3", "ASH", "ASH2", "CHAR", "EMBER", "COPPER", "COPPER2", "IRON", "WOOD", "WOOD2",
          "BAY", "BAY2", "HAIR", "GREY", "GREY2", "CHESTNUT", "CHESTNUT2", "DUN", "DUN2", "MUZZLE", "HOOF", "EYE",
-         "LEATHER", "LEATHER2", "FELT", "SACK", "SACK2", "BLANKET", "BRASS", "WICKER", "WICKER2", "BLANKET2", "GREY3"]
+         "LEATHER", "LEATHER2", "FELT", "SACK", "SACK2", "BLANKET", "BRASS", "WICKER", "WICKER2", "BLANKET2", "GREY3", "LOG", "LOG2", "CUT"]
 COLOURS = [0xd6ccb4, 0xbcb198, 0x9c9078, 0x2a231d, 0x6e4e32, 0x4e3624, 0xb2a282,
            0xa33328, 0x2a2522, 0xe0d6be, 0xc08a3a, 0x6b4a30, 0x2c3a52, 0x4c5a36,
            0x8d877e, 0x6f6a62, 0xa8a296, 0x5c5852, 0x8a857c, 0x1f1b18, 0xb4481c, 0xb0683a, 0x7a4428, 0x3c3e41, 0x8a6440, 0x6a4a2e,
            0x6a3e24, 0x55301c, 0x1e1916, 0xc8c3b8, 0xa29e95, 0x8c4c26, 0x6e3a1c, 0x8a7458, 0x6c5a44, 0xb5a48c, 0x2a2420, 0x120e0c,
-           0x6b4a2e, 0x4a3220, 0x5e4a38, 0xb59a74, 0x957c5c, 0xa8302a, 0xc49a48, 0x9a7a48, 0x7a5e34, 0x2c3444, 0x8a857e]
+           0x6b4a2e, 0x4a3220, 0x5e4a38, 0xb59a74, 0x957c5c, 0xa8302a, 0xc49a48, 0x9a7a48, 0x7a5e34, 0x2c3444, 0x8a857e, 0xa0825c, 0x8a6c4a, 0xd8c49a]
 for _i, _n in enumerate(NAMES): globals()[_n] = _i + 1
 
 # ---- a grid to draw in -----------------------------------------------------------------------------------------
@@ -243,19 +243,19 @@ def fireplace():
 
 
 def woodpile():
-    """Firewood the men have cut: split logs stacked crosswise on two bearers, a chopping block beside, an axe in it."""
+    """Firewood the men have cut (fresh split wood, light, so it reads in shade): split logs stacked crosswise on two bearers, a chopping block beside, an axe in it."""
     m = Model(0.9, 0.7, 0.8)
     rng = random.Random(5)
-    for s in (-1, 1): m.capsule((-0.55, s * 0.22, 0.05), (0.55, s * 0.22, 0.05), 0.05, 0.05, WOOD2)
+    for s in (-1, 1): m.capsule((-0.55, s * 0.22, 0.05), (0.55, s * 0.22, 0.05), 0.05, 0.05, LOG2)
     for row in range(4):
         n = 6 - row
         for i in range(n):
             x = (i - (n - 1) / 2) * 0.17
             z = 0.15 + row * 0.13
-            m.capsule((x, -0.35, z), (x + rng.uniform(-0.03, 0.03), 0.35, z), 0.065, 0.065, rng.choice([WOOD, WOOD2]))
-            m.capsule((x, 0.33, z), (x, 0.36, z), 0.055, 0.055, CANVAS3)  # (the cut ends, pale)
-    m.capsule((0.75, -0.35, 0), (0.75, -0.35, 0.32), 0.17, 0.17, WOOD2)
-    m.blob((0.75, -0.35, 0.32), (0.15, 0.15, 0.02), CANVAS3)
+            m.capsule((x, -0.35, z), (x + rng.uniform(-0.03, 0.03), 0.35, z), 0.065, 0.065, rng.choice([LOG, LOG2]))
+            m.capsule((x, 0.33, z), (x, 0.36, z), 0.055, 0.055, CUT)  # (the cut ends, pale)
+    m.capsule((0.75, -0.35, 0), (0.75, -0.35, 0.32), 0.17, 0.17, LOG2)
+    m.blob((0.75, -0.35, 0.32), (0.15, 0.15, 0.02), CUT)
     m.capsule((0.75, -0.35, 0.36), (0.72, -0.15, 0.62), 0.016, 0.016, WOOD)
     m.box((0.68, -0.4, 0.3), (0.82, -0.32, 0.4), IRON)
     return m
