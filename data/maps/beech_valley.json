@@ -3,7 +3,7 @@
  "id": "beech_valley",
  "width": 116,
  "height": 84,
- "legend": {".": "grass", ":": "trail", "T": "tree", "t": "young_tree", "#": "rock", "~": "water", "=": "ford", "%": "rubble"},
+ "legend": {".": "grass", ":": "trail", "T": "tree", "t": "young_tree", "#": "rock", "~": "water", "=": "ford", "%": "rubble", "_": "rock"},
  "starts": [[13, 41]],
  "rim": 10,
  "gates": {"west": [10, 40, 13, 47], "east": [102, 35, 105, 42]},

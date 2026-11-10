@@ -7,7 +7,7 @@
 // seen. The leaves are baked once a season (their colour), behind the letter home, and kept in bake_cache/.
 
 let TREE_K = 64.0  // voxels a tile for the load of wood (baked at twice this)
-let TREE_BAKE = "trees 26"
+let TREE_BAKE = "trees 27"
 // Voxels a tile in the trees, rocks and undergrowth: one voxel is one pixel of Creel's art (WB_PX at its art scale of
 // 3), as the men's are, so they are as crisp as the men (Dominic, 2026-11-10: "evryhting crisp and sharp").
 let VOX_K = 135.7645
@@ -347,10 +347,6 @@ def rubble(look:vglook, kind:int) -> vgrid:
     let rng = grng(1250 + kind)
     // (wider than its tile, so the heaps run into one another and no tile shows)
     let g = vg_new(look, float3 { -1.0, -1.0, 0.0 }, float3 { 1.0, 1.0, 0.6 }, VOX_K, 1250 + kind)
-    // the earth: low, uneven, spread wide
-    for(9) n:
-        let at = float3 { randf_range(rng, -0.5, 0.5), randf_range(rng, -0.5, 0.5), 0.0 }
-        rock_plate(g, at, randf_range(rng, 0.25, 0.48), randf_range(rng, 0.2, 0.4), randf_range(rng, 0.015, 0.07), randf_range(rng, 0.0, 180.0), VG_BARK, 0.0, randf_range(rng, -0.08, 0.08), 1260 + n + kind * 13)
     // the rock in it: many small, some middling, in some heaps one block as big as a man; nothing in the middle
     let bigs = if kind % 3 == 0: 1 else: 0
     let mids = 6 + (kind * 5) % 7
@@ -360,6 +356,12 @@ def rubble(look:vglook, kind:int) -> vgrid:
         let sz = if big: randf_range(rng, 0.13, 0.19) elif mid: randf_range(rng, 0.05, 0.1) else: randf_range(rng, 0.016, 0.042)
         let at = float3 { randf_range(rng, -0.7, 0.7), randf_range(rng, -0.7, 0.7), randf_range(rng, 0.0, 0.05) }
         rock_plate(g, at, sz, sz * randf_range(rng, 0.5, 0.9), sz * randf_range(rng, 0.4, 0.85), randf_range(rng, 0.0, 180.0), VG_ROCK, randf_range(rng, -0.5, 0.5), randf_range(rng, -0.8, 0.8), 1300 + n * 53 + kind)
+    // the earth between and under them: low rounded mounds (not plates), round the rock already lying there
+    let lumpy = vg_field(g, 0.09, 1251 + kind)
+    for(6) n:
+        let at = float3 { randf_range(rng, -0.45, 0.45), randf_range(rng, -0.45, 0.45), 0.0 }
+        let r = randf_range(rng, 0.2, 0.4)
+        vg_blob(g, at, r, randf_range(rng, 3.0, 5.0), 0.5, lumpy, VG_BARK, randf_range(rng, -0.5, 0.4), 0.0, nil, 0.0)
     return g
 
 // Loose slabs split from the rock: the stone a wall or a roof is made of.

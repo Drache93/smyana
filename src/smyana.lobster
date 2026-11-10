@@ -43,6 +43,7 @@ import view.voxel
 import smyana.sheets
 import smyana.men_view
 import smyana.trees
+import smyana.cliff
 
 // ------------------------------------------------------------------ what it was started with
 
@@ -69,12 +70,15 @@ var zoom = 1.5      // screen px an art px
 
 def to_screen(p:float2) -> float2: return (p - cam) * zoom + float(gl.window_size()) / 2.0
 def from_screen(p:float2) -> float2: return (p - float(gl.window_size()) / 2.0) / zoom + cam
-def mouse_milli() -> float2: return iso_inv(from_screen(mouse_px()))
+// Where a point of the place (milli-tiles) is drawn, in art px: on the ground, however high it lies there.
+def gp(x:float, y:float) -> float2: return on_ground(float2 { x, y })
+
+def mouse_milli() -> float2: return pick_milli(from_screen(mouse_px()))
 
 // Where the men are, taken together (art px).
 def men_centre() -> float2:
     var sum = float2_0
-    for(u_x.length) i: sum += iso(float(u_x[i]), float(u_y[i]))
+    for(u_x.length) i: sum += gp(float(u_x[i]), float(u_y[i]))
     return if u_x.length: sum / float(u_x.length) else: cam
 
 // ------------------------------------------------------------------ what the view remembers of a place
@@ -128,9 +132,9 @@ def build_props():
     let grass = str_index(tr_names, "grass")
     for(terrain) t, c:
         let h = cell_hash(c)
-        let centre = iso(float((c % W) * 1000 + 500), float((c / W) * 1000 + 500))
+        let centre = gp(float((c % W) * 1000 + 500), float((c / W) * 1000 + 500))
         // (not dead centre: a wood isn't planted in rows)
-        let off = iso(float((c % W) * 1000 + 500 + (h % 400) - 200), float((c / W) * 1000 + 500 + ((h / 400) % 400) - 200))
+        let off = gp(float((c % W) * 1000 + 500 + (h % 400) - 200), float((c / W) * 1000 + 500 + ((h / 400) % 400) - 200))
         if t == old:
             let sp, k = old_kind(wood, h / 7)
             props.push(Prop { 0, k, "{sp}{k}", sp, off, c })
@@ -138,7 +142,7 @@ def build_props():
             let fir = wood != "beech" and (h / 7) % 4 != 0
             props.push(Prop { 1, h / 7, if fir: "yspruce{(h / 7) % YOUNG_KINDS}" else: "young{(h / 7) % YOUNG_KINDS}", if fir: "spruce" else: "beech", centre, c })
         elif t == stump: props.push(Prop { 2, 0, "stump", "", centre, c })
-        elif t == rock:
+        elif t == rock and (has_heights == 0 or level[c] > 0):  // (a ravine's bed is bare rock: nothing stands in it)
             props.push(Prop { 3, 0, "rock{(h / 7) % ROCK_KINDS}", "", off, c })
         elif t == debris_t:
             // a landslide's debris (#20): a heap of earth and broken rock on each tile, a broken trunk here and there
@@ -238,6 +242,7 @@ def view_enter(between):
     // the ground's own textures: a beech wood's leaf litter and grass, or a conifer wood's needles and moss
     ground_atlas_tex = gl.load_texture("../data/ground/atlas" + (if gstr(su_map, "wood", "beech") != "beech": "_conifer" else: "") + (if season_now() == "autumn": "_autumn" elif season_now() == "winter": "_winter" else: "") + ".png", texture_format_clamp | texture_format_nomipmap | texture_format_nearest_mag | texture_format_nearest_min)
     build_masks()
+    build_relief()
     build_wear()
     bake_season(season_now(), between)
     build_props()
@@ -343,7 +348,7 @@ def collect_men(alpha:float):
             man_dir.set(u_id[i], d)
             let step = int(man_walked.get(u_id[i], 0.0) / man_cycle() * float(MEN_STEPS)) % MEN_STEPS
             let facing = (d + 2) % 8
-            let p = iso(x, y)
+            let p = gp(x, y)
             add(frame_at.get(man_shadow_name(m.look, facing), -1), p.x, p.y, p.y - 0.5, float4_1, 1.0, 1)
             add(frame_at.get(man_frame_name(m.look, if moving: 1 + step else: 0, facing), -1), p.x, p.y, p.y, SASH, 1.0, 2)
             if u_carry[i] > 0: add(frame_at.get("load.wood", -1), p.x + 3.0, p.y - 27.0, p.y + 0.1, float4_1, 1.0, 2)
@@ -412,7 +417,7 @@ def draw_rings(alpha:float):
             let i = index_of(id)
             if i >= 0:
                 let px, py = prev_pos(i)
-                draw_ring(iso(float(px) + float(u_x[i] - px) * alpha, float(py) + float(u_y[i] - py) * alpha), 9.0, float4 { 0.95, 0.91, 0.79, 0.85 })
+                draw_ring(gp(float(px) + float(u_x[i] - px) * alpha, float(py) + float(u_y[i] - py) * alpha), 9.0, float4 { 0.95, 0.91, 0.79, 0.85 })
         let since = gl.time() - mark_t
         if since < 0.7: draw_ring(mark_at, 6.0 + since * 14.0, float4 { 0.95, 0.91, 0.79, 0.8 * (1.0 - since / 0.7) })
 
@@ -553,7 +558,7 @@ def unit_at_screen(m:float2) -> int:
     var best = -1
     var best_d = 22.0 * zoom
     for(u_x.length) i:
-        let s = to_screen(iso(float(u_x[i]), float(u_y[i])) - float2 { 0.0, 14.0 })
+        let s = to_screen(gp(float(u_x[i]), float(u_y[i])) - float2 { 0.0, 14.0 })
         let d = magnitude(float2 { (s.x - m.x) * 1.6, s.y - m.y })
         if d < best_d:
             best_d = d
@@ -576,7 +581,7 @@ def select_tick():
             let hi = max(m, drag_from)
             selected = []
             for(u_x.length) i:
-                let s = to_screen(iso(float(u_x[i]), float(u_y[i])))
+                let s = to_screen(gp(float(u_x[i]), float(u_y[i])))
                 if s.x >= lo.x and s.x <= hi.x and s.y >= lo.y - 10.0 and s.y <= hi.y + 20.0 * zoom: selected.push(u_id[i])
         else:
             let i = unit_at_screen(m)
@@ -603,20 +608,20 @@ def order_tick():
     let tree = young_tree_at(mm)
     if tree >= 0:
         issue_cmd(0, CMD_GATHER, ids, tree, 0, 0, 0)
-        mark_at = iso(float((tree % W) * 1000 + 500), float((tree / W) * 1000 + 500))
+        mark_at = gp(float((tree % W) * 1000 + 500), float((tree / W) * 1000 + 500))
     else:
         let x = clamp(int(mm.x), 0, W * TILE - 1)
         let y = clamp(int(mm.y), 0, H * TILE - 1)
         issue_cmd(0, CMD_MOVE, ids, x, y, 0, 0)
-        mark_at = iso(float(x), float(y))
+        mark_at = gp(float(x), float(y))
     mark_t = gl.time()
 
 // The camera stays over the place, far enough in from its edge that the view never runs off the map (the place has a
 // rim of forest that deep: the map's "rim").
 def cam_keep():
     let rim = float(gint(su_map, "rim", 0)) * 1000.0
-    let t = iso_inv(cam)
-    cam = iso(clamp(t.x, rim, float(W * 1000) - rim), clamp(t.y, rim, float(H * 1000) - rim))
+    let t = pick_milli(cam)
+    cam = gp(clamp(t.x, rim, float(W * 1000) - rim), clamp(t.y, rim, float(H * 1000) - rim))
 
 def camera_tick():
     let ws = float(gl.window_size())
@@ -681,6 +686,7 @@ def tour_tick():
 fatal(gl.window("Smyana", 1600, 900, window_flags(false, not capture and not has_s(args, "windowed"))))
 fatal(gl.load_materials(SPRITE_SHADERS, true))
 fatal(gl.load_materials(TERRAIN_SHADERS, true))
+fatal(gl.load_materials(cliff_shaders(), true))
 fatal(gl.load_materials(ATMO_SHADERS, true))
 pace_background = not capture
 pace(PACE_MATCH)
@@ -734,14 +740,14 @@ if has_s(args, "camp") or arg_of("camp") != "":
                 if d < 3.0 and terrain[cell] == old: terrain[cell] = grass
                 elif d >= 3.6 and terrain[cell] == grass and cell_hash(cell + 777) % 100 < int(min(60.0, (d - 3.0) * 25.0)): terrain[cell] = old
         map_version++
-        cam = iso(float(c.x), float(c.y))
+        cam = gp(float(c.x), float(c.y))
         fires = [ cam ]
     else:
         fires = [ men_centre() + float2 { 0.0, 6.0 } ]
 view_enter(): waiting_frame()
 if arg_of("look") != "":  // look:<x>,<y>: the camera on this tile
     let xy = tokenize(arg_of("look"), ",", " ")
-    cam = iso(string_to_float(xy[0]) * 1000.0, string_to_float(xy[1]) * 1000.0)
+    cam = gp(string_to_float(xy[0]) * 1000.0, string_to_float(xy[1]) * 1000.0)
 print "start: {seconds_elapsed() - boot0} s (men baked in {men_bake_s} s, trees in {trees_bake_s} s; 0: read from bake_cache/)"
 
 // ------------------------------------------------------------------ the loop
