@@ -86,3 +86,18 @@ man was the first art test made for Smyana, even if Age of Anything may reuse hi
 Hats and cloaks change from man to man. The rifles have the traditional swallow-tail butt,
 which matters most. The particular hats, coats, cloaks and tools (in [`art/men/`](../art/men/README.md))
 are Claude's first pass and still need Dominic's sign-off.
+
+**D-020, 2026-11-10: Each place on the route is its own map, loaded whole.** (Proposed by Claude, approved by Dominic)
+No single giant map and no streaming in chunks. A place loads when the men reach it, behind the
+letter home read between places, and is swapped at its edge. The men, their loads, the carts and
+the season clock carry across, and each place remembers what was done to it for the way home.
+Why: the one-hour run is already a chain of places, each used twice, and Creel keeps a map as
+full-size grids (terrain, walking, fog, whole-map flow fields, ground textures, generated save
+code), so streaming would mean rewriting most of the sim. See issue #4.
+
+**D-021, 2026-11-10: The UI is extremely minimal, if not none.** (Dominic)
+So the focus is on the environment. Where we can, the world shows the state of things instead
+of meters and panels.
+
+**D-022, 2026-11-10: The Steam Deck is set aside for now.** (Dominic)
+No Steam Deck testing or budgets in the plans until Dominic brings it back.

@@ -102,3 +102,22 @@ built from clearings. It isn't ours and isn't kept here; Smyana's look doesn't c
 
 **18:04**
 > With the men, while we're here, we might as well finish just designing them because they look great. We probably need a few other looks so we can randomize some things, like change some hats, change some cloaks. So we should quickly make a few alternative looks for them. And the most important part is their rifles with the specific look, swan-tailed, sorry, swallow-tailed butts on the rifles, which is the traditional look. And of course, there's stone hammers.
+
+## Breaking the game into issues
+
+**18:42**
+> while thats happening, lets start fleshing out issues to make the game. Starting with the environment i think. The map will it need loading in, or loading chunks at a time as we move around it do you think?
+>
+> Creel as made this also, we'll want an issue on our end linking to it https://github.com/Casaide/creel/issues/5
+
+**19:00**
+> Loaded whole with a loader you mean? Or not?
+
+**19:02**
+> Don't worry about steam deck for now
+
+**19:03**
+> List is good
+
+**19:04**
+> Unrelated UI should be extremely minimal, if not 0, so focus is on environment
