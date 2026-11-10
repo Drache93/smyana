@@ -81,3 +81,8 @@ sit alongside, never instead. See [the statement in the archive README](README.m
 The trees, the forest and the foliage are all replaced, and very little art, if any, comes from
 Age of Anything. The engine work (the lighting moods first) has already started. The Bulgarian
 man was the first art test made for Smyana, even if Age of Anything may reuse him.
+
+**D-019, 2026-11-10: The men get looks mixed at random, and carry the swallow-tail rifle and masons' hammers.** (Dominic)
+Hats and cloaks change from man to man. The rifles have the traditional swallow-tail butt,
+which matters most. The particular hats, coats, cloaks and tools (in [`art/men/`](../art/men/README.md))
+are Claude's first pass and still need Dominic's sign-off.

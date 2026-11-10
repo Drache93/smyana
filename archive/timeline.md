@@ -21,3 +21,5 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-10:** Decided the archive keeps all of Dominic's voice notes and messages word for
   word, to show the human direction behind an AI-made game.
   ([his words](notes/2026-11-10-dominic-in-his-own-words.md))
+- **2026-11-10:** The men's looks to mix at random (5 hats, 3 coats, 6 cloaks, an older face), the
+  swallow-tail rifle and the masons' tools. ([image](images/2026-11-10/30-men-random-mix.png))
