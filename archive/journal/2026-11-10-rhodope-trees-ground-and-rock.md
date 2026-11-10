@@ -121,3 +121,14 @@ brought them back.
 
 Still to do on beech: the crown hides most of the branches, the light on it is flatter than the
 target pictures, and the oak, hornbeam, pine and spruce are still the old stand-ins.
+
+## The spruce's design sheet (Claude, for Dominic's check)
+
+The second sheet, made the same way as the beech's (`python3 tools/tree_design.py spruce`). It
+sets the spruce at about eight men tall, taller and much narrower than the beech, and shows the
+two forms it takes: green to the ground in the open, and a bare bole with dead stubs in a stand,
+which is the deep-wood tree. It doesn't change through the year except for bright tips in spring
+and snow in winter. Drawn from what is known of the tree, not yet checked against photos. No vox
+is made from it until Dominic has looked.
+
+![The spruce design sheet](../images/2026-11-10/46-spruce-design-sheet.png)
