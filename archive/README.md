@@ -18,8 +18,8 @@ anyone can see where the game really comes from. In his words (2026-11-10):
 > direction the game has, none of the feel, the mood would have come without the human touch.
 > And I think it's really important that we show all that. Equally, the game engine [Creel] comes
 > from experimenting. It comes from me wanting to make the game, the open source engine that I
-> wanted as a child. And pushing that and being able to play a game that I've made with my own
-> 8-year-old son is an amazing feeling. And being able to build on that, put it onto Steam Deck,
+> wanted as a child. And pushing that and being able to play a game that I've made with my own son
+> is an amazing feeling. And being able to build on that, put it onto Steam Deck,
 > put onto phone, it's just been really amazing just to see that what I can do with AI. Because a
 > lot of people see it as a negative thing when you're using only AI, but when a person that's
 > full-time employed can make a game and make something that really put their heart into
