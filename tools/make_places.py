@@ -6,7 +6,7 @@ or edit a map's rows by hand afterwards (then don't run this again for that plac
 Run from the repo's root: python3 tools/make_places.py"""
 import json, math, random
 
-LEGEND = {".": "grass", ":": "trail", "T": "tree", "t": "young_tree", "#": "rock", "~": "water", "=": "ford", "%": "rubble"}
+LEGEND = {".": "grass", ":": "trail", "T": "tree", "t": "young_tree", "#": "rock", "~": "water", "=": "ford", "%": "rubble", "_": "rock"}
 
 
 def noise1(rng, n, step):
@@ -46,6 +46,8 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
         base = west_y + (east_y - west_y) * (t * t * (3 - 2 * t))
         edge = max(0, min(x, w - 1 - x) - RIM) / 10.0
         trail_y.append(int(round(base + wob[x] * 7 * min(1.0, edge))))
+    if slide:  # (the ledge of the pass runs level and straight)
+        for x in range(slide[0] + RIM - slide[1] - 1, slide[0] + RIM + slide[1] + 2): trail_y[x] = trail_y[slide[0] + RIM]
     # the valley's sides: rock along the north and south edges, ragged
     north = noise1(rng, w, 9)
     south = noise1(rng, w, 9)
@@ -73,22 +75,27 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
         a, b = trail_y[x], trail_y[max(0, x - 1)]
         for y in range(min(a, b), max(a, b) + 1): put(x, y, ":", ".#")
 
-    # a landslide, found after it has happened (#20): a crag above the trail has let go, and its debris has run down
-    # in a tongue that widens to a fan across the trail and a little beyond. No tree stands in its path. The men walk
-    # round its toe.
+    # a landslide, found after it has happened (#20; Dominic: "smaller and more focused. Like on a pass above a cliff
+    # face, so we only have a very tight space to go, and it's blocked"). The trail runs along a ledge: a crag wall
+    # above it, a ravine below it (the ground there lies three levels down: "heights"), and where the wall has let go
+    # its debris lies across the trail. One tile of the ledge's lip is left to squeeze by until the men can clear it.
+    low = set()
     if slide:
-        sx, run = slide[0] + RIM, slide[1]
-        top = trail_y[sx] - run
-        for y in range(top - 5, top + 1):                      # the crag it came from, its lower face broken open
-            for x in range(sx - 4, sx + 5):
-                if (x - sx) ** 2 + (y - (top - 2)) ** 2 <= 9 + rng.uniform(-1.5, 1.5): put(x, y, "#", ".:")
-        for y in range(top + 1, trail_y[sx] + 4):
-            t = (y - top) / (run + 3)
-            half = 0.8 + 2.4 * t * t + rng.uniform(-0.3, 0.3)
-            lean = int(round(1.5 * t))                           # (it ran a little to one side)
-            for x in range(sx - 4, sx + 6):
-                if abs(x - sx - lean) <= half: put(x, y, "%", ".:")
-        clearings = clearings + [(sx, trail_y[sx] + 2, 5.5)]     # open ground round the toe, so there is a way round
+        sx, half = slide[0] + RIM, slide[1]
+        for x in range(sx - half, sx + half + 1):
+            t = (x - (sx - half)) / (2.0 * half)
+            ty = max(trail_y[x], trail_y[max(0, x - 1)], trail_y[min(w - 1, x + 1)])
+            top = min(trail_y[x], trail_y[max(0, x - 1)], trail_y[min(w - 1, x + 1)])
+            wall = 2 + int(round(2 * math.sin(math.pi * t)))
+            for y in range(top - wall, top): put(x, y, "#", ".")
+            deep = int(round(5.5 * math.sin(math.pi * t) ** 0.6))
+            for y in range(ty + 2, ty + 2 + deep):
+                put(x, y, "_", ".#")
+                if g[y][x] == "_": low.add((x, y))
+            if deep >= 4: g[ty + 4][x] = "~"   # a thread of water in its bed
+        for x in range(sx - 1, sx + 2):
+            for y in range(trail_y[x] - (3 if x == sx else 2), trail_y[x] + 1): put(x, y, "%", ".:#")
+        put(sx, trail_y[sx] + 1, ":", ".")
 
     def near(x, y, chars, r):
         for yy in range(max(0, y - r), min(h, y + r + 1)):
@@ -132,6 +139,10 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
         "wood": wood,
         "rows": ["".join(r) for r in g],
     }
+    if low:  # the ground's levels (Creel: 0 to 3): the whole place stands at 3, the ravine's bed lies at 0
+        rows = doc.pop("rows")
+        doc["heights"] = ["".join("0" if (x, y) in low else "3" for x in range(w)) for y in range(h)]
+        doc["rows"] = rows
     with open("data/maps/%s.json" % pid, "w") as f:
         f.write("{\n")
         keys = list(doc.keys())

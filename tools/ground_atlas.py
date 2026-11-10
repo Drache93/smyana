@@ -53,13 +53,17 @@ def make(seed, ramp, coarse=6, fine=40, grain=0.25, fleck=None, fleck_n=0, heigh
     return np.dstack([rgb, h * 255]).astype(np.uint8)
 
 
-def strew(tile, seed, n, colours, length=(4.0, 6.5), lift=0.0):
+def strew(tile, seed, n, colours, length=(4.5, 7.0), lift=0.0, edge=0.9, drift=True):
     """Fallen leaves on a tile, each one a leaf: a pointed oval a few texels long at its own angle, lying over the
     ones before it, its lower edge a shade darker so it stands off what it lies on."""
     rng = np.random.default_rng(seed)
     rgb = tile[:, :, :3].astype(float)
     hgt = tile[:, :, 3].astype(float)
     cols = np.array([hexc(c) for c in colours])
+    # (the colours run light to dark: a slow noise says which end a leaf's patch of ground leans to, so the carpet
+    # lies in soft drifts of gold and orange and never speckles)
+    lean = tile_noise(rng, 4) * 0.6 + tile_noise(rng, 9) * 0.4
+    lean = (lean - lean.min()) / (lean.max() - lean.min())
     R = 5
     yy, xx = np.mgrid[-R:R + 1, -R:R + 1]
     for _ in range(n):
@@ -70,12 +74,12 @@ def strew(tile, seed, n, colours, length=(4.0, 6.5), lift=0.0):
         u = xx * np.cos(a) + yy * np.sin(a)
         v = -xx * np.sin(a) + yy * np.cos(a)
         inside = (np.abs(u) / ln) ** 1.5 + (np.abs(v) / wd) ** 1.5 <= 1.0
-        col = cols[rng.integers(0, len(cols))] * rng.uniform(0.9, 1.08)
+        col = cols[int(np.clip(lean[cy, cx] * len(cols) + rng.normal(0, 0.9), 0, len(cols) - 1))] * rng.uniform(0.98, 1.02) if drift else cols[rng.integers(0, len(cols))]
         under = inside & ~np.roll(inside, -1, axis=0)  # its lowest texels
         ys = (cy + yy) % N
         xs = (cx + xx) % N
         rgb[ys[inside], xs[inside]] = col
-        rgb[ys[under], xs[under]] = col * 0.72
+        rgb[ys[under], xs[under]] = col * edge
         hgt[ys[inside], xs[inside]] = np.clip(hgt[ys[inside], xs[inside]] + lift * 255, 0, 255)
     return np.dstack([np.clip(rgb, 0, 255), hgt]).astype(np.uint8)
 
@@ -124,7 +128,8 @@ def tiles(wood, season):
     if autumn:  # the year's fall lies bright on last year's: gold, orange, red
         litter = litter if conifer else ["#7a4319", "#9a551a", "#bb6a1c", "#d8851f"]
         fleck = ["#f2b21e", "#e8701a", "#c4341a", "#f6cf4a", "#8a3a14", "#ff9a22"]
-        grass = ["#4a5a2c", "#566630", "#637335", "#70803a"] if not conifer else grass
+        grass = ["#77803a", "#808840", "#899044", "#929848"] if not conifer else grass
+        dark = ["#5e6c32", "#667436", "#6e7c3a", "#76843e"] if not conifer else dark
     t = {
         0: make(1, grass, blades=0.06, height=0.55),                                                             # grass (conifer: moss)
         1: make(2, ["#6d6a3a", "#7c7842", "#8c874c", "#9b9657"], blades=0.05, height=0.5),                        # dry grass
@@ -145,17 +150,19 @@ def tiles(wood, season):
     # the year; and a wood's grass and trail have leaves and tufts and stones on them too
     if not conifer:
         if autumn:
-            fall = ["#e9b030", "#e09a24", "#d8851f", "#c96a18", "#f2c84a", "#b85a17", "#9a4a16", "#7a3a14", "#d8a03a", "#c4401a"]
-            t[10] = strew(make(11, ["#3e2613", "#4a2d15", "#573518", "#643d1b"], fine=50, grain=0.3, height=0.45), 111, 5200, fall, lift=0.04)
-            for k, n in ((0, 420), (1, 500), (2, 700), (3, 380), (12, 520), (13, 520)):
-                t[k] = strew(tufts(t[k], 200 + k, 900, ["#7f8f40", "#93a04a", "#a8ad55", "#6c7c38"]), 300 + k, n, fall)
-            t[4] = strew(pebbles(t[4], 404, 260, ["#9b9485", "#b0a896", "#857e70"]), 304, 380, fall)
-            t[9] = strew(pebbles(t[9], 409, 160, ["#9b9485", "#857e70"]), 309, 700, fall)
+            # (soft: close warm tones on a warm bed, no dark gaps between the leaves; Dominic: "verry spotty, ground was
+            # soft and pretty in the mockup")
+            fall = ["#ecb848", "#e6ae40", "#e2a538", "#dc9a30", "#d68f2c", "#cf8528", "#c87a26"]
+            t[10] = strew(make(11, ["#c8802a", "#cf892c", "#d6922e", "#dc9a30"], coarse=4, fine=12, grain=0.04, height=0.45), 111, 3600, fall, lift=0.04)
+            for k, n in ((0, 520), (1, 560), (2, 640), (3, 480), (12, 560), (13, 560)):
+                t[k] = strew(tufts(t[k], 200 + k, 500, ["#7f8f40", "#8a9846", "#75853c"]), 300 + k, n, fall)
+            t[4] = strew(pebbles(make(5, ["#806c4c", "#877250", "#8e7854", "#957e58"], fine=30, grain=0.08, height=0.35), 404, 60, ["#a39a86", "#968d7a"]), 304, 200, fall)
+            t[9] = strew(make(10, ["#6e5a3e", "#746042", "#7a6546", "#806a4a"], grain=0.1, height=0.4), 309, 500, fall)
         elif season != "winter":
-            old = ["#8a5c2c", "#7a4f26", "#9a6a34", "#6b4420", "#a87a3c", "#5a3a1c"]
-            t[10] = strew(make(11, ["#3d2a18", "#48321c", "#543a20", "#604324"], fine=50, grain=0.3, height=0.45), 111, 4600, old, lift=0.04)
+            old = ["#8a5c2c", "#845628", "#90622f", "#7c5126", "#966834"]
+            t[10] = strew(make(11, ["#74491f", "#7a4e22", "#805325", "#865828"], coarse=5, fine=18, grain=0.06, height=0.45), 111, 3200, old, lift=0.04)
             for k in (0, 2, 3, 12, 13):
-                t[k] = tufts(t[k], 200 + k, 1100, ["#6f8f44", "#7fa04c", "#5c7a3a", "#8cab55"])
+                t[k] = tufts(t[k], 200 + k, 600, ["#6f8f44", "#7fa04c", "#5c7a3a", "#8cab55"])
             t[4] = strew(pebbles(t[4], 404, 260, ["#9b9485", "#b0a896", "#857e70"]), 304, 120, old)
     else:
         t[4] = pebbles(t[4], 404, 260, ["#9b9485", "#b0a896", "#857e70"])

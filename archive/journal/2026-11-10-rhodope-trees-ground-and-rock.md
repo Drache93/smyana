@@ -228,3 +228,32 @@ that dip, not blocks. Picture 76. Still wrong: the earth heaps read as flat plat
 
 Main (the lighting thread's shade and crisp settings) was merged into this branch at 22:04; young beeches and the
 undergrowth now stand in the shade like the men.
+
+## Ground you can read, and a landslide on a ledge (22:10 to 22:40)
+
+Dominic (22:01): "Unsure if lighting work needed still until the ground texture and bushes are done". The forest floor
+was a speckle of single texels. Now `tools/ground_atlas.py` strews real leaves on it (pointed ovals four to six texels
+long, each at its own angle and lying over the last, a darker lower edge), puts tufts and a few fallen leaves on the
+grass and stones on the trail. Herbs grow in low fine drifts exactly where the litter lies thin (`open_ground`), with no
+stems showing, and a bush is stems and twigs with leaves at their tips. Picture 80.
+
+Dominic (22:07) of the rebuilt landslide: "I think better if landslides are smaller and more focuses. Like on a pass
+above a cliff face, so we o ly have a very tight space to go, and its blocked". Creel already had high ground (levels 0
+to 3, cliff faces, rims) that Smyana had never used. The fir woods now stand at level 3 and a ravine beside the trail
+lies at level 0, so the trail runs a ledge: a crag wall above, a real cliff below, and where the wall let go a small
+heap across the trail. Everything drawn goes through `gp()` (Creel's `on_ground`), and the mouse through `pick_milli`.
+The cliff's face is Smyana's own shader (`src/smyana/cliff.lobster`, loaded over Creel's "cliff"): thin dipping gneiss
+beds. The debris' earth is mounds now, not plates. Picture 78.
+
+Not done: the slide leaves one tile of the ledge's lip to squeeze by, because there is no way yet for the men to clear
+it; truly blocked needs that. The ravine's bed is plain rock with a thread of water, and nothing casts a shadow into it.
+
+## Too spotty: the ground made soft (22:16 to 22:25)
+
+Dominic of picture 80: "verry spotty, ground was soft and pretty in the mockup", and he sent the two camp mock-ups
+again. The strewn leaves had ten colours from yellow to dark brown on a dark bed, each with a dark lower edge: every
+leaf stood out from its neighbours. In the mock-up the litter is one warm field that drifts between gold and orange,
+with no dark gaps. Now the leaves take seven close tones, picked by a slow noise so the carpet lies in soft drifts, on a
+bed of the same warmth, their lower edge only a little darker; the autumn grass is an olive gold near the litter in
+value, with more leaves on it, so the two run into each other. Picture 82 (ours above the target). Lesson (Claude):
+"leaves you can see" was the wrong aim; the aim is tone and softness first, detail only where it costs neither.

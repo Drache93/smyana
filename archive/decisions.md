@@ -210,3 +210,8 @@ Calm music plays, then a sudden swap to fight music, and back again. One recordi
 blend from one mood into another. This sets aside the layered "intensity dial" Claude proposed
 under D-036 unless swapping proves too blunt. A proposed list of 24 tracks is in
 `docs/music-tracks.md`.
+
+**D-043, 2026-11-10: A landslide is small and blocks a tight pass.** (Dominic)
+"I think better if landslides are smaller and more focuses. Like on a pass above a cliff face, so we o ly have a very
+tight space to go, and its blocked." The fir woods' slide lies across a ledge between a crag and a ravine, using Creel's
+high ground for the first time (Claude: how). Until the men can clear a slide, one tile of the ledge's lip stays open.
