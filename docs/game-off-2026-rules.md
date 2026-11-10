@@ -42,11 +42,11 @@ Anything taken only from the 2024 FAQ is marked *(2024 FAQ)*. Those points shoul
 
 ### Conflicts and risks
 
-1. **Time: 21 days left.** The deadline is 1 December at 21:37 UTC, and today is 10 November. Our plans (a one-hour run, giant multi-tile trees, a season clock, three enemy AIs, an orchestral intro, 30 to 40 minutes of music, Bulgarian voice acting, recorded singers, a homecoming cutscene) are far more than three weeks of spare-time work, even with AI help. This is the main conflict. We need a jam cut: one season, or a shorter run, with the rest kept for after the jam. Hiring and recording remote soloists and voice actors inside three weeks is especially tight.
+1. **Time: 21 days left.** The deadline is 1 December at 21:37 UTC, and today is 10 November. The plans are large: a one-hour run, giant multi-tile trees, a season clock, three enemy AIs, an orchestral intro, 30 to 40 minutes of music, Bulgarian voice acting, recorded singers and a homecoming cutscene. **Decision (Dominic, 2026-11-10): keep the full scope and aim to finish by 1 December.** The tightest part is anything that depends on other people, like hiring and recording remote soloists and voice actors, so start those early. Each one has a fallback (the original theme sung solo, sampled instruments, subtitles).
 2. **"Most of the work during the jam" and Age of Anything.** Creel as an engine is fine. Game content reused from Age of Anything (voxel units, tree models, art) is a grey area: if much of what players see is lifted from the earlier game, it can look like an old project changed a little. Keep the line clear: the engine is reused, the game content is new, and the archive says which is which.
-3. **The public repo must build.** If Creel lives only in a private repo (`Casaide/age-of-whatever`), people can't build Smyana from its public repo. Either Creel is public and linked (submodule or a pinned version), or the parts we use are copied in. Our memory notes call Creel open source, but we haven't checked that its repo is public.
+3. **The public repo must build.** Creel currently lives inside the Age of Anything repo (`Casaide/age-of-whatever`). **Resolved (Dominic, 2026-11-10):** Creel is being split out into its own public repo on 11 November. Smyana's repo should then link it as a submodule or a pinned version, so anyone can build the game.
 4. **Commercial sample libraries.** Sounds rendered from Strezov or LibreWave libraries can go in the repo as finished audio, but the libraries themselves can't. Check each library's licence about putting rendered audio in a public repo. Sound effects from Freesound need their CC credits in the repo.
-5. **Platform: make sure people can play it.** There's no platform rule, but entrants vote on what they can play, and many play only in the browser. Lobster (the language Creel is written in) can compile to WebAssembly, but we haven't checked that Creel builds for the web. If it can't, ship Windows, macOS and Linux downloads (and say whether it runs on Steam Deck).
+5. **Platform: make sure people can play it.** There's no platform rule, but entrants vote on what they can play, and many play only in the browser. **Dominic (2026-11-10):** a WebAssembly build is believed possible but needs testing. It's nice to have, not required. Test it early, because a browser build can change what the game can afford (memory, loading and audio size). If it doesn't work, ship Windows, macOS and Linux downloads, and say whether it runs on Steam Deck.
 6. **Voting starts at once.** After 1 December the game can't change except for critical fixes, so the version we submit is the one people rate. Plan a buffer of a couple of days before the deadline for the itch.io page, builds and testing.
 7. **"Respectful".** The Ottomans are an enemy faction. That's fine for a historical survival game, but they should be shown as a historical threat, not as a caricature of Turkish people. Using real Turkish lines (as the music plan proposes) helps.
 
@@ -55,8 +55,19 @@ Anything taken only from the 2024 FAQ is marked *(2024 FAQ)*. Those points shoul
 - **AI-generated singing or voices are allowed.** The music plan asked whether the competition allows AI-generated audio: it does, with disclosure. The reason to prefer real singers is quality (AI gets the Rhodope ornaments and open-throated tone wrong), not the rules.
 - **Our own recording of a traditional song** for the intro is fine. The melody is public domain and the recording would be ours.
 
-## Open questions for Dominic
+## Dominic's answers (2026-11-10)
 
-- What is the jam cut: which part of the summer-to-spring run do we ship by 1 December?
-- Is the Creel repo public, and can it build for the web?
+In his words, as dictated:
+
+> I think we can do it by 1st of December. Creole will be public. Tomorrow we'll split it out from the other game and we'll put it on its own public repo. The browser, it's a good question. I believe we can build for WebAssembly. But if we can't build for browser, then so be it. It's something we should test. But yeah.
+
+("Creole" is the dictation of Creel.)
+
+- **Scope:** the full plan, by 1 December.
+- **Creel:** split into its own public repo on 11 November.
+- **Browser:** try a WebAssembly build. If it doesn't work, that's fine.
+
+## Still open
+
 - Does any Age of Anything art go into the jam build, and if so, how much?
+- Test the WebAssembly build.
