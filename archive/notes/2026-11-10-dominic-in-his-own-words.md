@@ -220,3 +220,6 @@ After seeing the first runnable version (its trees were about thirteen men tall)
 
 **21:29**
 > The tracks plan should be added as an issue with audio label
+
+**21:33** (after the ruins' second take)
+> The long notes in the new ruins are like emergency alarm on phone. Long and hard. Let's return to ruins later once we do some more research

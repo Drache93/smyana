@@ -155,3 +155,14 @@ Dominic: "Ruins generally need more mystic and ancient feel. But otherwise all g
   to get it (Dominic or a friend, an AI singing tool, a real Rhodope singer) are written up in
   [`docs/music-tracks.md`](../../docs/music-tracks.md#singing).
 - **The issue.** The track list is now issue #26, with a new "audio" label.
+
+### The ruins are parked
+
+Dominic on the second take: "The long notes in the new ruins are like emergency alarm on phone.
+Long and hard. Let's return to ruins later once we do some more research."
+
+Claude's guess at the cause: the overtones were made as bare, steady single tones between
+about 660 and 1300 Hz, which is just what a phone alarm is, and through a small speaker the
+deep notes under them vanish, leaving only the whine. A lesson for the bench: a long, pure,
+unmoving tone in that range always reads as a machine. The ruins wait for research into what
+"ancient" should sound like here (Thracian and Roman music, old chant) before a third try.

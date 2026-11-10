@@ -54,7 +54,7 @@ So every track is made to be cut to and from:
 
 | # | Track | Instruments and style | Length | Sketch |
 |---|---|---|---|---|
-| 17 | Roman ruins | "More mystic and ancient feel" (Dominic). Older than the village's music, so outside it: men holding one deep note, its natural overtones glinting above, bronze struck and left to ring, one far voice chanting on three notes, a huge echo. The first try (two women's voices a step apart) was not ancient enough. | 1–2 min | 12, then 13 ruins second take |
+| 17 | Roman ruins | "More mystic and ancient feel" (Dominic). Older than the village's music, so outside it: men holding one deep note, its natural overtones glinting above, bronze struck and left to ring, one far voice chanting on three notes, a huge echo. The first try (two women's voices a step apart) was not ancient enough; the second had long hard notes "like emergency alarm on phone". **Parked** until more research into what ancient should sound like here. | 1–2 min | 12, 13 (neither right) |
 | 18 | A man dies | A short lament, one voice, half sung and half spoken. | 1 min | |
 | 19 | The fire at night | The men hum or sing the main theme together in rough unison. Could be sung in the world, not as score. | 2 min | (hum in 06) |
 
@@ -81,7 +81,7 @@ So every track is made to be cut to and from:
 | Women's voices, two-part | Yes | Tried for the ruins and not ancient enough. Perhaps the village. |
 | Bells (chan) | Yes | Summer and spring: a flock means people near. |
 | Solo singing voice | A vowel only | Winter night, the lament, the intro. Needs a real singer. See "Singing". |
-| Deep held voices, overtones, struck bronze | Yes | Ruins only. |
+| Deep held voices, overtones, struck bronze | Yes | Tried for the ruins. The steady overtones sounded like a phone alarm; not to be reused as they are. |
 | Zurna and davul | No | Ottomans only. |
 | Low strings | Yes | Dropped from calm music (they made the first piece sound "Viking"). Maybe the ending. |
 
