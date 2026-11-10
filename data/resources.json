@@ -1,0 +1,7 @@
+{
+ "_doc": "What the men can carry. A man's load is one kind at a time (docs/design.md: carrying is people).",
+ "resources": [
+  { "id": "wood", "name": "Wood", "spots": true, "staple": true },
+  { "id": "food", "name": "Food", "spots": true, "staple": true }
+ ]
+}
