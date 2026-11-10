@@ -18,6 +18,7 @@ Design and mock-ups, November 2026. No game code yet.
 | Path | What it is |
 |---|---|
 | [`docs/design.md`](docs/design.md) | The game design doc: what the game is and how it plays |
+| [`docs/game-off-2026-rules.md`](docs/game-off-2026-rules.md) | The competition's rules and deadline (1 December 2026) |
 | [`archive/`](archive/) | How the game was made: pictures, notes, decisions, and why |
 | [`archive/engine/`](archive/engine/) | Changes made to the Creel engine for this game |
 
