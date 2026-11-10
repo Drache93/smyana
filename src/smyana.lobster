@@ -113,6 +113,8 @@ def leafy(sp:string) -> bool: return sp == "beech" or sp == "oak" or sp == "horn
 
 def build_props():
     props = []
+    let slide_cells = []::int
+    for(glist(su_map, "slide")) xy: slide_cells.push(as_int(xy.a[1]) * W + as_int(xy.a[0]))
     props_version = map_version
     let wood = gstr(su_map, "wood", "beech")
     let old = str_index(tr_names, "tree")
@@ -132,7 +134,12 @@ def build_props():
             let fir = wood != "beech" and (h / 7) % 4 != 0
             props.push(Prop { 1, h / 7, if fir: "yspruce{(h / 7) % YOUNG_KINDS}" else: "young{(h / 7) % YOUNG_KINDS}", if fir: "spruce" else: "beech", centre, c })
         elif t == stump: props.push(Prop { 2, 0, "stump", "", centre, c })
-        elif t == rock: props.push(Prop { 3, 0, "rock{(h / 7) % ROCK_KINDS}", "", off, c })
+        elif t == rock:
+            props.push(Prop { 3, 0, "rock{(h / 7) % ROCK_KINDS}", "", off, c })
+            // a landslide (#20) is rock that lies on the trail: broken trunks and loose slabs lie in it
+            if (find(slide_cells) sc: sc == c) >= 0:
+                props.push(Prop { 6, 0, "log{h % LOG_KINDS}", "", off + iso(float(h % 500) - 250.0, float((h / 9) % 500) - 250.0), c })
+                props.push(Prop { 4, 0, "slabs{(h / 5) % SLAB_KINDS}", "", off + iso(float((h / 3) % 600) - 300.0, float((h / 13) % 600) - 300.0), c })
         elif t == grass and (h / 11) % 3 == 0:
             // slabs lie loose beside the rock they split from
             let x = c % W

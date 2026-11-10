@@ -24,7 +24,7 @@ def noise1(rng, n, step):
 RIM = 10  # tiles of thick forest round every place, so the view never runs off the map (the camera stays inside it)
 
 
-def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, young_clumps, clearings, rocks):
+def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, young_clumps, clearings, rocks, slide=None):
     # (the numbers are given for the part you walk in: the rim is added round it)
     w, h, west_y, east_y = w + RIM * 2, h + RIM * 2, west_y + RIM, east_y + RIM
     if stream_x >= 0: stream_x += RIM
@@ -73,6 +73,16 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
         a, b = trail_y[x], trail_y[max(0, x - 1)]
         for y in range(min(a, b), max(a, b) + 1): put(x, y, ":", ".#")
 
+    # a landslide, found after it has happened (#20): fallen rock across the trail, a few tiles wide, to be walked round
+    slides = []
+    if slide:
+        sx, r = slide[0] + RIM, slide[1]
+        for y in range(trail_y[sx] - r, trail_y[sx] + r + 1):
+            for x in range(sx - 1, sx + 2):
+                if abs(y - trail_y[sx]) + abs(x - sx) * 2 <= r + rng.randrange(0, 2) and g[y][x] in ".:":
+                    g[y][x] = "#"
+                    slides.append([x, y])
+
     def near(x, y, chars, r):
         for yy in range(max(0, y - r), min(h, y + r + 1)):
             for xx in range(max(0, x - r), min(w, x + r + 1)):
@@ -113,6 +123,8 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
         # which trees stand here and which ground lies under them: beech (broadleaves at their whole height),
         # conifer (pine and spruce at their whole height), deep (the high dark woods: trunks running up out of sight)
         "wood": wood,
+        # tiles of fallen rock (a landslide): the game draws them as a slope of blocks, earth and broken trees
+        "slide": slides,
         "rows": ["".join(r) for r in g],
     }
     with open("data/maps/%s.json" % pid, "w") as f:
@@ -129,4 +141,4 @@ place("beech_valley", "beech", 1878, 96, 64, west_y=33, east_y=28, stream_x=52, 
       clearings=[(9, 33, 4), (30, 36, 3), (50, 31, 3.2), (70, 24, 4)], rocks=[(30, 12, 3), (61, 50, 4), (84, 40, 2)])
 # The deep fir woods: closer, darker, more rock, no stream. (Drawn with the same trees for now.)
 place("fir_woods", "deep", 1879, 96, 64, west_y=28, east_y=36, stream_x=-1, old_gap=1.4, old_fill=1.8, young_clumps=34,
-      clearings=[(48, 30, 5)], rocks=[(20, 44, 4), (40, 14, 3), (66, 20, 5), (78, 50, 3)])
+      clearings=[(48, 30, 5)], rocks=[(20, 44, 4), (40, 14, 3), (66, 20, 5), (78, 50, 3)], slide=(62, 4))

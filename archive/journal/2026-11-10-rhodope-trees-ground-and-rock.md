@@ -202,3 +202,9 @@ about three men across, so the stream is about twice as wide as the target's: th
 going narrower needs either a smaller tile or a ground that can draw a strip inside one. Not decided.
 
 ![The stream and trail, one tile wide](../images/2026-11-10/58-narrower-stream-and-trail.png)
+
+A first landslide (#20): in the deep fir woods the trail is buried under fallen gneiss with broken trunks and loose
+slabs in it (`slide` in `tools/make_places.py`), found after it has happened. The men have to walk round it. It is
+only a look and a blocked way so far: nothing to clear or climb, and it is the same on the way home.
+
+![The landslide across the trail](../images/2026-11-10/59-landslide-across-the-fir-woods-trail.png)
