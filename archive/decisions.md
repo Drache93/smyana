@@ -198,3 +198,15 @@ The shadows still join into one shade where they overlap.
 edges; the rays, mist in the shade and darker-woods layers are off (they smudged); haze and bloom
 are light; the voxel baker's per-voxel light jitter is turned down and leaves get four hard bands.
 D-040's "soft" meant light, not blurred.
+
+**D-036, 2026-11-10: The music follows the game.** (Dominic)
+It changes with season and time of day. When a battle or a danger comes it changes to match,
+tenser or faster, and when it's over it ends as fast as it began. A fight with bandits or
+Ottomans, or hiding the men and carts, each has its pace carried by the music. How (states,
+an intensity dial, separate loops) is a proposal in `docs/music-and-sound.md`.
+
+**D-042, 2026-11-10: The game swaps whole music tracks.** (Dominic)
+Calm music plays, then a sudden swap to fight music, and back again. One recording does not
+blend from one mood into another. This sets aside the layered "intensity dial" Claude proposed
+under D-036 unless swapping proves too blunt. A proposed list of 24 tracks is in
+`docs/music-tracks.md`.

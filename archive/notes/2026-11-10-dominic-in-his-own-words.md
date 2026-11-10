@@ -224,3 +224,41 @@ After seeing the first runnable version (its trees were about thirteen men tall)
 
 **22:07** (of the rebuilt landslide, picture 76)
 > I think better if landslides are smaller and more focuses. Like on a pass above a cliff face, so we o ly have a very tight space to go, and its blocked
+
+## A first try at the music
+
+**20:49**
+> Let's get a fable agent thread working on first music, it doesn't need to be the final one or main intro music. Just a spike into style and feel and how well compose it
+
+**20:51**
+> also research the style of rhodope music
+
+**21:08** (after hearing the first piece, "Autumn dusk")
+> Thats amazing. My wife says a little too Viking feeling. "Needs more mist"
+>
+> I'm a very big believer in music of q game changing with it. We can change based on season and time. But when a battle or a danger comes, I love when the music changes to reflect, gets tenser or faster. And when its overz the music ends as fast as it began.
+>
+> The whole pace of a battle with bandits or Ottomans or hiding your men and carts is reflected by the music
+
+**21:09**
+> Branch also has conflicts
+
+**21:19** (after hearing "Autumn mist" and "Danger")
+> Mist too soft now. But honestly they're all usable for different portions. Direction is great, the "other instruments" you mentioned and all the research should be tried - ideally we plan how many tracks and type/style.
+>
+> I liked the bagpipes form first one. Danger was a bit repetitive in the "creepy" noise but I get what you're going for, speed up was good but not really fighting music. The speed up felt more like spring or morning time, not totally wrong but not really enough. We would swap tracks, not record one that mixes. So wed be playing calm, then sudden swap to fight music and them back again potentially. But again, all goos
+
+**21:28** (after the track list and five more sketches)
+> Ruins generally need more mystic and ancient feel. But otherwise all good
+
+**21:29**
+> What about singing?
+
+**21:29**
+> The tracks plan should be added as an issue with audio label
+
+**21:33** (after the ruins' second take)
+> The long notes in the new ruins are like emergency alarm on phone. Long and hard. Let's return to ruins later once we do some more research
+
+**21:33**
+> The music has a general tangerine dream feel to it I really like
