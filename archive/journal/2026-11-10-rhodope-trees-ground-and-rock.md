@@ -185,3 +185,8 @@ crown; the spruce a spire of drooping whorls. The old stand-in trees built in co
 ![Beech, oak, hornbeam and pine together](../images/2026-11-10/54-mixed-wood-beech-oak-hornbeam-pine.png)
 
 ![The fir woods with a whole spruce](../images/2026-11-10/55-fir-woods-with-whole-spruce.png)
+
+The autumn ground is no longer all orange: the leaf carpet lies in drifts, with grass, herbs and bare earth showing
+between them in the open (the lighting work found that the target's ground is mixed, and that is what its light needs).
+
+![Autumn ground in drifts](../images/2026-11-10/56-autumn-ground-not-all-orange.png)

@@ -168,7 +168,7 @@ def build_litter():
     let r = int(LITTER_REACH * 3.2 * float(MASK_K)) + 1
     for(props) pr:
         if pr.kind == 0 or pr.kind == 2:
-            let reach = (if pr.kind == 0: (if leafy(pr.sp): LITTER_REACH else: 1.0) else: 0.6) * (if season_now() == "autumn" and leafy(pr.sp): 1.9 else: 1.0) * (0.8 + 0.4 * float(cell_hash(pr.cell) % 100) / 100.0)
+            let reach = (if pr.kind == 0: (if leafy(pr.sp): LITTER_REACH else: 1.0) else: 0.6) * (if season_now() == "autumn" and leafy(pr.sp): 1.25 else: 1.0) * (0.8 + 0.4 * float(cell_hash(pr.cell) % 100) / 100.0)
             let cx = float(pr.cell % W) + 0.5
             let cy = float(pr.cell / W) + 0.5
             let lobe = float(cell_hash(pr.cell) % 360)
@@ -186,8 +186,11 @@ def build_litter():
     // autumn in a broadleaf wood: the year's leaves lie over nearly everything, thinner in the open
     if season_now() == "autumn" and gstr(su_map, "wood", "beech") == "beech":
         for(h) y: for(w) x:
+            // (not everywhere: in the open the grass, herbs and bare earth still show between the drifts)
             let patch = float(cell_hash((y / 3) * w + x / 3 + 5003) % 100) / 100.0
-            a[y * w + x] = max(a[y * w + x], 0.42 + 0.3 * patch)
+            let open = cell_hash((y / 11) * w + x / 11 + 6007) % 100 < 45
+            if not open: a[y * w + x] = max(a[y * w + x], 0.3 + 0.4 * patch)
+            elif patch > 0.7: a[y * w + x] = max(a[y * w + x], 0.3)
     prop_tex = gl.create_texture(map(h) y: map(w) x: float4 { a[y * w + x], 0.0, 0.0, 0.0 }, texture_format_clamp | texture_format_nomipmap)
     ground_stale = true
 
