@@ -215,3 +215,9 @@ After seeing the first runnable version (its trees were about thirteen men tall)
 
 **21:59** (of the first landslide)
 > Landslide looks pretty bad. Unclear its source, and scale of rocks looks really wrong. Just piles of square rocks?
+
+**22:01** (in the lighting thread, of the shadows beside the target)
+> Shadows very close now. Unsure if lighting work needed still until the ground texture and bushes are done
+
+**22:02** (in the project chat, of the trees and lighting pull requests)
+> Two open PRS with conflicts
