@@ -27,8 +27,10 @@ def cliff_shaders() -> string:
         float k = clamp(p.y / depth, 0.0, 1.0);
         // Massive rock, not masonry: broad patches of a few close tones, split into uneven upright blocks by
         // fractures that wander, with the gneiss' grain as broken dipping lines and a ledge now and then.
-        float fxw = p.x + floor((vnoise(vec2(p.y * 0.035, 5.0 + floor(p.x / 90.0))) - 0.5) * 9.0);
-        float block = floor(fxw / 47.0 + (hash(vec2(floor(p.y / 70.0), 2.0)) - 0.5) * 0.6);
+        // (a fracture leans and wanders all the way down: no two run alike, and none is upright)
+        float lane = floor(p.x / 130.0);
+        float fxw = p.x + floor((vnoise(vec2(p.y * 0.022, 5.0 + lane)) - 0.5) * 70.0 + (vnoise(vec2(p.y * 0.11, 9.0 + lane)) - 0.5) * 10.0 + p.y * (hash(vec2(lane, 6.0)) - 0.5) * 0.5);
+        float block = floor(fxw / 130.0);
         float v = vnoise(p * vec2(0.018, 0.04)) * 0.55 + vnoise(p * vec2(0.06, 0.1) + 7.0) * 0.3 + (hash(vec2(block, 1.0)) - 0.5) * 0.16 + bay * 0.08 + 0.1;
         vec3 col = ramp4(vec3(0.40, 0.385, 0.36), vec3(0.50, 0.48, 0.44), vec3(0.59, 0.565, 0.51), vec3(0.68, 0.645, 0.57), v);
         // (warm rusty stains in places)
@@ -44,9 +46,8 @@ def cliff_shaders() -> string:
             else if (lg < 0.16) col *= 0.62;
         }
         // the fractures between blocks, and a few that stop short
-        float fr = fract(fxw / 47.0 + (hash(vec2(floor(p.y / 70.0), 2.0)) - 0.5) * 0.6) * 47.0;
-        if (fr < 1.0) col *= 0.5;
-        else if (fr < 2.0) col *= 1.1;
+        float fr = fract(fxw / 130.0) * 130.0;
+        if (fr < 1.5 && hash(vec2(block, 12.0)) > 0.25 && vnoise(vec2(p.y * 0.03, block)) > 0.3) col *= 0.52;
         float f2 = floor(fxw / 19.0);
         if (floor(mod(fxw, 19.0)) == floor(hash(vec2(f2, 3.0)) * 19.0) && hash(vec2(f2, floor(p.y / 31.0))) > 0.72) col *= 0.66;
         // moss where water seeps, a leaf caught on a ledge

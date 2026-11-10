@@ -324,3 +324,7 @@ them.
 Picture 96 is the scene above the mock-up. What it shows still open (Claude): the flames are flat bars against voxel
 models; the woodpile is lost in shade; the men stand about the trail and not round the fire; the back of the wood is
 bright where the mock-up's is dark and misty (the lighting thread).
+
+The faces' fractures no longer split the rock into upright panels: each leans and wanders its own way down, and some
+are missing (picture 98). Still wrong (Claude): the cliffs' edges run ruler-straight along the tiles, and the river in
+the gorge is still a pool.
