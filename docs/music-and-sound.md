@@ -43,7 +43,7 @@ Three rules:
    - *Autumn*: gadulka and low voice come forward; the drone grows; longer pauses.
    - *Winter*: almost nothing. Wind, a single voice, low strings, silence. The men are far from home.
    - *Spring*: the main theme returns with the women's choir as they get closer to home.
-3. **One theme, many forms.** A single main melody (ideally based on, or written in the style of, a slow Rhodope song about leaving) heard as: full orchestra and choir in the intro, a lone kaval in the forest, a hummed version by a man at the fire, a lament when someone dies, and the full choir and massed gaidi at the homecoming.
+3. **One theme, many forms.** A single original main melody, written in the style of a slow Rhodope song about leaving, heard as: full orchestra and choir in the intro, a lone kaval in the forest, a hummed version by a man at the fire, a lament when someone dies, and the full choir and massed gaidi at the homecoming.
 
 ### Music cue list (about one hour of play)
 
@@ -51,7 +51,7 @@ Roughly 30 to 40 minutes of original music is enough for a one-hour game if it i
 
 | Cue | Length | Notes |
 |---|---|---|
-| Opening cinematic | 2–3 min | The big one. Wide aerial over the Rhodopes, down into the forest, to the village. Starts with a single voice or kaval, then strings, choir and gaida drone open out. |
+| Opening cinematic | 2–3 min | The big one. Wide aerial over the Rhodopes, down into the forest, to the village. Stretch goal: a real folk song introduces the village (see "The intro folk song" below). Fallback: the original main theme, starting with a single voice or kaval, then strings, choir and gaida drone open out. |
 | Departure from the village | 1–2 min | Women's choir, a song of parting. Ties to the gurbet songs. |
 | Exploration layers × 4 seasons | 3–4 min each, loopable | Built in stems (drone / melody / pulse) so the game can thin or thicken them. |
 | Dusk and campfire | 2–3 min | Gadulka or a hummed voice. Could be sung by the men in-world. |
@@ -64,6 +64,33 @@ Roughly 30 to 40 minutes of original music is enough for a one-hour game if it i
 | Return and homecoming | 3–4 min | Main theme in full: choir, massed kaba gaidi, orchestra. The emotional peak. |
 | Ending cutscene (village upgraded) | 2–3 min | Warm resolution; can lead into credits. |
 | Pause / menu | 1–2 min, loopable | Quiet version of the main theme. |
+
+## The intro folk song (stretch goal)
+
+**Decided (Dominic, 2026-11-10):** the intro, which introduces the village, uses a real Bulgarian folk song, ideally one we record or produce ourselves. This is a stretch goal. Everything after the intro is original music.
+
+**Fallback if the stretch goal isn't met:** the intro uses the original main theme instead, opened by a solo voice (or kaval) singing it in folk style. The theme is written to work as a song from the start, so swapping it in later costs nothing, and the cinematic is cut to the same length either way.
+
+### What is free to use
+
+- **The traditional melody and words of a folk song are public domain.** Nobody owns "Izlel e Delyo Haydutin" as a song. We can sing, arrange and record it ourselves.
+- **Existing recordings are not free.** Valya Balkanska's recording, Le Mystère des Voix Bulgares albums and radio archive recordings are all under copyright and would need a licence.
+- **Named arrangements are not free either.** Many famous versions are 20th-century choral arrangements by composers such as Philip Koutev or Krasimir Kyurkchiyski, and those arrangements are still under copyright. Our arrangement must be our own, built from the plain melody, not transcribed from one of theirs.
+- **Old published collections are free to use as sources.** The Miladinov brothers' *Bulgarian Folk Songs* (1861, texts only) is public domain and scanned online. Vasil Stoin's collections from the early 20th century (he died in 1938, so they are out of copyright in the EU) include melodies; the exact editions need checking. Later scholarly collections, like Kaufmann and Todorov's *Folksongs from the Rhodope Region* (1970), are great for research but still under copyright, so use them to learn, not to copy from.
+
+### Shortlist for the intro
+
+| Song | Why it fits | Notes |
+|---|---|---|
+| **Излел е Дельо хайдутин** (Izlel e Delyo Haydutin) | Rhodope song, slow and free in rhythm, about a haiduk standing against the Ottomans. Strongest regional and historical fit, and well known abroad because of the Voyager record. | Recommended first choice. Traditional, so free to record ourselves. The theme is defiance more than leaving. |
+| **Хубава си, моя горо** (Hubava si, moya goro, "You are beautiful, my forest") | A love song to the forest, written by someone leaving it. Fits a wide shot of the forest almost too well. | Not a folk song. It's a 19th-century composed song (words by Lyuben Karavelov, music by Emanuil Manolov), but both men died over a century ago, so it's public domain. It sounds more like a choir song than a Rhodope song. |
+| **Притури се планината** (Prituri se planinata, "The mountain collapsed") | Famous slow song, very dramatic for an opening. | The well-known Stefka Sabotinova version is a copyrighted arrangement. Which region it comes from needs checking before we claim it as a Rhodope song. |
+| **Заплакала е гората** (Zaplakala e gorata, "The forest wept") | A forest grieving for a fallen haiduk. Strong forest imagery. | Better for a death or the winter low point than for the village. Region needs checking. |
+| A Rhodope gurbet/parting song | The game's own story: men leaving, women staying. | Ideal on theme, but needs digging in Stoin or the Miladinov collection to find one with a usable melody. Worth an afternoon of research if the stretch goal goes ahead. |
+
+### "Generating it ourselves"
+
+The safest way to produce it is a real singer: one Rhodope-style singer recorded remotely (with a kaba gaida drone, which can be sampled) is enough for the intro and doesn't cost much. AI-generated singing in this style tends to sound wrong in the ornaments and the open-throated tone, and the competition may have rules on AI-generated assets, so check those rules before relying on it.
 
 ## Sound effects and ambience needed
 
@@ -124,7 +151,7 @@ From cheapest to most authentic. A mix is likely.
 ## Open questions
 
 - Which route: samples only, or samples with real soloists?
-- Do we want a real Bulgarian folk song (with its text) as the main theme, or an original melody in that style?
+- Which song for the intro (shortlist above), and does the competition allow AI-generated audio?
 - Bulgarian or English narration for the cinematics?
 - Should the men singing at the fire be a real mechanic (morale, but noise that attracts danger, like fire)?
 
@@ -138,6 +165,12 @@ From cheapest to most authentic. A mix is likely.
 - Valya Balkanska (Wikipedia): https://en.wikipedia.org/wiki/Valya_Balkanska
 - BNR, "Izlel e Delyo Haydutin, the Bulgarian cosmic tale": https://bnr.bg/en/post/136952/izlel-e-delyo-haydutin-the-bulgarian-cosmic-tale
 - The Balkan Gurbet / Pečalbarstvo, past and present: https://ceeol.com/search/article-detail?id=409681
+- BNR, "Prituri se planinata, the jewel in Stefka Sabotinova's repertoire": https://bnrnews.bg/en/post/386837/highlights-of-bulgarian-culture-prituri-se-planinata-the-jewel-in-stefka-sabotinovas-repertoire
+- BNR, "Hubava si moya goro": https://img.bnr.bg/en/post/102188740/hubava-si-moya-goro
+- Miladinov brothers, *Bulgarian Folk Songs* (1861), scan: https://c.enwp.org/wiki/File:Bulgarian_Folk_Songs_WDL4134.pdf
+- "Vasil Stoin, Bulgarian folk song collector" (Yearbook of the IFMC): https://cambridge.org/core/journals/yearbook-of-the-international-folk-music-council/article/vasil-stoin-bulgarian-folk-song-collector/1D1840A5C3FD66A5FFE9622FD2F3A56D
+- Kaufmann and Todorov, *Folksongs from the Rhodope Region* (1970), review: https://cambridge.org/core/journals/yearbook-of-the-international-folk-music-council/article/nicolai-kaufmann-and-todor-todorov-narodni-pesni-ot-rhodopskia-krai-folksongs-from-the-rhodope-region-sofia-bulgarian-academy-of-sciences-1970-969-pp-1653-musical-illustrations-with-texts/5C1B6DF200E183A4F1E3B18542D00290
+- Trio Bulgarka, "Zaplakala e gorata": https://www.last.fm/music/The+Trio+Bulgarka/The+Forest+Is+Crying+(Lament+for+Indje+Voivode)/Zaplakala+E+Gorata+(The+forest+is+crying)
 - Sound On Sound review of Strezov Rhodope 2 and Balkan Ethnic Orchestra: https://www.soundonsound.com/reviews/strezov-sampling-rhodope-2-ethnic-bulgarian-choir-balkan-ethnic-orchestra
 - LibreWave The Shepherd's Flute: https://www.bestservice.com/en/the_shepherd_flute.html
 - Bulgarian folk instruments: https://www.balkanfolk.com/bg/bulgarian-music-instruments.php
