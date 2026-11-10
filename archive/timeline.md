@@ -59,3 +59,6 @@ One line per moment worth remembering. Newest at the bottom.
   ([journal](journal/2026-11-10-rhodope-trees-ground-and-rock.md#a-scene-to-compare-like-with-like-2220-to-2235), [engine](engine/2026-11-10-own-shadow-and-nine-levels.md))
 - **2026-11-10:** Lint for the Lobster code: `lobsterfmt`'s layout and no warnings, in `./check.sh` (D-044).
   ([journal](journal/2026-11-10-lint-and-lobsterfmt.md))
+- **2026-11-10:** The camp as voxel models: a canvas tent, a lean-to of striped rugs, the fireplace with its tripod,
+  a woodpile, four riding horses and four pack mules (D-045).
+  ([journal](journal/2026-11-10-the-camp-tents-fire-and-horses.md))

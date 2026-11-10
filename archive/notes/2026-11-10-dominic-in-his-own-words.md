@@ -294,3 +294,12 @@ After seeing the first runnable version (its trees were about thirteen men tall)
 
 **22:11**
 > primarily to ensure high quality and therefore less bugs ideally
+
+## The camp: tents, fireplace and horses
+
+**20:43** (about the camp mock-up, the autumn camp of picture 62)
+> The are mockuoa right? Because they dont match our final style
+
+**22:20** (in the thread building the first comparison scene)
+> add the tents, fireplace, and our horses while there - get another thread to make them.
+> So we can cleanly compare it all in one go

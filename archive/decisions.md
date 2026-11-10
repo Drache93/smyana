@@ -219,3 +219,8 @@ high ground for the first time (Claude: how). Until the men can clear a slide, o
 **D-044, 2026-11-10: Our Lobster is formatted and warning-free.** (Dominic)
 For quality and fewer bugs, every Lobster file of ours is in `lobsterfmt`'s layout (Lobster's style guide) and compiles
 with no warnings, as in Age of Anything. `src/lint.sh` checks both and `./check.sh` runs it, before every commit.
+
+**D-045, 2026-11-10: The camp's props keep their own colours, at the mock-up's sizes.** (Claude, awaiting Dominic)
+The tents, fireplace, woodpile, horses and mules are `.vox` models one voxel a pixel, like the men, baked with their
+palette's colours under the props' light rather than Creel's per-material ramps (a rug's stripes and a horse's coat
+need real colours). Sizes are taken from the camp mock-up, a little bigger than real ponies and tents.
