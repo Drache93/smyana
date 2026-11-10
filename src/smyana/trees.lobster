@@ -7,7 +7,7 @@
 // seen. The leaves are baked once a season (their colour), behind the letter home, and kept in bake_cache/.
 
 let TREE_K = 64.0  // voxels a tile for the load of wood (baked at twice this)
-let TREE_BAKE = "trees 24"
+let TREE_BAKE = "trees 25"
 // Voxels a tile in the trees, rocks and undergrowth: one voxel is one pixel of Creel's art (WB_PX at its art scale of
 // 3), as the men's are, so they are as crisp as the men (Dominic, 2026-11-10: "evryhting crisp and sharp").
 let VOX_K = 135.7645
@@ -226,15 +226,22 @@ def fern(look:vglook, kind:int) -> vgrid:
 
 // A low bush: a few stems, and its leaves as dabs in clusters at their ends.
 def bush(look:vglook, kind:int) -> vgrid:
+    // stems that fan from the foot and show, each ending in a few twigs with leaves at their tips (not a ball of leaf)
     let rng = grng(1400 + kind)
-    let g = fine_grid(look, 0.42, 0.5, 1400 + kind)
-    for(6 + kind * 2):
-        let c = float3 { randf_range(rng, -0.2, 0.2), randf_range(rng, -0.2, 0.2), randf_range(rng, 0.1, 0.27) }
-        twig(g, float3 { c.x * 0.25, c.y * 0.25, 0.0 }, c, 0.009, VG_BARK, 0.0)
+    let g = fine_grid(look, 0.46, 0.52, 1400 + kind)
+    for(5 + kind * 2):
+        let a = randf_range(rng, 0.0, 360.0)
+        let out = randf_range(rng, 0.06, 0.24)
+        let c = float3 { cos(a) * out, sin(a) * out, randf_range(rng, 0.14, 0.34) }
+        let foot = float3 { c.x * 0.15, c.y * 0.15, 0.0 }
+        twig(g, foot, c, 0.011, VG_BARK, 0.0)
         let tone = randf_range(rng, -0.5, 0.7)
-        for(9):
-            let p = c + float3 { randf_range(rng, -0.07, 0.07), randf_range(rng, -0.07, 0.07), randf_range(rng, -0.04, 0.06) }
-            leaf_dab(g, p, randf_range(rng, 0.014, 0.022), tone + randf_range(rng, -0.3, 0.3))
+        for(3):
+            let t = c + float3 { randf_range(rng, -0.09, 0.09), randf_range(rng, -0.09, 0.09), randf_range(rng, -0.02, 0.09) }
+            twig(g, foot + (c - foot) * randf_range(rng, 0.5, 0.9), t, 0.007, VG_BARK, 0.0)
+            for(4):
+                let p = t + float3 { randf_range(rng, -0.035, 0.035), randf_range(rng, -0.035, 0.035), randf_range(rng, -0.02, 0.03) }
+                leaf_dab(g, p, randf_range(rng, 0.014, 0.021), tone + randf_range(rng, -0.3, 0.3))
     return g
 
 // A patch of low herbs: many small pale leaves on short stems, ragged at its edge (the pale drifts of the target

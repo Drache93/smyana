@@ -112,6 +112,10 @@ def old_kind(wood:string, pick:int) -> string, int:
 
 def leafy(sp:string) -> bool: return sp == "beech" or sp == "oak" or sp == "hornbeam"
 
+// Where the year's leaves lie thin in a broadleaf wood (x, y in mask samples): grass shows and herbs grow there.
+def open_ground(x:int, y:int) -> bool:
+    return cell_hash((y / 11) * W * MASK_K + x / 11 + 6007) % 100 < 45
+
 def build_props():
     props = []
     let debris_t = str_index(tr_names, "rubble")
@@ -157,8 +161,12 @@ def build_props():
             if drift and h2 % 7 < 3:
                 props.push(Prop { 5, 0, "fern{(h2 / 3) % FERN_KINDS}", "", centre + iso(float((h2 / 11) % 700) - 350.0, float((h2 / 17) % 700) - 350.0), c })
             // (low herbs in pale patches of their own, a few tiles across)
-            let patch = cell_hash((c / W / 3) * W + (c % W) / 3 + 7001) % 8 < 2
-            if patch and (h2 / 7) % 10 < 8: props.push(Prop { 5, 0, "herb{(h2 / 5) % HERB_KINDS}", "", centre + iso(float((h2 / 23) % 500) - 250.0, float((h2 / 29) % 500) - 250.0), c })
+            // (they grow where the litter lies thin: build_litter's open ground, so a drift of herbs fills each gap in the leaves)
+            let patch = open_ground((c % W) * MASK_K + MASK_K / 2, (c / W) * MASK_K + MASK_K / 2) or cell_hash((c / W / 3) * W + (c % W) / 3 + 7001) % 8 < 1
+            if patch:
+                for(3) k:
+                    let h3 = cell_hash(c * 3 + k + 80021)
+                    if h3 % 10 < 7: props.push(Prop { 5, 0, "herb{(h3 / 5) % HERB_KINDS}", "", centre + iso(float((h3 / 23) % 900) - 450.0, float((h3 / 29) % 900) - 450.0), c })
             if (h2 / 100) % 100 >= 90 and (h2 / 100) % 100 < 94: props.push(Prop { 5, 0, "sapling", "", centre, c })
             if (h2 / 100) % 100 < 6: props.push(Prop { 5, 0, "bush{h2 % BUSH_KINDS}", "", centre + iso(float((h2 / 13) % 600) - 300.0, float((h2 / 19) % 600) - 300.0), c })
             elif (h2 / 100) % 100 == 99: props.push(Prop { 6, 0, "log{h2 % LOG_KINDS}", "", centre, c })
@@ -195,7 +203,7 @@ def build_litter():
         for(h) y: for(w) x:
             // (not everywhere: in the open the grass, herbs and bare earth still show between the drifts)
             let patch = float(cell_hash((y / 3) * w + x / 3 + 5003) % 100) / 100.0
-            let open = cell_hash((y / 11) * w + x / 11 + 6007) % 100 < 45
+            let open = open_ground(x, y)
             if not open: a[y * w + x] = max(a[y * w + x], 0.3 + 0.4 * patch)
             elif patch > 0.7: a[y * w + x] = max(a[y * w + x], 0.3)
     // scree under a landslide's debris (the shader's G), reaching a little past it and ragged

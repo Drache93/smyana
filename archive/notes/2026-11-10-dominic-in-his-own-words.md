@@ -221,3 +221,6 @@ After seeing the first runnable version (its trees were about thirteen men tall)
 
 **22:02** (in the project chat, of the trees and lighting pull requests)
 > Two open PRS with conflicts
+
+**22:07** (of the rebuilt landslide, picture 76)
+> I think better if landslides are smaller and more focuses. Like on a pass above a cliff face, so we o ly have a very tight space to go, and its blocked
