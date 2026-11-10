@@ -48,4 +48,4 @@ is expected to need:
 
 ## Entries
 
-*(none yet)*
+- [2026-11-10: What Creel lacked for a second game](2026-11-10-what-creel-lacked-for-a-second-game.md)

@@ -36,9 +36,17 @@ def bake_look(look:int, key:string, between):
     sheet_finish(s, MEN_DRAW_K, true)
     men_bake_s += seconds_elapsed() - t0
 
+// The men's .vox files, as text: part of the bake's key, so a changed man is baked again.
+def men_vox_text() -> string:
+    let dir = "../art/men/vox/samples"
+    var t = ""
+    let names = scan_folder(dir, false)
+    if names: for(sorted_strs(names)) n: t += n + (read_file(dir + "/" + n) or "")
+    return t
+
 def bake_men(between):
     vx_load([ "../data/voxel" ])
-    let key = "{MEN_BAKE} {vx_RES} {sha256_hex(vx_data_text())}"
+    let key = "{MEN_BAKE} {vx_RES} {sha256_text(vx_data_text() + men_vox_text())}"
     for(gstrs(men_data, "looks")) id, look:
         men_looks.push(vx_unit_def { id, id, float3_0, float3_0, float3_0, [], "", false, float3_0, float3_0, float3_0, nil })
         bake_look(look, key, between)

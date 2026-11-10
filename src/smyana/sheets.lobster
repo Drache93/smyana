@@ -85,11 +85,11 @@ def sheet_frames(s:Sheet, tex:resource<texture>, dims:float2, k:float):
 def sheet_load(s:Sheet, k:float) -> bool:
     let t = read_file("{BAKE_DIR}/{s.file}.txt")
     if not t: return false
-    let lines = tokenize(t, "\n", "")
-    if not lines.length or lines[0] != s.key: return false
+    let rows = tokenize(t, "\n", "")
+    if not rows.length or rows[0] != s.key: return false
     let tex = gl.load_texture("{BAKE_DIR}/{s.file}.png", pack_formats)
     if not tex: return false
-    for(lines) l, n:
+    for(rows) l, n:
         if n > 0:
             let p = tokenize(l, " ", "")
             if p.length == 7:

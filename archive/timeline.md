@@ -26,3 +26,6 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-10:** The environment broken into GitHub issues (#3, with 15 sub-issues), including one
   tracking Creel's lighting work (Casaide/creel#5). Each place on the route is its own map, and
   the UI stays as close to none as possible. ([journal](journal/2026-11-10-environment-issues.md))
+- **2026-11-10:** The first runnable version: Smyana as its own program on Creel, two grey-boxed
+  places, twenty men who can be ordered about, and the walk out and home again with a letter
+  between places (#4). ([journal](journal/2026-11-10-first-runnable-version.md))

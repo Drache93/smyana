@@ -6,8 +6,8 @@
 // (their colour), behind the letter home, and kept in bake_cache/.
 // Baked coarse (TREE_K voxels a tile) and drawn larger: a giant at the men's fineness would take minutes to bake.
 
-let TREE_K = 26.0  // voxels a tile
-let TREE_BAKE = "trees 2"
+let TREE_K = 44.0  // voxels a tile
+let TREE_BAKE = "trees 4"
 let OLD_KINDS = 3
 let YOUNG_KINDS = 2
 let CROWN_UP = 4.3      // tiles: about where a giant's crown is centred, over its foot
@@ -17,9 +17,9 @@ var trees_bake_s = 0.0  // how long the last bake took (0: read from bake_cache/
 var trees_season = ""   // the season whose crowns are loaded
 
 def tree_look(season:string) -> vglook:
-    let leaf = if season == "autumn": [ float3 { 0.88, 0.63, 0.19 }, float3 { 0.77, 0.44, 0.12 }, float3 { 0.48, 0.24, 0.09 }, float3 { 0.54, 0.35, 0.13 } ]
-        elif season == "spring": [ float3 { 0.66, 0.81, 0.33 }, float3 { 0.50, 0.69, 0.25 }, float3 { 0.29, 0.48, 0.17 }, float3 { 0.78, 0.82, 0.44 } ]
-        else: [ float3 { 0.50, 0.65, 0.23 }, float3 { 0.31, 0.49, 0.17 }, float3 { 0.17, 0.32, 0.13 }, float3 { 0.60, 0.60, 0.23 } ]
+    var leaf = [ float3 { 0.50, 0.65, 0.23 }, float3 { 0.31, 0.49, 0.17 }, float3 { 0.17, 0.32, 0.13 }, float3 { 0.60, 0.60, 0.23 } ]
+    if season == "autumn": leaf = [ float3 { 0.88, 0.63, 0.19 }, float3 { 0.77, 0.44, 0.12 }, float3 { 0.48, 0.24, 0.09 }, float3 { 0.54, 0.35, 0.13 } ]
+    if season == "spring": leaf = [ float3 { 0.66, 0.81, 0.33 }, float3 { 0.50, 0.69, 0.25 }, float3 { 0.29, 0.48, 0.17 }, float3 { 0.78, 0.82, 0.44 } ]
     // a beech's smooth grey bark, dark to light
     return vglook { leaf, [ float3 { 0.27, 0.27, 0.25 }, float3 { 0.37, 0.37, 0.34 }, float3 { 0.47, 0.46, 0.42 }, float3 { 0.58, 0.57, 0.52 } ],
                     [ float3 { 0.3, 0.3, 0.3 }, float3 { 0.5, 0.5, 0.5 } ], false, true, true }
@@ -46,11 +46,16 @@ def old_trunk(look:vglook, kind:int) -> vgrid:
 def old_crown(look:vglook, kind:int) -> vgrid:
     let top, ends = old_frame(kind)
     let rng = grng(700 + kind)
-    let g = vg_new(look, float3 { -3.4, -3.4, 2.0 }, float3 { 3.4, 3.4, 6.6 }, TREE_K, 700 + kind)
+    let g = vg_new(look, float3 { -4.4, -4.4, 2.0 }, float3 { 4.4, 4.4, 7.4 }, TREE_K, 700 + kind)
     let rough = vg_field(g, 0.45, 701 + kind)
     let gaps = vg_field(g, 0.7, 702 + kind)
-    for(ends) e: vg_blob(g, e + float3 { 0.0, 0.0, 0.35 }, randf_range(rng, 1.15, 1.45), 1.5, 0.55, rough, VG_LEAF, randf_range(rng, -0.4, 0.4), 0.1, gaps, 0.64)
-    vg_blob(g, top + float3 { 0.0, 0.0, 1.5 }, 1.5, 1.4, 0.55, rough, VG_LEAF, 0.2, 0.1, gaps, 0.64)
+    for(ends) e:
+        // each bough's leaves: a big clump and two smaller beside it, so the crown is lumpy against the sky
+        vg_blob(g, e + float3 { 0.0, 0.0, 0.3 }, randf_range(rng, 0.95, 1.2), 1.45, 0.6, rough, VG_LEAF, randf_range(rng, -0.5, 0.5), 0.1, gaps, 0.66)
+        for(2):
+            let off = float3 { randf_range(rng, -0.8, 0.8), randf_range(rng, -0.8, 0.8), randf_range(rng, 0.1, 0.8) }
+            vg_blob(g, e + off, randf_range(rng, 0.55, 0.8), 1.3, 0.6, rough, VG_LEAF, randf_range(rng, -0.6, 0.6), 0.1, gaps, 0.66)
+    vg_blob(g, top + float3 { 0.0, 0.0, 1.5 }, 1.3, 1.35, 0.6, rough, VG_LEAF, 0.3, 0.1, gaps, 0.66)
     return g
 
 // A young tree, whole: thin, a couple of men tall. bare: no leaves (winter).
@@ -83,10 +88,13 @@ def wood_load(look:vglook) -> vgrid:
     return g
 
 // A grid baked onto a sheet: its picture under `name`, and (with shadow) its shadow on the ground under name.shadow.
-def tree_onto(s:Sheet, name:string, g:vgrid, shadow:bool):
+// shade_k: how strong the shadow is (crowns overlap, and their shadows with them: full strength piles up black).
+def tree_onto(s:Sheet, name:string, g:vgrid, shadow:bool, shade_k:float = 1.0):
     let bytes, w, h, origin = vg_sprite(g, shadow)
     if shadow:
         let art, shade = vm_split_shadow(bytes, w, h)
+        if shade_k != 1.0:
+            for(w * h) px: write_int8_le(shade, px * 4 + 3, int(float(shade[px * 4 + 3]) * shade_k))
         sheet_add_bytes(s, name, art, w, h, origin)
         sheet_add_bytes(s, name + ".shadow", shade, w, h, origin)
     else: sheet_add_bytes(s, name, bytes, w, h, origin)
@@ -120,7 +128,7 @@ def bake_season(season:string, between):
     let t0 = seconds_elapsed()
     let look = tree_look(season)
     for(OLD_KINDS) kind:
-        tree_onto(s, "old{kind}.crown.{season}", old_crown(look, kind), true)
+        tree_onto(s, "old{kind}.crown.{season}", old_crown(look, kind), true, 0.45)
         between()
     for(YOUNG_KINDS) kind: tree_onto(s, "young{kind}.{season}", young_tree(look, kind, false), true)
     sheet_finish(s, tree_draw_k, true)
