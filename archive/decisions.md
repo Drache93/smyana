@@ -101,3 +101,6 @@ of meters and panels.
 
 **D-022, 2026-11-10: The Steam Deck is set aside for now.** (Dominic)
 No Steam Deck testing or budgets in the plans until Dominic brings it back.
+
+**D-023, 2026-11-10: Fixing a bridge, fording a river and a landslide are among the environmental obstacles.** (Dominic)
+For now the landslide is found after it has happened, not a live event. See issue #20.
