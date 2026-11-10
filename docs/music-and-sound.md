@@ -65,6 +65,54 @@ Roughly 30 to 40 minutes of original music is enough for a one-hour game if it i
 | Ending cutscene (village upgraded) | 2–3 min | Warm resolution; can lead into credits. |
 | Pause / menu | 1–2 min, loopable | Quiet version of the main theme. |
 
+## Music that follows the game
+
+**Direction (Dominic, 2026-11-10):** the music changes with the game. It shifts with season and
+time of day, and when a battle or a danger comes it changes to match, tenser or faster, and
+"when it's over, the music ends as fast as it began". The whole pace of a fight with bandits or
+Ottomans, or of hiding the men and carts, is carried by the music. (D-036.)
+
+How that could work. **Proposal** by Claude; a first sketch of it can be heard in
+`archive/audio/2026-11-10/07-music-spike-danger.ogg`.
+
+**Two things change at once.** *Which* music plays depends on what is happening (the state).
+*How much* of it plays depends on how bad it is (the intensity).
+
+| State | When | What plays |
+|---|---|---|
+| Calm | Travel, camp, nothing near | The season's piece, thin and far off, with long silences. Often no music at all. |
+| Wary | Tracks, a howl, smoke on a ridge | The tune stops. Drone only, a little lower and darker. |
+| Hiding | Enemies near and the men unseen | A heartbeat on the drum, two low notes a half step apart, a thin high whine. No tune. |
+| Fight | The men are found, or attack | Tapan and gaida in a fast plain 2/4, the drone at full buzz. |
+| After | The last enemy falls or leaves | One last blow and silence: echo and wind. Later, a lone kaval finishes the tune. |
+
+**Rules for the changes**
+
+1. **Into danger: at once.** The calm tune is cut off mid-phrase, on a single drum stroke. It is
+   never faded. The broken phrase is the signal.
+2. **Out of danger: just as fast.** The fight music stops on a blow, in time with the last enemy
+   falling where that can be done. No winding down, no victory tune. The silence afterwards is
+   the reward, and the unfinished kaval phrase comes back only after ten seconds or so.
+3. **Intensity is a dial, not a switch.** While hiding, the heartbeat quickens and the whine
+   grows as enemies come closer, and slackens as they move off. In a fight, more enemies or
+   wounded men add layers (a second drum pattern, a second gaida) rather than a new piece.
+4. **Hiding to fight and back are both possible.** Slip away mid-fight and it drops to the
+   heartbeat again; get found and it leaps.
+5. **Who the enemy is changes the colour.** Wolves and bears: drum and drone only, no tune,
+   because animals have no music. Bandits: the gaida fight tune. Ottomans: their own sound
+   (a zurna, a shrill reed pipe, and their own drum), so the player hears who is coming before
+   seeing them.
+6. **Season and hour set the calm piece** (the palette in rule 2 of "Music direction"), and
+   night makes everything thinner and lower.
+
+**What the game needs for this.** Dominic, later on 2026-11-10: "We would swap tracks, not
+record one that mixes. So wed be playing calm, then sudden swap to fight music and them back
+again potentially" (D-042). So each state is its own track, and the game cuts between whole
+tracks. The first idea here, layers faded in and out by an intensity dial (rule 3), is set
+aside unless swapping proves too blunt. Danger tracks start on their first sound and loop;
+a single drum blow covers the cut when danger ends. Creel has no music system yet; that will
+need an issue. The full list of tracks is in [`music-tracks.md`](music-tracks.md).
+
 ## The intro folk song (stretch goal)
 
 **Decided (Dominic, 2026-11-10):** the intro, which introduces the village, uses a real Bulgarian folk song, ideally one we record or produce ourselves. This is a stretch goal. Everything after the intro is original music.

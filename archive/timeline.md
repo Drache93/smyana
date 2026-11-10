@@ -37,3 +37,17 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-10:** The light worked toward the target picture: a low sun with long shadows, one
   deep shade, rays and mist in the air, darker woods round a lit clearing, and a campfire.
   ([journal](journal/2026-11-10-lighting-and-mood.md), [engine](engine/2026-11-10-sun-and-shade.md))
+- **2026-11-10:** A first try at the music: "Autumn dusk", a slow kaval tune over a kaba gaida
+  drone, written as text and turned into sound by code, with notes on the style of Rhodope
+  music. ([journal](journal/2026-11-10-first-music-spike.md),
+  [listen](audio/2026-11-10/05-music-spike-autumn-dusk.ogg))
+- **2026-11-10:** "A little too Viking... Needs more mist": a second, hazier take, and Dominic's
+  rule that the music follows the game and ends as fast as it began (D-036), with a demo going
+  from calm to hiding to a fight to silence. ([journal](journal/2026-11-10-first-music-spike.md#later-the-same-evening-more-mist-and-music-that-follows-danger))
+- **2026-11-10:** The game will swap whole music tracks (D-042). A proposed list of 24 tracks,
+  and five more sketches trying tambura, gadulka, bells and two-part singing: a fight, hiding,
+  morning, autumn dusk again, the ruins. ([track list](../docs/music-tracks.md),
+  [journal](journal/2026-11-10-first-music-spike.md#later-still-a-track-list-and-the-other-instruments))
+- **2026-11-10:** The ruins made "more mystic and ancient", a first sung line without words,
+  and the track list put up as issue #26 under a new audio label.
+  ([journal](journal/2026-11-10-first-music-spike.md#last-of-the-evening-older-ruins-singing-and-an-issue))
