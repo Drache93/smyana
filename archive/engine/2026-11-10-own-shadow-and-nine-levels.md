@@ -25,3 +25,13 @@ Dominic (22:17) of the landslide pass: "there's no cliff above?". Creel's ground
 about 0.6 of a man: three of them make a bank. `MAX_LEVEL` is 9 now (heights `0` to `9`, ramps `a` to `i`), so a ledge
 can have four levels of cliff above it and four below. The cliff shader's packing of heights changed with it, and
 Smyana's own cliff shader follows.
+
+## A stream below its bank (added 22:40)
+
+Dominic (22:26): "Stream also has a bank, slight depth in mock up". First tried as real low ground (the stream's tiles a
+level down): the banks came out as a saw's teeth, because raised ground follows tile edges and the stream runs
+across them. Kept as a bug shot in the journal's words only (no picture saved). Instead the terrain shader does it:
+`ground_bank_px` says how far the water lies below the ground, and under the far shore that much earth shows (lit lip,
+soil, dark wet foot), following the water's own ragged edge. `ground_water_edge` moves where the water begins on its
+mask, so a stream can be narrower than its tile (0.62 in Smyana; much more and a one-tile stream breaks into pools).
+Picture 88.

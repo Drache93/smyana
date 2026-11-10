@@ -3,7 +3,7 @@
  "id": "camp_clearing",
  "width": 60,
  "height": 60,
- "legend": {".": "grass", ":": "trail", "T": "tree", "t": "young_tree", "#": "rock", "~": "river", "=": "ford"},
+ "legend": {".": "grass", ":": "trail", "T": "tree", "t": "young_tree", "#": "rock", "~": "water", "=": "ford"},
  "starts": [[29, 31]],
  "rim": 10,
  "gates": {"west": [27, 29, 29, 31]},

@@ -279,3 +279,10 @@ After seeing the first runnable version (its trees were about thirteen men tall)
 
 **22:19**
 > please recreate the scene with river on the right, full trees at the back, clearing, so we can compare better
+
+**22:20**
+> add the tents, fireplace, and our horses while there - get another thread to make them.
+> So we can cleanly compare it all in one go
+
+**22:26** (of the comparison scene, picture 84)
+> Stream also has a bank, slight depth in mock up

@@ -241,6 +241,9 @@ def view_enter(between):
     if run_over(): return
     // the ground's own textures: a beech wood's leaf litter and grass, or a conifer wood's needles and moss
     ground_atlas_tex = gl.load_texture("../data/ground/atlas" + (if gstr(su_map, "wood", "beech") != "beech": "_conifer" else: "") + (if season_now() == "autumn": "_autumn" elif season_now() == "winter": "_winter" else: "") + ".png", texture_format_clamp | texture_format_nomipmap | texture_format_nearest_mag | texture_format_nearest_min)
+    // (a stream is narrower than its tiles and runs a little below its banks, as in the mock-ups)
+    ground_bank_px = gfloat(su_map, "bank_px", 10.0)
+    ground_water_edge = gfloat(su_map, "water_edge", 0.62)
     build_masks()
     build_relief()
     build_wear()

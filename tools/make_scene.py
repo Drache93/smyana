@@ -8,7 +8,7 @@ import json, math, random
 
 W = H = 60
 CX, CY = 30, 30
-LEGEND = {".": "grass", ":": "trail", "T": "tree", "t": "young_tree", "#": "rock", "~": "river", "=": "ford"}
+LEGEND = {".": "grass", ":": "trail", "T": "tree", "t": "young_tree", "#": "rock", "~": "water", "=": "ford"}
 rng = random.Random(23)
 g = [["."] * W for _ in range(H)]
 
