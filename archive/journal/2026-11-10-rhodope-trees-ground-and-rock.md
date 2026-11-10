@@ -307,3 +307,20 @@ Each one, and what was done:
 Picture 94 is the first try at this, kept as a bug: everything bare, a brown waste. Picture 92 is where it stands.
 Still wrong (Claude): the faces' fractures run too straight and upright, the river in the gorge is a pool with a ring of
 bank, the trail fades out under the scree by the slide.
+
+## The camp stands in the comparison scene (23:35 to 23:50)
+
+Dominic at 22:20: "add the tents, fireplace, and our horses while there - get another thread to make them. So we can
+cleanly compare it all in one go". The camp thread made the models (PR #33, `src/smyana/camp.lobster`); this places
+them.
+
+- A place can lay out a camp: the map's `"camp"` is a list of `[frame, x, y]` in milli-tiles. `tools/make_scene.py`
+  writes it for the clearing as the mock-up has it: the canvas tent behind the fire, a rug lean-to each side of it, the
+  woodpile by the fire, three pack mules right of the tents and five horses along the wood's edge. No tree is planted
+  on them and no undergrowth grows under them.
+- Every fire now stands in the fireplace model (ring of stones, logs, tripod and cauldron); the flat stones and logs the
+  placeholder drew are gone, its flames and smoke stay (D-038 still holds: the fire is for a look).
+
+Picture 96 is the scene above the mock-up. What it shows still open (Claude): the flames are flat bars against voxel
+models; the woodpile is lost in shade; the men stand about the trail and not round the fire; the back of the wood is
+bright where the mock-up's is dark and misty (the lighting thread).

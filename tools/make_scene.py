@@ -50,6 +50,20 @@ for y in range(H):
     for x in range(W):
         if g[y][x] == "~" and any(g[y + dy][x + dx] == ":" for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))) and any(g[y + dy][x + dx] == ":" for dx, dy in ((1, 0), (0, -1))) and any(g[y + dy][x + dx] == ":" for dx, dy in ((-1, 0), (0, 1))): g[y][x] = "="
 
+# the camp (the camp thread's models, src/smyana/camp.lobster), as the mock-up has it: the fire left of the middle, the
+# tents behind it, the woodpile before it, the pack mules to the right of the tents and the horses at the wood's edge
+FIRE = (-3.0, 0.0)   # (the look's camp:28,31: the middle of that tile)
+camp = []
+def stand(name, r, d):
+    camp.append([name, int(round(((r + d) / 2.0 + CX) * 1000)), int(round(((d - r) / 2.0 + CY) * 1000))])
+stand("tent0", FIRE[0] + 0.2, FIRE[1] - 2.2)
+stand("tent1", FIRE[0] + 2.1, FIRE[1] - 2.0)
+stand("tent1", FIRE[0] - 1.5, FIRE[1] - 2.3)
+stand("woodpile", FIRE[0] - 1.2, FIRE[1] + 0.6)
+for i in range(3): stand("mule%d" % [1, 4, 6][i], FIRE[0] + 4.0 + i * 0.95, FIRE[1] - 2.1 + 0.15 * (i % 2))
+for i in range(5): stand("horse%d" % [0, 5, 2, 1, 7][i], FIRE[0] + 2.2 + i * 0.95, FIRE[1] - 3.8 - 0.2 * (i % 2))
+def by_camp(x, y): return any(abs(x + 0.5 - cx / 1000.0) < 0.7 and abs(y + 0.5 - cy / 1000.0) < 0.7 for _, cx, cy in camp)
+
 # the trees: thick at the back (the top of the picture), close round the clearing, a few big ones framing it
 olds = []
 def near(x, y, chars, rad):
@@ -57,12 +71,12 @@ def near(x, y, chars, rad):
 
 for (r, d) in ((-5.6, -1.2), (5.4, 0.2), (-4.2, 4.6), (2.2, 5.6), (-1.0, -5.4), (3.0, -4.8), (-6.4, 2.2), (6.2, 3.6)):
     x, y = int(round((r + d) / 2.0 + CX)), int(round((d - r) / 2.0 + CY))
-    if g[y][x] == ".":
+    if g[y][x] == "." and not by_camp(x, y):
         g[y][x] = "T"
         olds.append((x, y))
 for _ in range(W * H * 3):
     x, y = rng.randrange(1, W - 1), rng.randrange(1, H - 1)
-    if g[y][x] != "." or in_clearing(x, y) or near(x, y, "~=:", 0): continue
+    if g[y][x] != "." or in_clearing(x, y) or near(x, y, "~=:", 0) or by_camp(x, y): continue
     r, d = sr(x, y)
     gap = 1.0 if d < -3.5 else 1.3
     if any((x - ox) ** 2 + (y - oy) ** 2 < gap * gap for ox, oy in olds): continue
@@ -75,6 +89,7 @@ doc = {
     "gates": {"west": [CX - 3, CY - 1, CX - 1, CY + 1]},
     "wood": "beech",
     "scene": 1,
+    "camp": camp,
 }
 with open("data/maps/camp_clearing.json", "w") as f:
     f.write("{\n")

@@ -62,3 +62,5 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-10:** The camp as voxel models: a canvas tent, a lean-to of striped rugs, the fireplace with its tripod,
   a woodpile, four riding horses and four pack mules (D-045).
   ([journal](journal/2026-11-10-the-camp-tents-fire-and-horses.md))
+- **2026-11-10:** The camp placed in the comparison scene: tents behind the fire, mules and horses at the wood's edge
+  (picture 96). ([journal](journal/2026-11-10-rhodope-trees-ground-and-rock.md#the-camp-stands-in-the-comparison-scene-2335-to-2350))

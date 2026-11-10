@@ -44,6 +44,7 @@ import smyana.sheets
 import smyana.men_view
 import smyana.trees
 import smyana.cliff
+import smyana.camp
 
 // ------------------------------------------------------------------ what it was started with
 
@@ -84,7 +85,7 @@ def men_centre() -> float2:
 // ------------------------------------------------------------------ what the view remembers of a place
 
 class Prop:
-    kind:int     // 0 an old tree, 1 a young tree, 2 a stump, 3 a rock outcrop, 4 loose slabs, 5 undergrowth (its leaves by season), 6 a fallen log
+    kind:int     // 0 an old tree, 1 a young tree, 2 a stump, 3 a rock outcrop, 4 loose slabs or a thing of the camp, 5 undergrowth (its leaves by season), 6 a fallen log
     pick:int     // which of its shapes
     name:string  // its picture (an old tree's trunk; a young beech's without its season)
     sp:string    // an old tree's kind: beech, pine, spruce
@@ -178,6 +179,13 @@ def build_props():
             if (h2 / 100) % 100 >= 90 and (h2 / 100) % 100 < 94: props.push(Prop { 5, 0, "sapling", "", centre, c })
             if (h2 / 100) % 100 < 6: props.push(Prop { 5, 0, "bush{h2 % BUSH_KINDS}", "", centre + iso(float((h2 / 13) % 600) - 300.0, float((h2 / 19) % 600) - 300.0), c })
             elif (h2 / 100) % 100 == 99: props.push(Prop { 6, 0, "log{h2 % LOG_KINDS}", "", centre, c })
+    // the camp, where the place has one laid out ("camp": [name, x, y in milli-tiles] each: the tents, the woodpile,
+    // the horses and the mules; the fireplace comes with the fire): nothing grows under it
+    let camp = glist(su_map, "camp")
+    if camp.length:
+        let stands = map(camp) e: gp(as_float(e.a[1]), as_float(e.a[2]))
+        props = filter(props) pr: pr.kind != 5 or not exists(stands) q: abs(pr.at.x - q.x) < 60.0 and abs(pr.at.y - q.y) < 34.0
+        for(camp) e, i: props.push(Prop { 4, 0, as_str(e.a[0]), "", stands[i], 0 })
 
 // The trail is a path a man or two wide, not a road a tile wide (the mock-ups: a thin tan line through the leaves).
 // Creel's worn ground is kept a tile at a time and spreads, so the trail itself is painted finer into the paths'
@@ -500,7 +508,11 @@ def draw_world(alpha:float):
     collect_men(alpha)
     collect_props()
     draws.push(Drawable { -30000.0, draws.length, -4, 0.0, 0.0, float4_1, 1.0, 3 })  // the rings: on the ground, over the shadows
-    for(fires) p, i: draws.push(Drawable { p.y, draws.length, -5, float(i), 0.0, float4_1, 1.0, 3 })
+    for(fires) p, i:
+        // (the fireplace: its ring of stones, its logs and the tripod with the cauldron; the flames are the game's own)
+        add(frame_at.get("fireplace.shadow", -1), p.x, p.y, -39997.0, float4_1)
+        add(frame_at.get("fireplace", -1), p.x, p.y, p.y, float4_1, 1.0, 2)
+        draws.push(Drawable { p.y + 0.05, draws.length, -5, float(i), 0.0, float4_1, 1.0, 3 })
     qsort_in_place(draws) a, b: a.y < b.y or (a.y == b.y and a.seq < b.seq)
     // the ground's shadows into the light's shade buffer, where they join into one shade (a low sun's long shadows
     // overlap everywhere in a wood), then what stands up out of them wipes them off itself: the trees and rocks are lit
@@ -552,7 +564,7 @@ def draw_world(alpha:float):
     sprite_snap = 1.0
     if atmo_on: atmo_end(cam_px, zoom, 1.5)
 
-// The camp's fires (for now only for a look: the camp option lights one among the men at dusk): stones, two logs and
+// The camp's fires (for now only for a look: the camp option lights one among the men at dusk): the fireplace's model,
 // flames drawn unlit, a glow each in the light (atmosphere.json's "glows": "building_fire"), and a thread of smoke.
 
 def draw_fire(i:int):
@@ -560,14 +572,6 @@ def draw_fire(i:int):
     let t = gl.time()
     gl.set_shader("color")
     gl.translate(p): gl.scale(1.7):
-        for(9) k:  // the ring of stones
-            let a = float(k) * 40.0
-            gl.color(float4 { 0.28, 0.26, 0.24, 1.0 }):
-                gl.translate(float2 { cos(a) * 7.0 - 1.5, sin(a) * 3.5 - 1.0 }): gl.rect(float2 { 3.0, 2.0 })
-        for([ -1.0, 1.0 ]) side:  // two logs, crossed
-            gl.color(float4 { 0.22, 0.14, 0.08, 1.0 }):
-                gl.translate(float2 { -5.0, -1.5 + side * 0.8 }):
-                    gl.rotate_z(float2 { cos(side * 14.0), sin(side * 14.0) }): gl.rect(float2 { 10.0, 2.0 })
         for(5) k:  // the flames: tongues that lick up and fall back
             let ph = t * (5.0 + float(k) * 1.3) * 57.29578 + float(k * 71 + i * 13)
             let h = 5.0 + 3.5 * (0.5 + 0.5 * sin(ph))
@@ -773,6 +777,7 @@ waiting_frame()
 let boot0 = seconds_elapsed()
 bake_men(): waiting_frame()
 bake_trees(): waiting_frame()
+bake_camp(): waiting_frame()
 run_begin()
 if arg_of("leg") != "": enter_leg(arg_of("leg"), "west")  // leg:<id>: start at this leg of the route, for a look
 // camp or camp:<x>,<y>: the men round a fire (at that tile), for a look at the camp's light
