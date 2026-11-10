@@ -107,7 +107,7 @@ How that could work. **Proposal** by Claude; a first sketch of it can be heard i
 
 **What the game needs for this.** Dominic, later on 2026-11-10: "We would swap tracks, not
 record one that mixes. So wed be playing calm, then sudden swap to fight music and them back
-again potentially" (D-037). So each state is its own track, and the game cuts between whole
+again potentially" (D-042). So each state is its own track, and the game cuts between whole
 tracks. The first idea here, layers faded in and out by an intensity dial (rule 3), is set
 aside unless swapping proves too blunt. Danger tracks start on their first sound and loop;
 a single drum blow covers the cut when danger ends. Creel has no music system yet; that will

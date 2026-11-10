@@ -7,7 +7,7 @@ the sketches. Tracked in issue #26. Nothing here is agreed until he says so.
 
 ## How tracks are used (decided)
 
-- **The game swaps whole tracks** (D-037, Dominic). Calm music plays, danger comes, the game
+- **The game swaps whole tracks** (D-042, Dominic). Calm music plays, danger comes, the game
   cuts straight to a fight track, and cuts back after. Tracks are not blended into each other.
 - **The music follows the game** (D-036, Dominic): by season and time of day, and by danger,
   and "when it's over, the music ends as fast as it began".

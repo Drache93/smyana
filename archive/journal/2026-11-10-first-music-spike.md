@@ -114,7 +114,7 @@ proposal in [`docs/music-and-sound.md`](../../docs/music-and-sound.md#music-that
 Dominic on the second pair: "Mist too soft now. But honestly they're all usable for different
 portions." He liked the bagpipes from the first piece. The hiding music's "creepy" noise was
 repetitive. The fast part "felt more like spring or morning time", not a fight. And the game
-would swap whole tracks, not play one recording that blends moods (D-037). He asked for the
+would swap whole tracks, not play one recording that blends moods (D-042). He asked for the
 other instruments and the research to be tried, and for a plan of how many tracks and what kind
 ([his words](../notes/2026-11-10-dominic-in-his-own-words.md#a-first-try-at-the-music)).
 
