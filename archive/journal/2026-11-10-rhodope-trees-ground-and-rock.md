@@ -190,3 +190,9 @@ The autumn ground is no longer all orange: the leaf carpet lies in drifts, with 
 between them in the open (the lighting work found that the target's ground is mixed, and that is what its light needs).
 
 ![Autumn ground in drifts](../images/2026-11-10/56-autumn-ground-not-all-orange.png)
+
+Winter (#11): a first-snow ground (`tools/ground_atlas.py`, `atlas_winter.png`): thin blue-white snow in the open with
+grass tips through it, the fallen leaves showing under the trees, slush on the trail, and the bare trees' long shadows
+across it. No snow lies on the boughs or the men yet.
+
+![First snow in the beech wood](../images/2026-11-10/57-first-snow-in-the-beech-wood.png)

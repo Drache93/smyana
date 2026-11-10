@@ -207,7 +207,7 @@ def view_enter(between):
     selected = []
     if run_over(): return
     // the ground's own textures: a beech wood's leaf litter and grass, or a conifer wood's needles and moss
-    ground_atlas_tex = gl.load_texture("../data/ground/atlas" + (if gstr(su_map, "wood", "beech") != "beech": "_conifer" else: "") + (if season_now() == "autumn": "_autumn" else: "") + ".png", texture_format_clamp | texture_format_nomipmap | texture_format_nearest_mag | texture_format_nearest_min)
+    ground_atlas_tex = gl.load_texture("../data/ground/atlas" + (if gstr(su_map, "wood", "beech") != "beech": "_conifer" else: "") + (if season_now() == "autumn": "_autumn" elif season_now() == "winter": "_winter" else: "") + ".png", texture_format_clamp | texture_format_nomipmap | texture_format_nearest_mag | texture_format_nearest_min)
     build_masks()
     build_wear()
     bake_season(season_now(), between)
