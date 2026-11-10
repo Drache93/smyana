@@ -1,0 +1,52 @@
+// Creel's sim and match setup, in the order they must be imported (creel/examples/plain/src/sim_only.lobster), then
+// Smyana's own sim-side modules. No window: the game (smyana.lobster) and the headless check (run_check.lobster)
+// both start from this. The program that imports it says where Creel is first: import from "../creel/src".
+import std
+import vec
+import dictionary
+import gen.json
+import gen.sha256
+import gen.rng
+import gen.datalib
+import lib.consts
+import lib.fixed
+import lib.tokens
+import lib.state
+import lib.flow
+import lib.spatial
+import lib.orders
+import lib.movement
+import lib.steering
+import lib.fog
+import lib.map
+import lib.economy
+import lib.tech
+import lib.combat
+import lib.siege
+import lib.eco_bot
+import lib.garrison
+import lib.heal
+import lib.heroes
+import lib.match
+import lib.trade
+import lib.animals
+import lib.bridges
+import lib.walls
+import lib.abilities
+import lib.trails
+import lib.commands
+import lib.ai_cfg
+import lib.scout
+import lib.land
+import lib.expand
+import lib.bot
+import lib.walls_ai
+import lib.world
+import gen.mods
+import hooks.active
+import gen.setup
+import gen.modes
+import gen.start
+import gen.reset
+import smyana.route
+let SMYANA_VERSION = "0.1.0"

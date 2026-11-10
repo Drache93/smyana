@@ -11,7 +11,19 @@ It's a survival RPG built as an RTS, made for a game competition whose theme is 
 
 ## Status
 
-Design and mock-ups, November 2026. No game code yet.
+A first runnable version, November 2026: two grey-boxed places, twenty men, and the walk out and
+home again in miniature. Most of the game is still to come.
+
+```sh
+git submodule update --init   # the Creel engine
+./play.sh                     # the game (windowed: ./play.sh windowed)
+./check.sh                    # the checks, with no window
+```
+
+It needs [Lobster](https://github.com/Drache93/lobster) (`LOBSTER=/path/to/bin/lobster`, by
+default `~/Dev/lobster/bin/lobster`). Left click or drag to select men, double-click for all of
+them, right click to send them or to fell a young tree. Arrows or WASD move the camera. Walk
+every man into the far edge of a place to move on.
 
 ## What's here
 
@@ -19,6 +31,11 @@ Design and mock-ups, November 2026. No game code yet.
 |---|---|
 | [`docs/design.md`](docs/design.md) | The game design doc: what the game is and how it plays |
 | [`docs/game-off-2026-rules.md`](docs/game-off-2026-rules.md) | The competition's rules and deadline (1 December 2026) |
+| [`src/`](src/) | The game, in Lobster, on Creel (`smyana.lobster` is the program) |
+| [`data/`](data/) | The game's data: terrain, the men, the places, [`route.json`](data/route.json) |
+| [`creel/`](https://github.com/Casaide/creel) | The engine, as a git submodule |
+| [`tools/`](tools/) | Scripts that write the grey-box places, the men's bodies and the reset code |
+| [`art/`](art/) | The men's voxel art |
 | [`archive/`](archive/) | How the game was made: pictures, notes, decisions, and why |
 | [`archive/engine/`](archive/engine/) | Changes made to the Creel engine for this game |
 

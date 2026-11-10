@@ -104,3 +104,29 @@ No Steam Deck testing or budgets in the plans until Dominic brings it back.
 
 **D-023, 2026-11-10: Fixing a bridge, fording a river and a landslide are among the environmental obstacles.** (Dominic)
 For now the landslide is found after it has happened, not a live event. See issue #20.
+**D-024, 2026-11-10: Smyana is its own program on Creel, with Creel as a pinned submodule.** (Claude)
+Creel sits in `creel/` at a fixed commit, and Smyana has its own main program, data pack and
+reset code beside it. What Creel lacks is worked around in the game first and noted in
+`archive/engine/`, then moved into Creel by its own issue there. For Dominic to confirm.
+
+**D-025, 2026-11-10: The route is a file of legs, and the men leave a place together.** (Claude)
+`data/route.json` lists each leg: the place, the season, the edge the men walk in by and where
+each exit leads. A place is left when every living man stands in an exit gate, and a gate only
+counts once the men have walked clear of it after arriving. The letter home shows while the
+next place loads (D-020). Nobody is left behind by accident; whether a man can be left behind
+on purpose is open.
+
+**D-026, 2026-11-10: What the run carries and what a place remembers, for now.** (Claude)
+Carried: who is alive, each man's health and load, the hour, the day and the season. A place
+remembers its ground: stumps, wood left in a part-cut tree, wear. Needs, skills, carts, caches
+and dead animals join as those systems are made.
+
+**D-027, 2026-11-10: A place is at most 128 by 96 cells and 700 old trees.** (Claude, Proposal)
+The check fails a place over this budget. The two grey boxes are 96 by 64 with 171 and 261 old
+trees, and load in about 3 seconds at worst. The numbers are a first guess until the frame rate
+is measured on a real graphics card (#18).
+
+**D-028, 2026-11-10: Old trees can't be felled, young ones can, and crowns fade over the men.** (Claude)
+The giants are scenery and cover: a small trunk that blocks, a wide crown that doesn't, drawn
+faint wherever a man stands beneath it (a first answer to #7). Young trees are the wood: one
+felled tree is one man's load and leaves a stump. For Dominic to confirm.

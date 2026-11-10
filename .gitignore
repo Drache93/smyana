@@ -1,0 +1,3 @@
+bake_cache/
+memory_leaks.txt
+__pycache__/

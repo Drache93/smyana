@@ -1,0 +1,20 @@
+{
+ "_doc": "The named materials Creel's voxel bodies use. The men's .vox files bring most of their own colours; these are the ones the engine asks for by name. 'team' is the sash (the sprite shader recolours it; Smyana gives it the sash's own red).",
+ "skin": { "rgb": "#d9a27c" },
+ "pale": { "rgb": "#ebbf99" },
+ "mark": { "rgb": "#f0ebe0" },
+ "hair": { "rgb": "#3a2a20" },
+ "white": { "rgb": "#e6dfcd" },
+ "cloth": { "rgb": "#2e2925" },
+ "leather": { "rgb": "#6b4a2e" },
+ "wood": { "rgb": "#5a3a22" },
+ "metal": { "rgb": "#c8c8c0", "shine": 0.5 },
+ "coat": { "rgb": "#7a5236" },
+ "mane": { "rgb": "#3a2a20" },
+ "coat_mark": { "rgb": "#e0d6be" },
+ "frame": { "rgb": "#6b4a2e" },
+ "frame2": { "rgb": "#5a3a22" },
+ "trim": { "rgb": "#b03228" },
+ "wreck_rust": { "rgb": "#6a4630" },
+ "team": { "rgb": "#d91fd9" }
+}

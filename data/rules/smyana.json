@@ -1,0 +1,28 @@
+{
+ "_doc": "The one set of rules Smyana runs on. Most of these are Creel's match numbers, set so the parts of an RTS match Smyana doesn't use (bases, training, trade, bots) stay quiet. The ones that matter now: economy.carry (a man's load: felling one young tree fills it), gather_ticks, movement and trails.",
+ "id": "smyana",
+ "mode": "standard",
+ "animals": false,
+ "combat": {
+  "min_damage": 1, "acquire_every": 10, "defend_sight": 6, "counter_pull": 0, "leash": 12, "sight": 8,
+  "shot_lead_pct": 60, "shot_strays": 8, "shot_slack": 300, "melee_reach": 300, "melee_reload": 30, "ranged_reload": 100,
+  "shot_speed": 900, "heal_amount": 0, "heal_reload": 40, "heal_range": 2, "heal_sight": 6,
+  "shot_speeds": {}, "heal_not": [], "band_machine": "machine", "band_mounted": "mounted"
+ },
+ "high_ground": { "reach": 1000, "uphill_damage_pct": 75, "sight_unit": 1, "sight_building": 2 },
+ "fog": { "every": 4, "unit": 7, "worker": 7, "building": 4, "tower": 8 },
+ "economy": {
+  "start": { "wood": 0, "food": 0, "workers": 0, "buildings": [] },
+  "pop_max": 20,
+  "carry": 4,
+  "queue_max": 1,
+  "gather_ticks": { "wood": 60, "food": 40 },
+  "trade": { "min_tiles": 1, "sq_div": 1, "lin_pct": 0 }
+ },
+ "movement": {
+  "classes": [],
+  "terrain_speed": { "ground": { "ford": 60, "trail": 110 } }
+ },
+ "trails": { "every": 10, "add": 2, "max": 200, "decay_every": 100, "decay": 0, "trail": 30, "speed_pct": 10 },
+ "wonder": { "victory": false }
+}

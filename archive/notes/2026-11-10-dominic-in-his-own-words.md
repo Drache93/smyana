@@ -124,3 +124,11 @@ built from clearings. It isn't ours and isn't kept here; Smyana's look doesn't c
 
 **19:10**
 > Fixing a bridge, fording a river, landslide some of the environmental obsticals. For now landslide after the fact not a live event
+
+## The first runnable version
+
+**19:12**
+> Start a fable thread to start working through environment tasks and first runnable version
+
+**20:02** (after the session working on it was cut off part way)
+> Try again

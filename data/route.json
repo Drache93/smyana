@@ -1,0 +1,33 @@
+{
+ "_doc": "The run: the places in order, and which edge of each leads where (issue #4, D-020). A 'leg' is one visit to a place: the same place is a different leg on the way home, in another season, and it remembers what the men did there. 'exits' maps an edge of the place's map (its 'gates') to the next leg and the edge the men walk in by; an edge with no exit is closed. 'hours' is how long the walk between the two places takes on the clock. Only the first two places are grey-boxed so far, so the men turn round in the fir woods; the gorge, the ridge and the pass come later.",
+ "start": "beech_valley_out",
+ "start_edge": "west",
+ "start_hour": 7,
+ "day_minutes": 8,
+ "letter_seconds": 20,
+ "budget": {
+  "_doc": "How big one place may be, so it loads behind the letter home and stays light to draw: tiles across and down, and how many old trees.",
+  "width": 128, "height": 96, "old_trees": 700
+ },
+ "legs": {
+  "beech_valley_out": {
+   "place": "beech_valley", "name": "The beech valley", "season": "summer",
+   "exits": { "east": { "to": "fir_woods_out", "arrive": "west", "hours": 5, "letter": "first_night" } }
+  },
+  "fir_woods_out": {
+   "place": "fir_woods", "name": "The deep fir woods", "season": "autumn",
+   "exits": { "west": { "to": "beech_valley_home", "arrive": "east", "hours": 5, "letter": "turning_home" } }
+  },
+  "beech_valley_home": {
+   "place": "beech_valley", "name": "The beech valley, going home", "season": "spring",
+   "exits": { "west": { "to": "home", "arrive": "", "hours": 3, "letter": "almost_home" } }
+  },
+  "home": { "end": true, "name": "Home" }
+ },
+ "letters": {
+  "_doc": "PLACEHOLDERS written by Claude so the screen has words on it. The real letters are Dominic's to write or approve.",
+  "first_night": [ "My dear,", "We came down through the beech valley today. The stream was low and easy to cross.", "The trees here are older than the village. We look very small under them.", "Tomorrow the fir woods. I think of you at every fire." ],
+  "turning_home": [ "My dear,", "The firs are dark and close, and the nights are already cold.", "We have what we can carry. We are turning for home.", "Keep the lamp in the window." ],
+  "almost_home": [ "My dear,", "The beeches are in leaf again. We passed the stumps of the trees we cut on the way out.", "One more walk and I will see our roof.", "I am almost home." ]
+ }
+}

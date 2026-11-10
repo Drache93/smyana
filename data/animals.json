@@ -1,0 +1,6 @@
+{
+ "_doc": "No animals yet (wolves, bears and game are their own issues). Creel wants the file.",
+ "claim_tiles": 3,
+ "animals": {},
+ "spawn": { "near_start": [], "wild": [], "fixed": [] }
+}

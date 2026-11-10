@@ -1,0 +1,9 @@
+{
+ "_doc": "How the men hold their arms. 'hang' is the arms at rest, swinging as they walk (Creel needs it). The rifle and the tools have no holds yet (art/men/README.md): nothing is carried in the hand in this version.",
+ "holds": {
+  "hang": { "rest": [ 0.14, 0.08, -0.93 ], "dir": [ 0, 0.1, 1 ], "swing": 0.2 }
+ },
+ "loads": {},
+ "gear": {},
+ "parts": []
+}

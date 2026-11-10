@@ -1,0 +1,8 @@
+{
+ "id": "smyana",
+ "name": "Smyana",
+ "version": "0.1.0",
+ "depends": [],
+ "load_order": 0,
+ "data": "."
+}
