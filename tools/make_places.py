@@ -21,7 +21,7 @@ def noise1(rng, n, step):
     return out
 
 
-def place(pid, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, young_clumps, clearings, rocks):
+def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, young_clumps, clearings, rocks):
     rng = random.Random(seed)
     g = [["."] * w for _ in range(h)]
 
@@ -91,6 +91,9 @@ def place(pid, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, young_cl
         # Smyana's own: where the men walk off this place (tile rectangles x0, y0, x1, y1), by edge name. route.json
         # says where each edge leads.
         "gates": gates,
+        # which trees stand here and which ground lies under them: beech (broadleaves at their whole height),
+        # conifer (pine and spruce at their whole height), deep (the high dark woods: trunks running up out of sight)
+        "wood": wood,
         "rows": ["".join(r) for r in g],
     }
     with open("data/maps/%s.json" % pid, "w") as f:
@@ -103,8 +106,8 @@ def place(pid, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, young_cl
 
 
 # The beech valley (the first place, and the last before home): open old beech wood, a stream, meadows.
-place("beech_valley", 1878, 96, 64, west_y=33, east_y=28, stream_x=52, old_gap=4.2, old_fill=0.5, young_clumps=26,
-      clearings=[(9, 33, 6), (70, 24, 7)], rocks=[(30, 12, 3), (61, 50, 4), (84, 40, 2)])
+place("beech_valley", "beech", 1878, 96, 64, west_y=33, east_y=28, stream_x=52, old_gap=2.9, old_fill=0.7, young_clumps=26,
+      clearings=[(9, 33, 6), (30, 36, 5), (70, 24, 8)], rocks=[(30, 12, 3), (61, 50, 4), (84, 40, 2)])
 # The deep fir woods: closer, darker, more rock, no stream. (Drawn with the same trees for now.)
-place("fir_woods", 1879, 96, 64, west_y=28, east_y=36, stream_x=-1, old_gap=3.4, old_fill=0.6, young_clumps=34,
+place("fir_woods", "deep", 1879, 96, 64, west_y=28, east_y=36, stream_x=-1, old_gap=2.1, old_fill=0.9, young_clumps=34,
       clearings=[(48, 30, 5)], rocks=[(20, 44, 4), (40, 14, 3), (66, 20, 5), (78, 50, 3)])

@@ -54,6 +54,7 @@ let shot = arg_of("shot")
 let shot_at = if arg_of("at") != "": string_to_float(arg_of("at")) else: 4.0
 let script = arg_of("script")  // "tour": the men walk the whole route by themselves (captures, and timing the loads)
 let debug_line = has_s(args, "debug")
+season_force = arg_of("season")  // season:autumn: this place in another season, for a look
 let shots_dir = arg_of("shots")  // a picture every few seconds into this folder (with script:tour)
 var shots_n = 0
 var shots_next = 3.0
@@ -78,8 +79,10 @@ def men_centre() -> float2:
 // ------------------------------------------------------------------ what the view remembers of a place
 
 class Prop:
-    kind:int  // 0 an old giant, 1 a young tree, 2 a stump
+    kind:int  // 0 an old tree, 1 a young tree, 2 a stump, 3 a rock outcrop, 4 loose slabs
     pick:int  // which of its shapes
+    name:string  // its picture (an old tree's trunk; a young beech's without its season)
+    sp:string  // an old tree's kind: beech, pine, spruce
     at:float2  // its foot, art px
     cell:int
 
@@ -97,43 +100,75 @@ var view_load_s = 0.0  // how long the last place took to load, the view's part 
 
 def cell_hash(c:int) -> int: return ((c * 2654435761) >> 7) & 0xFFFF
 
+// Which trees stand in this place (the map's "wood": beech or conifer), picked per cell.
+// (deep: the high dark woods, where the trunks run up out of sight and only the understorey is a tree's whole height)
+def old_kind(wood:string, pick:int) -> string, int:
+    let r = (pick / 3) % 8
+    var sp = if r < 4: "beech" elif r < 6: "oak" elif r < 7: "hornbeam" else: "pine"
+    if wood == "deep": sp = if r < 6: "tall" elif r < 7: "beech" else: "hornbeam"
+    if wood == "conifer": sp = if r < 5: "spruce" elif r < 7: "pine" else: "beech"
+    return sp, pick % (if sp == "pine": PINE_KINDS else: 3)
+
+def leafy(sp:string) -> bool: return sp == "beech" or sp == "oak" or sp == "hornbeam"
+
 def build_props():
     props = []
     props_version = map_version
+    let wood = gstr(su_map, "wood", "beech")
     let old = str_index(tr_names, "tree")
     let young = str_index(tr_names, "young_tree")
     let stump = str_index(tr_names, "stump")
+    let rock = str_index(tr_names, "rock")
+    let grass = str_index(tr_names, "grass")
     for(terrain) t, c:
-        if t == old or t == young or t == stump:
-            let h = cell_hash(c)
-            // (not dead centre: a wood isn't planted in rows)
-            let x = float((c % W) * 1000 + 500 + (h % 400) - 200)
-            let y = float((c / W) * 1000 + 500 + ((h / 400) % 400) - 200)
-            props.push(Prop { if t == old: 0 elif t == young: 1 else: 2, h / 7, if t == old: iso(x, y) else: iso(float((c % W) * 1000 + 500), float((c / W) * 1000 + 500)), c })
+        let h = cell_hash(c)
+        let centre = iso(float((c % W) * 1000 + 500), float((c / W) * 1000 + 500))
+        // (not dead centre: a wood isn't planted in rows)
+        let off = iso(float((c % W) * 1000 + 500 + (h % 400) - 200), float((c / W) * 1000 + 500 + ((h / 400) % 400) - 200))
+        if t == old:
+            let sp, k = old_kind(wood, h / 7)
+            props.push(Prop { 0, k, "{sp}{k}", sp, off, c })
+        elif t == young:
+            let fir = wood != "beech" and (h / 7) % 4 != 0
+            props.push(Prop { 1, h / 7, if fir: "yspruce{(h / 7) % YOUNG_KINDS}" else: "young{(h / 7) % YOUNG_KINDS}", if fir: "spruce" else: "beech", centre, c })
+        elif t == stump: props.push(Prop { 2, 0, "stump", "", centre, c })
+        elif t == rock: props.push(Prop { 3, 0, "rock{(h / 7) % ROCK_KINDS}", "", off, c })
+        elif t == grass and (h / 11) % 3 == 0:
+            // slabs lie loose beside the rock they split from
+            let x = c % W
+            let y = c / W
+            var by_rock = false
+            for([ -1, 1, -W, W ]) d:
+                let n = c + d
+                if n >= 0 and n < W * H and abs(n % W - x) <= 1 and terrain[n] == rock: by_rock = true
+            if by_rock and y >= 0: props.push(Prop { 4, 0, "slabs{(h / 7) % SLAB_KINDS}", "", off, c })
 
 // Leaf litter on the ground under the giants: Creel's ground shader lays its forest floor where prop_tex's red is
 // strong, and its own masks only make it so in a solid wood, not under one great tree. So after build_masks, the
 // litter is painted here: full under each giant's crown, fading out at its edge.
-let LITTER_REACH = 2.4  // tiles
+let LITTER_REACH = 1.5  // tiles
 
 def build_litter():
     let w = W * MASK_K
     let h = H * MASK_K
     let a = map(w * h): 0.0
-    let r = int(LITTER_REACH * float(MASK_K)) + 1
+    let r = int(LITTER_REACH * 3.2 * float(MASK_K)) + 1
     for(props) pr:
-        if pr.kind != 1:
-            let reach = if pr.kind == 0: LITTER_REACH else: 0.8
+        if pr.kind == 0 or pr.kind == 2:
+            let reach = (if pr.kind == 0: (if leafy(pr.sp): LITTER_REACH else: 1.0) else: 0.6) * (if season_now() == "autumn" and leafy(pr.sp): 1.9 else: 1.0) * (0.8 + 0.4 * float(cell_hash(pr.cell) % 100) / 100.0)
             let cx = float(pr.cell % W) + 0.5
             let cy = float(pr.cell / W) + 0.5
+            let lobe = float(cell_hash(pr.cell) % 360)
             let sx = int(cx * float(MASK_K))
             let sy = int(cy * float(MASK_K))
             for(r * 2 + 1) dy: for(r * 2 + 1) dx:
                 let x = sx + dx - r
                 let y = sy + dy - r
                 if x >= 0 and y >= 0 and x < w and y < h:
-                    let d = magnitude(float2 { (float(x) + 0.5) / float(MASK_K) - cx, (float(y) + 0.5) / float(MASK_K) - cy }) / reach
-                    let v = clamp((1.0 - d) * 2.2, 0.0, 0.85)
+                    let o = float2 { (float(x) + 0.5) / float(MASK_K) - cx, (float(y) + 0.5) / float(MASK_K) - cy }
+                    // (ragged: leaves drift, they don't fall in a ring)
+                    let d = magnitude(o) / (reach * (1.0 + 0.28 * sin(atan2(o) * 3.0 + lobe) + 0.15 * sin(atan2(o) * 7.0 + lobe * 2.0)))
+                    let v = clamp((1.0 - d) * 1.3, 0.0, 0.85)
                     if v > a[y * w + x]: a[y * w + x] = v
     prop_tex = gl.create_texture(map(h) y: map(w) x: float4 { a[y * w + x], 0.0, 0.0, 0.0 }, texture_format_clamp | texture_format_nomipmap)
     ground_stale = true
@@ -150,6 +185,8 @@ def view_enter(between):
     man_walked.clear()
     selected = []
     if run_over(): return
+    // the ground's own textures: a beech wood's leaf litter and grass, or a conifer wood's needles and moss
+    ground_atlas_tex = gl.load_texture("../data/ground/atlas" + (if gstr(su_map, "wood", "beech") != "beech": "_conifer" else: "") + (if season_now() == "autumn": "_autumn" else: "") + ".png", texture_format_clamp | texture_format_nomipmap | texture_format_nearest_mag | texture_format_nearest_min)
     build_masks()
     build_wear()
     bake_season(season_now(), between)
@@ -239,12 +276,12 @@ def collect_men(alpha:float):
             eyes.push(p - float2 { 0.0, 16.0 })
 
 // How much of a giant's crown shows: it thins out over any man it would hide.
-def crown_fade(foot:float2) -> float:
-    let c = foot - float2 { 0.0, CROWN_UP * ART_UP }
-    let r = CROWN_REACH * 68.0
+def crown_fade(foot:float2, sp:string) -> float:
+    let c = foot - float2 { 0.0, crown_up(sp) * ART_UP }
+    let r = crown_reach(sp) * 68.0
     var least = 1.0
     for(eyes) e:
-        let d = magnitude(float2 { (e.x - c.x) / r, (e.y - c.y) / (r * 0.8) })
+        let d = magnitude(float2 { (e.x - c.x) / r, (e.y - c.y) / (r * (if leafy(sp): 0.8 else: 1.6)) })
         least = min(least, clamp((d - 0.8) / 0.45, 0.07, 1.0))
     return least
 
@@ -252,20 +289,26 @@ def collect_props():
     let season = season_now()
     let bare = season == "winter"
     for(props) pr:
-        if pr.at.x > view_lo.x - 400.0 and pr.at.x < view_hi.x + 400.0 and pr.at.y > view_lo.y - 100.0 and pr.at.y < view_hi.y + 520.0:
+        if pr.at.x > view_lo.x - 250.0 and pr.at.x < view_hi.x + 250.0 and pr.at.y > view_lo.y - 100.0 and pr.at.y < view_hi.y + 620.0:
             if pr.kind == 0:
-                let k = pr.pick % OLD_KINDS
-                add(frame_at.get("old{k}.shadow", -1), pr.at.x, pr.at.y, -40000.0, float4_1)
-                add(frame_at.get("old{k}", -1), pr.at.x, pr.at.y, pr.at.y, float4_1)
-                if not bare:
-                    add(frame_at.get("old{k}.crown.{season}.shadow", -1), pr.at.x, pr.at.y, -39999.0, float4_1)
-                    add(frame_at.get("old{k}.crown.{season}", -1), pr.at.x, pr.at.y, pr.at.y + 0.2, float4_1, crown_fade(pr.at))
+                add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -40000.0, float4_1)
+                add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1)
+                let crown = if pr.sp == "tall": "spruce{pr.pick}.crown.ever" else: pr.name + ".crown." + (if leafy(pr.sp): season else: "ever")
+                if pr.sp == "tall":
+                    // its crown is out of sight overhead: only its shade reaches the ground
+                    add(frame_at.get(crown + ".shadow", -1), pr.at.x, pr.at.y, -39999.0, float4_1)
+                elif not leafy(pr.sp) or not bare:
+                    add(frame_at.get(crown + ".shadow", -1), pr.at.x, pr.at.y, -39999.0, float4_1)
+                    add(frame_at.get(crown, -1), pr.at.x, pr.at.y, pr.at.y + 0.2, float4_1, crown_fade(pr.at, pr.sp))
             elif pr.kind == 1:
-                let name = "young{pr.pick % YOUNG_KINDS}." + (if bare: "bare" else: season)
+                let name = if pr.sp == "spruce": pr.name else: pr.name + "." + (if bare: "bare" else: season)
                 add(frame_at.get(name + ".shadow", -1), pr.at.x, pr.at.y, -39998.0, float4_1)
                 add(frame_at.get(name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1)
-            else:
+            elif pr.kind == 2:
                 add(frame_at.get("stump", -1), pr.at.x, pr.at.y, pr.at.y, float4_1)
+            else:
+                add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39997.0, float4_1)
+                add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1)
 
 // An ellipse on the ground (2:1) round p.
 def draw_ring(p:float2, r:float, col:float4):
@@ -490,7 +533,7 @@ lib_load("../data")
 route_load()
 atmo_data = lib_data("atmosphere.json")
 for(atmo_problems(atmo_data)) why: print why
-zoom = max(1.0, floor(float(gl.window_size().y) / 600.0 * 4.0) / 4.0)
+zoom = max(1.0, floor(float(gl.window_size().y) / 450.0 * 4.0) / 4.0)
 
 // A frame of words while something long is made (the first start bakes the men and the trees).
 var waiting_lines = [ "Smyana" ]
@@ -507,7 +550,11 @@ let boot0 = seconds_elapsed()
 bake_men(): waiting_frame()
 bake_trees(): waiting_frame()
 run_begin()
+if arg_of("leg") != "": enter_leg(arg_of("leg"), "west")  // leg:<id>: start at this leg of the route, for a look
 view_enter(): waiting_frame()
+if arg_of("look") != "":  // look:<x>,<y>: the camera on this tile
+    let xy = tokenize(arg_of("look"), ",", " ")
+    cam = iso(string_to_float(xy[0]) * 1000.0, string_to_float(xy[1]) * 1000.0)
 print "start: {seconds_elapsed() - boot0} s (men baked in {men_bake_s} s, trees in {trees_bake_s} s; 0: read from bake_cache/)"
 
 // ------------------------------------------------------------------ the loop
@@ -579,7 +626,7 @@ while gl.frame():
             paused = false
             set_phase(if run_over(): "end" else: "arriving")
     if drawing():
-        gl.clear(float4 { 0.03, 0.03, 0.025, 1.0 })
+        gl.clear(float4 { 0.035, 0.055, 0.04, 1.0 })
         gl.blend(1)
         if phase == "letter":
             draw_lines(letter, phase_t, int(float(gl.window_size().y) / 34.0))

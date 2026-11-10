@@ -130,3 +130,24 @@ is measured on a real graphics card (#18).
 The giants are scenery and cover: a small trunk that blocks, a wide crown that doesn't, drawn
 faint wherever a man stands beneath it (a first answer to #7). Young trees are the wood: one
 felled tree is one man's load and leaves a stump. For Dominic to confirm.
+
+**D-029, 2026-11-10: A place says how big its trees are.** (Dominic; Claude worked out how)
+The mock-ups have places with normal RTS-sized trees and places where the trees fade off to the
+sky. So each map names its wood: whole trees about five or six men tall, or a deep wood whose
+trunks run up out of sight with only understorey at full height. This supersedes the giant
+size in D-028; crowns still fade over the men. Old trees still can't be felled.
+
+**D-030, 2026-11-10: The tree kinds come from Dominic's list of the Rhodopes' trees.** (Dominic)
+Conifers of the high woods: Norway spruce, Scots and black pine, silver fir, dwarf mountain
+pine on the summits. Broadleaves of the valleys: oaks, beech, hornbeam, ash, and by the rivers
+plane, alder and willow, with maple, lime, wild pear and elm. The full list is in his words in
+the notes. Made so far: beech, oak, hornbeam, Scots pine, spruce and fir.
+
+**D-031, 2026-11-10: Autumn is the game's poster season.** (Dominic)
+"Autumn the red, oranges and yellows are Soooo rich. Huge part of the games mood." Autumn gets
+the richest colour in the leaves and on the ground, and is what the game is shown with.
+
+**D-032, 2026-11-10: The rock is the region's building stone, shown as flat slabs.** (Dominic: the rocks are key to house building; Claude: gneiss, Proposal)
+Outcrops stand as stacked flat beds, and loose slabs lie beside them, because this is the stone
+the walls and roofs at home are made of. That it is warm grey gneiss is Claude's reading and
+needs Dominic's check.

@@ -132,3 +132,40 @@ built from clearings. It isn't ours and isn't kept here; Smyana's look doesn't c
 
 **20:02** (after the session working on it was cut off part way)
 > Try again
+
+## The trees, the ground and the rock
+
+After seeing the first runnable version (its trees were about thirteen men tall):
+
+**20:25**
+> Those trees are crazy size. Need to keep to the designs
+
+**20:25**
+> Most importantly correct trees and ground and rocks for the region. The rocks in that region are key to house building etc
+
+**20:30**
+> Also mockup has some locations with "normal RTS sized" trees. And other times (per our planned work) trees fading off to the sky
+
+**20:31**
+> Coniferous Trees (Evergreens)
+>
+> Mostly found in the higher and cooler Western Rhodopes:
+> • Norway Spruce (Picea abies)
+> • Scots Pine & Black Pine (Pinus sylvestris & Pinus nigra)
+> • Silver Fir (Abies alba)
+> • Dwarf Mountain Pine (Pinus mugo - on high summits)
+>
+> Deciduous Trees (Broadleaved)
+>
+> Widespread across lower altitudes, river valleys, and the Eastern Rhodopes:
+> • Oaks: Downy oak (Quercus pubescens), sessile oak, Hungarian oak (Quercus frainetto)
+> • Beech: European beech (Fagus sylvatica) and Eastern beech (Fagus orientalis)
+> • Hornbeam: Oriental hornbeam (Carpinus orientalis) and common hornbeam
+> • Ash: Flowering ash (Fraxinus ornus)
+> • Other Broadleaved & Riparian Trees: Oriental plane (Platanus orientalis along riverbanks), maples, limes, black alder, white willow, wild pear, and elm
+
+**20:32**
+> Autumn the red, oranges and yellows are Soooo rich. Huge part of the games mood
+
+**20:32**
+> Autumn should most likely be the poster boy for the game
