@@ -162,3 +162,25 @@ our men, before more systems.
 
 **D-035, 2026-11-10: Trees are designed in 2D from real photos first, then made as vox.** (Dominic)
 The same order as the men: a design sheet, his sign-off, then the voxel model.
+
+**D-037, 2026-11-10: The light is a low afternoon sun, and its shadows join into one deep shade.** (Dominic: picture 23 is the target; Claude: how, Proposal)
+The art is baked under a sun 26 degrees up, so everything casts long shadows the same way. The
+shadows are drawn into one shade that whatever stands in it shares, and the lit ground takes a
+warm sun colour; places with a lot of shade round them go darker and greyer, so a lit clearing
+stands out of dark woods. Rays run through the gaps and mist lies in the shade. All of it is in
+`data/atmosphere.json`, per mood.
+
+**D-038, 2026-11-10: The campfire is only for a look until fire is part of the game.** (Claude)
+`camp:<x>,<y>` puts the men round a fire to check its light. Fire as a system (feeding the men,
+drawing danger) is still to come and will use the same fire and glow.
+
+**D-040, 2026-11-10: Shadows are a normal, soft shade, not long dark ones.** (Dominic)
+"Design the shadows at much less dark. Normal show shade basically." Supersedes D-037's low sun
+and deep shade: the sun stands at 40 degrees and the shade is a light multiply in every mood.
+The shadows still join into one shade where they overlap.
+
+**D-041, 2026-11-10: Everything crisp and sharp.** (Dominic)
+"Biggest difference with the design is evryhting crisp and sharp." Shadows have hard pixel
+edges; the rays, mist in the shade and darker-woods layers are off (they smudged); haze and bloom
+are light; the voxel baker's per-voxel light jitter is turned down and leaves get four hard bands.
+D-040's "soft" meant light, not blurred.
