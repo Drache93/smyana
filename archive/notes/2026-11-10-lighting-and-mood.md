@@ -42,3 +42,5 @@ blur Claude added. The target is crisp: hard-edged light shade, sharp art.
 ## On the crisp pass (22:00)
 
 > Much closer!
+
+> Shadows very close now. Unsure if lighting work needed still until the ground texture and bushes are done
