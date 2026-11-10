@@ -144,6 +144,8 @@ def beech(height, girth, bole, spread, boughs, seed):
     for tip in tips:
         cling = rng.random() < 0.4
         dabs(m, tip, 2.6 * F, 10 if cling else 13, cling, rng)
+        # (summer's body: more leaves round each twig's end, none of which outlast the fall)
+        dabs(m, tip + np.array([rng.gauss(0, 1), rng.gauss(0, 1), rng.uniform(-0.2, 0.8)]) * 3.0 * F, 3.4 * F, 16, False, rng)
     return m
 
 

@@ -170,3 +170,10 @@ the young spruces are built as fine as the vox trees. The deep fir woods have sl
 quarter to a third of a man wide as in their mock-up, and stand closer.
 
 ![The deep fir woods](../images/2026-11-10/51-deep-fir-woods-slim-dark-trunks.png)
+
+Summer in the same style: the crowns fuller (more leaves round each twig's end, which fall in autumn), and the crown's
+fade over the men (#7) set to the new, smaller beech.
+
+![Summer](../images/2026-11-10/52-beech-wood-summer-new-style.png)
+
+![Autumn](../images/2026-11-10/53-beech-wood-autumn-new-style.png)

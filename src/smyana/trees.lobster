@@ -73,8 +73,8 @@ def gneiss_look() -> vglook:
                     true, false, false }
 
 // Where a tree's crown is centred over its foot, and how far it spreads (tiles): what fades over a man.
-def crown_up(sp:string) -> float: return if sp == "beech": 2.3 elif sp == "oak": 1.7 elif sp == "hornbeam": 1.5 elif sp == "pine": 2.6 else: 1.9
-def crown_reach(sp:string) -> float: return if sp == "beech": 1.5 elif sp == "oak": 1.4 elif sp == "hornbeam": 0.85 elif sp == "pine": 0.8 else: 0.7
+def crown_up(sp:string) -> float: return if sp == "beech": 1.35 elif sp == "oak": 1.7 elif sp == "hornbeam": 1.5 elif sp == "pine": 2.6 else: 1.9
+def crown_reach(sp:string) -> float: return if sp == "beech": 0.8 elif sp == "oak": 1.4 elif sp == "hornbeam": 0.85 elif sp == "pine": 0.8 else: 0.7
 
 // A broadleaf's build: fork height from..to, bough reach from..to, trunk radius, a leaf layer's radius, how flat it is.
 def leaf_build(sp:string) -> [float]:
