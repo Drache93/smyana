@@ -34,6 +34,7 @@ New options for a look: `hour:<h>`, `zoom:<z>` and `camp[:x,y]`.
 - D-037: The light is a low afternoon sun, and its shadows join into one deep shade (Proposal).
 - D-038: The campfire is only for a look until fire is part of the game.
 - D-040: Shadows are a normal, soft shade (Dominic), superseding the deep shade of D-037.
+- D-041: Everything crisp and sharp: hard-edged shade, no smudging layers, little dither (Dominic).
 
 ## Pictures
 ![Before: the flat day](../images/2026-11-10/60-light-before-flat-day.jpg)
@@ -79,3 +80,22 @@ thread's new trees (PR #25) merged in locally, since those are the trees that wi
 
 ![Lighter shade, a closer wood, the target on the left](../images/2026-11-10/56-lighter-shade-closer-wood-beside-the-target.jpg)
 ![The same at dusk](../images/2026-11-10/57-lighter-shade-dusk-beside-the-target.jpg)
+
+## Third pass: crisp and sharp
+Dominic: the overlaps looked like "bug smudges", and the biggest difference from the design is that
+"evryhting crisp and sharp" ([his words](../notes/2026-11-10-lighting-and-mood.md#on-the-second-pass-2154-and-2155)).
+Claude rendered the frame with each layer switched on alone (picture 73). The rays, the mist in
+the shade and the darker-woods ring made the smudges, so all three are off in every mood. The
+shade buffer is now full size, sampled pixel for pixel with no blur, so shadow edges are hard.
+The haze is about half as strong, and the bloom is half too.
+
+It was partly the engine as well. Creel's voxel baker jitters every voxel's light before banding
+it, which speckles every edge between tones: Age of Anything's painterly look. That jitter is now a
+setting (`dither` in `atmosphere.json`'s `sun`, 0.15 for Smyana), and leaves get four hard bands of
+light instead of five. The trees thread also now bakes one voxel to one art pixel (PR #25).
+
+Pictures 58 and 59 were rendered with PR #25 merged in locally.
+
+![Crisp, hard and light, the target on the left](../images/2026-11-10/58-crisp-hard-light-shade-beside-the-target.jpg)
+![The same at dusk](../images/2026-11-10/59-crisp-dusk-beside-the-target.jpg)
+![Bug: each layer alone, smudges from the rays, mist and woods](../images/2026-11-10/73-bug-smudges-rays-mist-woods.jpg)

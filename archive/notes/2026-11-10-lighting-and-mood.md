@@ -29,3 +29,12 @@ wherever it stands in the way.
 
 Summary (Claude): the shadows should be an ordinary soft shade, not long black stretches. The
 comparison needs a wood as close as the mock-up's.
+
+## On the second pass (21:54 and 21:55)
+
+> Yeh o was right. Totally bugged. Overlapping loog like bug smudges
+
+> Should be harder edged too. Biggest difference with the design is evryhting crisp and sharp. Our new stuff is looking soft so far, engine issue?
+
+Summary (Claude): the smudges were Claude's air and woods layers, and the soft shadow edges were a
+blur Claude added. The target is crisp: hard-edged light shade, sharp art.

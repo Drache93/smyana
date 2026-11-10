@@ -178,3 +178,9 @@ drawing danger) is still to come and will use the same fire and glow.
 "Design the shadows at much less dark. Normal show shade basically." Supersedes D-037's low sun
 and deep shade: the sun stands at 40 degrees and the shade is a light multiply in every mood.
 The shadows still join into one shade where they overlap.
+
+**D-041, 2026-11-10: Everything crisp and sharp.** (Dominic)
+"Biggest difference with the design is evryhting crisp and sharp." Shadows have hard pixel
+edges; the rays, mist in the shade and darker-woods layers are off (they smudged); haze and bloom
+are light; the voxel baker's per-voxel light jitter is turned down and leaves get four hard bands.
+D-040's "soft" meant light, not blurred.

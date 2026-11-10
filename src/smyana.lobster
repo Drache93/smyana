@@ -244,7 +244,11 @@ def sun_from_data():
     let toward = normalize(float2 { -fall.x, 2.0 * fall.y })
     vx_SUN = normalize(float3 { toward.x, toward.y, tan(elev) })
     atmo_sun_dir = normalize(float2 { -fall.x, fall.y })  // (towards the sun, y up)
-    bake_light = "sun {elev}"
+    // crisp art (Dominic: "evryhting crisp and sharp" in the mock-ups): little jitter in the voxels' light, and a leaf's
+    // light in four hard bands
+    vg_dither = gfloat(sun, "dither", 1.0)
+    vg_leaf_tones = gfloat(sun, "leaf_tones", 5.0)
+    bake_light = "sun {elev} {vg_dither} {vg_leaf_tones}"
 
 def mood_tick():
     var m = mood_now()
@@ -397,7 +401,7 @@ def draw_world(alpha:float):
     if shading:
         atmo_shade_begin()
         gl.blend(blend_none)
-        gl.scale(0.5):
+        if true:
             gl.translate(ws / 2.0):
                 gl.scale(zoom):
                     gl.translate(-cam_px):
