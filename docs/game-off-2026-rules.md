@@ -43,7 +43,7 @@ Anything taken only from the 2024 FAQ is marked *(2024 FAQ)*. Those points shoul
 ### Conflicts and risks
 
 1. **Time: 21 days left.** The deadline is 1 December at 21:37 UTC, and today is 10 November. The plans are large: a one-hour run, giant multi-tile trees, a season clock, three enemy AIs, an orchestral intro, 30 to 40 minutes of music, Bulgarian voice acting, recorded singers and a homecoming cutscene. **Decision (Dominic, 2026-11-10): keep the full scope and aim to finish by 1 December.** The tightest part is anything that depends on other people, like hiring and recording remote soloists and voice actors, so start those early. Each one has a fallback (the original theme sung solo, sampled instruments, subtitles).
-2. **"Most of the work during the jam" and Age of Anything.** Creel as an engine is fine. Game content reused from Age of Anything (voxel units, tree models, art) is a grey area: if much of what players see is lifted from the earlier game, it can look like an old project changed a little. Keep the line clear: the engine is reused, the game content is new, and the archive says which is which.
+2. **"Most of the work during the jam" and Age of Anything.** Creel as an engine is fine. Game content reused from Age of Anything (voxel units, tree models, art) is a grey area: if much of what players see is lifted from the earlier game, it can look like an old project changed a little. Keep the line clear: the engine is reused, the game content is new, and the archive says which is which. **Resolved (Dominic, 2026-11-10):** very little Age of Anything art, if any, goes into Smyana. The trees, forest and foliage, and almost all the other art, are made new in November. The Bulgarian builder designed early in the jam to test the new look was made for Smyana, even if it's later reused in Age of Anything.
 3. **The public repo must build.** Creel currently lives inside the Age of Anything repo (`Casaide/age-of-whatever`). **Resolved (Dominic, 2026-11-10):** Creel is being split out into its own public repo on 11 November. Smyana's repo should then link it as a submodule or a pinned version, so anyone can build the game.
 4. **Commercial sample libraries.** Sounds rendered from Strezov or LibreWave libraries can go in the repo as finished audio, but the libraries themselves can't. Check each library's licence about putting rendered audio in a public repo. Sound effects from Freesound need their CC credits in the repo.
 5. **Platform: make sure people can play it.** There's no platform rule, but entrants vote on what they can play, and many play only in the browser. **Dominic (2026-11-10):** a WebAssembly build is believed possible but needs testing. It's nice to have, not required. Test it early, because a browser build can change what the game can afford (memory, loading and audio size). If it doesn't work, ship Windows, macOS and Linux downloads, and say whether it runs on Steam Deck.
@@ -67,7 +67,12 @@ In his words, as dictated:
 - **Creel:** split into its own public repo on 11 November.
 - **Browser:** try a WebAssembly build. If it doesn't work, that's fine.
 
+Later the same day, on Age of Anything art:
+
+> Yes, the majority of the work will be done in November. We have started in the game engine, obviously redoing the lighting and stuff. But all the trees, the forest, the foliage, I mean, everything is going to be done in November, and it's not going to be from Age of Anything. I think very little art will come from Age of Anything, if any. It'll be primarily newly made, but all the trees and stuff will all be replaced. On that note, if you haven't already added it into the archive, the Bulgarian man that we designed also needs to go into the archive as the first step that we did. Well, not the very first step, but yeah, one of the first stages we did. And yeah, although that stage, we might reuse that art in Age of Anything, it was of course created specifically for testing for this, for how the art would look in the new game.
+
+- **Art:** primarily new, made in November. Very little from Age of Anything, if any.
+
 ## Still open
 
-- Does any Age of Anything art go into the jam build, and if so, how much?
 - Test the WebAssembly build.

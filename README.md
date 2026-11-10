@@ -40,4 +40,4 @@ Dominic, mostly by voice note, and those are kept in the archive in his own word
 [first voice memos](archive/notes/2026-11-10-voice-memo-transcripts.md) and
 [everything he said on day one](archive/notes/2026-11-10-dominic-in-his-own-words.md).
 
-![The route: Roman ruins in the gorge](archive/images/2026-11-10/10-route-roman-ruins.jpg)
+![The route: Roman ruins in the gorge](archive/images/2026-11-10/22-route-roman-ruins.jpg)

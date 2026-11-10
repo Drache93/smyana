@@ -76,3 +76,8 @@ Why: enough to cover the journey, the Roman ruins and the Ottomans in the pass p
 Why: so much of the game is made with AI that it matters to show where the direction, feel and
 mood come from: the human behind it. Audio goes in `audio/`, text in `notes/`, and summaries
 sit alongside, never instead. See [the statement in the archive README](README.md#why-this-archive-matters).
+
+**D-018, 2026-11-10: Almost all of Smyana's art is made new in November.** (Dominic)
+The trees, the forest and the foliage are all replaced, and very little art, if any, comes from
+Age of Anything. The engine work (the lighting moods first) has already started. The Bulgarian
+man was the first art test made for Smyana, even if Age of Anything may reuse him.
