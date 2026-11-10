@@ -208,3 +208,12 @@ slabs in it (`slide` in `tools/make_places.py`), found after it has happened. Th
 only a look and a blocked way so far: nothing to clear or climb, and it is the same on the way home.
 
 ![The landslide across the trail](../images/2026-11-10/72-landslide-across-the-fir-woods-trail.png)
+
+Dominic, in the lighting thread: "Should be harder edged too. Biggest difference with the design is evryhting crisp
+and sharp. Our new stuff is looking soft so far, engine issue?" One cause was in the trees: they were baked at 112
+voxels a tile and stretched to the screen, while the men are one voxel to one pixel of Creel's art (135.76 a tile). Now
+every tree, rock and plant is baked at the men's fineness. A .vox model can't be more than 256 voxels a side, so the
+big trees are saved in pieces (`<name>.cXYZ.vox`). The baker's per-voxel dither and the screen's haze are being looked
+at in the lighting thread.
+
+![Trees at the men's fineness](../images/2026-11-10/73-trees-at-the-mens-fineness.png)

@@ -7,8 +7,10 @@
 // seen. The leaves are baked once a season (their colour), behind the letter home, and kept in bake_cache/.
 
 let TREE_K = 64.0  // voxels a tile for the load of wood (baked at twice this)
-let TREE_BAKE = "trees 20"
-let VOX_K = 112.0   // voxels a tile in the .vox trees: nearly twice as fine as the rest, so twigs and leaves are crisp
+let TREE_BAKE = "trees 21"
+// Voxels a tile in the trees, rocks and undergrowth: one voxel is one pixel of Creel's art (WB_PX at its art scale of
+// 3), as the men's are, so they are as crisp as the men (Dominic, 2026-11-10: "evryhting crisp and sharp").
+let VOX_K = 135.7645
 // The baker's light, shade and occlusion reach a few of the grid's units. A grid here is built in tiles, far too big a
 // unit (everything shaded flat), so before a grid is drawn its unit is made a sixteenth of a tile.
 let LIGHT_UNITS = 16.0
@@ -135,10 +137,23 @@ def tree_stump(look:vglook) -> vgrid:
 def vox_name(sp:string, kind:int) -> string: return sp + [ "_old_0", "_old_1", "_mature_0" ][kind]
 var vox_feet = []::string  // art/trees/vox/feet.txt, in tokens: name, x, y, ...
 
+// A model's pieces (a .vox model is 256 voxels a side at most: tools/tree_vox.py saves a bigger tree in pieces).
+def vox_pieces(name:string) -> [string], [int3]:
+    let files = []
+    let offs = []
+    for(2) z: for(2) y: for(2) x:
+        let f = read_file("../art/trees/vox/{name}" + (if x + y + z == 0: "" else: ".c{x}{y}{z}") + ".vox")
+        if f:
+            files.push(f)
+            offs.push(int3 { x, y, z } * 256)
+    return files, offs
+
 def vox_tree_text() -> string:
     var t = read_file("../art/trees/vox/feet.txt") or ""
     let names = tokenize(t, " \n", "")
-    for(names.length / 3) i: t += sha256_text(read_file("../art/trees/vox/{names[i * 3]}.vox") or "")
+    for(names.length / 3) i:
+        let files = vox_pieces(names[i * 3])
+        for(files) f: t += sha256_text(f)
     return sha256_text(t)
 
 // leaves: the model's leaves alone, or its wood alone.
@@ -147,16 +162,22 @@ def vox_tree(look:vglook, name:string, leaves:bool, cling:bool = false) -> vgrid
     let at = find(vox_feet): _ == name
     assert at >= 0
     let foot = int3 { string_to_int(vox_feet[at + 1]), string_to_int(vox_feet[at + 2]), 0 }
-    let f = vox_parse(assert read_file("../art/trees/vox/{name}.vox"))
-    assert f.error == "" and f.models.length == 1
-    let m = f.models[0]
-    let g = vg_new(look, float(int3_0 - foot - int3_1) / VOX_K, float(m.size - foot + int3_1) / VOX_K, VOX_K, 2000 + at)
-    for(m.xyz) p, i:
-        let idx = m.idx[i]
-        let q = p - foot - g.lo
-        // (13, 14: the leaves that cling after leaf-fall; cling: only those, on the bare twigs)
-        if leaves and idx >= (if cling: 13 else: 10): vg_set(g, vg_index(g, q.x, q.y, q.z), VG_LEAF, if idx == 10 or idx == 13: 0.5 elif idx == 11: 0.0 else: -0.6)
-        elif not leaves and idx < 10: vg_set(g, vg_index(g, q.x, q.y, q.z), VG_BARK, 0.0)
+    let files, offs = vox_pieces(name)
+    assert files.length > 0
+    let models = map(files) f:
+        let v = vox_parse(f)
+        assert v.error == "" and v.models.length == 1
+        v.models[0]
+    var size = int3_0
+    for(models) m, k: size = max(size, m.size + offs[k])
+    let g = vg_new(look, float(int3_0 - foot - int3_1) / VOX_K, float(size - foot + int3_1) / VOX_K, VOX_K, 2000 + at)
+    for(models) m, k:
+        for(m.xyz) p, i:
+            let idx = m.idx[i]
+            let q = p + offs[k] - foot - g.lo
+            // (13, 14: the leaves that cling after leaf-fall; cling: only those, on the bare twigs)
+            if leaves and idx >= (if cling: 13 else: 10): vg_set(g, vg_index(g, q.x, q.y, q.z), VG_LEAF, if idx == 10 or idx == 13: 0.5 elif idx == 11: 0.0 else: -0.6)
+            elif not leaves and idx < 10: vg_set(g, vg_index(g, q.x, q.y, q.z), VG_BARK, 0.0)
     return g
 
 // ------------------------------------------------------------------ the undergrowth (issue #8), grey-boxed

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Makes the trees' voxel models (art/trees/vox/<kind>_<size>.vox) from their design sheets (art/trees/design/,
-tools/tree_design.py; D-035: the 2D design first, then the vox). One model a size. A voxel is 1/112 of a tile (VOX_K in
-src/smyana/trees.lobster), and sizes are given in men, measured from the mock-ups: a man in the game stands 40 voxels; a .vox model can be 256 voxels a side at most.
+tools/tree_design.py; D-035: the 2D design first, then the vox). One model a size. A voxel is one pixel of the game's art, as the men's
+are (VOX_K in src/smyana/trees.lobster: 135.76 a tile), so the trees are as crisp as the men. Sizes are given in men,
+measured from the mock-ups: a man in the game stands 49 voxels.
 Palette: 1..4 bark, light to dark (4: the scars); 10 leaves lit from above, 11 mid, 12 the underside and the crown's
 dark inside; 13 and 14 the leaves that still cling after leaf-fall (the game draws only these in autumn, on the twigs). The game reads the
 index as the material and its tone, and colours the leaves by the season; the colours stored here are summer's, so the
@@ -10,7 +11,7 @@ import math, random, struct
 import numpy as np
 
 K = 64 / 3.0     # voxels a metre
-N = 384
+N = 448
 BARK, SCAR, LIT, MID, UNDER, CLING, CLING_LOW = 2, 4, 10, 11, 12, 13, 14
 COLOURS = {1: 0xC4C4BC, 2: 0xA4A59E, 3: 0x80827C, 4: 0x60625E, 10: 0x7EA842, 11: 0x568232, 12: 0x325826, 13: 0x7EA842, 14: 0x568232}
 
@@ -49,21 +50,30 @@ class Model:
         sub[m] = tone[m]
 
     def save(self, path):
+        """A .vox model can be 256 voxels a side at most, so a bigger tree is saved in pieces: <name>.vox, and
+        <name>.cXYZ.vox for the piece X, Y, Z pieces along (256 voxels each). Returns the whole size, where the
+        trunk's foot is in it (the game stands the tree on it), and how many voxels."""
         xs, ys, zs = np.nonzero(self.v)
-        lo = [int(xs.min()), int(ys.min()), 0]
+        lo = np.array([int(xs.min()), int(ys.min()), 0])
         size = [int(xs.max()) - lo[0] + 1, int(ys.max()) - lo[1] + 1, int(zs.max()) + 1]
         idx = self.v[xs, ys, zs]
-        body = np.stack([xs - lo[0], ys - lo[1], zs, idx], -1).astype(np.uint8).tobytes()
+        pts = np.stack([xs - lo[0], ys - lo[1], zs], -1)
 
         def chunk(name, data): return name.encode() + struct.pack("<ii", len(data), 0) + data
         rgba = b"".join(struct.pack("<4B", (COLOURS.get(i, 0) >> 16) & 255, (COLOURS.get(i, 0) >> 8) & 255, COLOURS.get(i, 0) & 255, 255) for i in range(1, 257))
-        content = chunk("SIZE", struct.pack("<3i", *size)) + chunk("XYZI", struct.pack("<i", len(xs)) + body) + chunk("RGBA", rgba)
-        with open(path, "wb") as f: f.write(b"VOX " + struct.pack("<i", 150) + b"MAIN" + struct.pack("<ii", 0, len(content)) + content)
-        # where the trunk's foot is in the saved model: the game stands the tree on it
+        piece = pts // 256
+        for c in np.unique(piece, axis=0):
+            sel = (piece == c).all(axis=1)
+            local = pts[sel] - c * 256
+            body = np.concatenate([local, idx[sel][:, None]], -1).astype(np.uint8).tobytes()
+            psize = [int(min(256, size[k] - c[k] * 256)) for k in range(3)]
+            content = chunk("SIZE", struct.pack("<3i", *psize)) + chunk("XYZI", struct.pack("<i", len(local)) + body) + chunk("RGBA", rgba)
+            name = path if not c.any() else path[:-4] + ".c%d%d%d.vox" % tuple(c)
+            with open(name, "wb") as f: f.write(b"VOX " + struct.pack("<i", 150) + b"MAIN" + struct.pack("<ii", 0, len(content)) + content)
         return size, (N // 2 - lo[0], N // 2 - lo[1]), len(xs)
 
 
-MAN = 40.25       # voxels to a man's height, as he stands in the game beside a tree (measured from a frame)
+MAN = 48.79       # voxels to a man's height, as he stands in the game beside a tree (measured from a frame)
 F = MAN / 23.0   # the sizes below given in voxels were set at 23 to a man
 
 
@@ -211,7 +221,6 @@ for kind, sizes in KINDS.items():
         for variant in range(2 if name in ("old", "young") or (kind == "beech" and name == "mature") else 1):
             tag = "%s_%s_%d" % (kind, name, variant)
             size, foot, count = make(kind, name, h, g, b, s, n, 100 + len(lines)).save("art/trees/vox/%s.vox" % tag)
-            assert max(size) <= 256, (tag, size)
             lines.append("%s %d %d" % (tag, foot[0], foot[1]))
             print("%s: %s voxels %d, foot %s" % (tag, size, count, foot))
 # (where each trunk's foot is in its model: x y, voxels from the model's corner)
