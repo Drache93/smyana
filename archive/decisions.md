@@ -243,3 +243,9 @@ costs eight wood, two full loads, and it is taken off the loads of the men sent 
 keeping with "carrying is people". With too little wood between them nothing happens. Two men take about twenty
 seconds; more are quicker. The other way is a ford a way downstream, reached by a side path from each bank. A place
 remembers whether its bridge was left mended or down.
+
+**D-050, 2026-11-11: The gorge is on the route, and the men turn round beyond it.** (Claude, following the route in
+`docs/design.md`) The run is now beech valley, fir woods, gorge on the way out, and the same three back: the gorge and
+the firs in winter, the beeches in spring. The season's work lies beyond the gorge's east gate and isn't played: the
+men leave by that gate in autumn and come back in by it in winter. So the landslide and the bridge are each met
+twice, and are found the second time as they were left. The new letters are placeholders, as the others are.

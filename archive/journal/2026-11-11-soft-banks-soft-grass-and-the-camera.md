@@ -140,3 +140,13 @@ No picture: it was tried in the check with no window, not yet looked at on scree
 Picture 22 (broken above, mended below). Still wrong (Claude): the trail fades out before it reaches the bank, the
 ford's wading is no slower for a loaded man and no colder late in the year, and mending has not been tried by hand
 on screen, only in the check.
+
+## The gorge goes onto the route (10:35 to 10:50)
+
+- The run is six visits now (D-050): out through the beech valley, the fir woods and the gorge, and home through
+  the gorge and the firs in winter and the beeches in spring. The check walks all of it: digs at the slide, sends a
+  man round by the ford while the bridge is down, mends the bridge, comes back in winter and finds it standing and
+  the dug heap still gone.
+- Three placeholder letters were added and one reworded (Claude's words, to be replaced by Dominic's).
+
+Picture 24: the gorge in winter, the ford and the side path to it.

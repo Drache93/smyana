@@ -1,5 +1,5 @@
 {
- "_doc": "The run: the places in order, and which edge of each leads where (issue #4, D-020). A 'leg' is one visit to a place: the same place is a different leg on the way home, in another season, and it remembers what the men did there. 'exits' maps an edge of the place's map (its 'gates') to the next leg and the edge the men walk in by; an edge with no exit is closed. 'hours' is how long the walk between the two places takes on the clock. Only the first two places are grey-boxed so far, so the men turn round in the fir woods; the gorge, the ridge and the pass come later.",
+ "_doc": "The run: the places in order, and which edge of each leads where (issue #4, D-020). A 'leg' is one visit to a place: the same place is a different leg on the way home, in another season, and it remembers what the men did there. 'exits' maps an edge of the place's map (its 'gates') to the next leg and the edge the men walk in by; an edge with no exit is closed. 'hours' is how long the walk between the two places takes on the clock. Three places are grey-boxed so far: the men turn round beyond the gorge; the ridge and the pass come later.",
  "start": "beech_valley_out",
  "start_edge": "west",
  "start_hour": 7,
@@ -16,7 +16,20 @@
   },
   "fir_woods_out": {
    "place": "fir_woods", "name": "The deep fir woods", "season": "autumn",
-   "exits": { "west": { "to": "beech_valley_home", "arrive": "east", "hours": 5, "letter": "turning_home" } }
+   "exits": { "east": { "to": "gorge_out", "arrive": "west", "hours": 6, "letter": "into_the_gorge" } }
+  },
+  "gorge_out": {
+   "_doc": "The trail's bridge is found broken (#20, D-049): mend it with carried wood, or go down to the ford. Beyond the east gate is the season's work, not played: the men come back in by that gate in winter.",
+   "place": "gorge", "name": "The gorge", "season": "autumn", "leaf_fall": 60, "bridge_down": 1,
+   "exits": { "east": { "to": "gorge_home", "arrive": "east", "hours": 8, "letter": "turning_home" } }
+  },
+  "gorge_home": {
+   "place": "gorge", "name": "The gorge, going home", "season": "winter",
+   "exits": { "west": { "to": "fir_woods_home", "arrive": "east", "hours": 6, "letter": "through_the_snow" } }
+  },
+  "fir_woods_home": {
+   "place": "fir_woods", "name": "The deep fir woods, going home", "season": "winter",
+   "exits": { "west": { "to": "beech_valley_home", "arrive": "east", "hours": 5, "letter": "last_of_the_snow" } }
   },
   "beech_valley_home": {
    "place": "beech_valley", "name": "The beech valley, going home", "season": "spring",
@@ -27,7 +40,7 @@
    "place": "camp_clearing", "name": "The beech clearing after leaf-fall", "season": "autumn", "leaf_fall": 60, "exits": {}
   },
   "gorge_look": {
-   "_doc": "Not on the route yet: the gorge's river, its broken bridge and the ford downstream (#20). leg:gorge_look",
+   "_doc": "Not on the route: the gorge with its bridge broken, to look at (#20). leg:gorge_look",
    "place": "gorge", "name": "The gorge", "season": "autumn", "bridge_down": 1, "exits": {}
   },
   "home": { "end": true, "name": "Home" }
@@ -35,7 +48,10 @@
  "letters": {
   "_doc": "PLACEHOLDERS written by Claude so the screen has words on it. The real letters are Dominic's to write or approve.",
   "first_night": [ "My dear,", "We came down through the beech valley today. The stream was low and easy to cross.", "The trees here are older than the village. We look very small under them.", "Tomorrow the fir woods. I think of you at every fire." ],
-  "turning_home": [ "My dear,", "The firs are dark and close, and the nights are already cold.", "We have what we can carry. We are turning for home.", "Keep the lamp in the window." ],
+  "into_the_gorge": [ "My dear,", "The trail on the mountain was buried under a fall of rock. We got by it.", "They say the river in the gorge is high, and the bridge is old.", "I keep your letter dry inside my coat." ],
+  "through_the_snow": [ "My dear,", "The work is done and paid. We came back over the river in the snow.", "The firs are next, and they will be white and silent.", "Every step now is a step toward you." ],
+  "last_of_the_snow": [ "My dear,", "We came down out of the firs today. The fall of rock is still there on the mountain.", "Lower down the snow is going, and I heard water under it.", "The beeches next, and then our own valley." ],
+  "turning_home": [ "My dear,", "We are over the river, and the season's work is ahead of us.", "When it is done we turn for home, with what we can carry.", "Keep the lamp in the window." ],
   "almost_home": [ "My dear,", "The beeches are in leaf again. We passed the stumps of the trees we cut on the way out.", "One more walk and I will see our roof.", "I am almost home." ]
  }
 }

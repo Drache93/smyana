@@ -88,3 +88,5 @@ One line per moment worth remembering. Newest at the bottom.
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#the-landslide-can-be-dug-away-0910-to-0935))
 - **2026-11-11:** A gorge place with a river, a broken timber bridge the men mend with carried wood, and a ford downstream (picture 22, D-049).
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#the-gorge-a-broken-bridge-and-a-ford-0945-to-1030))
+- **2026-11-11:** The gorge is on the route: six visits, out and home (D-050, picture 24).
+  ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#the-gorge-goes-onto-the-route-1035-to-1050))
