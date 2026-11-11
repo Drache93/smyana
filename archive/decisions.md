@@ -312,3 +312,12 @@ the ground, which the shade darkens further. Shade under a closed canopy is neve
 The zoom is in steps of the window's height, so the wheel always returns to the default and a Retina screen sees what
 a small one does; it starts one step further out than before. The camera moves 1.6 window heights a second. The mouse
 has the game's own cursors: a pointer, a pointer with an order's ring, and an axe over a young tree.
+
+**D-062, 2026-11-11: The season is a clock, and each leg of the route gives it two ends.** (Claude; a Proposal until
+Dominic has seen it move.) The year is counted in thousandths of a season (0 high summer, 1000 full autumn, 2000
+midwinter, 3000 spring). It moves while the men are in a place, between the two ends that leg gives it, and the walk
+to the next place brings it at least to that leg's first end. Higher ground runs ahead in autumn and behind in spring.
+Each tree turns on its own day, up to 200 thousandths either side. The ground, the light, the length of the day and
+the leaves' cover all read the one clock. Why two ends and not a free-running clock: the pictures per season are made
+for a place, and a player who waits in the first valley must not find winter there. A leg that names a season stands
+still in it (the looks). Closes #10.

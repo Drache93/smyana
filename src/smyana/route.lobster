@@ -43,21 +43,123 @@ def leg_of(id:string) -> JV: return at(at(route, "legs"), id)
 def leg_now() -> JV: return leg_of(leg_id)
 def place_now() -> string: return gstr(leg_now(), "place", "")
 def run_over() -> bool: return gbool(leg_now(), "end", false)
+
+// ---- the season clock (issue #10, D-062)
+// The year is counted in thousandths of a season: 0 is high summer, 1000 full autumn, 2000 midwinter, 3000 spring. The
+// run goes from late summer to spring. The clock moves while the men are in a place (route.json's "season":
+// ticks_per_milli), between the two ends that leg gives it ("year": the walk in brings it at least to the first, and
+// it does not pass the second while they stay), so the season turns while you watch and still keeps to the journey.
+// Everything the season drives reads it from here: the leaves (leaf_stage_at), the ground, the light, the length of
+// the day, the cover the wood gives (#9).
+let SEASONS = [ "summer", "autumn", "winter", "spring" ]
+var year_m = 0
 var season_force = ""  // (for a look at a place in another season: the game's season: option)
-def season_now() -> string: return if season_force != "": season_force else: gstr(leg_now(), "season", "summer")
-// Which leaves the trees wear: the season's, or "late" where an autumn leg says its leaves have mostly fallen
-// ("leaf_fall": more than 0): the boughs show, the last leaves hang on in clumps.
-def leaf_stage() -> string: return if season_now() == "autumn" and gint(leg_now(), "leaf_fall", 0) > 0: "late" else: season_now()
+var year_force = -1    // (and at a point of the year between seasons: the game's year: option)
+
+// A leg that names its season ("season", for a look) stands still at that season's height: -1 if this leg runs on
+// the clock. "leaf_fall" on an autumn leg: its leaves have mostly fallen.
+def year_fixed() -> int:
+    if year_force >= 0: return year_force
+    let name = if season_force != "": season_force else: gstr(leg_now(), "season", "")
+    let k = find(SEASONS) n: n == name
+    return if k < 0: -1 else: k * 1000
+
+// The year here: higher ground runs ahead of the valley as the cold comes on (the leg's "altitude", in the year's
+// thousandths) and behind it in spring, turning from the one to the other through the winter.
+// Whether this leg stands still in its season (a look), off the clock.
+def year_still() -> bool: return year_fixed() >= 0 and year_force < 0
+
+def year_here() -> int:
+    let fixed = year_fixed()
+    if fixed >= 0: return fixed
+    let alt = gint(leg_now(), "altitude", 0)
+    return year_m + alt * clamp(2000 - year_m, -500, 500) / 500
+
+def season_now() -> string: return SEASONS[((year_here() + 500) / 1000) % 4]
+
+// Which leaves a tree wears when the year stands at y for it: summer's, autumn's, "late" (autumn's colours, most of
+// the leaves down, the boughs showing), winter's bare wood, spring's.
+def stage_of(y:int) -> string:
+    let v = y % 4000
+    return if v < 700: "summer" elif v < 1350: "autumn" elif v < 1750: "late" elif v < 2650: "winter" elif v < 3500: "spring" else: "summer"
+
+// No two trees turn on the same day: each is up to this far ahead of the year or behind it (by its cell).
+let TURN_SPREAD = 200
+def turn_offset(cell:int) -> int: return if year_still(): 0 else: ((cell * 2654435761) >> 9) % (TURN_SPREAD * 2 + 1) - TURN_SPREAD
+
+// The leaves of the tree (or the undergrowth) standing on this cell, now.
+def leaf_stage_at(cell:int) -> string:
+    if year_still(): return leaf_stage()
+    return stage_of(year_here() + turn_offset(cell) + 4000)
+
+// The place's leaves taken together (a leg that stands still in autumn with "leaf_fall" wears "late").
+def leaf_stage() -> string:
+    if year_still(): return if season_now() == "autumn" and gint(leg_now(), "leaf_fall", 0) > 0: "late" else: season_now()
+    return stage_of(year_here())
+
+// Every stage of leaf this leg can show while the men are in it (so the view has their pictures ready).
+def leg_stages() -> [string]:
+    if year_still(): return [ leaf_stage() ]
+    let span = glist(leg_now(), "year")
+    let alt = abs(gint(leg_now(), "altitude", 0))
+    let lo = (if year_force >= 0: year_force elif span.length: as_int(span[0]) else: year_m) - TURN_SPREAD - alt
+    let hi = (if year_force >= 0: year_force elif span.length > 1: as_int(span[1]) else: year_m) + TURN_SPREAD + alt
+    let out = []::string
+    for([ 0, 700, 1350, 1750, 2650, 3500 ]) begins, k:
+        let ends = [ 700, 1350, 1750, 2650, 3500, 4000 ][k]
+        if max(lo, 0) < ends and hi >= begins:
+            let st = stage_of(begins)
+            let seen = find(out) o: o == st
+            if seen < 0: out.push(st)
+    return out
+
+// How much of their leaves the broadleaves still wear, 0 (bare) to 100: the canopy's part of the cover a wood gives
+// (#9), and how thick the year's leaves lie on the ground is its other face.
+def leaf_cover_of(stage:string) -> int: return if stage == "summer": 100 elif stage == "autumn": 85 elif stage == "late": 45 elif stage == "spring": 70 else: 0
+
+// How far (0 .. 1000) the year's leaves have come down onto the ground: none in summer, all of them by late autumn,
+// lying under the snow, gone with it in spring.
+def leaves_down() -> int:
+    let y = year_here() % 4000
+    if year_still(): return if y == 1000 or y == 2000: 1000 else: 0
+    return if y < 700: 0 elif y < 1300: (y - 700) * 1000 / 600 elif y < 2500: 1000 elif y < 2900: (2900 - y) * 1000 / 400 else: 0
+
+// How much snow lies (0 .. 1000): it comes after the leaves are down, and goes in spring.
+def snow_lying() -> int:
+    let y = year_here() % 4000
+    return if y < 1700: 0 elif y < 2000: (y - 1700) * 1000 / 300 elif y < 2500: 1000 elif y < 2900: (2900 - y) * 1000 / 400 else: 0
+
+// How deep in winter the year is (0 high summer .. 1000 midwinter): the days shorten by it.
+def winter_depth() -> int:
+    let y = year_here() % 4000
+    return if y < 2000: y / 2 else: (4000 - y) / 2
 
 def ticks_per_hour() -> int: return gint(route, "day_minutes", 8) * 60 * TICK_HZ / 24
 
-// The hour of the day, 0 up to 24.
+// ---- the clock of the day (issue #13)
+// Counted in millionths of an hour since the run began, so it can run at two speeds: by day at day_minutes a day, and
+// through the night faster (route.json's "night": its hours and its speed in hundredths), so a night is about a
+// minute of waiting by the fire and not three.
+var clock_uh = 0
 var hour_force = -1.0  // (for a look at a place at another hour: the game's hour: option)
 
 def hour_now() -> float:
     if hour_force >= 0.0: return hour_force
-    let h = float(gint(route, "start_hour", 7)) + float(run_ticks) / float(ticks_per_hour())
+    let h = float(gint(route, "start_hour", 7)) + float(clock_uh) / 1000000.0
     return h - floor(h / 24.0) * 24.0
+
+def is_night() -> bool:
+    let n = gobj(route, "night")
+    let falls = gint(n, "from", 21)
+    let ends = gint(n, "to", 5)
+    let h = (gint(route, "start_hour", 7) + clock_uh / 1000000) % 24
+    return if falls > ends: h >= falls or h < ends else: h >= falls and h < ends
+
+def clock_tick():
+    clock_uh += 1000000 / ticks_per_hour() * (if is_night(): gint(gobj(route, "night"), "speed", 100) else: 100) / 100
+    // (the season: one thousandth every so many ticks, up to where this leg lets it go)
+    let span = glist(leg_now(), "year")
+    if span.length > 1 and year_m < as_int(span[1]) and run_ticks % max(1, gint(gobj(route, "season"), "ticks_per_milli", 28)) == 0: year_m++
 
 def men_alive() -> int:
     var n = 0
@@ -75,6 +177,8 @@ def run_begin():
     let looks = gstrs(men_data, "looks")
     men = map(gint(men_data, "count", 20)) n: Man { names[n % names.length], n % looks.length, as_int(at(unit, "hp")) }
     run_ticks = 0
+    clock_uh = 0
+    year_m = gint(gobj(route, "season"), "start", 0)
     place_memory.clear()
     enter_leg(gstr(route, "start", ""), gstr(route, "start_edge", "west"))
 
@@ -102,6 +206,9 @@ def enter_leg(id:string, edge:string):
     gate_rects = []
     reset_world()
     if run_over(): return
+    // (the walk here brought the season on at least to where this leg begins)
+    let span = glist(leg_now(), "year")
+    if span.length: year_m = max(year_m, as_int(span[0]))
     let unit = shallow_copy(at(men_data, "unit"))
     set(unit, "line", jarr([ shallow_copy(unit) ]))
     let side = jobj()
@@ -204,6 +311,7 @@ def mend_bridge(ids:[int], k:int) -> bool:
 
 def route_tick() -> string:
     run_ticks++
+    clock_tick()
     // (clearing a landslide (#20): what a man digs out he throws aside, down the slope, so he is never loaded with
     // it and digs on till the heap is gone)
     let spoil = str_index(resource_names, "spoil") + 1
@@ -248,4 +356,5 @@ def route_leave(edge:string):
 def route_arrive(edge:string):
     let ex = exit_by(edge)
     run_ticks += gint(ex, "hours", 0) * ticks_per_hour()
+    clock_uh += gint(ex, "hours", 0) * 1000000
     enter_leg(rstr(ex, "to"), gstr(ex, "arrive", ""))

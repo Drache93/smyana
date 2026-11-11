@@ -112,6 +112,44 @@ On the target dates Claude guessed (phase 1 by 15 November):
 
 > realistically much shorter. We have done the whole env in less than a day. We will complete phase 1 today i expect
 
+## 08:04, on the two pull requests left by the old threads (chat)
+
+> 45 has conflict, 46 can be merged?
+
+## 08:37, on the riders at the wood's edge (chat)
+
+> riders at the edge shouldnt be looking away, should be facing to the right - like they're following your path - and be much closer to the trees
+
+(Claude turned them to face down the screen to the right, the way the trail runs to the ford, and stood them in under
+the first trunks: picture 44.)
+
+## 10:05, on the pull requests (chat)
+
+> both have merge conflicts
+
+## 10:12, on the trees' shadows on the camp's horses (chat, with a close-up of the horses)
+
+> the way the shaddows fall on the horses isnt very realistic, feels like it flat from camera perspective? but shadows dont fall like that right?
+
+> (trees shadow on the horse)
+
+(Claude: he is right. The cause and the fix being tried are in
+[the state at the pause](2026-11-11-environment-state-at-the-pause.md).)
+
+## 10:15 to 10:18, on pacing (chat)
+
+> Continue?
+
+> Go
+
+> Yes we need to pace ourselves, have them document current state and stop
+
+## 10:18, a minute later (chat)
+
+> Environment needs to be our focus
+
+(So the environment thread went on, and the music and start-up threads stopped.)
+
 ## 08:35, issue #86 "Start up and QL" (GitHub)
 
 > * Camera movement too slow
