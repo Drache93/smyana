@@ -30,7 +30,7 @@ Picture 44, rendered from this branch on Smyana main `13a2956` with Creel `8234c
 ## The season clock (10:10 to 10:50)
 
 Issues 10, 11, 13 and 14 all waited on one thing: the season was a word on each leg of the route, and it changed only
-between places. Claude gave the run a clock for the year (D-059).
+between places. Claude gave the run a clock for the year (D-062).
 
 - **The clock** (`src/smyana/route.lobster`). The year is counted in thousandths of a season: 0 high summer, 1000 full
   autumn, 2000 midwinter, 3000 spring. A leg of the route gives two ends (`"year": [450, 800]`): the walk in brings the
@@ -102,3 +102,6 @@ haze's colour and never lightens what it lies on. Picture 50 is the comparison s
 branch on Smyana main `a5ed604` with Creel `7100d3d`:
 
 ![the comparison scene](../images/2026-11-11/50-comparison-with-shade-at-the-feet-and-darker-deep-wood.jpg)
+
+(The season clock's decision is D-062. It was written as D-059 until the start-up thread's D-059 to D-061 reached main
+first, and the state note of 10:25 still calls it D-059.)

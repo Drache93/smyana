@@ -4,6 +4,7 @@
 // Run from src/ (../play.sh does):  lobster smyana.lobster -- [windowed] [shot:<png> at:<seconds>] [script:tour] [debug]
 // No panels or bars (D-021): what there is to read is in the world. Left click or drag picks men, right click sends
 // them (onto a young tree: fell it), the arrows or WASD move the camera, the wheel zooms, F finds the men, Space pauses.
+// It opens on the menu: the men in the wood, alive, under the game's name; Start and the name fades away (#86).
 import from "../creel/src"
 import color
 import gl
@@ -45,6 +46,7 @@ import smyana.men_view
 import smyana.trees
 import smyana.cliff
 import smyana.camp
+import smyana.cursors
 
 // ------------------------------------------------------------------ what it was started with
 
@@ -69,6 +71,19 @@ let capture = shot != "" or script != "" or arg_of("shots") != ""
 
 var cam = float2_0  // art px at the middle of the window
 var zoom = 1.5      // screen px an art px
+
+// The zoom (#86) in steps of the window's own height, so a view is the same on any screen (a Retina display has twice
+// the pixels) and the wheel always comes back to where it started. 1 is the window 325 art px high (a man about a
+// tenth of it); each step is rounded to a quarter so the pixels of the art keep an even size. Dominic: "Default camera
+// zoom seems too close, when i zoom out, i cant zoom back to the default": it starts a step further out than before.
+let ZOOM_STEPS = [ 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.15, 1.3, 1.5 ]
+let ZOOM_START = 4
+var zoom_step = ZOOM_START
+var zoom_fixed = 0.0  // the zoom: option's zoom, till the wheel turns (0: the step's)
+def zoom_of(step:int) -> float:
+    return max(0.5, floor(float(gl.window_size().y) / 325.0 * ZOOM_STEPS[step] * 4.0 + 0.5) / 4.0)
+// How fast the camera moves: window heights a second, whatever the zoom (Dominic: "Camera movement too slow").
+let CAM_SPEED = 1.6
 
 def to_screen(p:float2) -> float2: return (p - cam) * zoom + float(gl.window_size()) / 2.0
 def from_screen(p:float2) -> float2: return (p - float(gl.window_size()) / 2.0) / zoom + cam
@@ -726,6 +741,39 @@ def prev_pos(i:int) -> int, int:
     let found, at = binary_search(p_id, u_id[i])
     return if found: p_x[at] else: u_x[i], if found: p_y[at] else: u_y[i]
 
+// Where things touch the ground (#86, Dominic: "Darkest point should be where anything touches the ground"): a small
+// dark oval at the foot of every trunk, young tree, stump and man, drawn on the ground under them. Each: x, y (art px)
+// and its half width. In shade, or deep under the canopy where the shade is all one, it is darker still, so a tree
+// still stands on the ground there.
+var feet = []::float3
+let FOOT_DARK = float4 { 0.035, 0.03, 0.022, 0.0 }
+
+// Half a trunk's width at the ground, in its sheet's pixels (measured on the baked trunks: an oak's is broad, a
+// hornbeam's slim; a spruce's inside its low boughs).
+def trunk_half(sp:string) -> float:
+    return if sp == "oak": 16.0 elif sp == "hornbeam": 9.0 elif sp == "beech": 11.5 elif sp == "tall": 11.0 else: 10.0
+
+def foot_at(f:int, x:float, y:float, half:float):
+    if f >= 0 and x > view_lo.x - 20.0 and x < view_hi.x + 20.0 and y > view_lo.y - 10.0 and y < view_hi.y + 10.0:
+        feet.push(float3 { x, y, half * frames[f].k })
+
+// The feet, all at once: two ovals as flat as the ground is seen, a pixel row at a time (crisp, as the art): a faint one
+// a little wider than the trunk and a darker one its own width, so it is darkest right at the foot.
+def draw_feet():
+    let flat = iso_k / 0.048  // (the ground's ovals: sin of the camera's angle)
+    def oval(c:float2, half:float, a:float):
+        let rows = max(1, int(half * flat + 0.5))
+        for(rows * 2) j:
+            let dy = (float(j - rows) + 0.5) / float(rows)
+            let w = floor(half * sqrt(max(0.0, 1.0 - dy * dy)) + 0.5)
+            if w >= 1.0: ui_fill(float2 { c.x - w, c.y + float(j - rows) }, float2 { w * 2.0, 1.0 }, float4 { FOOT_DARK.x, FOOT_DARK.y, FOOT_DARK.z, a })
+    ui_batch():
+        for(feet) f:
+            let c = float2 { floor(f.x + 0.5), floor(f.y + 0.5) }
+            let half = max(1.5, f.z)
+            oval(c, half * 1.9 + 1.0, 0.25)
+            oval(c, half * 1.15 + 0.5, 0.5)
+
 let SASH = float4 { 0.66, 0.19, 0.16, 1.0 }  // the sash's red (the men's 'team' colour)
 let ART_UP = 58.8                            // art px a tile of height
 var eyes = []::float2                        // where the men are on the picture: crowns over them fade
@@ -749,6 +797,7 @@ def collect_men(alpha:float):
             let p = gp(x, y)
             add(frame_at.get(man_shadow_name(m.look, facing), -1), p.x, p.y, p.y - 0.5, float4_1, 1.0, 1)
             add(frame_at.get(man_frame_name(m.look, if moving: 1 + step else: 0, facing), -1), p.x, p.y, p.y, SASH, 1.0, 4)
+            feet.push(float3 { p.x, p.y, 2.2 })
             if u_carry[i] > 0: add(frame_at.get("load.wood", -1), p.x + 3.0, p.y - 27.0, p.y + 0.1, float4_1, 1.0, 2)
             eyes.push(p - float2 { 0.0, 16.0 })
 
@@ -777,6 +826,7 @@ def collect_props():
                 let dim = float4 { 1.0, 1.0, 1.0, 1.0 - canopy_dim * (if pidx < canopy.length: canopy[pidx] else: 0.0) }
                 add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -40000.0, float4_1)
                 add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, dim)
+                foot_at(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, trunk_half(pr.sp))
                 let crown = if pr.sp == "tall": "spruce{pr.pick}.crown.ever" else: pr.name + ".crown." + (if leafy(pr.sp): season else: "ever")
                 if pr.sp == "tall":
                     // its crown is out of sight overhead: only its shade reaches the ground
@@ -797,8 +847,10 @@ def collect_props():
                 if pr.sp == "spruce":
                     add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39998.0, float4_1)
                     add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
+                    foot_at(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, 6.0)
                 else:
                     // (a young beech: its wood, and over it this season's leaves)
+                    foot_at(frame_at.get(pr.name + ".bare", -1), pr.at.x, pr.at.y, 6.0)
                     add(frame_at.get(pr.name + ".bare.shadow", -1), pr.at.x, pr.at.y, -39998.0, float4_1)
                     add(frame_at.get(pr.name + ".bare", -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
                     if not bare:
@@ -806,6 +858,7 @@ def collect_props():
                         add(frame_at.get(pr.name + "." + season, -1), pr.at.x, pr.at.y, pr.at.y + 0.1, float4_1, 1.0, 2)
             elif pr.kind == 2:
                 add(frame_at.get("stump", -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
+                foot_at(frame_at.get("stump", -1), pr.at.x, pr.at.y, 6.5)
             elif pr.kind == 5:
                 // (winter: the bushes and herbs are gone (they have no winter frame), two tufts in three are under the
                 // snow, and what's left stands dead)
@@ -868,8 +921,10 @@ def draw_world(alpha:float):
     view_lo = from_screen(float2_0) - float2_1
     view_hi = from_screen(ws) + float2_1
     draws = []
+    feet = []
     collect_men(alpha)
     collect_props()
+    draws.push(Drawable { -39990.0, draws.length, -6, 0.0, 0.0, float4_1, 1.0, 3 })  // the feet: on the ground, over its shadows
     draws.push(Drawable { -30000.0, draws.length, -4, 0.0, 0.0, float4_1, 1.0, 3 })  // the rings: on the ground, over the shadows
     for(fires) p, i:
         // (the fireplace: its ring of stones, its logs and the tripod with the cauldron; the flames are the game's own)
@@ -965,6 +1020,10 @@ def draw_world(alpha:float):
                         flush_sprites()
                         draw_fire(int(d.x))
                         b_sheet = -1
+                    elif d.f == -6:
+                        flush_sprites()
+                        draw_feet()
+                        b_sheet = -1
                     elif shading and d.kind == 1: pass()
                     elif d.fade < 1.0: sprite_faded(d.f, d.x, d.ay, d.col, d.fade)
                     else: sprite(d.f, d.x, d.ay, d.col)
@@ -1058,6 +1117,76 @@ def draw_lines(texts:[string], t:float, size:int):
                 gl.translate(float2 { floor(ws.x / 2.0 - min(w, ws.x * 0.7) / 2.0), floor(y) }): gl.text(l)
         y += gap
 
+// ------------------------------------------------------------------ the menu (#86)
+// Dominic: "Game start is slow, we want very minimal loader. The game menu should show the village (once ready - just
+// the men in forest for now is fine) alive in real time -> when you "start", the menu should just fade away". So the
+// loader is the game's name on the dark, and the menu is the same name over the wood, the men in it going about the
+// camp, with two words under it. Start, and the words fade off the game that is already running.
+
+let MENU_ITEMS = [ "Start", "Quit" ]
+// Old Standard (SIL Open Font License, data/fonts/OldStandard/OFL.txt): a book face of the 19th century, made for
+// Cyrillic as well as Latin, for the name as the game's pictures write it, Смяна.
+let TITLE_FONT = "../data/fonts/OldStandard/OldStandard-Bold.ttf"
+let MENU_FONT = "../data/fonts/OldStandard/OldStandard-Regular.ttf"
+var menu_alpha = 1.0  // the menu's words: 1 shown, fading to 0 once started
+var menu_hover = -1
+var menu_mill_t = 0.0
+
+// The game's name, high in the middle (the loader's and the menu's, in the same place), and under it the menu's words
+// at `items` (0: none). Returns the word under the mouse, or -1.
+def draw_title(a:float, items:float) -> int:
+    if a <= 0.0: return -1
+    let ws = float(gl.window_size())
+    let ink = float4 { 0.95, 0.91, 0.79, a }
+    let dark = float4 { 0.02, 0.02, 0.015, a * 0.55 }
+    gl.set_shader("color")
+    // (a dark edge round the letters, so they read over the light grass and the dark wood alike)
+    def centred(t:string, y:float, size:int, col:float4) -> float2, float2:
+        gl.set_font_size(size)
+        let w = float(gl.text_size(t))
+        let at = float2 { floor(ws.x / 2.0 - w.x / 2.0), floor(y) }
+        let off = max(1.0, floor(float(size) / 40.0))
+        gl.color(float4 { dark.x, dark.y, dark.z, dark.w * col.w / max(a, 0.001) }):
+            for([ float2 { -off, 0.0 }, float2 { off, 0.0 }, float2 { 0.0, -off }, float2 { off, off * 2.0 } ]) o: gl.translate(at + o): gl.text(t)
+        gl.color(col): gl.translate(at): gl.text(t)
+        return at, w
+    gl.set_font_name(TITLE_FONT)
+    centred("Смяна", ws.y * 0.12, int(ws.y / 6.5), ink)
+    gl.set_font_name(MENU_FONT)
+    var hover = -1
+    if items > 0.0:
+        let m = mouse_px()
+        let size = int(ws.y / 26.0)
+        for(MENU_ITEMS) t, i:
+            let y = ws.y * 0.66 + float(i) * float(size) * 2.0
+            gl.set_font_size(size)
+            let w = float(gl.text_size(t))
+            let lo = float2 { ws.x / 2.0 - w.x / 2.0 - 12.0, y - 6.0 }
+            let over = m.x >= lo.x and m.x <= lo.x + w.x + 24.0 and m.y >= lo.y and m.y <= lo.y + w.y + 12.0
+            if over: hover = i
+            centred(t, y, size, float4 { ink.x, ink.y, ink.z, items * (if over: 1.0 else: 0.8) })
+    return hover
+
+// The men go about the camp while the menu is up: now and then one of them takes a few steps about the others.
+def menu_mill(dt:float):
+    menu_mill_t -= dt
+    if menu_mill_t > 0.0 or not u_x.length: return
+    menu_mill_t = 0.8 + float(rnd(100)) / 60.0
+    var c = int2_0
+    for(u_x.length) i: c += int2 { u_x[i], u_y[i] }
+    c = c / u_x.length
+    let i = rnd(u_x.length)
+    let x = clamp(c.x + rnd(5000) - 2500, 500, W * TILE - 500)
+    let y = clamp(c.y + rnd(5000) - 2500, 500, H * TILE - 500)
+    issue_cmd(0, CMD_MOVE, [ u_id[i] ], x, y, 0, 0)
+
+// The camera while the menu is up: over the men, drifting slowly as if someone stood watching.
+def menu_camera(dt:float):
+    let t = gl.time()
+    let to = men_centre() + float2 { sin(t * 4.0) * 40.0, cos(t * 3.0) * 14.0 }
+    cam += (to - cam) * min(1.0, dt * 0.6)
+    cam_keep()
+
 // ------------------------------------------------------------------ orders
 
 def unit_at_screen(m:float2) -> int:
@@ -1142,7 +1271,7 @@ def cam_keep():
 def camera_tick():
     let ws = float(gl.window_size())
     let m = mouse_px()
-    let sp = 900.0 * gl.delta_time() / zoom
+    let sp = CAM_SPEED * ws.y * gl.delta_time() / zoom
     var d = float2_0
     if gl.button("left") >= 1 or gl.button("a") >= 1: d.x -= 1.0
     if gl.button("right") >= 1 or gl.button("d") >= 1: d.x += 1.0
@@ -1155,9 +1284,14 @@ def camera_tick():
         if m.x >= ws.x - 4.0: d.x += 1.0
         if m.y >= ws.y - 4.0: d.y += 1.0
     cam += d * sp
+    // the wheel: a step in or out, about the point under the mouse
     let wheel = gl.mousewheel_delta()
-    if wheel > 0: zoom = min(4.0, zoom + 0.25)
-    if wheel < 0: zoom = max(0.75, zoom - 0.25)
+    if wheel != 0:
+        let under = from_screen(m)
+        zoom_step = clamp(zoom_step + (if wheel > 0: 1 else: -1), 0, ZOOM_STEPS.length - 1)
+        zoom_fixed = 0.0
+        zoom = zoom_of(zoom_step)
+        if inside: cam = under - (m - ws / 2.0) / zoom
     if gl.button("f") == 1: cam = men_centre()
     // (the camera stays over the place)
     cam_keep()
@@ -1220,17 +1354,17 @@ LEVEL_PX = 20.0 * cos(view_elev) / cos(30.0)
 atmo_data = lib_data("atmosphere.json")
 for(atmo_problems(atmo_data)) why: print why
 sun_from_data()
-zoom = max(1.0, floor(float(gl.window_size().y) / 325.0 * 4.0) / 4.0)
-if arg_of("zoom") != "": zoom = string_to_float(arg_of("zoom"))  // zoom:2.75: the camera this close, for a look beside a mock-up
+if arg_of("zoom") != "": zoom_fixed = string_to_float(arg_of("zoom"))  // zoom:2.75: the camera this close, for a look beside a mock-up
+zoom = if zoom_fixed > 0.0: zoom_fixed else: zoom_of(zoom_step)
+cursors_load("../data/cursors")
 
-// A frame of words while something long is made (the first start bakes the men and the trees).
-let waiting_lines = [ "Smyana" ]
-let waiting_t0 = seconds_elapsed()
+// The loader (#86: "very minimal"): the game's name on the dark while the art is read (or, the first time, baked), where
+// the menu will show it.
 def waiting_frame():
     if not gl.frame(): return
     gl.clear(float4 { 0.03, 0.03, 0.025, 1.0 })
     gl.blend(1)
-    draw_lines(waiting_lines, 10.0 + seconds_elapsed() - waiting_t0, int(float(gl.window_size().y) / 36.0))
+    draw_title(1.0, 0.0)
 
 waiting_frame()
 waiting_frame()
@@ -1301,7 +1435,10 @@ print "start: {seconds_elapsed() - boot0} s (men baked in {men_bake_s} s, trees 
 
 // ------------------------------------------------------------------ the loop
 
-var phase = "arriving"  // arriving (fading in), play, leaving (fading out), letter, end
+// menu (the game running under its name: the start), arriving (fading in), play, leaving (fading out), letter, end.
+// A picture or the tour starts playing at once (menu: the menu, for a look).
+var phase = if capture and not has_s(args, "menu"): "arriving" else: "menu"
+if phase != "menu": menu_alpha = 0.0
 var phase_t = 0.0
 var leave_edge = ""
 var letter = []::string
@@ -1328,12 +1465,22 @@ while gl.frame():
     let dt = min(gl.delta_time(), 0.1)
     frame_no++
     phase_t += dt
-    if gl.button("space") == 1: paused = not paused
-    if phase == "play" or phase == "arriving" or phase == "leaving":
+    if zoom_fixed <= 0.0: zoom = zoom_of(zoom_step)  // (the window may have changed size)
+    if phase == "menu":
+        menu_mill(dt)
+        menu_camera(dt)
+        let go = (menu_hover == 0 and gl.button("mouse1") == 1) or gl.button("return") == 1 or gl.button("space") == 1
+        if menu_hover == 1 and gl.button("mouse1") == 1: break
+        if go and phase_t > 0.5:
+            // (the men stop where they are: the run is theirs now)
+            for(u_id) id, i: issue_cmd(0, CMD_MOVE, [ id ], u_x[i], u_y[i], 0, 0)
+            set_phase("play")
+    elif gl.button("space") == 1: paused = not paused
+    if phase == "menu" or phase == "play" or phase == "arriving" or phase == "leaving":
         if phase == "play":
             select_tick()
             order_tick()
-        camera_tick()
+        if phase != "menu": camera_tick()
         if not paused: acc = min(acc + dt, 0.5)
         while acc >= 0.05:
             p_id = copy(u_id)
@@ -1343,8 +1490,9 @@ while gl.frame():
             for(u_x.length) i:
                 let px, py = prev_pos(i)
                 if u_moving[i] == 1: man_walked.set(u_id[i], man_walked.get(u_id[i], 0.0) + sqrt(float(dist2(px, py, u_x[i], u_y[i]))))
-            let edge = route_tick()
-            tour_tick()
+            // (under the menu the men only move: the run's clock and its gates wait for Start)
+            let edge = if phase == "menu": "" else: route_tick()
+            if phase != "menu": tour_tick()
             clock_s += 0.05
             acc -= 0.05
             if edge != "" and phase == "play":
@@ -1368,6 +1516,12 @@ while gl.frame():
         if letter_loaded and (phase_t >= hold or skip):
             paused = false
             set_phase(if run_over(): "end" else: "arriving")
+    // the cursor: an axe over a young tree the chosen men would fell, the pointer with an order's ring where they would
+    // walk, else the pointer
+    let ws = float(gl.window_size())
+    let mp = mouse_px()
+    let in_window = mp.x >= 0.0 and mp.y >= 0.0 and mp.x < ws.x and mp.y < ws.y
+    cursor_show(if phase != "play" or not selected.length or not in_window: CURSOR_POINT elif young_tree_at(mouse_milli()) >= 0: CURSOR_FELL else: CURSOR_GO)
     if drawing():
         gl.clear(float4 { 0.035, 0.055, 0.04, 1.0 })
         gl.blend(1)
@@ -1382,7 +1536,9 @@ while gl.frame():
                 let b = mouse_px()
                 ui_batch():
                     for([ [ a, float2 { b.x, a.y } ], [ float2 { b.x, a.y }, b ], [ b, float2 { a.x, b.y } ], [ float2 { a.x, b.y }, a ] ]) l: ui_line(l[0], l[1], 1.2, float4 { 0.95, 0.91, 0.79, 0.7 })
-            veil(if phase == "arriving": 1.0 - phase_t / 1.5 elif phase == "leaving": phase_t / 1.5 else: 0.0)
+            veil(if phase == "arriving" or phase == "menu": 1.0 - phase_t / 1.5 elif phase == "leaving": phase_t / 1.5 else: 0.0)
+            if phase != "menu": menu_alpha = max(0.0, menu_alpha - dt / 1.2)
+            menu_hover = draw_title(menu_alpha, if phase == "menu": clamp((phase_t - 1.0) / 1.0, 0.0, 1.0) else: menu_alpha)
         if debug_line:
             gl.set_shader("color")
             gl.set_font_name(FONT)

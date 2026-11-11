@@ -44,7 +44,7 @@ def leg_now() -> JV: return leg_of(leg_id)
 def place_now() -> string: return gstr(leg_now(), "place", "")
 def run_over() -> bool: return gbool(leg_now(), "end", false)
 
-// ---- the season clock (issue #10, D-059)
+// ---- the season clock (issue #10, D-062)
 // The year is counted in thousandths of a season: 0 is high summer, 1000 full autumn, 2000 midwinter, 3000 spring. The
 // run goes from late summer to spring. The clock moves while the men are in a place (route.json's "season":
 // ticks_per_milli), between the two ends that leg gives it ("year": the walk in brings it at least to the first, and
