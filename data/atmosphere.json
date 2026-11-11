@@ -4,6 +4,12 @@
  "sun": { "_doc": "how high the sun stands, degrees, for the shadows baked into the art (low: long shadows, as in the mock-ups)", "elevation": 40, "dither": 0.15, "leaf_tones": 4, "canopy": 1.8, "canopy_reach": 2, "canopy_trees": 12, "canopy_dim": 0.45, "flecks": 5 },
  "maps": {},
  "hours": { "_doc": "the hour each mood starts; _blend: the hours before it in which the one before turns into it", "_blend": 1.5, "dawn": 5, "day": 8, "dusk": 18, "night": 21 },
+ "weather": {
+  "_doc": "What the weather does to the light (#15, D-063; the weather itself is in route.json). For each kind, how far each of a mood's numbers moves at the weather's full strength, added to what the hour and the season have set; 'haze_colour' is a colour the mood's own haze turns toward, by 'haze_colour_mix'. Overcast takes the sun and most of the cast shade away (sun, sun_shade) and greys the colours.",
+  "mist": { "haze": 0.3, "haze_start": -0.2, "haze_drift": 0.2, "mist": 0.45, "saturation": -0.1, "contrast": -0.08, "sun": -0.2, "sun_shade": -0.35, "deep": 0.1, "unit_lift": 0.15, "haze_colour": "#c2c8cc", "haze_colour_mix": 0.5 },
+  "rain": { "exposure": -0.12, "saturation": -0.14, "contrast": -0.04, "haze": 0.16, "haze_start": -0.1, "mist": 0.2, "sun": -0.5, "sun_shade": -0.6, "highlight": -0.1, "bloom": -0.05, "shade_grey": 0.15, "unit_lift": 0.1, "haze_colour": "#8c96a2", "haze_colour_mix": 0.6 },
+  "snow": { "exposure": -0.05, "saturation": -0.12, "contrast": -0.06, "haze": 0.22, "haze_start": -0.12, "mist": 0.15, "sun": -0.5, "sun_shade": -0.6, "shade_grey": 0.15, "unit_lift": 0.15, "haze_colour": "#c4ccd8", "haze_colour_mix": 0.6 }
+ },
  "hours_winter": { "_doc": "the same hours at midwinter (#13): the days shorten into winter with the season clock, and lengthen again", "dawn": 6.5, "day": 9, "dusk": 15.5, "night": 18 },
  "moods": {
   "day": { "exposure": 0.0, "contrast": 0.06, "saturation": 0.0, "shadow_tint": "#30405a", "shadow": 0.18, "highlight_tint": "#fff2d0", "highlight": 0.12,

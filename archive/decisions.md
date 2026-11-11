@@ -321,3 +321,11 @@ Each tree turns on its own day, up to 200 thousandths either side. The ground, t
 the leaves' cover all read the one clock. Why two ends and not a free-running clock: the pictures per season are made
 for a place, and a player who waits in the first valley must not find winter there. A leg that names a season stands
 still in it (the looks). Closes #10.
+
+**D-063, 2026-11-11: Weather comes in spells, counted from the clock.** (Claude; a Proposal until Dominic has seen
+it.) A spell of three hours is clear, mist, rain or snow by the season's chances, and which one is worked out from the
+spell's number, so it is the same in every run and the sim stays repeatable. Rain falls as snow where snow lies. Lying
+snow slows the men by up to a quarter. Weather moves the light on top of the hour's and the season's mood instead of
+having moods of its own, so there are three small sets of numbers and not three more moods for each hour and season.
+A leg can name its weather; a leg that stands still in its season stays clear, so the comparison scene is unchanged.
+For #15.

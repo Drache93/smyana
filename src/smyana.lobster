@@ -61,6 +61,7 @@ let debug_line = has_s(args, "debug")
 hour_force = if arg_of("hour") != "": string_to_float(arg_of("hour")) else: -1.0  // hour:16.5: this place at that hour, for a look
 year_force = if arg_of("year") != "": string_to_int(arg_of("year")) else: -1      // year:1300: this place at that point of the year (0 summer, 1000 autumn, 2000 winter, 3000 spring), for a look
 season_force = arg_of("season")                                                   // season:autumn: this place in another season, for a look
+weather_force = arg_of("weather")                                                 // weather:rain: this place in mist, rain or snow, for a look
 let shots_dir = arg_of("shots")                                                   // a picture every few seconds into this folder (with script:tour)
 var shots_n = 0
 var shots_next = 3.0
@@ -692,7 +693,9 @@ def mood_tick():
     let s0, s1, st = light_seasons()
     let step = int(t * 48.0)  // (the turn in small steps: the light set again only when it has moved)
     let sstep = int(st * 32.0)
-    let key = "{now} {next} {step} {s0} {s1} {sstep}"
+    let wkind, whard = weather_now()
+    let wstep = whard * 24 / 1000
+    let key = "{now} {next} {step} {s0} {s1} {sstep} {wkind} {wstep}"
     if key == mood_key: return
     mood_key = key
     // (the hour's turn in the season before, then in the season coming, and the light between the two)
@@ -710,6 +713,20 @@ def mood_tick():
         atmo_cols = map(atmo_cols) v, i: lerp(c0[i], v, k)
         atmo_opt = map(atmo_opt) v, i: lerp(o0[i], v, k)
         atmo_opt_cols = map(atmo_opt_cols) v, i: lerp(p0[i], v, k)
+    weather_light(wkind, float(wstep) / 24.0)
+
+// What the weather does to the light (#15: "weather changes the mood"): atmosphere.json's "weather" gives, for mist,
+// rain and snow, how much each of a mood's numbers moves at the weather's full strength (added to whatever the hour
+// and the season have set), and a haze colour the mood's own turns toward.
+def weather_light(kind:string, k:float):
+    if k <= 0.0 or not atmo_on: return
+    let w = gobj(gobj(atmo_data, "weather"), kind)
+    atmo_nums = map(atmo_nums) v, i: clamp(v + gfloat(w, ATMO_NUMS[i], 0.0) * k, ATMO_MIN[i], ATMO_MAX[i])
+    atmo_opt = map(atmo_opt) v, i: clamp(v + gfloat(w, ATMO_OPT[i], 0.0) * k, 0.0, ATMO_OPT_MAX[i])
+    let haze = gstr(w, "haze_colour", "")
+    if haze != "":
+        let hi = find(ATMO_COLS) n: n == "haze_colour"
+        atmo_cols = map(atmo_cols) v, i: (if i == hi: lerp(v, atmo_hex(haze), k * gfloat(w, "haze_colour_mix", 0.6)) else: v)
 
 // ------------------------------------------------------------------ drawing the world
 
@@ -1029,6 +1046,7 @@ def draw_world(alpha:float):
                     else: sprite(d.f, d.x, d.ay, d.col)
                 flush_sprites()
                 draw_leaf_fall()
+                draw_weather()
                 fires_glow()
     sprite_snap = 1.0
     if atmo_on: atmo_end(cam_px, zoom, 1.5)
@@ -1041,6 +1059,7 @@ let LEAVES_A_TREE = 5
 def draw_leaf_fall():
     if not shedding.length: return
     let t = gl.time()
+    let blow = gust() * 60.0  // (how far the wind carries a leaf on its way down, art px)
     gl.set_shader("color")
     for(shedding) sh:
         let cols = autumn_leaf(sh.sp, sh.pick)
@@ -1055,11 +1074,67 @@ def draw_leaf_fall():
             let h2 = mixed(h + int(floor(turn)) * 7919)
             let x0 = float(h2 % 2001) / 1000.0 - 1.0
             let from_up = top * (0.55 + 0.5 * float((h2 / 2001) % 1000) / 1000.0)
-            let x = sh.at.x + x0 * reach + sin((u * 2.2 + float(h % 97) / 97.0) * 360.0) * 5.0 + u * 7.0
+            let x = sh.at.x + x0 * reach + sin((u * 2.2 + float(h % 97) / 97.0) * 360.0) * 5.0 + u * (7.0 + blow)
             let y = sh.at.y - from_up * (1.0 - u) + x0 * x0 * 6.0 - float((h2 / 7) % 14)
             let c = cols[h % cols.length]
             gl.color(float4 { c.x, c.y, c.z, min(1.0, min(u * 8.0, (1.0 - u) * 5.0)) }):
                 gl.translate(float2 { floor(x), floor(y) }): gl.rect(if (h / 11 + int(u * 6.0)) % 2 == 0: float2 { 2.0, 1.0 } else: float2 { 1.0, 2.0 })
+
+// The wind as the eye sees it (0 .. 1): the sim's wind (wind_now), coming in gusts.
+def gust() -> float:
+    let t = gl.time()
+    return float(wind_now()) / 1000.0 * (0.7 + 0.2 * sin(t * 47.0) + 0.1 * sin(t * 131.0 + 40.0))
+
+// Rain and snow coming down (#15), drawn into the world a pixel of the art at a time, so the light of the hour falls
+// on them and they stay as crisp as everything else. The air is cut into squares fixed to the ground; each holds a few
+// drops or flakes that fall through it over and over, each from its own place and at its own time, so nothing moves
+// with the camera. Rain is short slanted strokes, leaning with the wind, and a fleck where each lands; snow is single
+// pixels (a few are two wide) swinging as they sink and carried along by the wind.
+let WEATHER_CELL = 44.0
+
+def draw_weather():
+    let kind, hard = weather_now()
+    if hard <= 0 or (kind != "rain" and kind != "snow"): return
+    let k = float(hard) / 1000.0
+    let t = gl.time()
+    let wind = gust()
+    let rain = kind == "rain"
+    let each = if rain: 3 + int(k * 6.0) else: 8 + int(k * 14.0)
+    let fall = if rain: 150.0 else: 90.0
+    let lean = if rain: 0.12 + wind * 0.5 else: 0.25 + wind * 1.6  // (sideways for each pixel down)
+    let c0 = floor((view_lo - float2 { fall * lean + 8.0, 0.0 }) / WEATHER_CELL)
+    let c1 = floor((view_hi + float2 { 8.0, fall }) / WEATHER_CELL)
+    gl.set_shader("color")
+    for(int(c1.y - c0.y) + 1) gy: for(int(c1.x - c0.x) + 1) gx:
+        let cx = int(c0.x) + gx
+        let cy = int(c0.y) + gy
+        for(each) n:
+            let h = mixed(cx * 7349 + cy * 9151 + n * 613)
+            let period = if rain: 0.55 + float(h % 30) / 100.0 else: 4.5 + float(h % 250) / 100.0
+            let turn = t / period + float((h / 250) % 1000) / 1000.0
+            let u = turn - floor(turn)
+            let h2 = mixed(h + int(floor(turn)) * 7919)
+            let x0 = (float(cx) + float(h2 % 1000) / 1000.0) * WEATHER_CELL
+            let y1 = (float(cy) + float((h2 / 1000) % 1000) / 1000.0) * WEATHER_CELL  // (where it lands)
+            if rain:
+                if u < 0.86:
+                    let v = u / 0.86
+                    let y = y1 - fall * (1.0 - v)
+                    let x = x0 - fall * (1.0 - v) * lean
+                    let long = 8 + h % 6
+                    gl.color(float4 { 0.8, 0.86, 0.94, 0.42 + 0.2 * k }):
+                        for(long / 2 + 1) q:  // (two pixels of height at a time, stepping aside as the stroke leans)
+                            gl.translate(float2 { floor(x - float(q) * 2.0 * lean), floor(y) - float(q) * 2.0 }): gl.rect(float2 { 1.0, 2.0 })
+                else:
+                    let v = (u - 0.86) / 0.14
+                    gl.color(float4 { 0.82, 0.88, 0.95, 0.4 * (1.0 - v) }):
+                        gl.translate(float2 { floor(x0) - 1.0 - floor(v * 2.0), floor(y1) }): gl.rect(float2 { 3.0 + floor(v * 2.0) * 2.0, 1.0 })
+            else:
+                let y = y1 - fall * (1.0 - u)
+                let x = x0 - fall * (1.0 - u) * lean + sin((u * 1.7 + float(h % 89) / 89.0) * 360.0) * 4.0
+                let big = h % 3 == 0
+                gl.color(float4 { 0.96, 0.97, 1.0, (if big: 0.95 else: 0.85) * min(1.0, min(u * 6.0, (1.0 - u) * 6.0)) }):
+                    gl.translate(float2 { floor(x), floor(y) }): gl.rect(if big: float2 { 2.0, 2.0 } else: float2_1)
 
 // The camp's fires (for now only for a look: the camp option lights one among the men at dusk): the fireplace's model,
 // flames drawn unlit, a glow each in the light (atmosphere.json's "glows": "building_fire"), and a thread of smoke.

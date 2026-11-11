@@ -37,6 +37,8 @@ expect(over_budget() == "", "the place is inside the size budget")
 expect(season_now() == "summer" and year_m == gint(gobj(route, "season"), "start", -1), "the season clock starts in late summer (year {year_m})")
 expect(not exists(terrain.length) c: leaf_stage_at(c) != "summer", "every tree still wears the leaves of summer")
 expect(leaves_down() == 0 and snow_lying() == 0, "no leaves are down yet and no snow lies")
+// the weather (#15): no snow on the ground, so the men walk at their own pace whatever the sky does
+expect(weather_pace() == 100, "nothing slows the men in summer ({weather_pace()})")
 let load0 = last_load_s
 // they walk in, and one of them fells the nearest young tree
 for(200):
@@ -142,9 +144,27 @@ route_arrive(over)
 expect(place_now() == "gorge" and arrived_by == "east" and season_now() == "winter", "the gorge again, from the east, in winter")
 expect(br_up[0] == 1, "the bridge they mended still stands")
 expect(leaf_stage_at(0) == "winter" and snow_lying() == 1000 and winter_depth() > 900, "midwinter: the trees are bare, snow lies, the days are at their shortest (year {year_m})")
+// (the weather in the snow: the men are slowed; a spell of weather is the same every time it is asked for, and over
+// the winter's spells snow falls and rain does not)
+let pace_snow = weather_pace()
+expect(pace_snow <= 75 and pace_snow >= 60, "lying snow slows the men ({pace_snow} in a hundred)")
+let clock_was = clock_uh
+var snows = 0
+var rains = 0
+for(40) n:
+    clock_uh = clock_was + n * 3000000 + 1500000
+    let kind, hard = weather_now()
+    let again, hard2 = weather_now()
+    expect(kind == again and hard == hard2 and hard >= 0 and hard <= 1000, "a spell of weather is the same each time it is asked for")
+    if kind == "snow": snows++
+    if kind == "rain": rains++
+clock_uh = clock_was
+expect(snows > 5 and rains == 0, "over forty spells of midwinter it snows ({snows}) and never rains ({rains})")
 for(300):
     step()
     route_tick()
+let slowed = index_of(men[0].uid)
+expect(u_speed[slowed] < t_speed[u_kind[slowed]] and u_speed[slowed] > 0, "a man in the snow walks slower ({u_speed[slowed]} for {t_speed[u_kind[slowed]]})")
 let west1 = walk_to_gate("west")
 expect(west1 == "west", "the men crossed back to the west gate")
 route_leave(west1)

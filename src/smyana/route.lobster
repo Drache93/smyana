@@ -161,6 +161,51 @@ def clock_tick():
     let span = glist(leg_now(), "year")
     if span.length > 1 and year_m < as_int(span[1]) and run_ticks % max(1, gint(gobj(route, "season"), "ticks_per_milli", 28)) == 0: year_m++
 
+// ---- the weather (issue #15, D-063)
+// It comes in spells (route.json's "weather": spell_hours on the clock each): a spell is clear, or mist, rain or snow
+// by the season's chances, counted from the spell's number so two runs get the same sky. Rain that would fall where
+// snow lies falls as snow. A spell comes on and goes off over its first and last quarter. A leg can name its own
+// ("weather": "rain"), and a leg that stands still in its season (a look) is clear unless it does.
+var weather_force = ""  // (for a look at a place in a weather: the game's weather: option)
+
+def weather_hash(n:int) -> int: return ((n * 2654435761 + 40503) >> 7) & 0xFFFF
+
+// The weather now and how hard (0 .. 1000).
+def weather_now() -> string, int:
+    let own = if weather_force != "": weather_force else: gstr(leg_now(), "weather", "")
+    if own != "": return own, 1000
+    if year_still(): return "clear", 0
+    let w = gobj(route, "weather")
+    let span = max(1, gint(w, "spell_hours", 3)) * 1000
+    let mh = clock_uh / 1000  // (thousandths of an hour since the run began)
+    let h = weather_hash(mh / span)
+    let chances = gobj(gobj(w, "chances"), season_now())
+    var roll = h % 100
+    var kind = "clear"
+    for([ "mist", "rain", "snow" ]) k:
+        let c = gint(chances, k, 0)
+        if kind == "clear" and roll >= 0 and roll < c: kind = k
+        roll -= c
+    if kind == "rain" and snow_lying() > 300: kind = "snow"
+    if kind == "snow" and snow_lying() == 0 and year_here() % 4000 < 1600: kind = "rain"
+    if kind == "clear": return kind, 0
+    let p = mh % span * 1000 / span
+    let peak = 500 + (h / 100) % 501
+    return kind, peak * min(250, min(p, 1000 - p)) / 250
+
+// The wind (0 .. 1000): a little always, more in rain and snow.
+def wind_now() -> int:
+    let kind, hard = weather_now()
+    let base = 100 + weather_hash(clock_uh / 1000000 / 2 + 77) % 250
+    return if kind == "rain" or kind == "snow": min(1000, base + hard / 2) else: base
+
+// How fast the men walk in this weather, in hundredths (#15: "snow slows the men"): lying snow takes off up to
+// route.json's weather.snow_slow, and snow coming down hard a little more.
+def weather_pace() -> int:
+    let w = gobj(route, "weather")
+    let kind, hard = weather_now()
+    return 100 - gint(w, "snow_slow", 25) * snow_lying() / 1000 - (if kind == "snow": gint(w, "snowfall_slow", 10) * hard / 1000 else: 0)
+
 def men_alive() -> int:
     var n = 0
     for(men) m: if m.alive: n++
@@ -318,6 +363,12 @@ def route_tick() -> string:
     for(u_carry) n, i:
         if n > 0 and u_carry_kind[i] == spoil: u_carry[i] = 0
     if tick % 10 != 0 or run_over(): return ""
+    // (the weather's pace on the men)
+    let pace = weather_pace()
+    for(men) m:
+        if m.alive:
+            let i = index_of(m.uid)
+            if i >= 0: u_speed[i] = max(1, t_speed[u_kind[i]] * pace / 100)
     let inside = map(gate_names): 0
     var alive = 0
     var in_any = 0
