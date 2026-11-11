@@ -44,6 +44,9 @@ def place_now() -> string: return gstr(leg_now(), "place", "")
 def run_over() -> bool: return gbool(leg_now(), "end", false)
 var season_force = ""  // (for a look at a place in another season: the game's season: option)
 def season_now() -> string: return if season_force != "": season_force else: gstr(leg_now(), "season", "summer")
+// Which leaves the trees wear: the season's, or "late" where an autumn leg says its leaves have mostly fallen
+// ("leaf_fall": more than 0): the boughs show, the last leaves hang on in clumps.
+def leaf_stage() -> string: return if season_now() == "autumn" and gint(leg_now(), "leaf_fall", 0) > 0: "late" else: season_now()
 
 def ticks_per_hour() -> int: return gint(route, "day_minutes", 8) * 60 * TICK_HZ / 24
 

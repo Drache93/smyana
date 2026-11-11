@@ -67,3 +67,10 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-10:** The wood behind a clearing goes dark and misty under its canopy, so the clearing is
   a lit room in a dark wood, as in the mock-up.
   ([journal](journal/2026-11-10-lighting-and-mood.md#fourth-pass-a-dark-wood-round-a-lit-clearing))
+- **2026-11-11:** The stream's banks slope softly down to a narrow pale stream, and the grass is pale tufts standing
+  out of the leaves; a trial of a lower camera beside the mock-up.
+  ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md))
+- **2026-11-11:** Trees after leaf-fall (bare boughs, the last leaves in clumps), the men round the fire, the trail
+  fording the stream. ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#after-leaf-fall-and-the-camp-lived-in-0620-to-0645))
+- **2026-11-11:** The pass's cliffs jog in and out, and a river winds in the gorge (picture 08).
+  ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#the-pass-faces-that-jog-a-river-in-the-gorge-0650-to-0705))
