@@ -64,6 +64,54 @@ them for an Ottoman patrol that passes while the men hide. Not decided.)
 
 (Claude stopped the environment thread here and wrote [the handoff](2026-11-11-environment-handoff.md).)
 
+## 07:59, on the next phases and the world map (voice, as transcribed in chat)
+
+> And that then brings us ready for our next phase. So we should get another fable agent to plan out our next steps. Put together a plan, we'll then make issues for that plan, and then we'll start working on it. Presumably, since we already have issues to do with locations and stuff, we need to check if there's any gaps, because we haven't really planned out what our game world map will be, the size and shape and scale. I think it's worth us putting together a two-dimensional design of the world that we're going to be moving around, where then we can then create that in 3D, decide which sections of that will be their own maps that need to be loaded and when. We'll then be in a situation where we should be able to have our 20 men walking around the entire game world with obviously nothing to do, but that's our, then our next stage. After that, we can then start on the resources, etc. mechanics. And then the very, very last one is all the threats.
+
+## 08:09 to 08:14, comments on the world plan (typed on the plan itself)
+
+Claude's plan had seven questions at its end. Each comment below was made on the part of the plan named.
+
+On "Not covered by the three phases: the village set, the intro, the homecoming and the ending":
+
+> yes of course. The phases i gave dont cover everything. But i want to focus on the feel of the game first, actually wonder now if the "risks" should be done before resources to get the sounds and music and flintlock fighting - sound and smoke is soooooo important there for the right feel
+
+On the picture of the world:
+
+> could be fun if stretch goal we have a old fashioned looking map we show in the loader
+
+On the seven maps, each loading behind a letter:
+
+> we'll need to ensure at the end of development we get the load time down
+
+On the timings of a one-hour run (two minutes at the ruins on the way home):
+
+> all of this suggets a 2 hour first game is more realistic. 2mins at the roman ruins wont ever happen
+
+On "A line, out and back, with the turn on the ridge?":
+
+> this is good. Because we coem back through different season/weather
+
+On "Seven maps, with the ruins as their own map and the pass before the ridge?":
+
+> sounds good, we'll adjust after we play if needed
+
+On "Where does the frame go?":
+
+> at the end basically
+
+On "Village in the west, climbing east?":
+
+> yes
+
+On "Are bandits a threat in the demo, or only wolves, the bear and the patrol?":
+
+> bandits we can merge with ottomans for now maybe. All that matters is some fighting vs people that also have guns
+
+On the target dates Claude guessed (phase 1 by 15 November):
+
+> realistically much shorter. We have done the whole env in less than a day. We will complete phase 1 today i expect
+
 ## 08:04, on the two pull requests left by the old threads (chat)
 
 > 45 has conflict, 46 can be merged?

@@ -268,3 +268,31 @@ pallette that was designed for the trees". The "late" stage had been thinned to 
 brown, after a review against the mock-up (Claude, earlier the same day). Now each tree keeps its own yellow, orange or
 red and about half its crown, over the fine twigs. How bare the trees go on the way to winter is still open ("Depends
 how we end up showing the change to winter").
+
+**D-053, 2026-11-11: The work goes in phases: the world map, then threats and the fight, then resources, and the frame
+last.** (Dominic) First: "20 men walking around the entire game world with obviously nothing to do". He first put
+resources second and threats last, then on reading the plan: "i want to focus on the feel of the game first, actually
+wonder now if the \"risks\" should be done before resources to get the sounds and music and flintlock fighting - sound
+and smoke is soooooo important there for the right feel". Claude swapped them and he went on from there. The village,
+intro, homecoming and ending come "at the end basically". Issues #48 to #51.
+
+**D-054, 2026-11-11: The world is one line of seven maps, out and back, with the turn on the high ridge.** (Claude's
+plan, agreed by Dominic: "this is good. Because we coem back through different season/weather", and of the seven maps,
+"sounds good, we'll adjust after we play if needed") Village edge, beech valley, deep fir woods, gorge, Roman ruins,
+the pass, the high ridge: 13 legs. The ruins are their own map and the pass comes before the ridge. The village is in
+the west and the climb goes east ("yes"). This supersedes D-050's turn-round beyond the gorge: the gorge's east gate
+leads to the ruins. The design is `docs/world.md`.
+
+**D-055, 2026-11-11: The run is two hours, not one.** (Dominic) "all of this suggets a 2 hour first game is more
+realistic. 2mins at the roman ruins wont ever happen". Supersedes the one-hour run of the design doc. The maps keep
+their sizes until the men have walked them.
+
+**D-056, 2026-11-11: Bandits are merged with the Ottoman patrol for now.** (Dominic) "All that matters is some
+fighting vs people that also have guns". One armed human enemy, who shoot back.
+
+**D-057, 2026-11-11: The load time is brought down at the end of development.** (Dominic) "we'll need to ensure at the
+end of development we get the load time down". Every load is measured from phase 1 on, so there are numbers to beat
+(#57, #82).
+
+**D-058, 2026-11-11: An old-fashioned map in the loader is a stretch goal.** (Dominic) "could be fun if stretch goal we
+have a old fashioned looking map we show in the loader". Behind the letter home, drawn from the world picture (#84).

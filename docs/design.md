@@ -129,6 +129,9 @@ lets you give orders is worth trying.
 
 ## The run: about one hour
 
+*Superseded in part on 2026-11-11 by [`world.md`](world.md): the run is two hours, through seven places on one
+line with the turn on the high ridge. The table below is the first, one-hour proposal, kept for the record.*
+
 The first version is a run of about an hour. It's built from a chain of distinct places rather
 than one endless forest, so deep woods are one mood among several. Each place is used twice, once
 on the way out and once on the way home, changed by the season. That gives the game twice the
