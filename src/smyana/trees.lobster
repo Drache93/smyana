@@ -561,8 +561,28 @@ def bake_trees(between):
     sheet_finish(ls, tree_draw_k / 2.0, false)
     trees_bake_s = seconds_elapsed() - t0
 
-// This season's leaves on the broadleaves, old and young, and the undergrowth's (winter has none: the bare wood shows).
+// What winter leaves of the undergrowth (#8): the bracken dead and rust brown, the grass as straw, the brambles' canes
+// with a few dark leaves still on. The bushes and herbs are gone.
+def dead_look(leaf:[float3], canes:bool) -> vglook:
+    let bark = if canes: [ float3 { 0.22, 0.11, 0.13 }, float3 { 0.31, 0.15, 0.17 }, float3 { 0.40, 0.20, 0.21 }, float3 { 0.50, 0.27, 0.26 } ] else: [ float3 { 0.20, 0.17, 0.14 }, float3 { 0.28, 0.24, 0.20 }, float3 { 0.37, 0.32, 0.26 }, float3 { 0.46, 0.40, 0.33 } ]
+    return vglook { leaf, bark, [ float3 { 0.3, 0.3, 0.3 }, float3 { 0.5, 0.5, 0.5 } ], false, false, false }
+
+def bake_winter():
+    if frame_at.get("fern0.winter", -1) >= 0: return
+    let vs = sheet_new("leaves_winter", "{TREE_BAKE} {VOX_K} {WB_PX}", 2048)
+    if sheet_load(vs, vox_draw_k()): return
+    let rust = [ float3 { 0.52, 0.34, 0.19 }, float3 { 0.40, 0.26, 0.15 }, float3 { 0.25, 0.17, 0.11 }, float3 { 0.62, 0.44, 0.26 } ]
+    let straw = [ float3 { 0.80, 0.72, 0.48 }, float3 { 0.63, 0.55, 0.35 }, float3 { 0.42, 0.36, 0.22 }, float3 { 0.90, 0.84, 0.62 } ]
+    let wine = [ float3 { 0.40, 0.20, 0.17 }, float3 { 0.30, 0.17, 0.15 }, float3 { 0.20, 0.13, 0.12 }, float3 { 0.48, 0.27, 0.20 } ]
+    for(FERN_KINDS) kind: tree_onto(vs, "fern{kind}.winter", fern(dead_look(rust, false), kind), true)
+    for(BRAMBLE_KINDS) kind: tree_onto(vs, "bramble{kind}.winter", bramble(dead_look(wine, true), kind), true)
+    for(TUFT_KINDS) kind: tree_onto(vs, "tuft{kind}.winter", grass_tuft(dead_look(straw, false), kind), true)
+    sheet_finish(vs, vox_draw_k(), true)
+
+// This season's leaves on the broadleaves, old and young, and the undergrowth's (in winter the bare wood shows, and
+// what is left of the undergrowth).
 def bake_season(stage:string, between):
+    if stage == "winter": bake_winter()
     if stage == trees_season or stage == "winter": return
     trees_season = stage
     if frame_at.get("beech0.crown.{stage}", -1) >= 0: return  // (baked or read earlier this run)

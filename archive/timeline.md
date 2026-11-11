@@ -82,3 +82,5 @@ One line per moment worth remembering. Newest at the bottom.
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#the-fir-woods-no-drawn-line-round-the-needle-floor-0810-to-0820))
 - **2026-11-11:** Brambles grow in thickets at the wood's edge (picture 18).
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#brambles-0825-to-0840))
+- **2026-11-11:** Winter keeps dead bracken, straw and bramble canes instead of an empty floor (picture 20).
+  ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#winter-whats-left-of-the-undergrowth-0845-to-0900))

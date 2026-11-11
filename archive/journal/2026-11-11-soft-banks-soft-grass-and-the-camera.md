@@ -102,3 +102,13 @@ Picture 16.
   a leaf at nearly every joint made them thickets.
 
 Picture 18. They are only looked at so far: walking through them costs nothing yet.
+
+## Winter: what's left of the undergrowth (08:45 to 09:00)
+
+- In winter the undergrowth simply vanished: snow, bare trees and nothing else. Now it dies back instead (#8;
+  Claude): the bracken stands dead and rust brown, one grass tuft in three shows through the snow as straw, the
+  brambles keep their canes and a few dark wine leaves. Bushes and herbs are gone until spring.
+- The strewn edge of the forest floor is much narrower in winter (0.1 against 0.3): at 0.3 it peppered the snow.
+
+Picture 20. Still wrong (Claude): two broadleaf crowns stand summer green in the snow, and the dead bracken stands as
+upright as the live (it should lie flattened).

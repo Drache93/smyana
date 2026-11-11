@@ -467,7 +467,7 @@ def view_enter(between):
     ground_bank_px = gfloat(su_map, "bank_px", 0.0)
     ground_water_edge = gfloat(su_map, "water_edge", 0.5)
     ground_shore_soft = gfloat(su_map, "shore_soft", 0.5)
-    ground_litter_fringe = 0.3  // (no drawn line where the fallen leaves and needles end: they thin out onto the grass)
+    ground_litter_fringe = if season_now() == "winter": 0.1 else: 0.3  // (no drawn line where the fallen leaves and needles end: they thin out onto the grass)
     ground_water_shallow = float3 { 0.60, 0.71, 0.84 }
     ground_water_deep = float3 { 0.40, 0.52, 0.72 }
     build_masks()
@@ -639,7 +639,9 @@ def collect_props():
             elif pr.kind == 2:
                 add(frame_at.get("stump", -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
             elif pr.kind == 5:
-                if not bare:
+                // (winter: the bushes and herbs are gone (they have no winter frame), two tufts in three are under the
+                // snow, and what's left stands dead)
+                if not bare or pr.name[0] != 't' or pidx % 3 == 0:
                     // (grass casts no shade of its own: a dot of shade under every tuft made the ground spotty)
                     if pr.name[0] != 't': add(frame_at.get(pr.name + "." + season + ".shadow", -1), pr.at.x, pr.at.y, -39996.0, float4_1)
                     add(frame_at.get(pr.name + "." + season, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
