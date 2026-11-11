@@ -127,3 +127,6 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-11:** Weather (#15): spells of mist, rain and snow by the season, the light under them, snow that slows
   the men, wind in what falls (D-063). Issues 10, 11, 13 and 14 closed after pull request 47.
   ([journal](journal/2026-11-11-closing-the-environment-issues.md#weather-mist-rain-and-snow-1045-to-1125))
+- **2026-11-11:** Cover (#9): how well each tile hides a man, from the trees, the bracken and the season clock, and
+  a spotting check for the threats to use (D-064).
+  ([journal](journal/2026-11-11-closing-the-environment-issues.md#cover-in-the-leaves-1125-to-1150))

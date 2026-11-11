@@ -115,7 +115,7 @@ What was built (Claude; decision D-063, a Proposal):
 
 - **Spells in the sim.** The weather comes in spells of three hours on the clock (`"weather"` in `data/route.json`).
   A spell is clear, mist, rain or snow by the season's chances, worked out from the spell's number, so two runs see
-  the same sky. Rain falls as snow where snow lies. A spell comes on and goes off over its first and last quarter. A
+  the same sky. The first spell of a run is always clear: the men leave on a clear morning. Rain falls as snow where snow lies. A spell comes on and goes off over its first and last quarter. A
   leg can name its own weather, and a leg that stands still in its season (the comparison scene) stays clear.
 - **Snow slows the men.** Lying snow takes up to a quarter off their pace, and snow coming down hard a tenth more.
 - **The light under it.** `"weather"` in `data/atmosphere.json` says how far each of a mood's numbers moves under mist,
@@ -137,3 +137,27 @@ Not done, said plainly: the crowns do not sway in the wind (they are baked pictu
 no snow lies on the boughs, and weather has no sound (sound is issue 59). Falling snow is hard to see against lying
 snow and reads mostly against trunks and men. I looked at still pictures only, not at the weather coming and going
 over a walk.
+
+## Cover in the leaves (11:25 to 11:50)
+
+Issue 9, on the same branch as the weather (Claude; decision D-064, a Proposal).
+
+- **A cover value per tile**, 0 to 100, worked out in the sim (`cover_at` in `src/smyana/route.lobster`, numbers in
+  `"cover"` in `data/route.json`). Each old tree within two tiles gives some: a broadleaf by the leaves it still wears,
+  a fir or a pine all year. A young tree beside the man gives a little. Bracken on his own tile gives more, and stands
+  dead through the winter at half.
+- **It drops as the leaves fall**, tree by tree, because it reads the same clock as the pictures.
+- **Felling takes it for good.** A felled tree is a stump on the map and the place remembers the map, so the cover is
+  still gone on the way home.
+- **A spotting check** (`spots`) for the wolves, the bear and the patrol to use (issues 60 to 62): a watcher's range is
+  cut by the man's cover, and by night, mist, rain and falling snow (`sight_pct`). Nothing calls it yet, because no
+  threat is built yet.
+- **No meter.** For us only, `cover` on the command line draws a bar on each tile. Picture 76 is the beech valley in
+  late summer, late autumn and midwinter with those bars:
+
+![cover](../images/2026-11-11/76-cover-through-the-year.jpg)
+
+To do this, which tree and which bracken stand on a tile is now worked out in the sim, and the view draws from the
+same rule (it was in the view only). The pictures are unchanged by it.
+
+Rendered from this branch on main `a26605e` with Creel `91f157f`.
