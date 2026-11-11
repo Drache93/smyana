@@ -201,6 +201,7 @@ def drift_at(x:float, y:float, grain:int) -> float:
     return clamp((n - 0.42) * 7.0, 0.006, 1.0)
 
 def build_props():
+    if arg_of("props") == "0": return  // props:0: the bare ground and its cliffs, for a look at them
     props = []
     let debris_t = str_index(tr_names, "rubble")
     props_version = map_version
@@ -566,6 +567,8 @@ def ground_season_tick():
         ground_atlas_mix = float(step) / 48.0
         // (no drawn line where the fallen leaves and needles end: they thin out onto the grass; under snow less so)
         ground_litter_fringe = 0.3 - 0.2 * (if next == "_winter": ground_atlas_mix elif base == "_winter": 1.0 else: 0.0)
+        // (and snow lies on the cliffs' ledges, lips and scree as it lies on the ground)
+        relief_snow = if next == "_winter": ground_atlas_mix elif base == "_winter": 1.0 else: 0.0
         ground_stale = true
     // (and the carpet of leaves on a beech wood's floor thickens with it, painted again an eighth at a time)
     if carpet_step >= 0 and int(leaf_carpet() * 8.0 + 0.5) != carpet_step: build_litter()
@@ -601,6 +604,9 @@ def view_enter(between):
     relief_sharp = true
     // (and no rim is ruled straight along the tiles: the ground by a drop rises and falls, Dominic's "hard edges")
     relief_rough = (if arg_of("rough") != "": string_to_float(arg_of("rough")) else: gfloat(su_map, "rough", 0.9))
+    // (proper cliffs, Creel #25: each drop a curve through the unwalkable tile below it, with ledges, a rolled rim and scree)
+    relief_cliffs = if arg_of("cliffs") != "": string_to_float(arg_of("cliffs")) else: gfloat(su_map, "cliffs", 0.0)
+    if relief_cliffs > 0.0: relief_rough = 0.0
     build_relief()
     trail_wear()
     build_trail()

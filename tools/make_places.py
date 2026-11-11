@@ -154,13 +154,14 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
     if gorge:
         gx, half = gorge
         # (Dominic, 2026-11-11, on the first try, which had sheer walls four levels high: "erm those are all hard
-        # edges on the gorge though". A wall is now a broken slope of rock: it climbs its four levels over four or
-        # five tiles in ledges, each ledge's edge wandering by a noise of its own, the wall's foot bending slowly, so
-        # no face is tall and none runs straight for long. Bare stony ground and outcrops lie on the ledges.)
+        # edges on the gorge though". Then the walls were broken slopes with a rock on nearly every cell to hide the
+        # ruled faces. Now Creel draws proper cliffs (Creel #25, D-075): each level's drop is a curve through the tile
+        # below it, with ledges, a rolled rim and scree. So the wall is laid plainly, rising its four levels outward
+        # in each row: its foot bends slowly, and how many tiles it takes to climb changes along it, from one (a sheer
+        # face four levels high, over the river's bends) to five (a stair of ledges). Rock lies on some ledges and at
+        # the foot, not over everything.)
         bend = {-1: noise1(rng, h, 14), 1: noise1(rng, h, 14)}
-        wide = {-1: noise1(rng, h, 9), 1: noise1(rng, h, 9)}
-        rough = [noise1(rng, w, 3) for _ in range(h)]
-        rough2 = [noise1(rng, h, 4) for _ in range(w)]
+        wide = {-1: noise1(rng, h, 7), 1: noise1(rng, h, 7)}
         ty_at = {-1: trail_y[gx - half - 2], 1: trail_y[gx + half + 2]}
         for y in range(h):
             for x in range(w):
@@ -172,16 +173,13 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
                     continue
                 # (beside the ramp the wall stands where the ramp does, and bends away from it over a few rows)
                 ease = min(1.0, (abs(y - ty_at[side]) - 3) / 6.0)
-                dd = d - bend[side][y] * 3.0 * ease + (rough[y][x] * 0.9 + rough2[x][y] * 0.9) * (0.4 + 0.6 * ease)
-                span = 4.0 + wide[side][y] * 1.2 * ease     # how many tiles the wall takes to climb
-                k = int(math.ceil(dd * 4.0 / span))
+                foot = bend[side][y] * 2.5 * ease
+                span = 4.0 if ease < 1.0 else max(1.0, min(5.0, 2.6 + wide[side][y] * 3.2))
+                dd = d - foot                               # tiles up the wall from its foot
+                k = 0 if dd <= 0 else int(math.ceil(dd * 4.0 / span - 1e-9))
                 lev[(x, y)] = 2 + max(0, min(4, k))
-                # (the wall is rock: outcrops of gneiss stand on nearly every ledge and along the rim above, each its
-                # own shape, so what the eye meets is broken rock and not the ledges' square edges)
-                if 0 < k <= 5 and g[y][x] in ".":
-                    r = rng.random()
-                    g[y][x] = "#" if r < (0.85 if k <= 4 else 0.45) else "b"
-                elif k == 0 and dd > -1.0 and g[y][x] in "." and rng.random() < 0.3: g[y][x] = "#"   # (fallen rock at the foot)
+                if 0 < k < 4 and g[y][x] in "." and rng.random() < 0.22: g[y][x] = "#"   # (a rock on a ledge)
+                elif k == 0 and dd > -1.5 and g[y][x] in "." and rng.random() < 0.18: g[y][x] = "#"   # (fallen at the foot)
         for side in (-1, 1):
             x0, x1 = sorted((gx + side * (half - 3), gx + side * (half + 7)))
             ramp_zone.append((x0, ty_at[side] - 4, x1, ty_at[side] + 4))
@@ -273,6 +271,10 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
     if bridges:  # (Creel: a timber deck over these tiles, x0, y0, x1, y1)
         rows = doc.pop("rows")
         doc["bridges"] = bridges
+        doc["rows"] = rows
+    if lev:
+        rows = doc.pop("rows")
+        doc["cliffs"] = 0.7   # (Creel's relief_cliffs: how far each drop wanders across the tile below it)
         doc["rows"] = rows
     if lev:  # the ground's levels (Creel: 0 to 9): the place stands at 4, the gorge's bed at 0, the bluff at 8
         rows = doc.pop("rows")

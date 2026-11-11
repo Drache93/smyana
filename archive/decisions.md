@@ -379,3 +379,18 @@ three, which made the men's edges jagged. Creel's `sprite_even` samples sprites 
 solid and only the screen pixel where two meet is a mix, so the art stays crisp (D-041) and reads evenly. The ground is
 not changed. Rejected: zooming only in whole-number steps (fewer, bigger zoom jumps), and remaking the men at twice the
 detail (a much bigger job that changes their look).
+
+**D-075, 2026-11-11: Cliffs are drawn off the grid, and the sim's levels stay as they are.** (Dominic asked for proper
+cliffs, Creel #25; Claude chose how.) Creel's `relief_cliffs` draws each level's drop as a curve inside the unwalkable
+tile below it, with ledges where two drops drift apart, scree at the foot, ramps as straight slopes and snow on the
+ledges in winter. Walkable ground keeps its level, so pathing, the bridge and the ford are unchanged. The gorge's walls
+are laid plainly, from a sheer four-level face to a five-tile stair of ledges, with rock on a fifth of the ledges
+instead of nearly every cell. Rejected: overhangs (a different store than a height field, much more work), and a rim
+that rolls over (it left seams at the ramps). Supersedes the rock cover of the gorge's walls (picture 82).
+
+**D-076, 2026-11-11: The far-below set piece is built from real height first.** (Claude; a Proposal.) For Dominic's
+men on a mountain road with the Ottomans following far below on the same path, the pass or ridge map (#52 to #55) gets
+a road on a shelf seven or eight levels above the valley path, with proper cliffs between. At the 22-degree camera
+that is about 250 art pixels of drop, half the screen at zoom 2. A perspective trick (a far valley drawn smaller and
+hazier beyond the map) is a Creel feature to make only if that is not deep enough. The road should run east-west so
+the cliff faces south and is lit.
