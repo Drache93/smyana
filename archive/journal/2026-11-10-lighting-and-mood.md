@@ -99,3 +99,27 @@ Pictures 58 and 59 were rendered with PR #25 merged in locally.
 ![Crisp, hard and light, the target on the left](../images/2026-11-10/58-crisp-hard-light-shade-beside-the-target.jpg)
 ![The same at dusk](../images/2026-11-10/59-crisp-dusk-beside-the-target.jpg)
 ![Bug: each layer alone, smudges from the rays, mist and woods](../images/2026-11-10/73-bug-smudges-rays-mist-woods.jpg)
+
+## Fourth pass: a dark wood round a lit clearing
+Dominic, after the crisp pass merged: "Our pic still looks like big bright omni light on everything"
+([his words](../notes/2026-11-10-lighting-and-mood.md#after-the-crisp-pass-merged-2218)). The
+branches' own shade went to the trees thread, inside the tree bakes. Claude had started it in
+Creel's voxel baker and handed that patch over rather than doubling up. This thread took the back
+of the wood, where the mock-up is dark and misty and ours was lit ground between the trunks.
+
+What was missing is the canopy. Each tree only shaded the ground under its own crown, so in a
+wood the sun still came down between every pair of trees. Now Smyana counts the old trees round
+each one (5 by 5 tiles). The more closed the wood is round a tree, the wider its crown's shade
+spreads, up to 1.8 times, until it meets its neighbours'. The floor under a closed wood lies in
+shade, while a clearing and the open wood keep their sun. That shade goes into Creel's shade
+buffer through a new `atmo_shade_canopy` shader, which marks it as deep wood as well as shade.
+The atmosphere pass then darkens, greys and mists only that, pixel for pixel, so it stays crisp.
+This replaces the old blurred `woods` ring, which smudged. Trees deep in the wood are drawn darker
+too. The settings are in `atmosphere.json`: `sun.canopy`, `canopy_reach`, `canopy_trees`,
+`canopy_dim`, and the autumn day's `woods` and `mist`.
+
+The comparison uses the trees thread's like-for-like scene (PR #31, `leg:camp_look camp:28,31
+look:30,30 hour:16 zoom:2.75`). Summer's open wood barely changes.
+
+![The dark wood round a lit clearing, above the target](../images/2026-11-10/85-dark-wood-lit-clearing-above-the-target.jpg)
+![Before (top) and after the canopy shade](../images/2026-11-10/87-before-and-after-canopy-shade.jpg)

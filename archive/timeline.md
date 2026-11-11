@@ -64,3 +64,6 @@ One line per moment worth remembering. Newest at the bottom.
   ([journal](journal/2026-11-10-the-camp-tents-fire-and-horses.md))
 - **2026-11-10:** The camp placed in the comparison scene: tents behind the fire, mules and horses at the wood's edge
   (picture 96). ([journal](journal/2026-11-10-rhodope-trees-ground-and-rock.md#the-camp-stands-in-the-comparison-scene-2335-to-2350))
+- **2026-11-10:** The wood behind a clearing goes dark and misty under its canopy, so the clearing is
+  a lit room in a dark wood, as in the mock-up.
+  ([journal](journal/2026-11-10-lighting-and-mood.md#fourth-pass-a-dark-wood-round-a-lit-clearing))
