@@ -153,7 +153,14 @@ def build_canopy():
 
 // Where the soft grass grows, 0 (none) to 1 (thick), x and y in tiles: smooth drifts a few tiles across, and thin
 // single tufts between them.
-let TUFTS_A_TILE = 26
+// A whole number stirred well (cell_hash's low bits march in step for numbers in a row).
+def mixed(n:int) -> int:
+    var v = (n + 0x9E3779B9) & 0xFFFFFFFF
+    v = ((v ^ (v >> 16)) * 0x45D9F3B) & 0xFFFFFFFF
+    v = ((v ^ (v >> 16)) * 0x45D9F3B) & 0xFFFFFFFF
+    return v ^ (v >> 16)
+
+let TUFTS_A_TILE = 24
 def drift_at(x:float, y:float, grain:int) -> float:
     def lattice(ix:int, iy:int, seed:int) -> float: return float(cell_hash(iy * 4099 + ix + seed) % 1000) / 1000.0
     def smooth(px:float, py:float, seed:int) -> float:
@@ -165,7 +172,7 @@ def drift_at(x:float, y:float, grain:int) -> float:
         let sv = v * v * (3.0 - 2.0 * v)
         return (lattice(ix, iy, seed) * (1.0 - su) + lattice(ix + 1, iy, seed) * su) * (1.0 - sv) + (lattice(ix, iy + 1, seed) * (1.0 - su) + lattice(ix + 1, iy + 1, seed) * su) * sv
     let n = smooth(x * 0.3, y * 0.3, grain) * 0.8 + smooth(x * 0.95, y * 0.95, grain + 49) * 0.2
-    return clamp((n - 0.34) * 6.0, 0.05, 1.0)
+    return clamp((n - 0.42) * 7.0, 0.006, 1.0)
 
 def build_props():
     props = []
@@ -225,11 +232,12 @@ def build_props():
                 if nx >= 0 and ny >= 0 and nx < W and ny < H and terrain[ny * W + nx] == old: shading++
             let sunny = clamp(1.15 - float(shading) / 7.0, 0.08, 1.0)
             for(TUFTS_A_TILE) k:
-                let h3 = cell_hash(c * TUFTS_A_TILE + k + 80021)
-                let at = float2 { float((c % W) * 1000 + (h3 / 7) % 1000), float((c / W) * 1000 + (h3 / 11) % 1000) }
+                // (three well-mixed numbers a tuft: where in the tile, and its chance)
+                let h3 = mixed(c * TUFTS_A_TILE + k)
+                let at = float2 { float((c % W) * 1000 + h3 % 1000), float((c / W) * 1000 + (h3 / 1000) % 1000) }
                 // (grass wants light: thick in a clearing, thin under a close wood)
                 let thick = drift_at(at.x / 1000.0, at.y / 1000.0, grass_seed) * sunny
-                if thick * 100.0 > float(cell_hash(h3 * 31 + k * 7919 + 13) % 100): props.push(Prop { 5, 0, "tuft{(h3 / 5) % TUFT_KINDS}", "", gp(at.x, at.y), c })
+                if thick * 100.0 > float((h3 / 1000000) % 100): props.push(Prop { 5, 0, "tuft{(h3 / 7) % TUFT_KINDS}", "", gp(at.x, at.y), c })
                 elif k < 2 and thick > 0.5 and (h3 / 3) % 10 < 2: props.push(Prop { 5, 0, "herb{(h3 / 5) % HERB_KINDS}", "", gp(at.x, at.y), c })
             if (h2 / 100) % 100 >= 90 and (h2 / 100) % 100 < 94: props.push(Prop { 5, 0, "sapling", "", centre, c })
             if (h2 / 100) % 100 < 6: props.push(Prop { 5, 0, "bush{h2 % BUSH_KINDS}", "", centre + iso(float((h2 / 13) % 600) - 300.0, float((h2 / 19) % 600) - 300.0), c })
@@ -607,7 +615,8 @@ def collect_props():
                 add(frame_at.get("stump", -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
             elif pr.kind == 5:
                 if not bare:
-                    add(frame_at.get(pr.name + "." + season + ".shadow", -1), pr.at.x, pr.at.y, -39996.0, float4_1)
+                    // (grass casts no shade of its own: a dot of shade under every tuft made the ground spotty)
+                    if pr.name[0] != 't': add(frame_at.get(pr.name + "." + season + ".shadow", -1), pr.at.x, pr.at.y, -39996.0, float4_1)
                     add(frame_at.get(pr.name + "." + season, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
             else:
                 add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39997.0, float4_1)

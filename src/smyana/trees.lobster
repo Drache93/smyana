@@ -7,7 +7,7 @@
 // seen. The leaves are baked once a season (their colour), behind the letter home, and kept in bake_cache/.
 
 let TREE_K = 64.0  // voxels a tile for the load of wood (baked at twice this)
-let TREE_BAKE = "trees 33"
+let TREE_BAKE = "trees 34"
 // Voxels a tile in the trees, rocks and undergrowth: one voxel is one pixel of Creel's art (WB_PX at its art scale of
 // 3), as the men's are, so they are as crisp as the men (Dominic, 2026-11-10: "evryhting crisp and sharp").
 let VOX_K = 135.7645
@@ -270,26 +270,24 @@ def herbs(look:vglook, kind:int) -> vgrid:
 let TUFT_KINDS = 6
 def grass_tuft(look:vglook, kind:int) -> vgrid:
     let rng = grng(1470 + kind)
-    let g = fine_grid(look, 0.14, 0.14, 1470 + kind)
-    let tall = 0.05 + 0.014 * float(kind % 3)
-    for(3 + kind % 3):
-        // (a few feet close together, so a tuft is a clump and not a fan)
-        let foot = float3 { randf_range(rng, -0.04, 0.04), randf_range(rng, -0.04, 0.04), 0.0 }
-        for(5 + kind % 2):
-            let a = randf_range(rng, 0.0, 360.0)
-            let lean = randf_range(rng, 0.008, 0.034)
-            let top = foot + float3 { cos(a) * lean, sin(a) * lean, tall * randf_range(rng, 0.55, 1.2) }
-            let steps = 7
-            for(steps) n:
-                let u = float(n) / float(steps - 1)
-                // (a stem bows out as it rises; dark at the foot, pale at the tip)
-                let p = foot + (top - foot) * u + float3 { cos(a), sin(a), 0.0 } * lean * 0.5 * u * u
-                leaf_dab(g, p, 0.0085, -0.75 + 1.6 * u + randf_range(rng, -0.1, 0.1))
-            // a leaf or two off the stem, in its upper half
-            for(1):
-                let u = randf_range(rng, 0.45, 0.95)
-                let p = foot + (top - foot) * u + float3 { randf_range(rng, -0.014, 0.014), randf_range(rng, -0.014, 0.014), 0.0 }
-                leaf_dab(g, p, 0.0098, -0.2 + 1.1 * u)
+    let g = fine_grid(look, 0.2, 0.16, 1470 + kind)
+    let tall = 0.055 + 0.016 * float(kind % 3)
+    // (airy: single stems a voxel thick standing a little apart over a hand's breadth of ground, so tufts side by
+    // side run into one soft mass and no tuft is a ball)
+    for(9 + (kind % 2) * 3):
+        let foot = float3 { randf_range(rng, -0.1, 0.1), randf_range(rng, -0.1, 0.1), 0.0 }
+        let a = randf_range(rng, 0.0, 360.0)
+        let lean = randf_range(rng, 0.004, 0.03)
+        let top = foot + float3 { cos(a) * lean, sin(a) * lean, tall * randf_range(rng, 0.5, 1.2) }
+        let steps = 8
+        for(steps) n:
+            let u = float(n) / float(steps - 1)
+            // (a stem bows out as it rises; dark at the foot, pale at the tip)
+            let p = foot + (top - foot) * u + float3 { cos(a), sin(a), 0.0 } * lean * 0.5 * u * u
+            leaf_dab(g, p, 0.0064, -0.8 + 1.7 * u + randf_range(rng, -0.1, 0.1))
+        // a leaf off the stem, in its upper half
+        let ul = randf_range(rng, 0.5, 0.95)
+        leaf_dab(g, foot + (top - foot) * ul + float3 { randf_range(rng, -0.012, 0.012), randf_range(rng, -0.012, 0.012), 0.0 }, 0.0086, -0.1 + 1.0 * ul)
     return g
 
 // The soft grass' colours: straw yellow tips over olive in autumn, fresh green in spring and summer.

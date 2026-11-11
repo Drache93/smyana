@@ -74,3 +74,5 @@ One line per moment worth remembering. Newest at the bottom.
   fording the stream. ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#after-leaf-fall-and-the-camp-lived-in-0620-to-0645))
 - **2026-11-11:** The pass's cliffs jog in and out, and a river winds in the gorge (picture 08).
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#the-pass-faces-that-jog-a-river-in-the-gorge-0650-to-0705))
+- **2026-11-11:** Grass is fine stems massed in drifts, no dots and no spot shadows (pictures 10, 12).
+  ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#the-grass-again-fine-stems-in-drifts-0710-to-0740))

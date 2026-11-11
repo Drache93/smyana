@@ -62,3 +62,13 @@ More of the detail the mock-up has and we lacked (picture 06):
 
 Picture 08. Still wrong (Claude): the jogs are square blocks, a quarry more than a mountain; faces need breaking at a
 finer grain than a tile, which Creel's ground can't do yet.
+
+## The grass again: fine stems in drifts (07:10 to 07:40)
+
+- Seen in the beech valley, the first tufts read as small round bushes, evenly dotted, each with a spot of shadow
+  (Claude's own look at it; Dominic had asked for "all the soft grass").
+- A tuft is now nine to twelve single stems spread over a fifth of a tile, a leaf dab on each, and casts no shadow.
+- Where tufts stand comes from a better-mixed number (the old one put them in rows), 24 chances a tile, and the
+  drifts have a harder edge: thick inside, almost nothing outside.
+
+Pictures 10 (the scene) and 12 (the beech valley's ford).
