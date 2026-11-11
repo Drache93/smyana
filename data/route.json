@@ -5,6 +5,8 @@
  "start_edge": "west",
  "start_hour": 7,
  "day_minutes": 8,
+ "night": { "_doc": "The night's hours on the clock run faster (speed, in hundredths of the day's), so a night by the fire is about a minute (#13).", "from": 21, "to": 5, "speed": 250 },
+ "season": { "_doc": "The season clock (#10, D-059). The year in thousandths of a season: 0 high summer, 1000 full autumn, 2000 midwinter, 3000 spring. 'start' is the year when the men leave; the clock moves one thousandth every 'ticks_per_milli' sim ticks while they are in a place, between that leg's 'year' ends. A leg's 'altitude' is how far its high ground runs ahead of the valley in autumn (and behind in spring). A leg with a 'season' instead stands still in it (the looks).", "start": 450, "ticks_per_milli": 28 },
  "letter_seconds": 20,
  "budget": {
   "_doc": "How big one place may be, so it loads behind the letter home and stays light to draw: tiles across and down, and how many old trees.",
@@ -12,28 +14,28 @@
  },
  "legs": {
   "beech_valley_out": {
-   "place": "beech_valley", "name": "The beech valley", "season": "summer",
+   "place": "beech_valley", "name": "The beech valley", "year": [450, 800],
    "exits": { "east": { "to": "fir_woods_out", "arrive": "west", "hours": 5, "letter": "first_night" } }
   },
   "fir_woods_out": {
-   "place": "fir_woods", "name": "The deep fir woods", "season": "autumn",
+   "place": "fir_woods", "name": "The deep fir woods", "year": [800, 1150], "altitude": 150,
    "exits": { "east": { "to": "gorge_out", "arrive": "west", "hours": 6, "letter": "into_the_gorge" } }
   },
   "gorge_out": {
    "_doc": "The trail's bridge is found broken (#20, D-049): mend it with carried wood, or go down to the ford. Beyond the east gate is the season's work, not played: the men come back in by that gate in winter.",
-   "place": "gorge", "name": "The gorge", "season": "autumn", "leaf_fall": 60, "bridge_down": 1,
+   "place": "gorge", "name": "The gorge", "year": [1150, 1500], "altitude": 50, "bridge_down": 1,
    "exits": { "east": { "to": "gorge_home", "arrive": "east", "hours": 8, "letter": "turning_home" } }
   },
   "gorge_home": {
-   "place": "gorge", "name": "The gorge, going home", "season": "winter",
+   "place": "gorge", "name": "The gorge, going home", "year": [2000, 2300], "altitude": 50,
    "exits": { "west": { "to": "fir_woods_home", "arrive": "east", "hours": 6, "letter": "through_the_snow" } }
   },
   "fir_woods_home": {
-   "place": "fir_woods", "name": "The deep fir woods, going home", "season": "winter",
+   "place": "fir_woods", "name": "The deep fir woods, going home", "year": [2300, 2600], "altitude": 150,
    "exits": { "west": { "to": "beech_valley_home", "arrive": "east", "hours": 5, "letter": "last_of_the_snow" } }
   },
   "beech_valley_home": {
-   "place": "beech_valley", "name": "The beech valley, going home", "season": "spring",
+   "place": "beech_valley", "name": "The beech valley, going home", "year": [2600, 3000],
    "exits": { "west": { "to": "home", "arrive": "", "hours": 3, "letter": "almost_home" } }
   },
   "camp_look": {

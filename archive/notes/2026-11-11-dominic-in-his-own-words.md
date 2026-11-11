@@ -143,3 +143,9 @@ the first trunks: picture 44.)
 > Go
 
 > Yes we need to pace ourselves, have them document current state and stop
+
+## 10:18, a minute later (chat)
+
+> Environment needs to be our focus
+
+(So the environment thread went on, and the music and start-up threads stopped.)

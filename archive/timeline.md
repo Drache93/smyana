@@ -115,5 +115,9 @@ One line per moment worth remembering. Newest at the bottom.
   ([journal](journal/2026-11-11-closing-the-environment-issues.md#the-riders-face-along-the-path-under-the-trees-1000-to-1010))
 - **2026-11-11:** The world is planned in 2D: one trail, seven maps, 13 legs, two hours (D-053 to D-058; pictures 60 and 62). Dominic answered the plan's questions in ten minutes and 36 issues were made from it.
   ([journal](journal/2026-11-11-the-world-in-2d-and-the-phases.md), [the world](../docs/world.md))
+- **2026-11-11:** The season is a clock (D-059): trees turn one by one, leaves come down, snow settles and goes, the light stands between two seasons, the days shorten into winter (picture 46).
+  ([journal](journal/2026-11-11-closing-the-environment-issues.md#the-season-clock-1010-to-1050))
 - **2026-11-11:** The environment work pauses, with its state written down: the season clock done and kept as a patch, the shadows on the horses half fixed.
   ([note](notes/2026-11-11-environment-state-at-the-pause.md))
+- **2026-11-11:** Men and horses take the shade of the ground at their feet, so a tree's shadow is no longer painted flat across a horse (picture 48).
+  ([journal](journal/2026-11-11-closing-the-environment-issues.md#the-trees-shadows-on-the-horses-1015-to-1040))

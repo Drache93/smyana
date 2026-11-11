@@ -4,6 +4,7 @@
  "sun": { "_doc": "how high the sun stands, degrees, for the shadows baked into the art (low: long shadows, as in the mock-ups)", "elevation": 40, "dither": 0.15, "leaf_tones": 4, "canopy": 1.8, "canopy_reach": 2, "canopy_trees": 12, "canopy_dim": 0.45, "flecks": 5 },
  "maps": {},
  "hours": { "_doc": "the hour each mood starts; _blend: the hours before it in which the one before turns into it", "_blend": 1.5, "dawn": 5, "day": 8, "dusk": 18, "night": 21 },
+ "hours_winter": { "_doc": "the same hours at midwinter (#13): the days shorten into winter with the season clock, and lengthen again", "dawn": 6.5, "day": 9, "dusk": 15.5, "night": 18 },
  "moods": {
   "day": { "exposure": 0.0, "contrast": 0.06, "saturation": 0.0, "shadow_tint": "#30405a", "shadow": 0.18, "highlight_tint": "#fff2d0", "highlight": 0.12,
            "haze_colour": "#cfe0d8", "haze": 0.12, "haze_start": 0.45, "haze_drift": 0.3, "vignette": 0.3, "vignette_radius": 0.85, "bloom": 0.07, "bloom_threshold": 0.8, "glow": 1.0, "glow_air": 0.2,
