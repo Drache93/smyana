@@ -321,6 +321,14 @@ def build_props():
             props = filter(props) pr: pr.kind != 5 or abs(pr.at.x - f.x) > 46.0 or abs(pr.at.y - f.y) > 26.0
         for(camp) e, i: props.push(Prop { 4, 0, as_str(e.a[0]), "", stands[i], 0 })
 
+    // the Roman ruins (#17), where the place has them ("ruins": [name, x, y in milli-tiles] each): the undergrowth
+    // grows up round them but not through a wall or a column (only between the road's stones)
+    let ruins = glist(su_map, "ruins")
+    if ruins.length:
+        let stands = map(ruins) e: gp(as_float(e.a[1]), as_float(e.a[2]))
+        props = filter(props) pr: pr.kind != 5 or not exists(ruins) e, i:
+            not starts_with(as_str(e.a[0]), "paving") and abs(pr.at.x - stands[i].x) < 34.0 and abs(pr.at.y - stands[i].y) < 18.0
+        for(ruins) e, i: props.push(Prop { 3, 0, as_str(e.a[0]), "", stands[i], (as_int(e.a[2]) / 1000) * W + as_int(e.a[1]) / 1000 })
     build_canopy()
 
 // The trail is a path a man or two wide, not a road a tile wide (the mock-ups: a thin tan line through the leaves).
@@ -575,6 +583,8 @@ def view_enter(between):
     build_stream(gfloat(su_map, "stream", 0.25))
     // (a mountain's cliffs are sheer and jog square: no corner of high ground is cut down to a slope)
     relief_sharp = true
+    // (and no rim is ruled straight along the tiles: the ground by a drop rises and falls, Dominic's "hard edges")
+    relief_rough = (if arg_of("rough") != "": string_to_float(arg_of("rough")) else: gfloat(su_map, "rough", 0.9))
     build_relief()
     trail_wear()
     build_trail()

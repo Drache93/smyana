@@ -24,7 +24,7 @@ def noise1(rng, n, step):
 RIM = 10  # tiles of thick forest round every place, so the view never runs off the map (the camera stays inside it)
 
 
-def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, young_clumps, clearings, rocks, slide=None, river=None):
+def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, young_clumps, clearings, rocks, slide=None, river=None, ruins=None):
     # (the numbers are given for the part you walk in: the rim is added round it)
     w, h, west_y, east_y = w + RIM * 2, h + RIM * 2, west_y + RIM, east_y + RIM
     if stream_x >= 0: stream_x += RIM
@@ -48,6 +48,8 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
         trail_y.append(int(round(base + wob[x] * 7 * min(1.0, edge))))
     if slide:  # (the ledge of the pass runs level and straight)
         for x in range(slide[0] + RIM - slide[1] - 1, slide[0] + RIM + slide[1] + 2): trail_y[x] = trail_y[slide[0] + RIM]
+    if ruins:  # (the Roman road runs straight)
+        for x in range(ruins + RIM - 7, ruins + RIM + 8): trail_y[x] = trail_y[ruins + RIM]
     # the valley's sides: rock along the north and south edges, ragged
     north = noise1(rng, w, 9)
     south = noise1(rng, w, 9)
@@ -204,6 +206,27 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
             for x in range(x0, x1 + 1):
                 if g[y][x] == "." and (x, y) not in lev and slide and y > trail_y[slide[0] + RIM] + 9 and rng.random() < 0.1 and not near_t(x, y): g[y][x] = "t"
 
+    # the Roman ruins (#17, D-067): the trail runs on the old paved road for a dozen tiles, a drain beside it, column
+    # stubs along its north side and one fallen, the footings of a building behind them; a clearing round them. Each
+    # piece is a prop ("ruins": [name, x, y in milli-tiles]); the ground under them stays grass, so the undergrowth
+    # grows up among them and turns with the year.
+    ruin_props = []
+    if ruins:
+        rx = ruins + RIM
+        ry = trail_y[rx]
+        clearings.append((rx, ry - 2, 7))
+        def ruin(name, x, y):
+            ruin_props.append([name, x * 1000 + 500, y * 1000 + 500])
+            if g[y][x] not in ":=~": g[y][x] = "."
+        for x in range(rx - 6, rx + 7): ruin("pavingx%d" % ((x * 7) % 4), x, trail_y[x])
+        for x in range(rx - 4, rx + 3): ruin("drainx%d" % (1 if x == rx - 1 else 0), x, trail_y[x] + 1)
+        for k, x in enumerate([rx - 5, rx - 2, rx + 4]): ruin("column%d" % (k % 2), x, trail_y[x] - 2)
+        ruin("drumsx0", rx + 1, trail_y[rx + 1] - 2)
+        ruin("drumsy1", rx - 3, trail_y[rx - 3] + 3)
+        for x in range(rx - 3, rx + 2): ruin("wallx%d" % (0 if x in (rx - 3, rx) else 1), x, ry - 7)
+        for y in range(ry - 6, ry - 4): ruin("wally%d" % (y % 2), rx - 4, y)
+        ruin("wally1", rx + 2, ry - 6)
+
     # young trees: clumps to fell, never touching each other on all sides (a man must reach each one)
     for _ in range(young_clumps):
         cx, cy = rng.randrange(RIM + 3, w - RIM - 3), rng.randrange(RIM + 3, h - RIM - 3)
@@ -237,6 +260,10 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
         "wood": wood,
         "rows": ["".join(r) for r in g],
     }
+    if ruin_props:
+        rows = doc.pop("rows")
+        doc["ruins"] = ruin_props
+        doc["rows"] = rows
     if bridges:  # (Creel: a timber deck over these tiles, x0, y0, x1, y1)
         rows = doc.pop("rows")
         doc["bridges"] = bridges
@@ -264,3 +291,6 @@ place("fir_woods", "deep", 1879, 96, 64, west_y=28, east_y=36, stream_x=-1, old_
 # and a ford a way downstream.
 place("gorge", "beech", 1880, 96, 64, west_y=30, east_y=34, stream_x=-1, old_gap=1.6, old_fill=1.5, young_clumps=30,
       clearings=[(38, 31, 4), (58, 31, 4)], rocks=[(42, 24, 3), (55, 40, 3), (44, 52, 3), (70, 18, 4)], river=(48, 16))
+# The Roman ruins, for a look until their own map (issue 53): a small beech clearing with the old road through it.
+place("ruins", "beech", 1881, 40, 30, west_y=16, east_y=15, stream_x=-1, old_gap=1.6, old_fill=1.4, young_clumps=6,
+      clearings=[], rocks=[(6, 4, 2)], ruins=20)
