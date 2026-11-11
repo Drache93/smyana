@@ -1,10 +1,10 @@
 beech_sapling_0 43 36
 beech_young_0 61 78
 beech_young_1 74 67
-beech_mature_0 85 108
-beech_mature_1 111 94
-beech_old_0 119 123
-beech_old_1 144 110
+beech_mature_0 105 94
+beech_mature_1 89 108
+beech_old_0 143 123
+beech_old_1 133 112
 oak_mature_0 111 109
 oak_old_0 120 137
 oak_old_1 136 132
@@ -17,3 +17,9 @@ pine_old_1 86 107
 spruce_mature_0 53 52
 spruce_old_0 63 62
 spruce_old_1 62 65
+fir_mature_0 55 55
+fir_old_0 67 65
+fir_old_1 65 67
+bpine_mature_0 73 65
+bpine_old_0 100 90
+bpine_old_1 79 90

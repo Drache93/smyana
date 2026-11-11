@@ -53,6 +53,11 @@ def run_over() -> bool: return gbool(leg_now(), "end", false)
 // the day, the cover the wood gives (#9).
 let SEASONS = [ "summer", "autumn", "winter", "spring" ]
 var year_m = 0
+var wood_force = ""  // (for a look at a place with another wood's trees: the game's wood: option)
+
+// Which trees stand in this place: its map's "wood", or the look's.
+def place_wood() -> string: return if wood_force != "": wood_force else: gstr(su_map, "wood", "beech")
+
 var season_force = ""  // (for a look at a place in another season: the game's season: option)
 var year_force = -1    // (and at a point of the year between seasons: the game's year: option)
 
@@ -188,17 +193,20 @@ def cell_hash(c:int) -> int: return ((c * 2654435761) >> 7) & 0xFFFF
 // the trunks run up out of sight).
 def old_species(wood:string, pick:int) -> string:
     let r = (pick / 3) % 8
-    var sp = if r < 4: "beech" elif r < 6: "oak" elif r < 7: "hornbeam" else: "pine"
-    if wood == "deep": sp = if r < 6: "tall" elif r < 7: "spruce" else: "beech"
-    if wood == "conifer": sp = if r < 5: "spruce" elif r < 7: "pine" else: "beech"
+    // (a pine among the beeches is a Scots pine or a black pine, half and half; the conifer woods mix spruce, silver
+    // fir, Scots and black pine; in the deep woods a fir stands among the spruces' tall trunks now and then)
+    let other = (pick / 24) % 2 == 1
+    var sp = if r < 4: "beech" elif r < 6: "oak" elif r < 7: "hornbeam" elif other: "bpine" else: "pine"
+    if wood == "deep": sp = if r < 6: "tall" elif r < 7: (if other: "fir" else: "spruce") else: "beech"
+    if wood == "conifer": sp = if r < 3: "spruce" elif r < 5: "fir" elif r < 6: "pine" elif r < 7: "bpine" else: "beech"
     return sp
 
 def leafy(sp:string) -> bool: return sp == "beech" or sp == "oak" or sp == "hornbeam"
 
 // The old tree on this cell (a place can say it has no pines among its beeches: "pines": 0).
 def old_tree_at(c:int) -> string:
-    let sp = old_species(gstr(su_map, "wood", "beech"), cell_hash(c) / 7)
-    return if sp == "pine" and gint(su_map, "pines", 1) == 0: "beech" else: sp
+    let sp = old_species(place_wood(), cell_hash(c) / 7)
+    return if (sp == "pine" or sp == "bpine") and gint(su_map, "pines", 1) == 0: "beech" else: sp
 
 // Bracken grows in drifts a few tiles across, and a little between them.
 def bracken_drift(c:int) -> bool: return cell_hash((c / W / 4) * W + (c % W) / 4 + 9001) % 8 < 3
@@ -229,7 +237,7 @@ def cover_at(c:int) -> int:
                 let leaves = if leafy(sp): leaf_cover_of(leaf_stage_at(n)) elif sp == "tall": gint(cv, "tall", 70) else: 100
                 canopy += gint(cv, if near: "tree_near" else: "tree_far", 10) * leaves / 100
             elif terrain[n] == young and near:
-                low += gint(cv, "young", 8) * (if gstr(su_map, "wood", "beech") == "beech": leaf_cover_of(leaf_stage_at(n)) else: 100) / 100
+                low += gint(cv, "young", 8) * (if place_wood() == "beech": leaf_cover_of(leaf_stage_at(n)) else: 100) / 100
     if terrain[c] == str_index(tr_names, "grass") and bracken_at(c):
         let stage = leaf_stage_at(c)
         low += gint(cv, "bracken", 20) * (if stage == "winter": 50 elif stage == "spring": 80 else: 100) / 100

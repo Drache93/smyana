@@ -144,3 +144,5 @@ One line per moment worth remembering. Newest at the bottom.
   seen in winter. Proper cliffs opened as Creel issue 25 at Dominic's word. ([engine](engine/2026-11-11-rough-relief.md))
 - **2026-11-11:** The Roman ruins' props: a paved road, a drain, wall stubs with a brick band, column stubs and a
   fallen column, in a look clearing until their map is made. ([journal](journal/2026-11-11-the-roman-ruins.md))
+- **2026-11-11:** Silver fir and black pine as their own trees; beech trunks thicker and forking lower; a felled tree
+  leaves its top and a sawn round by its stump. ([journal](journal/2026-11-11-trees-fir-black-pine-and-the-felled.md))

@@ -61,6 +61,7 @@ let debug_line = has_s(args, "debug")
 let show_cover = has_s(args, "cover")                                             // cover: a mark on each tile, the more solid the better it hides a man (#9), for a look
 hour_force = if arg_of("hour") != "": string_to_float(arg_of("hour")) else: -1.0  // hour:16.5: this place at that hour, for a look
 year_force = if arg_of("year") != "": string_to_int(arg_of("year")) else: -1      // year:1300: this place at that point of the year (0 summer, 1000 autumn, 2000 winter, 3000 spring), for a look
+wood_force = arg_of("wood")                                                       // wood:conifer: this place with another wood's trees, for a look
 season_force = arg_of("season")                                                   // season:autumn: this place in another season, for a look
 weather_force = arg_of("weather")                                                 // weather:rain: this place in mist, rain or snow, for a look
 let shots_dir = arg_of("shots")                                                   // a picture every few seconds into this folder (with script:tour)
@@ -203,7 +204,7 @@ def build_props():
     props = []
     let debris_t = str_index(tr_names, "rubble")
     props_version = map_version
-    let wood = gstr(su_map, "wood", "beech")
+    let wood = place_wood()
     let pines = gint(su_map, "pines", 1) != 0
     let trail_t = str_index(tr_names, "trail")
     let water_t = str_index(tr_names, "water")
@@ -222,12 +223,15 @@ def build_props():
         if t == old:
             let sp0, k = old_kind(wood, h / 7)
             // (a place can say it has no pines among its beeches, "pines": 0: the mock-up's clearing has none)
-            let sp = if sp0 == "pine" and not pines: "beech" else: sp0
+            let sp = if (sp0 == "pine" or sp0 == "bpine") and not pines: "beech" else: sp0
             props.push(Prop { 0, k, "{sp}{k}", sp, off, c })
         elif t == young:
             let fir = wood != "beech" and (h / 7) % 4 != 0
             props.push(Prop { 1, h / 7, if fir: "yspruce{(h / 7) % YOUNG_KINDS}" else: "young{(h / 7) % YOUNG_KINDS}", if fir: "spruce" else: "beech", centre, c })
-        elif t == stump: props.push(Prop { 2, 0, "stump", "", centre, c })
+        elif t == stump:
+            // (and what was left when it was sawn up lies beside it: its top and boughs, a round of its trunk)
+            props.push(Prop { 2, 0, "stump", "", centre, c })
+            props.push(Prop { 6, 0, "brash{(h / 7) % BRASH_KINDS}", "", centre + iso(float((h / 5) % 300) + 150.0, float((h / 11) % 300) - 150.0), c })
         elif t == rock:
             props.push(Prop { 3, 0, "rock{(h / 7) % ROCK_KINDS}", "", off, c })
         elif t == debris_t:
@@ -485,7 +489,7 @@ def build_litter():
                     if v > a[y * w + x]: a[y * w + x] = v
     // autumn in a broadleaf wood: the year's leaves lie over nearly everything, thinner in the open
     let turf_seed = gint(su_map, "grass_seed", 9001)
-    if carpet > 0.0 and gstr(su_map, "wood", "beech") == "beech":
+    if carpet > 0.0 and place_wood() == "beech":
         for(h) y: for(w) x:
             // (2026-11-11: the leaves lie over all of it, only a worn spot of turf here and there: the mock-up's grass
             // stands out of the leaves in tufts, it isn't a green floor between drifts of them)
@@ -537,7 +541,7 @@ def ground_turn() -> string, string, float:
 def ground_season_tick():
     let base, next, t = ground_turn()
     def atlas(name:string) -> resource<texture>?:
-        return gl.load_texture("../data/ground/atlas" + (if gstr(su_map, "wood", "beech") != "beech": "_conifer" else: "") + name + ".png", texture_format_clamp | texture_format_nomipmap | texture_format_nearest_mag | texture_format_nearest_min)
+        return gl.load_texture("../data/ground/atlas" + (if place_wood() != "beech": "_conifer" else: "") + name + ".png", texture_format_clamp | texture_format_nomipmap | texture_format_nearest_mag | texture_format_nearest_min)
     if base != ground_base or next != ground_next:
         ground_atlas_tex = atlas(base)
         ground_atlas_next = if next != base: atlas(next) else: nil
@@ -781,7 +785,7 @@ let FOOT_DARK = float4 { 0.035, 0.03, 0.022, 0.0 }
 // Half a trunk's width at the ground, in its sheet's pixels (measured on the baked trunks: an oak's is broad, a
 // hornbeam's slim; a spruce's inside its low boughs).
 def trunk_half(sp:string) -> float:
-    return if sp == "oak": 16.0 elif sp == "hornbeam": 9.0 elif sp == "beech": 11.5 elif sp == "tall": 11.0 else: 10.0
+    return if sp == "oak": 16.0 elif sp == "hornbeam": 9.0 elif sp == "beech": 11.5 elif sp == "tall": 11.0 elif sp == "bpine": 12.0 elif sp == "fir": 11.0 else: 10.0
 
 def foot_at(f:int, x:float, y:float, half:float):
     if f >= 0 and x > view_lo.x - 20.0 and x < view_hi.x + 20.0 and y > view_lo.y - 10.0 and y < view_hi.y + 10.0:
