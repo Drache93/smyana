@@ -365,3 +365,10 @@ grass. The summer light no longer lays a yellow highlight and a pale yellow-gree
 cool. The crowns are deeper and bluer greens, each kind its own and each tree of a kind fresher or darker, while the
 meadow under them is warmer and olive, with one tuft in three gone straw. Last year's leaves under the beeches are dull
 and mossy, and the floor under the conifers is thin needles on moss, not a dark brown pool round every tree.
+
+**D-070, 2026-11-11: The Roman road is one long road, cut into tiles, that changes as it goes.** (Dominic asked for
+it to be less samey, #97; Claude chose how.) Every stone and kerb is laid once along the whole road, stones of many
+sizes, so no tile repeats. It bows a little off straight and runs whole, heaved by roots, with its stones gone, buried
+with only the kerbs showing, and fades into the trail at both ends (`ROAD_PLAN`). Its drain comes and goes and runs
+under it once in a culvert (`ROAD_DRAIN`). Grass and undergrowth grow where its stones are gone or buried, and a young
+tree has come up through its kerb. The road's pieces cast no baked shadow (a long flat piece's shadow drew stray lines).

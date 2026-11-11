@@ -218,8 +218,14 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
         def ruin(name, x, y):
             ruin_props.append([name, x * 1000 + 500, y * 1000 + 500])
             if g[y][x] not in ":=~": g[y][x] = "."
-        for x in range(rx - 6, rx + 7): ruin("pavingx%d" % ((x * 7) % 4), x, trail_y[x])
-        for x in range(rx - 4, rx + 3): ruin("drainx%d" % (1 if x == rx - 1 else 0), x, trail_y[x] + 1)
+        # (the road is one long piece of work, cut into tiles: road0 to road12, in the order of ROAD_PLAN in
+        # src/smyana/trees.lobster, its drain drawn with it; where its stones are gone or buried, grass grows over it,
+        # and a young tree has come up through its kerb, #97)
+        plan = "fwhwgwwbbwhgf"
+        for k, x in enumerate(range(rx - 6, rx + 7)):
+            ruin("road%d" % k, x, trail_y[x])
+            if plan[k] in "gb": g[trail_y[x]][x] = "."
+        g[trail_y[rx + 4] - 1][rx + 4] = "t"
         for k, x in enumerate([rx - 5, rx - 2, rx + 4]): ruin("column%d" % (k % 2), x, trail_y[x] - 2)
         ruin("drumsx0", rx + 1, trail_y[rx + 1] - 2)
         ruin("drumsy1", rx - 3, trail_y[rx - 3] + 3)

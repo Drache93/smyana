@@ -148,3 +148,5 @@ One line per moment worth remembering. Newest at the bottom.
   leaves its top and a sawn round by its stump. ([journal](journal/2026-11-11-trees-fir-black-pine-and-the-felled.md))
 - **2026-11-11:** Summer fixed after Dominic's look: clear light, crowns cooler and deeper than the meadow, varied greens,
   no brown pools under the firs. ([journal](journal/2026-11-11-summer-greens.md))
+- **2026-11-11:** The Roman road made one long varied road: heaved, gone and buried stretches, a bend, a drain that
+  comes and goes, a culvert. ([journal](journal/2026-11-11-the-roman-road-varied.md))
