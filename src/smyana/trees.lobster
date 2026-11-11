@@ -632,7 +632,11 @@ def bake_trees(between):
         trees_bake_s = seconds_elapsed() - t0
     let rs = sheet_new("rocks", "{TREE_BAKE} {VOX_K} {WB_PX}", 2048)
     let ls = sheet_new("load", "{TREE_BAKE} {TREE_K} {WB_PX}", 256)
-    if sheet_load(rs, vox_draw_k()) and sheet_load(ls, tree_draw_k / 2.0): return
+    // (the load is baked finer still: a sheet of its own, drawn at its own size)
+    if not sheet_load(ls, tree_draw_k / 2.0):
+        tree_onto(ls, "load.wood", wood_load(beech), false)
+        sheet_finish(ls, tree_draw_k / 2.0, true)
+    if sheet_load(rs, vox_draw_k()): return
     let gneiss = gneiss_look()
     for(ROCK_KINDS) kind: tree_onto(rs, "rock{kind}", outcrop(gneiss, kind), true)
     for(CRAG_KINDS) kind:
@@ -647,9 +651,6 @@ def bake_trees(between):
     debris.bark = [ float3 { 0.19, 0.15, 0.11 }, float3 { 0.27, 0.21, 0.15 }, float3 { 0.35, 0.28, 0.20 }, float3 { 0.44, 0.36, 0.26 } ]
     for(RUBBLE_KINDS) kind: tree_onto(rs, "rubble{kind}", rubble(debris, kind), true)
     sheet_finish(rs, vox_draw_k(), true)
-    // (the load is baked finer still: a sheet of its own, drawn at its own size)
-    tree_onto(ls, "load.wood", wood_load(beech), false)
-    sheet_finish(ls, tree_draw_k / 2.0, false)
     trees_bake_s = seconds_elapsed() - t0
 
 // What winter leaves of the undergrowth (#8): the bracken dead and rust brown, the grass as straw, the brambles' canes
