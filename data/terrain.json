@@ -7,7 +7,7 @@
   "young_tree": { "walkable": false, "move": [], "colour": "#3a5a30", "colour2": "#32502c", "resource": "wood", "amount": 4, "depleted": "stump" },
   "stump": { "walkable": true, "colour": "#55683a", "colour2": "#4c5e36" },
   "rock": { "walkable": false, "move": [], "colour": "#77736a", "colour2": "#68655d" },
-  "rubble": { "walkable": false, "move": [], "colour": "#6a5a44", "colour2": "#5c4e3a" },
+  "rubble": { "walkable": false, "move": [], "colour": "#6a5a44", "colour2": "#5c4e3a", "resource": "spoil", "amount": 8, "depleted": "bare" },
   "bare": { "walkable": true, "colour": "#7a766c", "colour2": "#6c685f" },
   "water": { "walkable": false, "move": [], "colour": "#3d6f7a", "colour2": "#356472" },
   "river": { "walkable": false, "move": [], "colour": "#4d7f88", "colour2": "#447580" },

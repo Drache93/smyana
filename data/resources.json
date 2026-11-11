@@ -1,7 +1,8 @@
 {
- "_doc": "What the men can carry. A man's load is one kind at a time (docs/design.md: carrying is people).",
+ "_doc": "What the men can carry. A man's load is one kind at a time (docs/design.md: carrying is people). Spoil is a landslide's earth and rock (#20): it is dug, never carried (route_tick throws it aside).",
  "resources": [
   { "id": "wood", "name": "Wood", "spots": true, "staple": true },
-  { "id": "food", "name": "Food", "spots": true, "staple": true }
+  { "id": "food", "name": "Food", "spots": true, "staple": true },
+  { "id": "spoil", "name": "Spoil", "spots": true, "staple": false }
  ]
 }

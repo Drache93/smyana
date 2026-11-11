@@ -21,6 +21,7 @@ class PlaceMemory:
     amount:[int]   // what's left of each tree being cut
     wear:[int]     // the trails worn by walking
     visits:int
+    bridges:[int]  // each bridge of the map: standing (1) or down
 
 var route = jobj()
 var men_data = jobj()
@@ -44,6 +45,9 @@ def place_now() -> string: return gstr(leg_now(), "place", "")
 def run_over() -> bool: return gbool(leg_now(), "end", false)
 var season_force = ""  // (for a look at a place in another season: the game's season: option)
 def season_now() -> string: return if season_force != "": season_force else: gstr(leg_now(), "season", "summer")
+// Which leaves the trees wear: the season's, or "late" where an autumn leg says its leaves have mostly fallen
+// ("leaf_fall": more than 0): the boughs show, the last leaves hang on in clumps.
+def leaf_stage() -> string: return if season_now() == "autumn" and gint(leg_now(), "leaf_fall", 0) > 0: "late" else: season_now()
 
 def ticks_per_hour() -> int: return gint(route, "day_minutes", 8) * 60 * TICK_HZ / 24
 
@@ -115,7 +119,11 @@ def enter_leg(id:string, edge:string):
         for(mem.terrain) t, c: if terrain[c] != t: set_terrain(c, t)
         for(mem.amount) a, c: amount[c] = a
         wear = copy(mem.wear)
+        // (a bridge is as the men left it: mended, or still down)
+        for(mem.bridges) up, k: if up == 0 and k < br_up.length: bridge_hurt(k, 1 << 20)
     else:
+        // a bridge found broken (#20: the leg's "bridge_down")
+        if gint(leg_now(), "bridge_down", 0) > 0: for(br_id.length) k: bridge_hurt(k, 1 << 20)
         // the first time here: the trail is already worn (others walk it too)
         let trail = str_index(tr_names, "trail")
         for(terrain) t, c: if t == trail: wear[c] = tr_max
@@ -172,8 +180,35 @@ def men_read():
 
 // After every sim tick: the clock, and whether the men are all standing in a gate that leads on. Returns that
 // gate's edge ("" while they aren't).
+// The chosen men mend broken bridge k (#20, D-049): it costs wood, and the wood is what they carry on their backs. If
+// they carry enough between them it comes off their loads and they go to work; if not, nothing happens. Whether.
+def mend_bridge(ids:[int], k:int) -> bool:
+    if br_up[k] == 1: return false
+    let wood = str_index(resource_names, "wood")
+    if br_payer[k] < 0:
+        var have = 0
+        for(ids) id:
+            let i = index_of(id)
+            if i >= 0 and u_carry_kind[i] == wood + 1: have += u_carry[i]
+        var need = br_cost[wood]
+        if have < need: return false
+        for(ids) id:
+            let i = index_of(id)
+            if i >= 0 and u_carry_kind[i] == wood + 1 and need > 0:
+                let n = min(need, u_carry[i])
+                u_carry[i] -= n
+                need -= n
+        stock[wood][0] += br_cost[wood]
+    issue_cmd(0, CMD_HELP_BUILD, ids, br_id[k], 0, 0, 0)
+    return true
+
 def route_tick() -> string:
     run_ticks++
+    // (clearing a landslide (#20): what a man digs out he throws aside, down the slope, so he is never loaded with
+    // it and digs on till the heap is gone)
+    let spoil = str_index(resource_names, "spoil") + 1
+    for(u_carry) n, i:
+        if n > 0 and u_carry_kind[i] == spoil: u_carry[i] = 0
     if tick % 10 != 0 or run_over(): return ""
     let inside = map(gate_names): 0
     var alive = 0
@@ -207,7 +242,7 @@ def route_leave(edge:string):
     men_read()
     let place = place_now()
     let was = place_memory.get(place)
-    place_memory.set(place, PlaceMemory { copy(terrain), copy(amount), copy(wear), if was: was.visits + 1 else: 1 })
+    place_memory.set(place, PlaceMemory { copy(terrain), copy(amount), copy(wear), if was: was.visits + 1 else: 1, copy(br_up) })
 
 // The walk to the next place (the clock moves on), and the next place loaded with the men at its edge.
 def route_arrive(edge:string):

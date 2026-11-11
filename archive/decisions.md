@@ -236,3 +236,28 @@ darker-woods ring that D-041 switched off.
 switching. Summer, spring and winter get their own day light, matched to the mock-ups. The men are kept
 readable by the light itself, not by UI markers (as #7 asks): a little less shade, mist and dark on
 them, stronger at dusk and night.
+
+**D-048, 2026-11-11: A landslide is dug away like a tree is felled.** (Claude's how, to Dominic's obstacle in #20:
+"to be cleared, climbed or walked round") A heap of the slide is ground the men can work: order them onto it and they
+dig, eight spells of work a heap, and it is left as bare ground they can walk. What they dig they throw aside: nobody
+is loaded with it, and it is worth nothing. It costs only time, against squeezing by the lip one man at a time. It is
+data (the `rubble` ground carries a resource, `spoil`), so the same works for any heap on any place.
+
+**D-049, 2026-11-11: A broken bridge is mended with the wood on the men's backs.** (Claude's how, to Dominic's
+obstacle in #20: "The men can repair it with wood they've cut (slow, and it costs wood), or go another way.") Mending
+costs eight wood, two full loads, and it is taken off the loads of the men sent to mend it: no store, no pile, in
+keeping with "carrying is people". With too little wood between them nothing happens. Two men take about twenty
+seconds; more are quicker. The other way is a ford a way downstream, reached by a side path from each bank. A place
+remembers whether its bridge was left mended or down.
+
+**D-050, 2026-11-11: The gorge is on the route, and the men turn round beyond it.** (Claude, following the route in
+`docs/design.md`) The run is now beech valley, fir woods, gorge on the way out, and the same three back: the gorge and
+the firs in winter, the beeches in spring. The season's work lies beyond the gorge's east gate and isn't played: the
+men leave by that gate in autumn and come back in by it in winter. So the landslide and the bridge are each met
+twice, and are found the second time as they were left. The new letters are placeholders, as the others are.
+
+**D-051, 2026-11-11: The camera looks down at 22 degrees, and the angle is the game's setting.** (Dominic) "let's try
+lowering camera angle", after seeing 30 and 22 side by side with the mock-up, and then: "Camera angle should be game
+setting not engine enforced". Creel keeps 30 degrees as its own and gains the settings; Smyana asks for 22 in
+`data/route.json` (`camera_elev`). Everything baked is baked again for the angle. It is a try: `elev:30` on the command
+line shows the old view.

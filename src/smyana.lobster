@@ -155,11 +155,35 @@ def build_canopy():
                     if u >= 0 and v >= 0 and u < W and v < H and terrain[v * W + u] == old: n++
             smoothstep(canopy_trees * 0.35, canopy_trees, float(n - 1))
 
+// Where the soft grass grows, 0 (none) to 1 (thick), x and y in tiles: smooth drifts a few tiles across, and thin
+// single tufts between them.
+// A whole number stirred well (cell_hash's low bits march in step for numbers in a row).
+def mixed(n:int) -> int:
+    var v = (n + 0x9E3779B9) & 0xFFFFFFFF
+    v = ((v ^ (v >> 16)) * 0x45D9F3B) & 0xFFFFFFFF
+    v = ((v ^ (v >> 16)) * 0x45D9F3B) & 0xFFFFFFFF
+    return v ^ (v >> 16)
+
+let TUFTS_A_TILE = 24
+def drift_at(x:float, y:float, grain:int) -> float:
+    def lattice(ix:int, iy:int, seed:int) -> float: return float(cell_hash(iy * 4099 + ix + seed) % 1000) / 1000.0
+    def smooth(px:float, py:float, seed:int) -> float:
+        let ix = int(floor(px))
+        let iy = int(floor(py))
+        let u = px - float(ix)
+        let v = py - float(iy)
+        let su = u * u * (3.0 - 2.0 * u)
+        let sv = v * v * (3.0 - 2.0 * v)
+        return (lattice(ix, iy, seed) * (1.0 - su) + lattice(ix + 1, iy, seed) * su) * (1.0 - sv) + (lattice(ix, iy + 1, seed) * (1.0 - su) + lattice(ix + 1, iy + 1, seed) * su) * sv
+    let n = smooth(x * 0.3, y * 0.3, grain) * 0.8 + smooth(x * 0.95, y * 0.95, grain + 49) * 0.2
+    return clamp((n - 0.42) * 7.0, 0.006, 1.0)
+
 def build_props():
     props = []
     let debris_t = str_index(tr_names, "rubble")
     props_version = map_version
     let wood = gstr(su_map, "wood", "beech")
+    let grass_seed = gint(su_map, "grass_seed", 9001)  // (which way this place's drifts of grass fall)
     let old = str_index(tr_names, "tree")
     let young = str_index(tr_names, "young_tree")
     let stump = str_index(tr_names, "stump")
@@ -184,7 +208,26 @@ def build_props():
             // a landslide's debris (#20): a heap of earth and broken rock on each tile, a broken trunk here and there
             props.push(Prop { 3, 0, "rubble{(h / 7) % RUBBLE_KINDS}", "", off + iso(float((h / 5) % 500) - 250.0, float((h / 23) % 500) - 250.0), c })
             if (h / 3) % 5 == 0: props.push(Prop { 6, 0, "log{h % LOG_KINDS}", "", off + iso(float(h % 500) - 250.0, float((h / 9) % 500) - 250.0), c })
-        elif t == bare_p and level[c] > 0 and (h / 13) % 6 == 0:
+        // a cliff's foot (#20): crags stand against the face behind this tile (to its north, or to its west), more
+        // of them where the face turns a corner, and loose rock lies between them
+        if t != debris_t and t != rock:
+            let cx = c % W
+            for([ -W, -1 ]) d, side:
+                let n = c + d
+                if n >= 0 and (side == 0 or cx > 0) and level[n] - level[c] >= 2:
+                    let hs = mixed(c * 2 + side + 77001)
+                    let o = c + (if side == 0: -1 else: -W)  // (the tile beside this one, along the face)
+                    let corner = o >= 0 and (level[o] != level[c] or level[o + d] != level[n])
+                    let along = float(hs % 700 + 150)
+                    let out = float((hs / 700) % 140 + 150)
+                    let at = if side == 0: gp(float(cx * 1000) + along, float((c / W) * 1000) + out) else: gp(float(cx * 1000) + out, float((c / W) * 1000) + along)
+                    let tall = level[n] - level[c] >= 4
+                    if corner or (hs / 100000) % 10 < 3:
+                        let k = if tall: [ 0, 3, 1, 0 ][(hs / 9) % 4] else: 2
+                        props.push(Prop { 3, 0, (if side == 0: "cragx" else: "cragy") + "{k}", "", at, c })
+                    elif (hs / 100000) % 10 < 7:
+                        props.push(Prop { 4, 0, "slabs{(hs / 7) % SLAB_KINDS}", "", at, c })
+        if t == bare_p and level[c] > 0 and (h / 13) % 6 == 0:
             // bare mountain ground: a few loose slabs and stones lie on it
             props.push(Prop { 4, 0, "slabs{(h / 7) % SLAB_KINDS}", "", off, c })
         elif t == grass and (h / 11) % 3 == 0:
@@ -203,13 +246,27 @@ def build_props():
             if h2 % 100 < (if drift: 62 else: 7): props.push(Prop { 5, 0, "fern{h2 % FERN_KINDS}", "", off, c })
             if drift and h2 % 7 < 3:
                 props.push(Prop { 5, 0, "fern{(h2 / 3) % FERN_KINDS}", "", centre + iso(float((h2 / 11) % 700) - 350.0, float((h2 / 17) % 700) - 350.0), c })
-            // (low herbs in pale patches of their own, a few tiles across)
-            // (they grow where the litter lies thin: build_litter's open ground, so a drift of herbs fills each gap in the leaves)
-            let patch = open_ground((c % W) * MASK_K + MASK_K / 2, (c / W) * MASK_K + MASK_K / 2) or cell_hash((c / W / 3) * W + (c % W) / 3 + 7001) % 8 < 1
-            if patch:
-                for(3) k:
-                    let h3 = cell_hash(c * 3 + k + 80021)
-                    if h3 % 10 < 7: props.push(Prop { 5, 0, "herb{(h3 / 5) % HERB_KINDS}", "", centre + iso(float((h3 / 23) % 900) - 450.0, float((h3 / 29) % 900) - 450.0), c })
+            // (soft grass: pale tufts standing out of the leaves in drifts a few tiles across, thick at a drift's
+            // middle and thinning to single tufts at its edge; a low herb here and there among them)
+            var shading = 0
+            for(5) dy: for(5) dx:
+                let nx = c % W + dx - 2
+                let ny = c / W + dy - 2
+                if nx >= 0 and ny >= 0 and nx < W and ny < H and terrain[ny * W + nx] == old: shading++
+            let sunny = clamp(1.15 - float(shading) / 7.0, 0.08, 1.0)
+            for(TUFTS_A_TILE) k:
+                // (three well-mixed numbers a tuft: where in the tile, and its chance)
+                let h3 = mixed(c * TUFTS_A_TILE + k)
+                let at = float2 { float((c % W) * 1000 + h3 % 1000), float((c / W) * 1000 + (h3 / 1000) % 1000) }
+                // (grass wants light: thick in a clearing, thin under a close wood)
+                let thick = drift_at(at.x / 1000.0, at.y / 1000.0, grass_seed) * sunny
+                if thick * 100.0 > float((h3 / 1000000) % 100): props.push(Prop { 5, 0, "tuft{(h3 / 7) % TUFT_KINDS}", "", gp(at.x, at.y), c })
+                elif k < 2 and thick > 0.5 and (h3 / 3) % 10 < 2: props.push(Prop { 5, 0, "herb{(h3 / 5) % HERB_KINDS}", "", gp(at.x, at.y), c })
+            // brambles (#8): at a wood's edge, where a tree or two gives half shade, in thickets of a few tiles
+            let thicket = mixed((c / W / 3) * W + (c % W) / 3 + 5501) % 10 < 3
+            let hb = mixed(c + 88001)
+            if shading >= 1 and shading <= 4 and hb % 100 < (if thicket: 45 else: 3):
+                props.push(Prop { 5, 0, "bramble{(hb / 100) % BRAMBLE_KINDS}", "", gp(float((c % W) * 1000 + (hb / 1000) % 1000), float((c / W) * 1000 + (hb / 1000000) % 1000)), c })
             if (h2 / 100) % 100 >= 90 and (h2 / 100) % 100 < 94: props.push(Prop { 5, 0, "sapling", "", centre, c })
             if (h2 / 100) % 100 < 6: props.push(Prop { 5, 0, "bush{h2 % BUSH_KINDS}", "", centre + iso(float((h2 / 13) % 600) - 300.0, float((h2 / 19) % 600) - 300.0), c })
             elif (h2 / 100) % 100 == 99: props.push(Prop { 6, 0, "log{h2 % LOG_KINDS}", "", centre, c })
@@ -219,6 +276,11 @@ def build_props():
     if camp.length:
         let stands = map(camp) e: gp(as_float(e.a[1]), as_float(e.a[2]))
         props = filter(props) pr: pr.kind != 5 or not exists(stands) q: abs(pr.at.x - q.x) < 60.0 and abs(pr.at.y - q.y) < 34.0
+        // (nor round the fire, where the men tread: "fire", x and y in milli-tiles)
+        let hearth = glist(su_map, "fire")
+        if hearth.length:
+            let f = gp(as_float(hearth[0]), as_float(hearth[1]))
+            props = filter(props) pr: pr.kind != 5 or abs(pr.at.x - f.x) > 46.0 or abs(pr.at.y - f.y) > 26.0
         for(camp) e, i: props.push(Prop { 4, 0, as_str(e.a[0]), "", stands[i], 0 })
 
     build_canopy()
@@ -266,6 +328,72 @@ def build_trail():
     paths_tex = gl.create_texture(map(h) y: map(w) x: float4 { a[y * w + x], 0.0, 0.0, 0.0 }, texture_format_clamp | texture_format_nomipmap)
     ground_stale = true
 
+// A stream is narrower than its tiles and its banks slope (Dominic, 2026-11-11: "The ebankment is too sharp, should be
+// softly going down"). Creel's water mask is a tile's worth of water, blurred; so after build_masks the water is
+// painted again here, finer: a line through the middle of the water's tiles, eased where they step, falling off evenly
+// to each side, so the shader has a waterline (0.5) and a slope beyond it. Open water (water all round) stays whole.
+let STREAM_K = 8   // samples a tile
+let BANK_W = 0.36  // how far back from the waterline the bank begins to fall, tiles
+
+def build_stream(half:float):
+    let wet = map(tr_names) nm: nm == "water" or nm == "ford" or nm == "river" or nm == "shallows"
+    def on(x:int, y:int) -> bool: return x >= 0 and y >= 0 and x < W and y < H and wet[terrain[y * W + x]]
+    if not (exists(terrain): wet[_]): return
+    def mid(x:int, y:int) -> float2:
+        var sum = float2_0
+        var n = 0.0
+        for(3) dy: for(3) dx:
+            if on(x + dx - 1, y + dy - 1):
+                let wgt = if dx == 1 and dy == 1: 2.0 else: 1.0
+                sum += float2 { float(x + dx - 1) + 0.5, float(y + dy - 1) + 0.5 } * wgt
+                n += wgt
+        return sum / n
+    let w = W * STREAM_K
+    let h = H * STREAM_K
+    let a = map(w * h): 0.0
+    def stroke(p:float2, q:float2, r:float):
+        let lo = min(p, q) - r - BANK_W
+        let hi = max(p, q) + r + BANK_W
+        for(int((hi.y - lo.y) * float(STREAM_K)) + 2) j: for(int((hi.x - lo.x) * float(STREAM_K)) + 2) i:
+            let sx = int(lo.x * float(STREAM_K)) + i
+            let sy = int(lo.y * float(STREAM_K)) + j
+            if sx >= 0 and sy >= 0 and sx < w and sy < h:
+                let c = float2 { (float(sx) + 0.5) / float(STREAM_K), (float(sy) + 0.5) / float(STREAM_K) }
+                let t = clamp(dot(c - p, q - p) / max(dot(q - p, q - p), 0.0001), 0.0, 1.0)
+                // (1 in midstream, 0.5 at the waterline, then the bank: down to 0 over BANK_W tiles more)
+                let d = magnitude(c - p - (q - p) * t)
+                let v = if d <= r: 1.0 - 0.5 * d / r else: clamp(0.5 * (1.0 - (d - r) / BANK_W), 0.0, 0.5)
+                if v > a[sy * w + sx]: a[sy * w + sx] = v
+    // (a place may give its streams' own lines: "streams", each a list of x, y in milli-tiles; else through the tiles)
+    let courses = glist(su_map, "streams")
+    for(courses) ln:
+        for(ln.a.length / 2 - 1) i:
+            stroke(float2 { as_float(ln.a[i * 2]), as_float(ln.a[i * 2 + 1]) } / 1000.0, float2 { as_float(ln.a[i * 2 + 2]), as_float(ln.a[i * 2 + 3]) } / 1000.0, half)
+    for(if courses.length: 0 else: H) y: for(W) x:
+        if on(x, y):
+            var open = true
+            for(3) dy: for(3) dx: if not on(x + dx - 1, y + dy - 1): open = false
+            let p = mid(x, y)
+            if open: stroke(float2 { float(x) + 0.5, float(y) + 0.5 }, float2 { float(x) + 0.5, float(y) + 0.5 }, 1.2)
+            for([ int2 { 1, 0 }, int2 { 0, 1 }, int2 { 1, 1 }, int2 { -1, 1 } ]) d:
+                if on(x + d.x, y + d.y): stroke(p, mid(x + d.x, y + d.y), half)
+    // (the other masks as Creel made them, between its samples)
+    let mw = W * MASK_K
+    let mh = H * MASK_K
+    def other(x:int, y:int, ch:int) -> float:
+        let fx = (float(x) + 0.5) * float(MASK_K) / float(STREAM_K) - 0.5
+        let fy = (float(y) + 0.5) * float(MASK_K) / float(STREAM_K) - 0.5
+        let x0 = clamp(int(floor(fx)), 0, mw - 1)
+        let y0 = clamp(int(floor(fy)), 0, mh - 1)
+        let x1 = min(x0 + 1, mw - 1)
+        let y1 = min(y0 + 1, mh - 1)
+        let u = clamp(fx - float(x0), 0.0, 1.0)
+        let v = clamp(fy - float(y0), 0.0, 1.0)
+        def b(xx:int, yy:int) -> float: return float(mask_bytes[(yy * mw + xx) * 4 + ch]) / 255.0
+        return (b(x0, y0) * (1.0 - u) + b(x1, y0) * u) * (1.0 - v) + (b(x0, y1) * (1.0 - u) + b(x1, y1) * u) * v
+    mask_tex = gl.create_texture(map(h) y: map(w) x: float4 { a[y * w + x], other(x, y, 1), other(x, y, 2), other(x, y, 3) }, texture_format_clamp | texture_format_nomipmap)
+    ground_stale = true
+
 // The worn ground for the shader, without the trail's own tiles (build_trail draws those).
 def trail_wear():
     let trail = str_index(tr_names, "trail")
@@ -302,11 +430,10 @@ def build_litter():
     // autumn in a broadleaf wood: the year's leaves lie over nearly everything, thinner in the open
     if season_now() == "autumn" and gstr(su_map, "wood", "beech") == "beech":
         for(h) y: for(w) x:
-            // (not everywhere: in the open the grass, herbs and bare earth still show between the drifts)
+            // (2026-11-11: the leaves lie over all of it, only a worn spot of turf here and there: the mock-up's grass
+            // stands out of the leaves in tufts, it isn't a green floor between drifts of them)
             let patch = float(cell_hash((y / 3) * w + x / 3 + 5003) % 100) / 100.0
-            let open = open_ground(x, y)
-            if not open: a[y * w + x] = max(a[y * w + x], 0.3 + 0.4 * patch)
-            elif patch > 0.7: a[y * w + x] = max(a[y * w + x], 0.3)
+            a[y * w + x] = max(a[y * w + x], if patch < 0.05 and open_ground(x, y): 0.36 else: 0.62 + 0.2 * patch)
     // scree under a landslide's debris (the shader's G), reaching a little past it and ragged
     let sc = map(w * h): 0.0
     let debris_t = str_index(tr_names, "rubble")
@@ -340,13 +467,21 @@ def view_enter(between):
     // the ground's own textures: a beech wood's leaf litter and grass, or a conifer wood's needles and moss
     ground_atlas_tex = gl.load_texture("../data/ground/atlas" + (if gstr(su_map, "wood", "beech") != "beech": "_conifer" else: "") + (if season_now() == "autumn": "_autumn" elif season_now() == "winter": "_winter" else: "") + ".png", texture_format_clamp | texture_format_nomipmap | texture_format_nearest_mag | texture_format_nearest_min)
     // (a stream is narrower than its tiles and runs a little below its banks, as in the mock-ups)
-    ground_bank_px = gfloat(su_map, "bank_px", 10.0)
-    ground_water_edge = gfloat(su_map, "water_edge", 0.62)
+    // (the water: a narrow stream between banks that slope, pale under the sky as the mock-up's is)
+    ground_bank_px = gfloat(su_map, "bank_px", 0.0)
+    ground_water_edge = gfloat(su_map, "water_edge", 0.5)
+    ground_shore_soft = gfloat(su_map, "shore_soft", 0.5)
+    ground_litter_fringe = if season_now() == "winter": 0.1 else: 0.3  // (no drawn line where the fallen leaves and needles end: they thin out onto the grass)
+    ground_water_shallow = float3 { 0.60, 0.71, 0.84 }
+    ground_water_deep = float3 { 0.40, 0.52, 0.72 }
     build_masks()
+    build_stream(gfloat(su_map, "stream", 0.25))
+    // (a mountain's cliffs are sheer and jog square: no corner of high ground is cut down to a slope)
+    relief_sharp = true
     build_relief()
     trail_wear()
     build_trail()
-    bake_season(season_now(), between)
+    bake_season(leaf_stage(), between)
     build_props()
     build_litter()
     cam = men_centre()
@@ -514,7 +649,7 @@ def crown_fade(foot:float2, sp:string) -> float:
     return least
 
 def collect_props():
-    let season = season_now()
+    let season = leaf_stage()
     let bare = season == "winter"
     canopies = []
     flecks = []
@@ -554,20 +689,33 @@ def collect_props():
             elif pr.kind == 2:
                 add(frame_at.get("stump", -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
             elif pr.kind == 5:
-                if not bare:
-                    add(frame_at.get(pr.name + "." + season + ".shadow", -1), pr.at.x, pr.at.y, -39996.0, float4_1)
+                // (winter: the bushes and herbs are gone (they have no winter frame), two tufts in three are under the
+                // snow, and what's left stands dead)
+                if not bare or pr.name[0] != 't' or pidx % 3 == 0:
+                    // (grass casts no shade of its own: a dot of shade under every tuft made the ground spotty)
+                    if pr.name[0] != 't': add(frame_at.get(pr.name + "." + season + ".shadow", -1), pr.at.x, pr.at.y, -39996.0, float4_1)
                     add(frame_at.get(pr.name + "." + season, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
             else:
                 add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39997.0, float4_1)
                 add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, if pr.kind == 3: 0 else: 2)
 
-// An ellipse on the ground (2:1) round p.
+    // the map's bridges (#20): a standing one's deck tile by tile, a broken one's two ends
+    for(br_id.length) k:
+        let cells = br_cells[k]
+        for(cells) c, n:
+            let part = if br_up[k] == 1: 0 elif n == 0: 1 elif n == cells.length - 1: 2 else: -1
+            if part >= 0:
+                let at = gp(float((c % W) * 1000 + 500), float((c / W) * 1000 + 500))
+                add(frame_at.get("bridge{part}.shadow", -1), at.x, at.y, -39997.0, float4_1)
+                add(frame_at.get("bridge{part}", -1), at.x, at.y, at.y - 20.0, float4_1, 1.0, 0)
+
+// An ellipse on the ground round p, as flat as the camera sees the ground.
 def draw_ring(p:float2, r:float, col:float4):
     let n = 24
     for(n) k:
         let a0 = 360.0 * float(k) / float(n)
         let a1 = 360.0 * float(k + 1) / float(n)
-        ui_line(p + float2 { cos(a0) * r, sin(a0) * r * 0.5 }, p + float2 { cos(a1) * r, sin(a1) * r * 0.5 }, 1.2, col)
+        ui_line(p + float2 { cos(a0) * r, sin(a0) * r * iso_k / 0.048 }, p + float2 { cos(a1) * r, sin(a1) * r * iso_k / 0.048 }, 1.2, col)
 
 var mark_at = float2_0  // where the last order pointed (art px), and when
 var mark_t = -10.0
@@ -587,6 +735,7 @@ def draw_world(alpha:float):
     if map_version != props_version:
         build_props()
         build_masks()
+        build_stream(gfloat(su_map, "stream", 0.25))
         build_litter()
     if tick - wear_tick >= 40:
         trail_wear()
@@ -701,14 +850,17 @@ def draw_fire(i:int):
     let t = gl.time()
     gl.set_shader("color")
     gl.translate(p): gl.scale(1.7):
-        for(5) k:  // the flames: tongues that lick up and fall back
-            let ph = t * (5.0 + float(k) * 1.3) * 57.29578 + float(k * 71 + i * 13)
-            let h = 5.0 + 3.5 * (0.5 + 0.5 * sin(ph))
-            let x = (float(k) - 2.0) * 1.6 + sin(ph * 0.7) * 0.6
-            let w = 2.4 - abs(float(k) - 2.0) * 0.4
-            let col = if k == 2: float4 { 1.0, 0.8, 0.35, 1.0 } elif k % 2 == 1: float4 { 0.98, 0.52, 0.14, 1.0 } else: float4 { 0.82, 0.28, 0.08, 1.0 }
-            gl.color(col):
-                gl.translate(float2 { x - w / 2.0, -h - 1.0 }): gl.rect(float2 { w, h * (if k == 2: 1.15 else: 0.85) })
+        // the flames, a pixel of the art at a time: a red flame, an orange one inside it and a yellow heart, each a row
+        // of columns under a pointed outline that licks up and falls back
+        for(3) layer:
+            let half = 6 - layer * 2
+            let col = [ float4 { 0.84, 0.26, 0.07, 1.0 }, float4 { 0.98, 0.56, 0.13, 1.0 }, float4 { 1.0, 0.87, 0.42, 1.0 } ][layer]
+            for(half * 2 + 1) n:
+                let cx = float(n - half)
+                let ph = t * (4.0 + float((n * 7 + layer * 3) % 5)) * 57.29578 + float(n * 53 + layer * 97 + i * 13)
+                let shape = 1.0 - abs(cx + sin(t * 140.0 + float(i)) * 0.8) / float(half + 1)
+                let h = floor((15.0 - float(layer) * 4.0) * shape * (0.72 + 0.28 * sin(ph)) + 0.5)
+                if h > 0.0: gl.color(col): gl.translate(float2 { cx - 0.5, -h - 2.0 } / 1.7): gl.rect(float2 { 1.0, h } / 1.7)
         for(6) k:  // a thread of smoke, drifting
             let u = (t * 0.35 + float(k) / 6.0) % 1.0
             gl.color(float4 { 0.62, 0.6, 0.58, 0.28 * (1.0 - u) }):
@@ -785,13 +937,15 @@ def select_tick():
             last_click = gl.time()
     if gl.button("escape") == 1: selected = []
 
-// The young tree the mouse is on: its cell, or the one its picture stands on (a tree is drawn up from its foot).
+// The young tree the mouse is on: its cell, or the one its picture stands on (a tree is drawn up from its foot). Or
+// the heap of a landslide's debris the mouse is on (#20): the men dig that away as they fell a tree.
 def young_tree_at(mm:float2) -> int:
     let young = str_index(tr_names, "young_tree")
+    let heap = str_index(tr_names, "rubble")
     for(3) n:
         let x = int(mm.x / 1000.0) + n
         let y = int(mm.y / 1000.0) + n
-        if x >= 0 and y >= 0 and x < W and y < H and terrain[y * W + x] == young: return y * W + x
+        if x >= 0 and y >= 0 and x < W and y < H and (terrain[y * W + x] == young or (n == 0 and terrain[y * W + x] == heap)): return y * W + x
     return -1
 
 def order_tick():
@@ -800,7 +954,15 @@ def order_tick():
     if not ids.length: return
     let mm = mouse_milli()
     let tree = young_tree_at(mm)
-    if tree >= 0:
+    // (a broken bridge under the mouse: mend it, if the chosen men carry the wood for it)
+    let mc = clamp(int(mm.y / 1000.0), 0, H - 1) * W + clamp(int(mm.x / 1000.0), 0, W - 1)
+    var broken = -1
+    for(br_cells) cells, k:
+        let under = find(cells): _ == mc
+        if br_up[k] == 0 and under >= 0: broken = k
+    if broken >= 0:
+        if mend_bridge(ids, broken): mark_at = gp(mm.x, mm.y)
+    elif tree >= 0:
         issue_cmd(0, CMD_GATHER, ids, tree, 0, 0, 0)
         mark_at = gp(float((tree % W) * 1000 + 500), float((tree / W) * 1000 + 500))
     else:
@@ -886,6 +1048,15 @@ pace_background = not capture
 pace(PACE_MATCH)
 lib_load("../data")
 route_load()
+// The camera's angle is the game's own setting (D-051; Dominic: "Camera angle should be game setting not engine
+// enforced"): route.json's "camera_elev", degrees down from level, 22 where Creel's own is 30. Lower, so the wood
+// stands taller and you see further into it, as in the mock-ups. Creel's settings for it all follow from the one
+// angle, and are set here before anything is baked or drawn (elev:<degrees> for a look at another).
+let view_elev = if arg_of("elev") != "": string_to_float(arg_of("elev")) else: gfloat(route, "camera_elev", 30.0)
+iso_k = 0.048 * sin(view_elev)
+vx_ELEV = view_elev
+VM_VIEW = float3 { -view_elev, 45.0, 0.0 }
+LEVEL_PX = 20.0 * cos(view_elev) / cos(30.0)
 atmo_data = lib_data("atmosphere.json")
 for(atmo_problems(atmo_data)) why: print why
 sun_from_data()
@@ -909,17 +1080,33 @@ bake_trees(): waiting_frame()
 bake_camp(): waiting_frame()
 run_begin()
 if arg_of("leg") != "": enter_leg(arg_of("leg"), "west")  // leg:<id>: start at this leg of the route, for a look
+if has_s(args, "mended"):
+    // (mended: this place's broken bridges standing again, for a look)
+    for(br_id.length) k:
+        br_up[k] = 1
+        set_deck(br_cells[k], true)
 // camp or camp:<x>,<y>: the men round a fire (at that tile), for a look at the camp's light
 if has_s(args, "camp") or arg_of("camp") != "":
     let at = arg_of("camp")
     if at != "":
         let xy = map(tokenize(at, ",", " ")) v: string_to_int(v)
         let c = int2 { xy[0] * TILE + 500, xy[1] * TILE + 500 }
+        // (a place laid out as a scene says where some of them stand, "men": x, y in milli-tiles; the rest sit close
+        // round the fire)
+        let apart = glist(su_map, "men")
+        let round_fire = max(1, u_x.length - apart.length)
         for(u_x.length) i:
-            let a = float(i) * 360.0 / float(max(1, u_x.length)) + 11.0
-            let r = 1300.0 + float((i * 7) % 5) * 380.0
-            u_x[i] = c.x + int(cos(a) * r)
-            u_y[i] = c.y + int(sin(a) * r)
+            if i < apart.length:
+                u_x[i] = as_int(apart[i].a[0])
+                u_y[i] = as_int(apart[i].a[1])
+            else:
+                // (round its far side and its flanks: nobody stands between the fire and the camera)
+                let a = 100.0 + float(i - apart.length) * 250.0 / float(max(1, round_fire - 1))
+                let r = if apart.length: 620.0 + float((i * 7) % 3) * 230.0 else: 1300.0 + float((i * 7) % 5) * 380.0
+                u_x[i] = c.x + int(cos(a) * r)
+                u_y[i] = c.y + int(sin(a) * r)
+        // (they stay where they are put: the order that walked them in from the gate is called off)
+        issue_cmd(0, CMD_STOP, copy(u_id), 0, 0, 0, 0)
         p_id = []
         // (and a clearing in a close wood round it, as in the mock-up: open within three tiles, thick trees beyond)
         let tx = c.x / TILE
@@ -941,6 +1128,11 @@ if has_s(args, "camp") or arg_of("camp") != "":
     else:
         fires = [ men_centre() + float2 { 0.0, 6.0 } ]
 view_enter(): waiting_frame()
+// (round a camp's fire the men face it)
+for(fires) f:
+    for(u_x.length) i:
+        let to_fire = f - gp(float(u_x[i]), float(u_y[i]))
+        if magnitude(to_fire) < 75.0 and dir_of(to_fire) >= 0: man_dir.set(u_id[i], dir_of(to_fire))
 if arg_of("look") != "":  // look:<x>,<y>: the camera on this tile
     let xy = tokenize(arg_of("look"), ",", " ")
     cam = gp(string_to_float(xy[0]) * 1000.0, string_to_float(xy[1]) * 1000.0)
