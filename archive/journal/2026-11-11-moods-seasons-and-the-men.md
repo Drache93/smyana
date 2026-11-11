@@ -92,5 +92,26 @@ now marked in the shade buffer like the men, so they keep their own browns and g
 
 ![The camp's horses and mules keep their colour](../images/2026-11-11/13-camp-horses-and-mules-keep-their-colour.jpg)
 
+## Riders in the wood's shade (Claude)
+Dominic asked for riders at the wood's edge, to see whether men stay visible in the shade. The trees thread
+put five in. The horse read, but the man barely did: his blue coat and red fez sat within a few shades of the
+grey-blue shade. Creel now has `unit_rim`, which lights a marked unit's edge toward the sun, one art pixel
+wide and crisp. `unit_lift` also spares marked units the haze, the deep wood's darkening and the grade's grey.
+Every mood has `unit_rim` 0.5 (night 0.3). In the picture: the scene, then the riders before, then after.
+Rendered on the trees thread's branch, which has the riders.
+
+![Riders in shade, before and after the rim](../images/2026-11-11/15-riders-in-shade-before-and-after-the-rim.jpg)
+
+## Where this thread stopped (handoff, 2026-11-11)
+Dominic drew a line under the lighting thread here. A fresh thread, "Close all open environment issues", takes over.
+- **Done:** moods for every season and time of day, blended through the day (#14). The shade buffer, with
+  canopy deep wood, sunflecks, mist and cool shade. Men, horses and mules kept readable in shade (#7, now closed),
+  and the rim above.
+- **Open PRs, in merge order:** Creel #22 (`unit_rim`) first, then Smyana's PR that points the submodule
+  at it and sets `unit_rim` in every mood.
+- **Left to do:** moods don't blend between seasons, because the season changes from place to place (#11). Check
+  the riders at dusk, at night and in winter; if they still don't read, a little bloom on units is the next step.
+  Weather (#15) and day and night (#13) are the light's to finish, as split with the trees thread.
+
 ## Left to do
 - Moods don't yet blend between seasons, because the season changes by place.
