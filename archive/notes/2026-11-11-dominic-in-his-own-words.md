@@ -42,3 +42,10 @@ His messages about the game, word for word, in the order he sent them (times in 
 ## 07:39, on the trees after leaf-fall (chat)
 
 > Trees are a bit naked there. Depends how we end up.showing the change to winter. But the rhodope autumn trees are rich with shades. Some tree yellowz some red, some orange. Like our pallette that was designed for the trees
+
+## 07:55, on the ground's leaves and the mock-up's riders (chat)
+
+> Leaf shades look great. What's your recommendation for the riders, and why?
+
+(Claude's answer: leave the riders out of the camp scene, where they read as cavalry resting with the masons, and keep
+them for an Ottoman patrol that passes while the men hide. Not decided.)
