@@ -394,3 +394,25 @@ a road on a shelf seven or eight levels above the valley path, with proper cliff
 that is about 250 art pixels of drop, half the screen at zoom 2. A perspective trick (a far valley drawn smaller and
 hazier beyond the map) is a Creel feature to make only if that is not deep enough. The road should run east-west so
 the cliff faces south and is lit.
+
+**D-077, 2026-11-11: The four new places are grey-boxed to the world plan, each with a shape of its own.** (Claude,
+while Dominic was away; he had agreed the plan, D-053 to D-058.) The village edge has the village as raised blocks
+beyond the lane, and terraces north of the trail. The Roman ruins stand on a shelf four levels above the river. The
+pass carries the trail on a shelf eight levels above a valley path, which a ramp near the east gate joins to the shelf
+(D-076, now built: the cliff faces south and the patrol can come up behind the men). The high ridge has one gate, a
+lookout at the trail's end, and the far valley and its road eight levels below, seen and not walked. The gorge's east
+gate now leads to the ruins and the men turn round on the ridge (supersedes the turn-round in D-050). The old small
+ruins map is kept for the close look. Rejected: putting the far-below road on the ridge only (the pass is where the
+patrol follows the men, leg 8), and joining the valley path to the trail at the west end (the men would meet the
+patrol head-on instead of being followed).
+
+**D-078, 2026-11-11: Two stand-in woods until the new species come.** (Claude.) A map's "wood" can now be `oak` (the
+village edge: oak and hornbeam, with a beech for the lime and the wild pear) or `high` (the pass and the ridge: Scots
+pine and spruce, with a black pine or a fir now and then). `oak` counts as broadleaved, so it has the beeches' leaf
+litter and young trees that lose their leaves. `high` has the conifers' floor. #56 replaces the stand-ins.
+
+**D-079, 2026-11-11: The run starts at the top of the lane at 6 in the morning, and the last walk has no letter.**
+(Claude.) The 13 legs follow the world plan's seasons (`"year"` spans in `data/route.json`). The high legs run ahead of
+the valleys (`"altitude"`), but the pass is kept in autumn on the way out. Leaving the village takes the run's first
+10 thousandths of a season, so the beech valley still starts in late summer, as the run check expects. Walking down
+the lane at the end goes straight to the end screen, with no blank letter between.

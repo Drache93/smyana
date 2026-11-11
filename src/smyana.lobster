@@ -227,7 +227,7 @@ def build_props():
             let sp = if (sp0 == "pine" or sp0 == "bpine") and not pines: "beech" else: sp0
             props.push(Prop { 0, k, "{sp}{k}", sp, off, c })
         elif t == young:
-            let fir = wood != "beech" and (h / 7) % 4 != 0
+            let fir = not broadleaved(wood) and (h / 7) % 4 != 0
             props.push(Prop { 1, h / 7, if fir: "yspruce{(h / 7) % YOUNG_KINDS}" else: "young{(h / 7) % YOUNG_KINDS}", if fir: "spruce" else: "beech", centre, c })
         elif t == stump:
             // (and what was left when it was sawn up lies beside it: its top and boughs, a round of its trunk)
@@ -313,7 +313,7 @@ def build_props():
             if (h2 / 100) % 100 >= 90 and (h2 / 100) % 100 < 94:
                 // (a sapling of the wood's own kinds, #98)
                 let r = (h2 / 10000) % 10
-                let sp = if wood == "beech": (if r < 5: "beech" elif r < 8: "oak" else: "hornbeam") else: (if r < 4: "spruce" elif r < 7: "fir" else: "beech")
+                let sp = if wood == "oak": (if r < 6: "oak" else: "hornbeam") elif wood == "beech": (if r < 5: "beech" elif r < 8: "oak" else: "hornbeam") else: (if r < 4: "spruce" elif r < 7: "fir" else: "beech")
                 props.push(Prop { 5, 0, "sapling_" + sp, "", centre, c })
             if (h2 / 100) % 100 < 6: props.push(Prop { 5, 0, "bush{h2 % BUSH_KINDS}", "", centre + iso(float((h2 / 13) % 600) - 300.0, float((h2 / 19) % 600) - 300.0), c })
             elif (h2 / 100) % 100 == 99: props.push(Prop { 6, 0, "log{h2 % LOG_KINDS}", "", centre, c })
@@ -502,7 +502,7 @@ def build_litter():
                     if v > a[y * w + x]: a[y * w + x] = v
     // autumn in a broadleaf wood: the year's leaves lie over nearly everything, thinner in the open
     let turf_seed = gint(su_map, "grass_seed", 9001)
-    if carpet > 0.0 and place_wood() == "beech":
+    if carpet > 0.0 and broadleaved(place_wood()):
         for(h) y: for(w) x:
             // (2026-11-11: the leaves lie over all of it, only a worn spot of turf here and there: the mock-up's grass
             // stands out of the leaves in tufts, it isn't a green floor between drifts of them)
@@ -554,7 +554,7 @@ def ground_turn() -> string, string, float:
 def ground_season_tick():
     let base, next, t = ground_turn()
     def atlas(name:string) -> resource<texture>?:
-        return gl.load_texture("../data/ground/atlas" + (if place_wood() != "beech": "_conifer" else: "") + name + ".png", texture_format_clamp | texture_format_nomipmap | texture_format_nearest_mag | texture_format_nearest_min)
+        return gl.load_texture("../data/ground/atlas" + (if not broadleaved(place_wood()): "_conifer" else: "") + name + ".png", texture_format_clamp | texture_format_nomipmap | texture_format_nearest_mag | texture_format_nearest_min)
     if base != ground_base or next != ground_next:
         ground_atlas_tex = atlas(base)
         ground_atlas_next = if next != base: atlas(next) else: nil
@@ -1663,7 +1663,8 @@ while gl.frame():
         if not letter_loaded and phase_t > 0.3:  // (the letter is on the screen first: the load stops the picture for its length)
             load_next()
             letter_loaded = true
-        let hold = if script == "tour": 6.0 else: float(gint(route, "letter_seconds", 20))
+        // (no letter on the last walk, down the lane into the village: straight on to the end)
+        let hold = if not letter.length: 0.5 elif script == "tour": 6.0 else: float(gint(route, "letter_seconds", 20))
         let skip = letter_loaded and phase_t > 2.0 and (gl.button("mouse1") == 1 or gl.button("space") == 1 or gl.button("return") == 1)
         if letter_loaded and (phase_t >= hold or skip):
             paused = false

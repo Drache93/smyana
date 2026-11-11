@@ -155,3 +155,5 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-11:** Environment thread stops: "Enough tree types for now", "Music first, cliffs after" (Dominic).
 - **2026-11-11:** Proper cliffs (Creel `relief_cliffs`): each drop a curve inside the tile below, ledges, scree, snow;
   the gorge's walls laid plainly instead of hidden under rock. ([engine](engine/2026-11-11-proper-cliffs.md))
+- **2026-11-11:** The whole world grey-boxed: the village edge, the Roman ruins, the pass and the high ridge, all 13
+  legs in the route, and the run check walks and times them (26 minutes). ([journal](journal/2026-11-11-the-whole-world-grey-boxed.md))

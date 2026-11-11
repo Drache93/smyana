@@ -199,7 +199,14 @@ def old_species(wood:string, pick:int) -> string:
     var sp = if r < 4: "beech" elif r < 6: "oak" elif r < 7: "hornbeam" elif other: "bpine" else: "pine"
     if wood == "deep": sp = if r < 6: "tall" elif r < 7: (if other: "fir" else: "spruce") else: "beech"
     if wood == "conifer": sp = if r < 3: "spruce" elif r < 5: "fir" elif r < 6: "pine" elif r < 7: "bpine" else: "beech"
+    // (#48, D-077: the village edge's oaks and hornbeams, a beech standing in for the lime and the wild pear; the high
+    // woods of the pass and the ridge, Scots pine and spruce with a black pine or a fir now and then)
+    if wood == "oak": sp = if r < 4: "oak" elif r < 6: "hornbeam" elif r < 7: "beech" else: "oak"
+    if wood == "high": sp = if r < 3: "pine" elif r < 6: "spruce" elif r < 7: "bpine" else: "fir"
     return sp
+
+// Whether this kind of wood is broadleaved (its ground is the beeches' leaf litter, its young trees lose their leaves).
+def broadleaved(wood:string) -> bool: return wood == "beech" or wood == "oak"
 
 def leafy(sp:string) -> bool: return sp == "beech" or sp == "oak" or sp == "hornbeam"
 
@@ -237,7 +244,7 @@ def cover_at(c:int) -> int:
                 let leaves = if leafy(sp): leaf_cover_of(leaf_stage_at(n)) elif sp == "tall": gint(cv, "tall", 70) else: 100
                 canopy += gint(cv, if near: "tree_near" else: "tree_far", 10) * leaves / 100
             elif terrain[n] == young and near:
-                low += gint(cv, "young", 8) * (if place_wood() == "beech": leaf_cover_of(leaf_stage_at(n)) else: 100) / 100
+                low += gint(cv, "young", 8) * (if broadleaved(place_wood()): leaf_cover_of(leaf_stage_at(n)) else: 100) / 100
     if terrain[c] == str_index(tr_names, "grass") and bracken_at(c):
         let stage = leaf_stage_at(c)
         low += gint(cv, "bracken", 20) * (if stage == "winter": 50 elif stage == "spring": 80 else: 100) / 100
