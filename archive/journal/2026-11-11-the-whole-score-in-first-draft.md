@@ -95,3 +95,38 @@ D-059 (Claude, open to Dominic): which calm track plays in which season and hour
   tracks and names in the data but nothing calls for them yet.
 - No sounds of the world yet (wind, birds, the fire, the stream): the plan has most of the hour as those, and the
   silences between tracks are bare without them.
+
+## Two hours later: "samey", and a design stage for every song
+
+Dominic listened at 10:10 UTC, on AirPods, and sent five messages in a minute
+([his words](../notes/2026-11-11-dominic-in-his-own-words.md#1010-on-hearing-the-first-draft-of-the-score-chat-five-messages-in-a-minute)):
+autumn dusk and the fire were "samey", he heard "a lot of the same tones across them all", the Ottomans were "too
+synth", "all the music though is basically pipe going up and down quick", and the one that matters most: "each song
+needs a clear design stage. Like we did for 2D before 3D ... worry we're just churning out songs with not much
+thoughts".
+
+Claude had started to patch the sound (softer voices, other keys) and stopped: that would have been more churning.
+Instead it counted what he heard. Of the 58 tune phrases in the first draft, every single move is to the next note of
+the scale, and 65% of the notes last 0.9 seconds or less. 22 of the 23 tracks have the same home note. He heard all
+of that by ear in a few minutes; the measuring done before he listened (right notes, levels, seams) had not looked
+for it. It checked that each track was correct, not that the tracks differed.
+
+What was made, by 10:40 UTC ([`docs/music-design.md`](../../docs/music-design.md)):
+
+- **The design stage**, three steps: a sheet in plain words with a picture of the tune's shape; a "pencil" sketch,
+  the tune alone on one plain sound; then the track.
+- **Rules across the score**: each instrument has few homes, home notes move with the seasons, each track has a shape
+  no neighbour has, and three spaces (at the fire, in the wood, across the valley).
+- **Two sheets**, for the two tracks he compared.
+  - *Autumn dusk*: one piper who holds and does not run. A note lasts almost four seconds, against 1.2.
+    ![Autumn dusk: the shape of the tune, beside the first draft's](../images/2026-11-11/63-music-design-sheet-autumn-dusk.png)
+    [`pencil sketch`](../audio/2026-11-11/01-music-pencil-sketch-autumn-dusk.ogg)
+  - *The fire*: a song with a beat that one man starts and the others sing back, a tone lower, no instruments.
+    ![The fire: the shape of the song, beside the first draft's](../images/2026-11-11/64-music-design-sheet-the-fire.png)
+    [`pencil sketch`](../audio/2026-11-11/02-music-pencil-sketch-the-fire.ogg)
+
+No track was changed. The first draft stays in the game as placeholders.
+
+### Decisions
+
+D-060 (Dominic): each song has a design stage before it is made.

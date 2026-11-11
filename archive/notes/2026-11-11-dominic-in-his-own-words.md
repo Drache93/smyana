@@ -113,3 +113,17 @@ On the target dates Claude guessed (phase 1 by 15 November):
 > realistically much shorter. We have done the whole env in less than a day. We will complete phase 1 today i expect
 
 (On the 07:57 message above, the music's first draft was made the same morning: [journal](../journal/2026-11-11-the-whole-score-in-first-draft.md).)
+
+## 10:10, on hearing the first draft of the score (chat, five messages in a minute)
+
+> autumn dusk and the fire bit samey. I worrry the trumpet type instrument and pipes are over used or just too flat? im listening with airpods and hearing a lot of the same tones across them all
+
+> each song needs a clear design stage. Like we did for 2D before 3D
+
+> worry we're just churning out songs with not much thoughts
+
+> ottomans sounds too synth
+
+> all the music though is basically pipe going up and down quick
+
+(What Claude measured, and the design stage it led to: [`docs/music-design.md`](../../docs/music-design.md).)

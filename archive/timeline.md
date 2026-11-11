@@ -113,3 +113,5 @@ One line per moment worth remembering. Newest at the bottom.
   ([journal](journal/2026-11-11-the-world-in-2d-and-the-phases.md), [the world](../docs/world.md))
 - **2026-11-11:** The whole score in first draft: 23 of the 24 planned tracks (the ruins stay parked), 33 minutes, with the main theme written. The game plays them by season, hour and danger (D-059); the camp has music.
   ([journal](journal/2026-11-11-the-whole-score-in-first-draft.md))
+- **2026-11-11:** Dominic heard the first draft: "samey", "pipe going up and down quick", and "each song needs a clear design stage" (D-060). Measured, he was right: every move in every tune was a step. Design sheets and bare sketches for autumn dusk and the fire (pictures 63 and 64).
+  ([design](../docs/music-design.md), [journal](journal/2026-11-11-the-whole-score-in-first-draft.md#two-hours-later-samey-and-a-design-stage-for-every-song))

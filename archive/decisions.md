@@ -304,3 +304,9 @@ of its own. A track plays once and the forest is then left alone for 90 seconds,
 mostly silence; the plan's "a few minutes" waits for the sounds of the world. At night with a fire lit, the men's song
 takes turns with the season's night track. The main theme the frame tracks share is a first version, a proposal like
 every track of the first draft.
+
+**D-060, 2026-11-11: Each song has a design stage before it is made.** (Dominic) "each song needs a clear design
+stage. Like we did for 2D before 3D", after hearing the first draft of the score: "worry we're just churning out songs
+with not much thoughts". How (Claude's, for him to agree): a sheet in plain words with a picture of the tune's shape,
+then a "pencil" sketch of the tune alone, and only then the track (`docs/music-design.md`). The first draft's tracks
+stay in the game as placeholders until each is replaced by a designed one.
