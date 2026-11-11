@@ -240,6 +240,11 @@ def build_props():
     if camp.length:
         let stands = map(camp) e: gp(as_float(e.a[1]), as_float(e.a[2]))
         props = filter(props) pr: pr.kind != 5 or not exists(stands) q: abs(pr.at.x - q.x) < 60.0 and abs(pr.at.y - q.y) < 34.0
+        // (nor round the fire, where the men tread: "fire", x and y in milli-tiles)
+        let hearth = glist(su_map, "fire")
+        if hearth.length:
+            let f = gp(as_float(hearth[0]), as_float(hearth[1]))
+            props = filter(props) pr: pr.kind != 5 or abs(pr.at.x - f.x) > 46.0 or abs(pr.at.y - f.y) > 26.0
         for(camp) e, i: props.push(Prop { 4, 0, as_str(e.a[0]), "", stands[i], 0 })
 
     build_canopy()
@@ -437,7 +442,7 @@ def view_enter(between):
     build_relief()
     trail_wear()
     build_trail()
-    bake_season(season_now(), between)
+    bake_season(leaf_stage(), between)
     build_props()
     build_litter()
     cam = men_centre()
@@ -565,7 +570,7 @@ def crown_fade(foot:float2, sp:string) -> float:
     return least
 
 def collect_props():
-    let season = season_now()
+    let season = leaf_stage()
     let bare = season == "winter"
     canopies = []
     for(props) pr, pidx:
@@ -720,14 +725,17 @@ def draw_fire(i:int):
     let t = gl.time()
     gl.set_shader("color")
     gl.translate(p): gl.scale(1.7):
-        for(5) k:  // the flames: tongues that lick up and fall back
-            let ph = t * (5.0 + float(k) * 1.3) * 57.29578 + float(k * 71 + i * 13)
-            let h = 5.0 + 3.5 * (0.5 + 0.5 * sin(ph))
-            let x = (float(k) - 2.0) * 1.6 + sin(ph * 0.7) * 0.6
-            let w = 2.4 - abs(float(k) - 2.0) * 0.4
-            let col = if k == 2: float4 { 1.0, 0.8, 0.35, 1.0 } elif k % 2 == 1: float4 { 0.98, 0.52, 0.14, 1.0 } else: float4 { 0.82, 0.28, 0.08, 1.0 }
-            gl.color(col):
-                gl.translate(float2 { x - w / 2.0, -h - 1.0 }): gl.rect(float2 { w, h * (if k == 2: 1.15 else: 0.85) })
+        // the flames, a pixel of the art at a time: a red flame, an orange one inside it and a yellow heart, each a row
+        // of columns under a pointed outline that licks up and falls back
+        for(3) layer:
+            let half = 6 - layer * 2
+            let col = [ float4 { 0.84, 0.26, 0.07, 1.0 }, float4 { 0.98, 0.56, 0.13, 1.0 }, float4 { 1.0, 0.87, 0.42, 1.0 } ][layer]
+            for(half * 2 + 1) n:
+                let cx = float(n - half)
+                let ph = t * (4.0 + float((n * 7 + layer * 3) % 5)) * 57.29578 + float(n * 53 + layer * 97 + i * 13)
+                let shape = 1.0 - abs(cx + sin(t * 140.0 + float(i)) * 0.8) / float(half + 1)
+                let h = floor((15.0 - float(layer) * 4.0) * shape * (0.72 + 0.28 * sin(ph)) + 0.5)
+                if h > 0.0: gl.color(col): gl.translate(float2 { cx - 0.5, -h - 2.0 } / 1.7): gl.rect(float2 { 1.0, h } / 1.7)
         for(6) k:  // a thread of smoke, drifting
             let u = (t * 0.35 + float(k) / 6.0) % 1.0
             gl.color(float4 { 0.62, 0.6, 0.58, 0.28 * (1.0 - u) }):
@@ -934,11 +942,22 @@ if has_s(args, "camp") or arg_of("camp") != "":
     if at != "":
         let xy = map(tokenize(at, ",", " ")) v: string_to_int(v)
         let c = int2 { xy[0] * TILE + 500, xy[1] * TILE + 500 }
+        // (a place laid out as a scene says where some of them stand, "men": x, y in milli-tiles; the rest sit close
+        // round the fire)
+        let apart = glist(su_map, "men")
+        let round_fire = max(1, u_x.length - apart.length)
         for(u_x.length) i:
-            let a = float(i) * 360.0 / float(max(1, u_x.length)) + 11.0
-            let r = 1300.0 + float((i * 7) % 5) * 380.0
-            u_x[i] = c.x + int(cos(a) * r)
-            u_y[i] = c.y + int(sin(a) * r)
+            if i < apart.length:
+                u_x[i] = as_int(apart[i].a[0])
+                u_y[i] = as_int(apart[i].a[1])
+            else:
+                // (round its far side and its flanks: nobody stands between the fire and the camera)
+                let a = 100.0 + float(i - apart.length) * 250.0 / float(max(1, round_fire - 1))
+                let r = if apart.length: 620.0 + float((i * 7) % 3) * 230.0 else: 1300.0 + float((i * 7) % 5) * 380.0
+                u_x[i] = c.x + int(cos(a) * r)
+                u_y[i] = c.y + int(sin(a) * r)
+        // (they stay where they are put: the order that walked them in from the gate is called off)
+        issue_cmd(0, CMD_STOP, copy(u_id), 0, 0, 0, 0)
         p_id = []
         // (and a clearing in a close wood round it, as in the mock-up: open within three tiles, thick trees beyond)
         let tx = c.x / TILE
@@ -960,6 +979,11 @@ if has_s(args, "camp") or arg_of("camp") != "":
     else:
         fires = [ men_centre() + float2 { 0.0, 6.0 } ]
 view_enter(): waiting_frame()
+// (round a camp's fire the men face it)
+for(fires) f:
+    for(u_x.length) i:
+        let to_fire = f - gp(float(u_x[i]), float(u_y[i]))
+        if magnitude(to_fire) < 75.0 and dir_of(to_fire) >= 0: man_dir.set(u_id[i], dir_of(to_fire))
 if arg_of("look") != "":  // look:<x>,<y>: the camera on this tile
     let xy = tokenize(arg_of("look"), ",", " ")
     cam = gp(string_to_float(xy[0]) * 1000.0, string_to_float(xy[1]) * 1000.0)

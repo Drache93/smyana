@@ -22,8 +22,8 @@ def run(points, ch, over):
     last = None
     for (x, y) in points:
         x, y = int(round(x)), int(round(y))
-        if last and x != last[0] and y != last[1] and g[last[1]][x] in over: g[last[1]][x] = ch
-        if 0 <= x < W and 0 <= y < H and g[y][x] in over: g[y][x] = ch
+        if last and x != last[0] and y != last[1] and g[last[1]][x] in over: g[last[1]][x] = "=" if g[last[1]][x] == "~" else ch
+        if 0 <= x < W and 0 <= y < H and g[y][x] in over: g[y][x] = "=" if g[y][x] == "~" else ch
         last = (x, y)
 
 
@@ -46,11 +46,7 @@ for i in range(-9, 24):
     r = i / 3.0
     d = 0.9 + 0.25 * math.sin(r * 0.7)
     pts.append(((r + d) / 2.0 + CX, (d - r) / 2.0 + CY))
-run(pts, ":", ".")
-for y in range(H):
-    for x in range(W):
-        if g[y][x] == "~" and any(g[y + dy][x + dx] == ":" for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))) and any(g[y + dy][x + dx] == ":" for dx, dy in ((1, 0), (0, -1))) and any(g[y + dy][x + dx] == ":" for dx, dy in ((-1, 0), (0, 1))): g[y][x] = "="
-
+run(pts, ":", ".~")   # (where it meets the stream: a ford)
 # the camp (the camp thread's models, src/smyana/camp.lobster), as the mock-up has it: the fire left of the middle, the
 # tents behind it, the woodpile before it, the pack mules to the right of the tents and the horses at the wood's edge
 FIRE = (-3.0, 0.0)   # (the look's camp:28,31: the middle of that tile)
@@ -63,6 +59,10 @@ stand("tent1", FIRE[0] - 1.5, FIRE[1] - 2.3)
 stand("woodpile", FIRE[0] - 1.2, FIRE[1] + 0.6)
 for i in range(3): stand("mule%d" % [1, 4, 6][i], FIRE[0] + 4.0 + i * 0.95, FIRE[1] - 2.1 + 0.15 * (i % 2))
 for i in range(5): stand("horse%d" % [0, 5, 2, 1, 7][i], FIRE[0] + 2.2 + i * 0.95, FIRE[1] - 3.8 - 0.2 * (i % 2))
+# the men who aren't at the fire: by the mules, on the trail, at the stream and over it, as in the mock-up
+men = []
+for (r, d) in ((4.4, -1.5), (2.9, 0.75), (5.6, 1.0), (7.2, 0.5), (9.3, 0.2), (4.6, 2.4), (-2.4, -0.7), (0.9, -1.3)):
+    men.append([int(round(((FIRE[0] + r + FIRE[1] + d) / 2.0 + CX) * 1000)), int(round(((FIRE[1] + d - FIRE[0] - r) / 2.0 + CY) * 1000))])
 def by_camp(x, y): return any(abs(x + 0.5 - cx / 1000.0) < 0.7 and abs(y + 0.5 - cy / 1000.0) < 0.7 for _, cx, cy in camp)
 
 # the trees: thick at the back (the top of the picture), close round the clearing, a few big ones framing it
@@ -92,6 +92,8 @@ doc = {
     "scene": 1,
     "grass_seed": 9057,
     "camp": camp,
+    "fire": [int(round(((FIRE[0] + FIRE[1]) / 2.0 + CX) * 1000)), int(round(((FIRE[1] - FIRE[0]) / 2.0 + CY) * 1000))],
+    "men": men,
     "streams": [stream],
 }
 with open("data/maps/camp_clearing.json", "w") as f:

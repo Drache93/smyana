@@ -70,3 +70,5 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-11:** The stream's banks slope softly down to a narrow pale stream, and the grass is pale tufts standing
   out of the leaves; a trial of a lower camera beside the mock-up.
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md))
+- **2026-11-11:** Trees after leaf-fall (bare boughs, the last leaves in clumps), the men round the fire, the trail
+  fording the stream. ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#after-leaf-fall-and-the-camp-lived-in-0620-to-0645))

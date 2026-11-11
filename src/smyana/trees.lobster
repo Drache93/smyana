@@ -7,7 +7,7 @@
 // seen. The leaves are baked once a season (their colour), behind the letter home, and kept in bake_cache/.
 
 let TREE_K = 64.0  // voxels a tile for the load of wood (baked at twice this)
-let TREE_BAKE = "trees 32"
+let TREE_BAKE = "trees 33"
 // Voxels a tile in the trees, rocks and undergrowth: one voxel is one pixel of Creel's art (WB_PX at its art scale of
 // 3), as the men's are, so they are as crisp as the men (Dominic, 2026-11-10: "evryhting crisp and sharp").
 let VOX_K = 135.7645
@@ -492,22 +492,44 @@ def bake_trees(between):
     trees_bake_s = seconds_elapsed() - t0
 
 // This season's leaves on the broadleaves, old and young, and the undergrowth's (winter has none: the bare wood shows).
-def bake_season(season:string, between):
-    if season == trees_season or season == "winter": return
-    trees_season = season
-    if frame_at.get("beech0.crown.{season}", -1) >= 0: return  // (baked or read earlier this run)
+def bake_season(stage:string, between):
+    if stage == trees_season or stage == "winter": return
+    trees_season = stage
+    if frame_at.get("beech0.crown.{stage}", -1) >= 0: return  // (baked or read earlier this run)
+    // ("late": autumn's colours, most of the leaves down)
+    let late = stage == "late"
+    let season = if late: "autumn" else: stage
     let t0 = seconds_elapsed()
-    let vs = sheet_new("leaves_{season}", "{TREE_BAKE} {VOX_K} {WB_PX} {vox_tree_text()}", 4096)
+    let vs = sheet_new("leaves_{stage}", "{TREE_BAKE} {VOX_K} {WB_PX} {vox_tree_text()}", 4096)
     if sheet_load(vs, vox_draw_k()): return
+    // the last leaves hang on in clumps, a bough here still dressed and the next one bare
+    def fallen(g:vgrid, keep:float) -> vgrid:
+        if late:
+            let f = vg_field(g, 0.09, g.seed + 77)
+            for(g.n.z) z: for(g.n.y) y: for(g.n.x) x:
+                let i = vg_index(g, x, y, z)
+                if g.mat[i] == VG_LEAF and vg_at(f, float(x), float(y), float(z)) > keep: write_int8_le(g.mat, i, 0)
+        return g
     // (after leaf-fall an old tree keeps only some of its leaves: the oak most; the young ones keep theirs)
     for(BROADLEAVES) sp: for(LEAF_KINDS) kind:
-        tree_onto(vs, "{sp}{kind}.crown.{season}", vox_tree(leaf_look(sp, season, kind), vox_name(sp, kind), true, season == "autumn"), true, 1.5)
+        let crown = "{sp}{kind}.crown.{stage}"
+        let whole = vox_tree(leaf_look(sp, season, kind), vox_name(sp, kind), true, season == "autumn")
+        if late:
+            // (the wood's shade stays whole under thinned crowns: the boughs and twigs still shade the ground, and a
+            // shade full of holes flickers; so the picture is the thinned crown's, the shade the whole one's)
+            whole.k = whole.k / LIGHT_UNITS
+            let bytes, w, h, origin = vg_sprite(whole, true)
+            let _, shade = vm_split_shadow(bytes, w, h)
+            for(w * h) px: write_int8_le(shade, px * 4 + 3, min(235, int(float(shade[px * 4 + 3]) * 1.5)))
+            sheet_add_bytes(vs, crown + ".shadow", shade, w, h, origin)
+            tree_onto(vs, crown, fallen(vox_tree(leaf_look(sp, season, kind), vox_name(sp, kind), true, true), if sp == "oak": 0.5 else: 0.4), false)
+        else: tree_onto(vs, crown, whole, true, 1.5)
         between()
-    for(YOUNG_KINDS) kind: tree_onto(vs, "young{kind}.{season}", vox_tree(leaf_look("beech", season, kind + 1), "beech_young_{kind}", true), true)
-    tree_onto(vs, "sapling.{season}", vox_tree(leaf_look("beech", season, 0), "beech_sapling_0", true), true)
-    for(FERN_KINDS) kind: tree_onto(vs, "fern{kind}.{season}", fern(under_look(season, kind, false), kind), true)
-    for(BUSH_KINDS) kind: tree_onto(vs, "bush{kind}.{season}", bush(under_look(season, kind + 1, false), kind), true)
-    for(HERB_KINDS) kind: tree_onto(vs, "herb{kind}.{season}", herbs(herb_look(season, kind), kind), true)
-    for(TUFT_KINDS) kind: tree_onto(vs, "tuft{kind}.{season}", grass_tuft(tuft_look(season, kind), kind), true)
+    for(YOUNG_KINDS) kind: tree_onto(vs, "young{kind}.{stage}", fallen(vox_tree(leaf_look("beech", season, kind + 1), "beech_young_{kind}", true), 0.55), true)
+    tree_onto(vs, "sapling.{stage}", vox_tree(leaf_look("beech", season, 0), "beech_sapling_0", true), true)
+    for(FERN_KINDS) kind: tree_onto(vs, "fern{kind}.{stage}", fern(under_look(season, kind, false), kind), true)
+    for(BUSH_KINDS) kind: tree_onto(vs, "bush{kind}.{stage}", bush(under_look(season, kind + 1, false), kind), true)
+    for(HERB_KINDS) kind: tree_onto(vs, "herb{kind}.{stage}", herbs(herb_look(season, kind), kind), true)
+    for(TUFT_KINDS) kind: tree_onto(vs, "tuft{kind}.{stage}", grass_tuft(tuft_look(season, kind), kind), true)
     sheet_finish(vs, vox_draw_k(), true)
     trees_bake_s = seconds_elapsed() - t0

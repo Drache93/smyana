@@ -34,3 +34,19 @@ herbs on them.
 Picture 04 is the scene above the mock-up. Still open (Claude): the tufts could stand closer yet at a drift's middle;
 the trail fades under the leaves before it reaches the stream; the men do not sit round the fire; the crowns are in
 full leaf where the mock-up's are nearly bare.
+
+## After leaf-fall, and the camp lived in (06:20 to 06:45)
+
+More of the detail the mock-up has and we lacked (picture 06):
+
+- **Crowns after leaf-fall.** The mock-up's trees are dark boughs with the last leaves hanging on in clumps; ours were
+  in full autumn leaf. An autumn leg can now say its leaves have mostly fallen (`"leaf_fall"` in `data/route.json`):
+  the trees wear a "late" stage, autumn's colours with most of the leaves gone, a bough here still dressed and the next
+  bare. The shade on the ground stays that of the whole crown, or the wood's shade breaks into flickering holes. The
+  comparison leg uses it; the route's own autumn legs keep their full colour until the season clock (#10) drives this.
+- **The trail** runs down to the stream and fords it (it stopped short: the stream's tiles had overwritten it).
+- **The men** stay where the scene puts them (the order that walks them in from the gate is called off): most round
+  the far side of the fire, facing it, the rest by the mules, on the trail and at the stream.
+- **The flames** are drawn a pixel of the art at a time, a red flame with an orange one and a yellow heart inside it,
+  under the tripod; they were five flat bars. Still a look-only fire (D-038). Nothing grows where the men tread round
+  it.
