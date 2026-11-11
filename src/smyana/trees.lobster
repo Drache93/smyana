@@ -7,7 +7,7 @@
 // seen. The leaves are baked once a season (their colour), behind the letter home, and kept in bake_cache/.
 
 let TREE_K = 64.0  // voxels a tile for the load of wood (baked at twice this)
-let TREE_BAKE = "trees 42"
+let TREE_BAKE = "trees 44"
 // Voxels a tile in the trees, rocks and undergrowth: one voxel is one pixel of Creel's art (WB_PX at its art scale of
 // 3), as the men's are, so they are as crisp as the men (Dominic, 2026-11-10: "evryhting crisp and sharp").
 let VOX_K = 135.7645
@@ -33,6 +33,7 @@ var trees_season = ""   // the season whose crowns are loaded
 let BROADLEAVES = [ "beech", "oak", "hornbeam" ]
 let LEAF_KINDS = 3
 
+let LATE_KEEP = 0.56     // how much of a crown still hangs after leaf-fall (of its noise field: about half its leaves)
 let BRISTLE = 0.05       // how many of a thin branch's voxels sprout a fine twig after leaf-fall
 var late_leaves = false  // (set while the "late" stage is baked)
 def autumn_leaf(sp:string, kind:int) -> [float3]:
@@ -44,7 +45,10 @@ def autumn_leaf(sp:string, kind:int) -> [float3]:
     // (late, after leaf-fall: what still hangs has gone rust and brown, as in the mock-up: no gold, no red)
     let burnt = [ float3 { 0.80, 0.40, 0.12 }, float3 { 0.58, 0.25, 0.08 }, float3 { 0.25, 0.10, 0.05 }, float3 { 0.88, 0.54, 0.18 } ]
     let brown = [ float3 { 0.62, 0.36, 0.16 }, float3 { 0.44, 0.23, 0.10 }, float3 { 0.21, 0.10, 0.05 }, float3 { 0.72, 0.48, 0.22 } ]
-    if late_leaves: return [ russet, burnt, brown ][kind % 3]
+    // (Dominic, 2026-11-11 07:39: "Trees are a bit naked there ... the rhodope autumn trees are rich with shades. Some
+    // tree yellowz some red, some orange. Like our pallette that was designed for the trees": after leaf-fall a tree keeps
+    // its own colour, and one in three has gone to rust)
+    if late_leaves and kind % 3 == 2 and sp != "beech": return [ russet, burnt, brown ][(kind / 3) % 3]
     if sp == "beech": return [ orange, gold, red ][kind % 3]
     if sp == "oak": return [ russet, orange, russet ][kind % 3]
     return [ gold, gold, orange ][kind % 3]
@@ -366,6 +370,41 @@ def fallen_log(look:vglook, kind:int) -> vgrid:
     vg_cylinder(g, up + d, up + d * 1.03, 0.04, 0.04, VG_WOOD, true)
     return g
 
+// What lies on a wood's floor (Dominic, 2026-11-11: the ground "not rich enough yet"): a dead branch dropped from a
+// crown, crooked, a finger to a wrist thick, with a side twig or two; and a stone a foot across, moss on its top.
+let BRANCH_KINDS = 4
+def fallen_branch(look:vglook, kind:int) -> vgrid:
+    let rng = grng(1530 + kind)
+    let g = fine_grid(look, 0.45, 0.1, 1530 + kind)
+    let a = randf_range(rng, 0.0, 360.0)
+    let l = 0.16 + 0.07 * float(kind)
+    let r = 0.009 + 0.003 * float(kind % 2)
+    var at = float3 { -cos(a) * l, -sin(a) * l, r }
+    var turn = a
+    for(4) n:
+        turn += randf_range(rng, -22.0, 22.0)
+        let next = at + float3 { cos(turn), sin(turn), 0.0 } * l * 0.5
+        vg_capsule(g, at, next, r * (1.0 - 0.15 * float(n)), r * (0.85 - 0.15 * float(n)), VG_BARK)
+        if n > 0 and randf(rng) < 0.7:
+            let side = turn + (if randf(rng) < 0.5: 50.0 else: -50.0)
+            vg_capsule(g, at, at + float3 { cos(side), sin(side), 0.1 } * l * randf_range(rng, 0.25, 0.45), r * 0.5, 0.004, VG_BARK)
+        at = next
+    return g
+
+let STONE_KINDS = 3
+def moss_stone(look:vglook, kind:int) -> vgrid:
+    let rng = grng(1560 + kind)
+    let g = fine_grid(look, 0.3, 0.14, 1560 + kind)
+    let w = 0.05 + 0.02 * float(kind)
+    let turn = randf_range(rng, 0.0, 180.0)
+    rock_plate(g, float3_0, w, w * 0.7, 0.03 + 0.008 * float(kind), turn, VG_ROCK, 0.0, 0.0, 1560 + kind)
+    rock_plate(g, float3 { 0.008, 0.004, 0.03 + 0.008 * float(kind) }, w * 0.7, w * 0.5, 0.014, turn + 12.0, VG_ROCK, 0.2, 0.0, 1570 + kind)
+    // moss over its top, thicker on one side
+    for(26 + kind * 10):
+        let p = float3 { randf_range(rng, -w * 0.75, w * 0.4), randf_range(rng, -w * 0.5, w * 0.5), 0.06 + 0.008 * float(kind) }
+        leaf_dab(g, p, 0.007, randf_range(rng, -0.6, 0.5))
+    return g
+
 // The undergrowth's leaves by season: bracken goes bronze and gold in autumn, the bushes yellow and red.
 def under_look(season:string, kind:int, moss:bool) -> vglook:
     var leaf = [ float3 { 0.44, 0.62, 0.24 }, float3 { 0.29, 0.47, 0.19 }, float3 { 0.16, 0.30, 0.14 }, float3 { 0.60, 0.68, 0.28 } ]
@@ -575,6 +614,7 @@ def bake_trees(between):
         for(YOUNG_KINDS) kind: tree_onto(vs, "young{kind}.bare", vox_tree(beech, "beech_young_{kind}", false), true)
         tree_onto(vs, "stump", tree_stump(beech), true)
         for(LOG_KINDS) kind: tree_onto(vs, "log{kind}", fallen_log(under_look("summer", kind, true), kind), true)
+        for(BRANCH_KINDS) kind: tree_onto(vs, "branch{kind}", fallen_branch(leaf_look("oak", "summer", 0), kind), true)
         sheet_finish(vs, vox_draw_k(), true)
         trees_bake_s = seconds_elapsed() - t0
     // the evergreens, whole, and the deep wood's trunks
@@ -602,6 +642,7 @@ def bake_trees(between):
     let timber_look = vglook { beech.leaf, [ float3 { 0.26, 0.21, 0.16 }, float3 { 0.37, 0.30, 0.22 }, float3 { 0.49, 0.41, 0.30 }, float3 { 0.62, 0.53, 0.40 } ], gneiss.rock, false, false, false }
     for(3) part: tree_onto(rs, "bridge{part}", bridge_part(timber_look, part), true)
     for(SLAB_KINDS) kind: tree_onto(rs, "slabs{kind}", slab_pile(gneiss, kind), true)
+    for(STONE_KINDS) kind: tree_onto(rs, "stone{kind}", moss_stone(gneiss, kind), true)
     let debris = gneiss_look()
     debris.bark = [ float3 { 0.19, 0.15, 0.11 }, float3 { 0.27, 0.21, 0.15 }, float3 { 0.35, 0.28, 0.20 }, float3 { 0.44, 0.36, 0.26 } ]
     for(RUBBLE_KINDS) kind: tree_onto(rs, "rubble{kind}", rubble(debris, kind), true)
@@ -688,7 +729,7 @@ def bake_season(stage:string, between):
             let _, shade = vm_split_shadow(bytes, w, h)
             for(w * h) px: write_int8_le(shade, px * 4 + 3, min(235, int(float(shade[px * 4 + 3]) * 1.5)))
             sheet_add_bytes(vs, crown + ".shadow", shade, w, h, origin)
-            tree_onto(vs, crown, bristle(fallen(vox_tree(twig_look(sp, kind), vox_name(sp, kind), true, true), if sp == "oak": 0.5 else: 0.4), vox_name(sp, kind)), false)
+            tree_onto(vs, crown, bristle(fallen(vox_tree(twig_look(sp, kind), vox_name(sp, kind), true), if sp == "oak": LATE_KEEP + 0.08 else: LATE_KEEP), vox_name(sp, kind)), false)
         else: tree_onto(vs, crown, whole, true, 1.5)
         between()
     for(YOUNG_KINDS) kind: tree_onto(vs, "young{kind}.{stage}", fallen(vox_tree(leaf_look("beech", season, kind + 1), "beech_young_{kind}", true), 0.55), true)

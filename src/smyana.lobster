@@ -273,6 +273,13 @@ def build_props():
                 let thick = max(drift_at(at.x / 1000.0, at.y / 1000.0, grass_seed), edge_grass) * sunny
                 if thick * 100.0 > float((h3 / 1000000) % 100): props.push(Prop { 5, 0, "tuft{(h3 / 7) % TUFT_KINDS}", "", gp(at.x, at.y), c })
                 elif k < 2 and thick > 0.5 and (h3 / 3) % 10 < 2: props.push(Prop { 5, 0, "herb{(h3 / 5) % HERB_KINDS}", "", gp(at.x, at.y), c })
+            // what lies about (the floor is not swept): dead branches, more of them near trees, and a mossy stone now
+            // and then
+            let hl = mixed(c + 131071)
+            if hl % 100 < 14 + shading * 5:
+                props.push(Prop { 6, 0, "branch{(hl / 100) % BRANCH_KINDS}", "", gp(float((c % W) * 1000 + (hl / 1000) % 1000), float((c / W) * 1000 + (hl / 1000000) % 1000)), c })
+            if (hl / 7) % 100 < 5:
+                props.push(Prop { 6, 0, "stone{(hl / 100) % STONE_KINDS}", "", gp(float((c % W) * 1000 + (hl / 3000) % 1000), float((c / W) * 1000 + (hl / 700000) % 1000)), c })
             // brambles (#8): at a wood's edge, where a tree or two gives half shade, in thickets of a few tiles
             let thicket = mixed((c / W / 3) * W + (c % W) / 3 + 5501) % 10 < 3
             let hb = mixed(c + 88001)
@@ -490,8 +497,10 @@ def view_enter(between):
     ground_water_edge = gfloat(su_map, "water_edge", 0.5)
     ground_shore_soft = gfloat(su_map, "shore_soft", 0.5)
     ground_litter_fringe = if season_now() == "winter": 0.1 else: 0.3  // (no drawn line where the fallen leaves and needles end: they thin out onto the grass)
-    ground_water_shallow = float3 { 0.60, 0.71, 0.84 }
-    ground_water_deep = float3 { 0.40, 0.52, 0.72 }
+    // (a clear mid blue with white dabs of ripples all along it, as the mock-up's stream; Dominic, 2026-11-11: "And the
+    // water", of what is not rich enough yet)
+    ground_water_shallow = float3 { 0.56, 0.74, 0.90 }
+    ground_water_deep = float3 { 0.33, 0.52, 0.80 }
     build_masks()
     build_stream(gfloat(su_map, "stream", 0.25))
     // (a mountain's cliffs are sheer and jog square: no corner of high ground is cut down to a slope)

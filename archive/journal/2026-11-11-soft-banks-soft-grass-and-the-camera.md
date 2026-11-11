@@ -231,3 +231,19 @@ the fire, and the lit leaves are a stronger orange than the mock-up's (the light
 
 - **With the lighting thread's cool shade and softer sun merged** (main at 07:19 UTC) the same scene is picture 38:
   the shade is grey-blue, the lit leaves a quieter orange, and the two threads' work is seen together for the first time.
+
+## Richer: the trees' colours back, the floor, the water (07:40 to 08:00 UTC)
+
+Dominic, looking at picture 38: the trees "a bit naked", the Rhodope autumn "rich with shades", the ground "not rich
+enough yet. And the water". His words are in the notes; D-052.
+
+- **Trees** after leaf-fall keep their own yellow, orange or red and about half their leaves (`LATE_KEEP`), over the
+  fine twigs. The rust-only palette of this morning is gone for beech; one oak or hornbeam in three is still rust.
+- **The floor.** The fallen leaves have more shades: straw, gold and orange, and one leaf in four rust, red-brown or
+  brown (`tools/ground_atlas.py`). Dead branches lie about, more of them near trees, and a mossy stone now and then
+  (`fallen_branch`, `moss_stone`).
+- **The water** is a clear mid blue. White ripples all along it are a new Creel setting, `ground_water_ripples`
+  (Casaide/creel#21); the game turns them on when that is merged.
+
+Picture 40 (with the ripples, from the Creel branch). To judge (Claude): whether the floor has gone spotty again,
+which Dominic disliked on 2026-11-10.

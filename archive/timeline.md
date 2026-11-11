@@ -103,3 +103,5 @@ One line per moment worth remembering. Newest at the bottom.
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#twigs-for-crowns-low-grass-and-the-scene-laid-out-as-the-picture-done-by-0720-utc))
 - **2026-11-11:** Olive turf shows through thin leaves where the grass drifts; a seat log, a block and a stepping stone at the camp (picture 34).
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#turf-through-the-leaves-and-things-lying-about-the-camp-done-by-0740-utc))
+- **2026-11-11:** After leaf-fall the trees keep their yellows, oranges and reds (D-052); more shades in the fallen leaves, dead branches and mossy stones; blue water (picture 40).
+  ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#richer-the-trees-colours-back-the-floor-the-water-0740-to-0800-utc))

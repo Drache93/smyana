@@ -261,3 +261,10 @@ lowering camera angle", after seeing 30 and 22 side by side with the mock-up, an
 setting not engine enforced". Creel keeps 30 degrees as its own and gains the settings; Smyana asks for 22 in
 `data/route.json` (`camera_elev`). Everything baked is baked again for the angle. It is a try: `elev:30` on the command
 line shows the old view.
+
+**D-052, 2026-11-11: After leaf-fall the trees keep their colours and about half their leaves.** (Dominic) "Trees are a
+bit naked there ... the rhodope autumn trees are rich with shades. Some tree yellowz some red, some orange. Like our
+pallette that was designed for the trees". The "late" stage had been thinned to a few clinging leaves, all rust and
+brown, after a review against the mock-up (Claude, earlier the same day). Now each tree keeps its own yellow, orange or
+red and about half its crown, over the fine twigs. How bare the trees go on the way to winter is still open ("Depends
+how we end up showing the change to winter").
