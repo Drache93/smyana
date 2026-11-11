@@ -638,6 +638,14 @@ def sun_from_data():
     canopy_dim = gfloat(sun, "canopy_dim", 0.0)
     canopy_flecks = int(gfloat(sun, "flecks", 0.0))
 
+// A tree's picture with snow on its boughs (#15) once enough snow lies for it, each tree from its own day (and losing
+// it on its own day in the thaw); the plain picture till then, and where there is no snowy one.
+def snow_frame(name:string, cell:int) -> int:
+    if snow_lying() > 250 + cell_hash(cell * 3 + 1) % 500:
+        let f = frame_at.get(name + ".snow", -1)
+        if f >= 0: return f
+    return frame_at.get(name, -1)
+
 // The mood of the hour and the next one, and how far into the turn from one to the next (0 .. 1): the last
 // hours.blend hours (atmosphere.json) before a mood starts, the one before it turns into it, so dawn comes up and dusk
 // falls instead of switching on the hour.
@@ -734,19 +742,20 @@ class Drawable:
     fade:float  // 1 whole .. 0 gone
     kind:int    // 0 what stands up (it hides the shade under it), 1 a shadow on the ground, 2 what stands in the shade,
     // 3 drawn by hand (rings, fires), 4 a man (in the shade, and kept readable: atmo_shade_unit)
+    lean:float  // art px its top leans to the right just now (a crown in the wind, #15)
 
 var draws = []::Drawable
 var fires = []::float2  // the camp's fires, art px: where each one's foot is (draw_fire)
 var view_lo = float2_0
 var view_hi = float2_0
 
-def add(f:int, x:float, y:float, sort_y:float, col:float4, fade:float = 1.0, kind:int = -1):
+def add(f:int, x:float, y:float, sort_y:float, col:float4, fade:float = 1.0, kind:int = -1, lean:float = 0.0):
     if f < 0: return
     let fr = frames[f]
     let x0 = x - float(fr.ox) * fr.k
     let y0 = y - float(fr.oy) * fr.k
     if x0 < view_hi.x and y0 < view_hi.y and x0 + float(fr.w) * fr.k > view_lo.x and y0 + float(fr.h) * fr.k > view_lo.y:
-        draws.push(Drawable { sort_y, draws.length, f, x, y, col, fade, if kind >= 0: kind elif sort_y < -39000.0: 1 else: 0 })
+        draws.push(Drawable { sort_y, draws.length, f, x, y, col, fade, if kind >= 0: kind elif sort_y < -39000.0: 1 else: 0, lean })
 
 def prev_pos(i:int) -> int, int:
     let found, at = binary_search(p_id, u_id[i])
@@ -836,7 +845,7 @@ def collect_props():
                 // (deep in a wood a tree stands under its neighbours' crowns: drawn darker, as the floor round it is)
                 let dim = float4 { 1.0, 1.0, 1.0, 1.0 - canopy_dim * (if pidx < canopy.length: canopy[pidx] else: 0.0) }
                 add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -40000.0, float4_1)
-                add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, dim)
+                add(snow_frame(pr.name, pr.cell), pr.at.x, pr.at.y, pr.at.y, dim)
                 foot_at(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, trunk_half(pr.sp))
                 let crown = if pr.sp == "tall": "spruce{pr.pick}.crown.ever" else: pr.name + ".crown." + (if leafy(pr.sp): season else: "ever")
                 if pr.sp == "tall":
@@ -846,7 +855,7 @@ def collect_props():
                     // (in autumn its leaves come down, fastest as the crown thins)
                     if leafy(pr.sp) and (season == "autumn" or season == "late"): shedding.push(Shedding { pr.at, pr.sp, pr.pick, if season == "late": 1.0 else: 0.5, cell_hash(pr.cell) })
                     add(frame_at.get(crown + ".shadow", -1), pr.at.x, pr.at.y, -39999.0, float4_1)
-                    add(frame_at.get(crown, -1), pr.at.x, pr.at.y, pr.at.y + 0.2, dim, crown_fade(pr.at, pr.sp))
+                    add(snow_frame(crown, pr.cell), pr.at.x, pr.at.y, pr.at.y + 0.2, dim, crown_fade(pr.at, pr.sp), -1, crown_lean(pr.cell))
                 if (pr.sp == "tall" or not leafy(pr.sp) or not bare) and pidx < canopy.length and canopy[pidx] > 0.0:
                     let f = frame_at.get(crown + ".shadow", -1)
                     if f >= 0: canopies.push(Canopy { f, pr.at.x, pr.at.y, 1.0 + (canopy_spread - 1.0) * canopy[pidx] })
@@ -857,13 +866,13 @@ def collect_props():
             elif pr.kind == 1:
                 if pr.sp == "spruce":
                     add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39998.0, float4_1)
-                    add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
+                    add(snow_frame(pr.name, pr.cell), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
                     foot_at(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, 6.0)
                 else:
                     // (a young beech: its wood, and over it this season's leaves)
                     foot_at(frame_at.get(pr.name + ".bare", -1), pr.at.x, pr.at.y, 6.0)
                     add(frame_at.get(pr.name + ".bare.shadow", -1), pr.at.x, pr.at.y, -39998.0, float4_1)
-                    add(frame_at.get(pr.name + ".bare", -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
+                    add(snow_frame(pr.name + ".bare", pr.cell), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
                     if not bare:
                         add(frame_at.get(pr.name + "." + season + ".shadow", -1), pr.at.x, pr.at.y, -39998.0, float4_1)
                         add(frame_at.get(pr.name + "." + season, -1), pr.at.x, pr.at.y, pr.at.y + 0.1, float4_1, 1.0, 2)
@@ -935,13 +944,13 @@ def draw_world(alpha:float):
     feet = []
     collect_men(alpha)
     collect_props()
-    draws.push(Drawable { -39990.0, draws.length, -6, 0.0, 0.0, float4_1, 1.0, 3 })  // the feet: on the ground, over its shadows
-    draws.push(Drawable { -30000.0, draws.length, -4, 0.0, 0.0, float4_1, 1.0, 3 })  // the rings: on the ground, over the shadows
+    draws.push(Drawable { -39990.0, draws.length, -6, 0.0, 0.0, float4_1, 1.0, 3, 0.0 })  // the feet: on the ground, over its shadows
+    draws.push(Drawable { -30000.0, draws.length, -4, 0.0, 0.0, float4_1, 1.0, 3, 0.0 })  // the rings: on the ground, over the shadows
     for(fires) p, i:
         // (the fireplace: its ring of stones, its logs and the tripod with the cauldron; the flames are the game's own)
         add(frame_at.get("fireplace.shadow", -1), p.x, p.y, -39997.0, float4_1)
         add(frame_at.get("fireplace", -1), p.x, p.y, p.y, float4_1, 1.0, 2)
-        draws.push(Drawable { p.y + 0.05, draws.length, -5, float(i), 0.0, float4_1, 1.0, 3 })
+        draws.push(Drawable { p.y + 0.05, draws.length, -5, float(i), 0.0, float4_1, 1.0, 3, 0.0 })
     qsort_in_place(draws) a, b: a.y < b.y or (a.y == b.y and a.seq < b.seq)
     // the ground's shadows into the light's shade buffer, where they join into one shade (a low sun's long shadows
     // overlap everywhere in a wood), then what stands up out of them wipes them off itself: the trees and rocks are lit
@@ -1037,6 +1046,7 @@ def draw_world(alpha:float):
                         b_sheet = -1
                     elif shading and d.kind == 1: pass()
                     elif d.fade < 1.0: sprite_faded(d.f, d.x, d.ay, d.col, d.fade)
+                    elif d.lean != 0.0: sprite_leaning(d.f, d.x, d.ay, d.col, d.lean)
                     else: sprite(d.f, d.x, d.ay, d.col)
                 flush_sprites()
                 draw_leaf_fall()
@@ -1089,6 +1099,24 @@ def draw_cover():
                 let p = float2 { floor(at.x) - 6.0, floor(at.y) - 2.0 }
                 gl.color(float4 { 0.05, 0.05, 0.08, 0.75 }): gl.translate(p): gl.rect(float2 { 12.0, 4.0 })
                 if v > 0.0: gl.color(float4 { 0.4, 1.0, 1.0, 1.0 }): gl.translate(p + float2_1): gl.rect(float2 { v, 2.0 })
+
+// Wind in the canopy (#15): a crown leans with the gusts, its foot still and its top carried over by up to a few
+// pixels of the art in a storm, each tree in its own time. In steps of half a pixel, so a crown moves a row at a time
+// and stays crisp.
+let CROWN_LEAN = 4.5
+
+def crown_lean(cell:int) -> float:
+    let t = gl.time()
+    let own = float(cell_hash(cell + 911) % 360)
+    let swing = 0.55 + 0.3 * sin(t * 70.0 + own) + 0.15 * sin(t * 173.0 + own * 2.0)
+    return floor(float(wind_now()) / 1000.0 * CROWN_LEAN * swing * 2.0 + 0.5) / 2.0
+
+// A frame with its top leaning `lean` art px to the right of where it stands (its bottom row stays put).
+def sprite_leaning(f:int, x:float, y:float, col:float4, lean:float):
+    let fr = frames[f]
+    let x0 = floor(x * sprite_snap) / sprite_snap - float(fr.ox) * fr.k
+    let y0 = floor(y * sprite_snap) / sprite_snap - float(fr.oy) * fr.k
+    sprite_xf(f, [ fr.k, 0.0, -lean / float(fr.h), fr.k, x0 + lean, y0 ], col)
 
 // The wind as the eye sees it (0 .. 1): the sim's wind (wind_now), coming in gusts.
 def gust() -> float:

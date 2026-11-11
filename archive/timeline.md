@@ -130,3 +130,5 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-11:** Cover (#9): how well each tile hides a man, from the trees, the bracken and the season clock, and
   a spotting check for the threats to use (D-064).
   ([journal](journal/2026-11-11-closing-the-environment-issues.md#cover-in-the-leaves-1125-to-1150))
+- **2026-11-11:** Snow lies on the boughs in winter, and the crowns lean with the wind (the last of #15). Cover (#9)
+  closed. ([journal](journal/2026-11-11-closing-the-environment-issues.md#snow-on-the-boughs-wind-in-the-crowns-1520-to-1550))

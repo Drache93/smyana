@@ -176,3 +176,6 @@ the first trunks: picture 44.)
 
 **10:44** (chat, pull request 47 merged)
 > Done
+
+**12:22** (chat, pull requests 88 and 89 merged)
+> ok
