@@ -216,3 +216,13 @@ picture 97)
 
 (Asked how to fix it, he chose "Even pixels at any zoom (sharp filter)" over whole-number zoom steps or remaking the
 men at twice the detail.)
+
+**21:54** (chat, asked whether to rebuild the broadleaf crowns, add new species (#56) or do proper cliffs next)
+> Enough tree types for now
+
+**21:55** (chat)
+> Music first, cliffs after
+
+(The environment thread stopped here. Left for later: crowns in clusters with sky between them, which needs the
+broadleaf .vox models rebuilt (#98); new species (#56); proper cliffs and depth (Casaide/creel#25); felling stages,
+which wait for the mechanics.)

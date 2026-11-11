@@ -23,3 +23,7 @@ fir_old_1 65 67
 bpine_mature_0 73 65
 bpine_old_0 100 90
 bpine_old_1 79 90
+oak_sapling_0 35 49
+hornbeam_sapling_0 33 39
+spruce_sapling_0 18 20
+fir_sapling_0 25 20
