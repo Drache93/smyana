@@ -715,7 +715,11 @@ def collect_props():
                     add(frame_at.get(pr.name + "." + season, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
             else:
                 add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39997.0, float4_1)
-                add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, if pr.kind == 3: 0 else: 2)
+                // (the camp's horses and mules are marked like the men, so they keep their colour in the shade
+                // instead of reading as grey ghosts)
+                let beast = starts_with(pr.name, "horse") or starts_with(pr.name, "mule")
+                add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0,
+                    if pr.kind == 3: 0 elif beast: 4 else: 2)
 
     // the map's bridges (#20): a standing one's deck tile by tile, a broken one's two ends
     for(br_id.length) k:
