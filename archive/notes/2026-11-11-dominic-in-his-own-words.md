@@ -58,6 +58,12 @@ them for an Ottoman patrol that passes while the men hide. Not decided.)
 
 > With that said, I think the environment is getting really close now, so we should get a fable agent if it's not already finished, or if it should be continuing to go through all the issues and make sure they're all ticked off. So remind it that it needs to close off all the open issues for environment, and I think it's time to also start an agent, a fable agent, on putting together all the music that we planned. So we can get first draft of that. We should then be in a situation where we can get a very minimal demo, just men standing around a camp with music playing.
 
+## 08:02, on drawing a line under the long threads (as written in chat)
+
+> The lighting and environment threads, I think, are starting to get too long. The lighting one doesn't seem to be using the latest version of everything, so we're still seeing old pictures with old stuff. We should draw a line on them. If there's, find a good place for them both to stop and then start a fresh thread to close all the open issues.
+
+(Claude stopped the environment thread here and wrote [the handoff](2026-11-11-environment-handoff.md).)
+
 ## 07:59, on the next phases and the world map (voice, as transcribed in chat)
 
 > And that then brings us ready for our next phase. So we should get another fable agent to plan out our next steps. Put together a plan, we'll then make issues for that plan, and then we'll start working on it. Presumably, since we already have issues to do with locations and stuff, we need to check if there's any gaps, because we haven't really planned out what our game world map will be, the size and shape and scale. I think it's worth us putting together a two-dimensional design of the world that we're going to be moving around, where then we can then create that in 3D, decide which sections of that will be their own maps that need to be loaded and when. We'll then be in a situation where we should be able to have our 20 men walking around the entire game world with obviously nothing to do, but that's our, then our next stage. After that, we can then start on the resources, etc. mechanics. And then the very, very last one is all the threats.
