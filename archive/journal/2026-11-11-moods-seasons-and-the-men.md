@@ -86,5 +86,11 @@ scene's layout, which is the trees thread's.
 
 ![Cool shade, mist and blue water, above the target](../images/2026-11-11/11-cool-shade-mist-and-blue-water-above-the-target.jpg)
 
+## The camp's horses and mules (Claude)
+In deep wood the horses and mules read as grey ghosts, because the shade's greying caught them. They are
+now marked in the shade buffer like the men, so they keep their own browns and greys.
+
+![The camp's horses and mules keep their colour](../images/2026-11-11/13-camp-horses-and-mules-keep-their-colour.jpg)
+
 ## Left to do
 - Moods don't yet blend between seasons, because the season changes by place.
