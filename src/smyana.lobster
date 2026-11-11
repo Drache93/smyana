@@ -326,13 +326,21 @@ def build_props():
         for(camp) e, i: props.push(Prop { 4, 0, as_str(e.a[0]), "", stands[i], 0 })
 
     // the Roman ruins (#17), where the place has them ("ruins": [name, x, y in milli-tiles] each): the undergrowth
-    // grows up round them but not through a wall or a column (only between the road's stones)
+    // grows up round them but not through a wall or a column; on the road (#97) it grows only where the stones are gone
+    // or buried, and not in its drain
     let ruins = glist(su_map, "ruins")
     if ruins.length:
         let stands = map(ruins) e: gp(as_float(e.a[1]), as_float(e.a[2]))
+        let cells = map(ruins) e: (as_int(e.a[2]) / 1000) * W + as_int(e.a[1]) / 1000
         props = filter(props) pr: pr.kind != 5 or not exists(ruins) e, i:
-            not starts_with(as_str(e.a[0]), "paving") and abs(pr.at.x - stands[i].x) < 34.0 and abs(pr.at.y - stands[i].y) < 18.0
-        for(ruins) e, i: props.push(Prop { 3, 0, as_str(e.a[0]), "", stands[i], (as_int(e.a[2]) / 1000) * W + as_int(e.a[1]) / 1000 })
+            let name = as_str(e.a[0])
+            if starts_with(name, "road"):
+                let n = clamp(string_to_int(substring(name, 4, name.length - 4)), 0, ROAD_PLAN.length - 1)
+                let c = ROAD_PLAN[n]
+                let d = ROAD_DRAIN[n]
+                pr.cell == cells[i] and (c == 'w' or c == 'h') or pr.cell == cells[i] + W and (d == 'd' or d == 'c')
+            else: abs(pr.at.x - stands[i].x) < 34.0 and abs(pr.at.y - stands[i].y) < 18.0
+        for(ruins) e, i: props.push(Prop { 3, 0, as_str(e.a[0]), "", stands[i], cells[i] })
     build_canopy()
 
 // The trail is a path a man or two wide, not a road a tile wide (the mock-ups: a thin tan line through the leaves).

@@ -7,7 +7,7 @@
 // seen. The leaves are baked once a season (their colour), behind the letter home, and kept in bake_cache/.
 
 let TREE_K = 64.0  // voxels a tile for the load of wood (baked at twice this)
-let TREE_BAKE = "trees 52"
+let TREE_BAKE = "trees 53"
 // Voxels a tile in the trees, rocks and undergrowth: one voxel is one pixel of Creel's art (WB_PX at its art scale of
 // 3), as the men's are, so they are as crisp as the men (Dominic, 2026-11-10: "evryhting crisp and sharp").
 let VOX_K = 135.7645
@@ -666,7 +666,6 @@ def tree_onto(s:Sheet, name:string, g:vgrid, shadow:bool, shade_k:float = 1.0, f
 // red brick between the stone, as Roman walls in Thrace do. Moss and ivy grow on them (the rock light adds lichen on
 // their tops and moss low on their shaded sides); the undergrowth round them turns with the year as everywhere else.
 let RUIN_KINDS = 2
-let PAVING_KINDS = 4
 
 def fract1(x:float) -> float: return x - floor(x)
 
@@ -731,50 +730,135 @@ def column_fallen(look:vglook, kind:int, along_y:bool) -> vgrid:
         if uv.x > u + 0.02 and uv.x < u + 0.2 and abs(uv.y + 0.04) < 0.15 and p.z < 0.24: vg_set(g, i, VG_ROCK, 0.2)
     return g
 
-// A tile of the paved road: big flat stones fitted to each other, a few gone and the ground showing, kerbs each side.
-def paving(look:vglook, kind:int, along_y:bool) -> vgrid:
-    let rng = grng(2300 + kind)
-    let g = vg_new(look, float3 { -0.55, -0.55, 0.0 }, float3 { 0.55, 0.55, 0.12 }, VOX_K, 2300 + kind)
-    let seeds = map(9): float2 { randf_range(rng, -0.5, 0.5), randf_range(rng, -0.36, 0.36) }
-    let gone = map(9): randf(rng) < 0.1 + 0.06 * float(kind)
-    let lift = map(9): randf_range(rng, 0.0, 0.025)
-    vg_box(g, float3 { -0.5, -0.5, 0.0 }, float3 { 0.5, 0.5, 0.12 }) i, p:
-        let uv = ruin_uv(p, along_y)
-        if abs(uv.y) > 0.4:
-            // a kerb: long stones set on edge
-            let joint = abs(fract1(uv.x * 2.2 + (if uv.y > 0.0: 0.3 else: 0.0)) - 0.5) > 0.47
-            if not joint and abs(uv.y) < 0.48 and p.z < 0.07 + 0.015 * sin(uv.x * 515.0): vg_set(g, i, VG_ROCK, 0.1)
-        else:
-            var best = 9.0
-            var next = 9.0
-            var k = 0
-            for(seeds) q, n:
-                let d = magnitude(q - uv)
-                if d < best:
-                    next = best
-                    best = d
-                    k = n
-                elif d < next: next = d
-            if next - best > 0.026 and not gone[k] and p.z < 0.03 + lift[k]: vg_set(g, i, VG_ROCK, float(k % 3) * 0.15 - 0.3)
-    return g
+// The Roman road (#97; Dominic, 2026-11-11: "the roman ruined road is quite samey"). One long road, cut into pieces a
+// tile long so the map can place them: every stone and kerb is laid once along the whole road, so no piece repeats
+// another, and the stones are of many sizes. The road bows a little off straight and changes as it goes (ROAD_PLAN):
+// whole, heaved up by roots, its stones gone and the ground showing, buried under soil with only its kerbs showing,
+// and fading out at both ends into the trail. Its drain comes and goes beside it (ROAD_DRAIN) and once runs under it
+// in a culvert. tools/make_places.py lays the pieces in this order, and lets the grass over the gone and buried ones.
+// (It runs along the map's x only; a road along y waits for the ruins' own map, #53.)
+let ROAD_PLAN = "fwhwgwwbbwhgf"   // f fading out, w whole, h heaved by roots, g stones gone, b buried
+let ROAD_DRAIN = "..ddcd..dd..."  // d the drain beside it, c a culvert under the road, . silted up and gone
+let ROAD_BEND = 0.22              // how far the road bows off straight at its middle (tiles)
+let ROAD_HALF = 0.42              // the paving's half width, inside the kerbs (tiles)
 
-// A Roman drain: a channel of dressed stone running under the road's edge, lidded with slabs, some fallen in.
-def drain(look:vglook, kind:int, along_y:bool) -> vgrid:
-    let rng = grng(2400 + kind)
-    let g = vg_new(look, float3 { -0.55, -0.55, 0.0 }, float3 { 0.55, 0.55, 0.2 }, VOX_K, 2400 + kind)
-    let lids = map(4): randf(rng) < (if kind == 0: 0.75 else: 0.35)
-    vg_box(g, float3 { -0.5, -0.5, 0.0 }, float3 { 0.5, 0.5, 0.2 }) i, p:
-        let uv = ruin_uv(p, along_y)
-        let block = int(floor((uv.x + 0.5) * 4.0))
-        let joint = abs(fract1((uv.x + 0.5) * 4.0) - 0.5) > 0.46
-        let side = abs(uv.y) > 0.07 and abs(uv.y) < 0.17
-        if side and p.z < 0.1 and not joint: vg_set(g, i, VG_ROCK, if uv.y > 0.0: 0.05 else: -0.05)
-        elif abs(uv.y) <= 0.07 and p.z < 0.02: vg_set(g, i, VG_ROCK, -0.3)
-        elif lids[clamp(block, 0, 3)] and abs(uv.y) < 0.2 and p.z >= 0.1 and p.z < 0.135 and not joint: vg_set(g, i, VG_ROCK, 0.25)
-    // a lid fallen in, aslant across the channel
-    if kind == 1:
-        let c = if along_y: float3 { 0.0, 0.18, 0.03 } else: float3 { 0.18, 0.0, 0.03 }
-        rock_plate(g, c, 0.1, 0.17, 0.03, if along_y: 90.0 else: 0.0, VG_ROCK, 0.2, 0.25, 2490)
+def road_mid(u:float) -> float: return ROAD_BEND * sin(180.0 * (u + 0.5) / float(ROAD_PLAN.length))
+
+// How the road is at u (in pieces): how many stones are gone, how hard roots heave them, how deep it's buried, how
+// many kerb stones are gone. Blended between pieces, so a stretch turns into the next one.
+def road_state(u:float) -> float4:
+    def of(n:int) -> float4:
+        let c = ROAD_PLAN[clamp(n, 0, ROAD_PLAN.length - 1)]
+        return switch c:
+            case 'h': float4 { 0.12, 1.0, 0.0, 0.3 }
+            case 'g': float4 { 0.6, 0.25, 0.0, 0.45 }
+            case 'b': float4 { 0.3, 0.0, 1.0, 0.15 }
+            case 'f': float4 { 0.35, 0.3, 0.0, 0.5 }
+            default: float4 { 0.04, 0.1, 0.0, 0.06 }
+    let n = int(floor(u))
+    let t = u - float(n)
+    let st = of(n) * (1.0 - t) + of(n + 1) * t
+    // (at its ends the road fades into the trail: fewer stones and no kerb)
+    let fade = clamp(1.4 - min(u + 0.5, float(ROAD_PLAN.length) - 0.5 - u), 0.0, 1.0)
+    return float4 { min(1.0, st.x + fade * 0.75), st.y, st.z, min(1.0, st.w + fade) }
+
+class road_stone:
+    at:float2  // along the road (pieces), across it from its middle (tiles)
+    gone:bool
+    lift:float   // its top above the paving's
+    tilt:float2  // how its top slopes (heaved by a root)
+    tone:float
+
+def road_piece(look:vglook, n:int) -> vgrid:
+    let g = vg_new(look, float3 { -0.5, -0.62, 0.0 }, float3 { 0.5, 1.0, 0.16 }, VOX_K, 2600 + n)
+    let su = 0.2
+    let sw = 0.19
+    // the stones near this piece: one on each cell of a lattice, a cell now and then with none (a bigger stone beside
+    // it) or two (smaller ones)
+    let stones = []
+    for(int(1.8 / su) + 3) di:
+        let i = int(floor((float(n) - 0.9) / su)) + di
+        for(6) dj:
+            let j = dj - 3
+            let h = vg_hash(2600, i, j, 0)
+            for(if h < 0.14: 0 elif h > 0.84: 2 else: 1) k:
+                let r = float2 { vg_hash(2601, i, j, k), vg_hash(2602, i, j, k) }
+                let at = float2 { (float(i) + 0.15 + 0.7 * r.x) * su, (float(j) + 0.15 + 0.7 * r.y) * sw }
+                let st = road_state(at.x)
+                let a = vg_hash(2603, i, j, k) * 360.0
+                let heave = st.y * vg_hash(2604, i, j, k)
+                let bury = st.z > vg_hash(2605, i, j, k) * 1.15
+                stones.push(road_stone { at, vg_hash(2606, i, j, k) < st.x or bury and vg_hash(2607, i, j, k) < 0.8,
+                                         if bury: -0.022 else: 0.012 * vg_hash(2608, i, j, k) + heave * 0.045,
+                                         float2 { cos(a), sin(a) } * heave * 0.22, vg_hash(2609, i, j, k) * 0.9 - 0.45 })
+    for(g.n.y) y:
+        bake_pulse()
+        for(g.n.x) x:
+            let p = float2 { float(x + g.lo.x) + 0.5, float(y + g.lo.y) + 0.5 } / g.k
+            let u = float(n) + p.x
+            let w = p.y - road_mid(u)
+            let st = road_state(u)
+            let dc = ROAD_DRAIN[n]
+            var top = 0.0
+            var tone = 0.0
+            // (the culvert: a row of long lids across the road, mid-piece, the drain's mouth open on the far side)
+            let culvert = dc == 'c' and abs(p.x) < 0.09 and w > -0.72 and w < 0.72
+            if p.x < -0.5 or p.x >= 0.5: top = 0.0
+            elif culvert:
+                if abs(w) < 0.5:
+                    if abs(fract1(w / 0.24) - 0.5) < 0.46 and abs(p.x) < 0.085:
+                        top = 0.045
+                        tone = 0.3 - 0.1 * float(int(floor(w / 0.24)) % 2)
+                elif abs(p.x) > 0.055:
+                    top = 0.05
+                    tone = 0.05
+                else:
+                    top = 0.012
+                    tone = -0.5
+            elif abs(w) < ROAD_HALF:
+                var best = 9.0
+                var next = 9.0
+                var near = -1
+                let q = float2 { u, w }
+                for(stones) s, k:
+                    let d = magnitude((s.at - q) * float2 { 0.9, 1.0 })
+                    if d < best:
+                        next = best
+                        best = d
+                        near = k
+                    elif d < next: next = d
+                if near >= 0 and next - best > 0.02:
+                    let s = stones[near]
+                    if not s.gone:
+                        top = 0.03 + s.lift + dot(s.tilt, q - s.at)
+                        tone = s.tone
+            elif abs(w) < ROAD_HALF + 0.07:
+                // a kerb: long stones on edge, some gone, some knocked askew
+                let side = if w > 0.0: 1 else: 0
+                let along = u / 0.42 + float(side) * 0.37
+                let seg = int(floor(along))
+                let hk = vg_hash(2700 + side, seg, 0, 0)
+                if hk > st.w and abs(fract1(along) - 0.5) < 0.46:
+                    let skew = (vg_hash(2702 + side, seg, 0, 0) - 0.5) * 0.08 * (0.3 + st.y)
+                    if abs(abs(w) - ROAD_HALF - 0.035 - skew * (fract1(along) - 0.5)) < 0.035:
+                        top = 0.065 + 0.03 * (vg_hash(2704 + side, seg, 0, 0) - 0.5) - st.z * 0.02
+                        tone = 0.1 + 0.2 * (hk - 0.5)
+            elif w > 0.55 and w < 0.72 and (dc == 'd' or dc == 'c'):
+                // the drain: dressed side blocks, a floor, lids over it here and there
+                let block = int(floor(u * 4.0))
+                let joint = abs(fract1(u * 4.0) - 0.5) > 0.46
+                let lid = vg_hash(2710, block, 0, 0) < 0.4
+                if lid and not joint:
+                    top = 0.075
+                    tone = 0.25
+                elif (w < 0.6 or w > 0.67) and not joint:
+                    top = 0.05
+                    tone = if w < 0.6: 0.05 else: -0.05
+                elif w >= 0.6 and w <= 0.67:
+                    top = 0.012
+                    tone = -0.35
+            let zt = min(int(top * g.k) - g.lo.z, g.n.z)
+            for(zt) z: vg_set(g, vg_index(g, x, y, z), VG_ROCK, tone)
     return g
 
 // The stub of a wall: courses of squared stone with a band of red brick through it, broken off at the top, ivy on it.
@@ -820,9 +904,8 @@ def bake_ruins(rs:Sheet):
         for([ false, true ]) ay:
             let d = if ay: "y" else: "x"
             tree_onto(rs, "drums{d}{kind}", column_fallen(roman, kind, ay), true)
-            tree_onto(rs, "drain{d}{kind}", drain(roman, kind, ay), true)
             tree_onto(rs, "wall{d}{kind}", wall_stub(roman, kind, ay), true)
-    for(PAVING_KINDS) kind: for([ false, true ]) ay: tree_onto(rs, "paving{if ay: "y" else: "x"}{kind}", paving(roman, kind, ay), true)
+    for(ROAD_PLAN.length) n: tree_onto(rs, "road{n}", road_piece(roman, n), false)
 
 // What every season shares: trunks, the evergreens' crowns, bare young trees, the stump, the rock, the load of wood.
 // between(): so the window can draw.
