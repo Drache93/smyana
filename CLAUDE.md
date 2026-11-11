@@ -25,6 +25,12 @@ beside `bin/lobster`); its layout is Lobster's [style guide](https://github.com/
 and new code follows that guide too. A global that's never assigned again is a `let`. Creel's own warnings are Creel's
 to fix, in its repo.
 
+## Creel's docs (Dominic, 2026-11-11)
+
+"Need to ensure creel settings and features documented as we go." Any change to Creel that adds or alters a setting or
+a feature updates [`creel/docs/settings.md`](https://github.com/Casaide/creel/blob/main/docs/settings.md) in the same
+pull request. Full API, command line and data format docs come later.
+
 ## The archive (keep it up to date)
 
 `archive/` records how the game is made: pictures, notes, decisions, direction changes, bugs.

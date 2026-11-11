@@ -20,3 +20,7 @@ His messages about the game, word for word, in the order he sent them (times in 
 ## 06:53, on where the camera angle is set (chat)
 
 > Camera angle should be game setting not engine enforced
+
+## 07:04, on documenting Creel (chat)
+
+> Need to ensure creel settings and features documented as we go. We'll do full api docs, CLI etc later
