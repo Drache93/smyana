@@ -271,6 +271,22 @@ After seeing the first runnable version (its trees were about thirteen men tall)
 
 **22:16** (no words: two of the route mock-ups sent again as the reference for the ground, the beech clearing after leaf-fall, `archive/images/2026-11-10/23-route-beech-after-leaf-fall.jpg`, and the same camp in summer)
 
+**22:17** (of the landslide on the ledge, picture 78)
+> rock slide starting to make sense. But the rest of that image is really bad. The cliff are bricks? there's no cliff above? just piles of big rocks, there's the trees being cut off (mixing biomes here badly, including trees and pushes on a mountain edge path?) and really low quality greyish ground on the left.
+
+**22:18** (of the soft ground above the target, picture 82; PR #29 merged)
+> merged for now. But between lighting and ground we still have bunch more work. The trees in the example had shadows in the branches too. Our pic still looks like big bright omni light on everything
+
+**22:19**
+> please recreate the scene with river on the right, full trees at the back, clearing, so we can compare better
+
+**22:20**
+> add the tents, fireplace, and our horses while there - get another thread to make them.
+> So we can cleanly compare it all in one go
+
+**22:26** (of the comparison scene, picture 84)
+> Stream also has a bank, slight depth in mock up
+
 ## Lobster style and the formatter
 
 **22:08**
@@ -278,3 +294,12 @@ After seeing the first runnable version (its trees were about thirteen men tall)
 
 **22:11**
 > primarily to ensure high quality and therefore less bugs ideally
+
+## The camp: tents, fireplace and horses
+
+**20:43** (about the camp mock-up, the autumn camp of picture 62)
+> The are mockuoa right? Because they dont match our final style
+
+**22:20** (in the thread building the first comparison scene)
+> add the tents, fireplace, and our horses while there - get another thread to make them.
+> So we can cleanly compare it all in one go

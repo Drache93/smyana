@@ -54,5 +54,13 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-10:** Fallen leaves you can see on the ground, herbs in drifts, and the landslide moved to a
   ledge between a crag and a real cliff (Creel's high ground, first use; a gneiss cliff face).
   ([journal](journal/2026-11-10-rhodope-trees-ground-and-rock.md#ground-you-can-read-and-a-landslide-on-a-ledge-2210-to-2240))
+- **2026-11-10:** The mock-up's clearing rebuilt as a scene to compare like with like, and trees that shade
+  their own boughs (Creel's baker: a shadow exact to a voxel).
+  ([journal](journal/2026-11-10-rhodope-trees-ground-and-rock.md#a-scene-to-compare-like-with-like-2220-to-2235), [engine](engine/2026-11-10-own-shadow-and-nine-levels.md))
 - **2026-11-10:** Lint for the Lobster code: `lobsterfmt`'s layout and no warnings, in `./check.sh` (D-044).
   ([journal](journal/2026-11-10-lint-and-lobsterfmt.md))
+- **2026-11-10:** The camp as voxel models: a canvas tent, a lean-to of striped rugs, the fireplace with its tripod,
+  a woodpile, four riding horses and four pack mules (D-045).
+  ([journal](journal/2026-11-10-the-camp-tents-fire-and-horses.md))
+- **2026-11-10:** The camp placed in the comparison scene: tents behind the fire, mules and horses at the wood's edge
+  (picture 96). ([journal](journal/2026-11-10-rhodope-trees-ground-and-rock.md#the-camp-stands-in-the-comparison-scene-2335-to-2350))

@@ -44,6 +44,7 @@ import smyana.sheets
 import smyana.men_view
 import smyana.trees
 import smyana.cliff
+import smyana.camp
 
 // ------------------------------------------------------------------ what it was started with
 
@@ -84,7 +85,7 @@ def men_centre() -> float2:
 // ------------------------------------------------------------------ what the view remembers of a place
 
 class Prop:
-    kind:int     // 0 an old tree, 1 a young tree, 2 a stump, 3 a rock outcrop, 4 loose slabs, 5 undergrowth (its leaves by season), 6 a fallen log
+    kind:int     // 0 an old tree, 1 a young tree, 2 a stump, 3 a rock outcrop, 4 loose slabs or a thing of the camp, 5 undergrowth (its leaves by season), 6 a fallen log
     pick:int     // which of its shapes
     name:string  // its picture (an old tree's trunk; a young beech's without its season)
     sp:string    // an old tree's kind: beech, pine, spruce
@@ -130,6 +131,7 @@ def build_props():
     let stump = str_index(tr_names, "stump")
     let rock = str_index(tr_names, "rock")
     let grass = str_index(tr_names, "grass")
+    let bare_p = str_index(tr_names, "bare")
     for(terrain) t, c:
         let h = cell_hash(c)
         let centre = gp(float((c % W) * 1000 + 500), float((c / W) * 1000 + 500))
@@ -142,12 +144,15 @@ def build_props():
             let fir = wood != "beech" and (h / 7) % 4 != 0
             props.push(Prop { 1, h / 7, if fir: "yspruce{(h / 7) % YOUNG_KINDS}" else: "young{(h / 7) % YOUNG_KINDS}", if fir: "spruce" else: "beech", centre, c })
         elif t == stump: props.push(Prop { 2, 0, "stump", "", centre, c })
-        elif t == rock and (has_heights == 0 or level[c] > 0):  // (a ravine's bed is bare rock: nothing stands in it)
+        elif t == rock:
             props.push(Prop { 3, 0, "rock{(h / 7) % ROCK_KINDS}", "", off, c })
         elif t == debris_t:
             // a landslide's debris (#20): a heap of earth and broken rock on each tile, a broken trunk here and there
             props.push(Prop { 3, 0, "rubble{(h / 7) % RUBBLE_KINDS}", "", off + iso(float((h / 5) % 500) - 250.0, float((h / 23) % 500) - 250.0), c })
             if (h / 3) % 5 == 0: props.push(Prop { 6, 0, "log{h % LOG_KINDS}", "", off + iso(float(h % 500) - 250.0, float((h / 9) % 500) - 250.0), c })
+        elif t == bare_p and level[c] > 0 and (h / 13) % 6 == 0:
+            // bare mountain ground: a few loose slabs and stones lie on it
+            props.push(Prop { 4, 0, "slabs{(h / 7) % SLAB_KINDS}", "", off, c })
         elif t == grass and (h / 11) % 3 == 0:
             // slabs lie loose beside the rock they split from
             let x = c % W
@@ -174,6 +179,62 @@ def build_props():
             if (h2 / 100) % 100 >= 90 and (h2 / 100) % 100 < 94: props.push(Prop { 5, 0, "sapling", "", centre, c })
             if (h2 / 100) % 100 < 6: props.push(Prop { 5, 0, "bush{h2 % BUSH_KINDS}", "", centre + iso(float((h2 / 13) % 600) - 300.0, float((h2 / 19) % 600) - 300.0), c })
             elif (h2 / 100) % 100 == 99: props.push(Prop { 6, 0, "log{h2 % LOG_KINDS}", "", centre, c })
+    // the camp, where the place has one laid out ("camp": [name, x, y in milli-tiles] each: the tents, the woodpile,
+    // the horses and the mules; the fireplace comes with the fire): nothing grows under it
+    let camp = glist(su_map, "camp")
+    if camp.length:
+        let stands = map(camp) e: gp(as_float(e.a[1]), as_float(e.a[2]))
+        props = filter(props) pr: pr.kind != 5 or not exists(stands) q: abs(pr.at.x - q.x) < 60.0 and abs(pr.at.y - q.y) < 34.0
+        for(camp) e, i: props.push(Prop { 4, 0, as_str(e.a[0]), "", stands[i], 0 })
+
+// The trail is a path a man or two wide, not a road a tile wide (the mock-ups: a thin tan line through the leaves).
+// Creel's worn ground is kept a tile at a time and spreads, so the trail itself is painted finer into the paths'
+// texture (its "trail" channel): through the middle of the trail's tiles, eased where they step, a third of a tile
+// wide. Where the men wear the ground off the trail still shows as Creel draws it.
+let TRAIL_K = 8  // samples a tile
+
+def build_trail():
+    let trail = str_index(tr_names, "trail")
+    let ford = str_index(tr_names, "ford")
+    def on(x:int, y:int) -> bool: return x >= 0 and y >= 0 and x < W and y < H and (terrain[y * W + x] == trail or terrain[y * W + x] == ford)
+    // each trail tile's point on the path: the middle of the trail tiles round it
+    def mid(x:int, y:int) -> float2:
+        var sum = float2_0
+        var n = 0.0
+        for(5) dy: for(5) dx:
+            if on(x + dx - 2, y + dy - 2):
+                let wgt = if dx == 2 and dy == 2: 2.0 else: 1.0
+                sum += float2 { float(x + dx - 2) + 0.5, float(y + dy - 2) + 0.5 } * wgt
+                n += wgt
+        return sum / n
+    let w = W * TRAIL_K
+    let h = H * TRAIL_K
+    let a = map(w * h): 0.0
+    let r = 0.2
+    for(H) y: for(W) x:
+        if on(x, y):
+            let p = mid(x, y)
+            for([ int2 { 1, 0 }, int2 { 0, 1 }, int2 { 1, 1 }, int2 { -1, 1 } ]) d:
+                if on(x + d.x, y + d.y):
+                    let q = mid(x + d.x, y + d.y)
+                    let lo = min(p, q) - r * 2.0
+                    let hi = max(p, q) + r * 2.0
+                    for(int((hi.y - lo.y) * float(TRAIL_K)) + 1) j: for(int((hi.x - lo.x) * float(TRAIL_K)) + 1) i:
+                        let sx = int(lo.x * float(TRAIL_K)) + i
+                        let sy = int(lo.y * float(TRAIL_K)) + j
+                        if sx >= 0 and sy >= 0 and sx < w and sy < h:
+                            let c = float2 { (float(sx) + 0.5) / float(TRAIL_K), (float(sy) + 0.5) / float(TRAIL_K) }
+                            let t = clamp(dot(c - p, q - p) / max(dot(q - p, q - p), 0.0001), 0.0, 1.0)
+                            let v = clamp(1.5 - magnitude(c - p - (q - p) * t) / r, 0.0, 1.0)
+                            if v > a[sy * w + sx]: a[sy * w + sx] = v
+    paths_tex = gl.create_texture(map(h) y: map(w) x: float4 { a[y * w + x], 0.0, 0.0, 0.0 }, texture_format_clamp | texture_format_nomipmap)
+    ground_stale = true
+
+// The worn ground for the shader, without the trail's own tiles (build_trail draws those).
+def trail_wear():
+    let trail = str_index(tr_names, "trail")
+    wear_tex = gl.create_texture(map(H) y: map(W) x: float4 { (if y * W + x < wear.length and terrain[y * W + x] != trail: float(wear[y * W + x]) else: 0.0) / 255.0, 0.0, 0.0, 0.0 }, texture_format_clamp | texture_format_nomipmap)
+    ground_stale = true
 
 // Leaf litter on the ground under the giants: Creel's ground shader lays its forest floor where prop_tex's red is
 // strong, and its own masks only make it so in a solid wood, not under one great tree. So after build_masks, the
@@ -213,8 +274,9 @@ def build_litter():
     // scree under a landslide's debris (the shader's G), reaching a little past it and ragged
     let sc = map(w * h): 0.0
     let debris_t = str_index(tr_names, "rubble")
+    let bare_t = str_index(tr_names, "bare")
     for(terrain) t, c:
-        if t == debris_t:
+        if t == debris_t or t == bare_t:
             let sx = (c % W) * MASK_K + MASK_K / 2
             let sy = (c / W) * MASK_K + MASK_K / 2
             let rr = MASK_K
@@ -241,9 +303,13 @@ def view_enter(between):
     if run_over(): return
     // the ground's own textures: a beech wood's leaf litter and grass, or a conifer wood's needles and moss
     ground_atlas_tex = gl.load_texture("../data/ground/atlas" + (if gstr(su_map, "wood", "beech") != "beech": "_conifer" else: "") + (if season_now() == "autumn": "_autumn" elif season_now() == "winter": "_winter" else: "") + ".png", texture_format_clamp | texture_format_nomipmap | texture_format_nearest_mag | texture_format_nearest_min)
+    // (a stream is narrower than its tiles and runs a little below its banks, as in the mock-ups)
+    ground_bank_px = gfloat(su_map, "bank_px", 10.0)
+    ground_water_edge = gfloat(su_map, "water_edge", 0.62)
     build_masks()
     build_relief()
-    build_wear()
+    trail_wear()
+    build_trail()
     bake_season(season_now(), between)
     build_props()
     build_litter()
@@ -288,7 +354,10 @@ def sun_from_data():
     // light in four hard bands
     vg_dither = gfloat(sun, "dither", 1.0)
     vg_leaf_tones = gfloat(sun, "leaf_tones", 5.0)
-    bake_light = "sun {elev} {vg_dither} {vg_leaf_tones}"
+    // (a model's own shadow, exact to a voxel: a crown shades its boughs and trunk; and how deep that shade is)
+    vg_sun_shadow = gint(sun, "self_shadow", 1) != 0
+    vg_shade = gfloat(sun, "self_shade", 0.4)
+    bake_light = "sun {elev} {vg_dither} {vg_leaf_tones} {vg_sun_shadow} {vg_shade}"
 
 def mood_tick():
     var m = mood_now()
@@ -428,7 +497,7 @@ def draw_world(alpha:float):
         build_masks()
         build_litter()
     if tick - wear_tick >= 40:
-        build_wear()
+        trail_wear()
         wear_tick = tick
     let ws = float(gl.window_size())
     let cam_px = float2 { floor(cam.x * zoom), floor(cam.y * zoom) } / zoom
@@ -439,7 +508,11 @@ def draw_world(alpha:float):
     collect_men(alpha)
     collect_props()
     draws.push(Drawable { -30000.0, draws.length, -4, 0.0, 0.0, float4_1, 1.0, 3 })  // the rings: on the ground, over the shadows
-    for(fires) p, i: draws.push(Drawable { p.y, draws.length, -5, float(i), 0.0, float4_1, 1.0, 3 })
+    for(fires) p, i:
+        // (the fireplace: its ring of stones, its logs and the tripod with the cauldron; the flames are the game's own)
+        add(frame_at.get("fireplace.shadow", -1), p.x, p.y, -39997.0, float4_1)
+        add(frame_at.get("fireplace", -1), p.x, p.y, p.y, float4_1, 1.0, 2)
+        draws.push(Drawable { p.y + 0.05, draws.length, -5, float(i), 0.0, float4_1, 1.0, 3 })
     qsort_in_place(draws) a, b: a.y < b.y or (a.y == b.y and a.seq < b.seq)
     // the ground's shadows into the light's shade buffer, where they join into one shade (a low sun's long shadows
     // overlap everywhere in a wood), then what stands up out of them wipes them off itself: the trees and rocks are lit
@@ -491,7 +564,7 @@ def draw_world(alpha:float):
     sprite_snap = 1.0
     if atmo_on: atmo_end(cam_px, zoom, 1.5)
 
-// The camp's fires (for now only for a look: the camp option lights one among the men at dusk): stones, two logs and
+// The camp's fires (for now only for a look: the camp option lights one among the men at dusk): the fireplace's model,
 // flames drawn unlit, a glow each in the light (atmosphere.json's "glows": "building_fire"), and a thread of smoke.
 
 def draw_fire(i:int):
@@ -499,14 +572,6 @@ def draw_fire(i:int):
     let t = gl.time()
     gl.set_shader("color")
     gl.translate(p): gl.scale(1.7):
-        for(9) k:  // the ring of stones
-            let a = float(k) * 40.0
-            gl.color(float4 { 0.28, 0.26, 0.24, 1.0 }):
-                gl.translate(float2 { cos(a) * 7.0 - 1.5, sin(a) * 3.5 - 1.0 }): gl.rect(float2 { 3.0, 2.0 })
-        for([ -1.0, 1.0 ]) side:  // two logs, crossed
-            gl.color(float4 { 0.22, 0.14, 0.08, 1.0 }):
-                gl.translate(float2 { -5.0, -1.5 + side * 0.8 }):
-                    gl.rotate_z(float2 { cos(side * 14.0), sin(side * 14.0) }): gl.rect(float2 { 10.0, 2.0 })
         for(5) k:  // the flames: tongues that lick up and fall back
             let ph = t * (5.0 + float(k) * 1.3) * 57.29578 + float(k * 71 + i * 13)
             let h = 5.0 + 3.5 * (0.5 + 0.5 * sin(ph))
@@ -712,6 +777,7 @@ waiting_frame()
 let boot0 = seconds_elapsed()
 bake_men(): waiting_frame()
 bake_trees(): waiting_frame()
+bake_camp(): waiting_frame()
 run_begin()
 if arg_of("leg") != "": enter_leg(arg_of("leg"), "west")  // leg:<id>: start at this leg of the route, for a look
 // camp or camp:<x>,<y>: the men round a fire (at that tile), for a look at the camp's light
@@ -731,7 +797,8 @@ if has_s(args, "camp") or arg_of("camp") != "":
         let ty = c.y / TILE
         let old = str_index(tr_names, "tree")
         let grass = str_index(tr_names, "grass")
-        for(31) dy: for(31) dx:
+        // (a place laid out as a scene keeps its own trees)
+        for(if gint(su_map, "scene", 0) != 0: 0 else: 31) dy: for(31) dx:
             let x = tx + dx - 15
             let y = ty + dy - 15
             if x >= 0 and y >= 0 and x < W and y < H:

@@ -156,7 +156,7 @@ def tiles(wood, season):
             t[10] = strew(make(11, ["#c8802a", "#cf892c", "#d6922e", "#dc9a30"], coarse=4, fine=12, grain=0.04, height=0.45), 111, 3600, fall, lift=0.04)
             for k, n in ((0, 520), (1, 560), (2, 640), (3, 480), (12, 560), (13, 560)):
                 t[k] = strew(tufts(t[k], 200 + k, 500, ["#7f8f40", "#8a9846", "#75853c"]), 300 + k, n, fall)
-            t[4] = strew(pebbles(make(5, ["#806c4c", "#877250", "#8e7854", "#957e58"], fine=30, grain=0.08, height=0.35), 404, 60, ["#a39a86", "#968d7a"]), 304, 200, fall)
+            t[4] = strew(pebbles(make(5, ["#9c8358", "#a48b5e", "#ac9364", "#b49b6a"], fine=30, grain=0.08, height=0.35), 404, 60, ["#a39a86", "#968d7a"]), 304, 200, fall)
             t[9] = strew(make(10, ["#6e5a3e", "#746042", "#7a6546", "#806a4a"], grain=0.1, height=0.4), 309, 500, fall)
         elif season != "winter":
             old = ["#8a5c2c", "#845628", "#90622f", "#7c5126", "#966834"]
@@ -166,6 +166,11 @@ def tiles(wood, season):
             t[4] = strew(pebbles(t[4], 404, 260, ["#9b9485", "#b0a896", "#857e70"]), 304, 120, old)
     else:
         t[4] = pebbles(t[4], 404, 260, ["#9b9485", "#b0a896", "#857e70"])
+    # bare mountain ground and scree: stones you can see, of many sizes, lying on stony earth with a tuft between them
+    t[11] = tufts(strew(strew(make(12, ["#77705f", "#7b7463", "#7f7867", "#837c6b"], coarse=5, fine=16, grain=0.05, height=0.55),
+                              512, 420, ["#8a8374", "#8f8879", "#857e6f", "#948d7d"], length=(6.0, 13.0), edge=0.86, drift=False),
+                        513, 500, ["#8c8576", "#888172", "#928b7b"], length=(3.0, 6.0), edge=0.88, drift=False),
+                 514, 140, ["#6f7a3c", "#7d8742", "#5f6a34"])
     if season == "winter":
         # the first snow: thin and blue-white in the open with grass tips through it, thinner still under the trees
         # where the fallen leaves show, trodden to slush on the trail

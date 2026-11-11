@@ -257,3 +257,74 @@ with no dark gaps. Now the leaves take seven close tones, picked by a slow noise
 bed of the same warmth, their lower edge only a little darker; the autumn grass is an olive gold near the litter in
 value, with more leaves on it, so the two run into each other. Picture 82 (ours above the target). Lesson (Claude):
 "leaves you can see" was the wrong aim; the aim is tone and softness first, detail only where it costs neither.
+
+## A scene to compare like with like (22:20 to 22:35)
+
+Dominic: "please recreate the scene with river on the right, full trees at the back, clearing, so we can compare
+better", then "add the tents, fireplace, and our horses while there - get another thread to make them. So we can cleanly
+compare it all in one go". `tools/make_scene.py` lays the mock-up's clearing out tile for tile as its own place
+(`camp_clearing`, the look-only leg `camp_look`): the fire left of the middle, the trail from it to the stream, the
+stream in at the right and out at the bottom, the wood thick at the back. Shot with
+`leg:camp_look camp:28,31 look:30,30 hour:16 zoom:2.75`. Picture 84 is the first cut above the target. What differs
+still (Claude's list): the back of the wood is lit ground between trunks where the mock-up's is dark and misty; the
+stream is about twice as wide (a tile); the trail is a wide grey patch, not a thin tan path; the trees' branches carry
+no shade of their own (Dominic: "The trees in the example had shadows in the branches too. Our pic still looks like big
+bright omni light on everything"); no tents, fireplace or animals yet (their own thread).
+
+## Branch shade, a stream's bank, a thin trail (22:25 to 22:50)
+
+Three things the comparison scene showed, each fixed against it (the engine side is in
+`archive/engine/2026-11-10-own-shadow-and-nine-levels.md`):
+
+- The trees shade their own boughs and trunks now (picture 86). The baker had been stepping over anything as thin as
+  a bough.
+- The stream runs below a low earth bank and is narrower than its tile (picture 88). Dominic: "Stream also has a bank,
+  slight depth in mock up".
+- The trail is a path about a man wide, in a soft tan, drawn through the middle of its tiles and eased where they step
+  (`build_trail`), not a tile-wide grey patch (picture 90). The men still walk the same tiles.
+
+Still open against the mock-up: the stream is wider and darker than its pale blue one; the back of the wood (the
+lighting thread); the camp's things (their own thread).
+
+## The pass again: a cliff above it (22:50 to 23:10)
+
+Dominic of picture 78: "rock slide starting to make sense. But the rest of that image is really bad. The cliff are
+bricks? there's no cliff above? just piles of big rocks, there's the trees being cut off (mixing biomes here badly,
+including trees and pushes on a mountain edge path?) and really low quality greyish ground on the left."
+
+Each one, and what was done:
+
+- *Bricks:* the face was thin regular beds with joints. Now massive rock in a few close tones, wandering fractures,
+  broken grain lines, a ledge here and there (`src/smyana/cliff.lobster`).
+- *No cliff above:* the "wall" was outcrop models standing on flat ground. With nine ground levels in Creel the place
+  stands at 4, a bluff above the ledge at 8 and the gorge's bed at 0: four levels of real cliff each way.
+- *Trees cut off, biomes mixed:* no old trees stand within the pass or for a way below the gorge (the deep wood's tall
+  trunks ran out of the top of the picture in front of the cliff); below the gorge the wood starts again with young
+  trees.
+- *Greyish ground:* the bed was Creel's flat rock. The ledge and bluff are mountain turf now, stony only by the slide;
+  scree has stones you can see, in close tones.
+
+Picture 94 is the first try at this, kept as a bug: everything bare, a brown waste. Picture 92 is where it stands.
+Still wrong (Claude): the faces' fractures run too straight and upright, the river in the gorge is a pool with a ring of
+bank, the trail fades out under the scree by the slide.
+
+## The camp stands in the comparison scene (23:35 to 23:50)
+
+Dominic at 22:20: "add the tents, fireplace, and our horses while there - get another thread to make them. So we can
+cleanly compare it all in one go". The camp thread made the models (PR #33, `src/smyana/camp.lobster`); this places
+them.
+
+- A place can lay out a camp: the map's `"camp"` is a list of `[frame, x, y]` in milli-tiles. `tools/make_scene.py`
+  writes it for the clearing as the mock-up has it: the canvas tent behind the fire, a rug lean-to each side of it, the
+  woodpile by the fire, three pack mules right of the tents and five horses along the wood's edge. No tree is planted
+  on them and no undergrowth grows under them.
+- Every fire now stands in the fireplace model (ring of stones, logs, tripod and cauldron); the flat stones and logs the
+  placeholder drew are gone, its flames and smoke stay (D-038 still holds: the fire is for a look).
+
+Picture 96 is the scene above the mock-up. What it shows still open (Claude): the flames are flat bars against voxel
+models; the woodpile is lost in shade; the men stand about the trail and not round the fire; the back of the wood is
+bright where the mock-up's is dark and misty (the lighting thread).
+
+The faces' fractures no longer split the rock into upright panels: each leans and wanders its own way down, and some
+are missing (picture 98). Still wrong (Claude): the cliffs' edges run ruler-straight along the tiles, and the river in
+the gorge is still a pool.

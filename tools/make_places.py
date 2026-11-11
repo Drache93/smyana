@@ -6,7 +6,7 @@ or edit a map's rows by hand afterwards (then don't run this again for that plac
 Run from the repo's root: python3 tools/make_places.py"""
 import json, math, random
 
-LEGEND = {".": "grass", ":": "trail", "T": "tree", "t": "young_tree", "#": "rock", "~": "water", "=": "ford", "%": "rubble", "_": "rock"}
+LEGEND = {".": "grass", ":": "trail", "T": "tree", "t": "young_tree", "#": "rock", "~": "water", "=": "ford", "%": "rubble", "b": "bare"}
 
 
 def noise1(rng, n, step):
@@ -76,26 +76,33 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
         for y in range(min(a, b), max(a, b) + 1): put(x, y, ":", ".#")
 
     # a landslide, found after it has happened (#20; Dominic: "smaller and more focused. Like on a pass above a cliff
-    # face, so we only have a very tight space to go, and it's blocked"). The trail runs along a ledge: a crag wall
-    # above it, a ravine below it (the ground there lies three levels down: "heights"), and where the wall has let go
-    # its debris lies across the trail. One tile of the ledge's lip is left to squeeze by until the men can clear it.
-    low = set()
+    # face, so we only have a very tight space to go, and it's blocked"). The trail runs a ledge on a mountain's side:
+    # a cliff above it (a bluff four levels up), a gorge below it (four levels down, a river in its bed), and where
+    # the cliff has let go its debris lies across the trail. Bare mountain ground: no forest stands on the ledge or
+    # in front of the faces. One tile of the ledge's lip is left to squeeze by until the men can clear it.
+    lev = {}
+    bare_zone = []
     if slide:
         sx, half = slide[0] + RIM, slide[1]
+        ty = trail_y[sx]
+        gw, gw2 = noise1(rng, w, 5), noise1(rng, w, 6)
         for x in range(sx - half, sx + half + 1):
             t = (x - (sx - half)) / (2.0 * half)
-            ty = max(trail_y[x], trail_y[max(0, x - 1)], trail_y[min(w - 1, x + 1)])
-            top = min(trail_y[x], trail_y[max(0, x - 1)], trail_y[min(w - 1, x + 1)])
-            wall = 2 + int(round(2 * math.sin(math.pi * t)))
-            for y in range(top - wall, top): put(x, y, "#", ".")
-            deep = int(round(5.5 * math.sin(math.pi * t) ** 0.6))
-            for y in range(ty + 2, ty + 2 + deep):
-                put(x, y, "_", ".#")
-                if g[y][x] == "_": low.add((x, y))
-            if deep >= 4: g[ty + 4][x] = "~"   # a thread of water in its bed
-        for x in range(sx - 1, sx + 2):
-            for y in range(trail_y[x] - (3 if x == sx else 2), trail_y[x] + 1): put(x, y, "%", ".:#")
-        put(sx, trail_y[sx] + 1, ":", ".")
+            wall = 3 + int(round(2 * math.sin(math.pi * t)))
+            for y in range(ty - wall, ty):                      # the bluff above
+                g[y][x] = "b" if y == ty - 1 and rng.random() < 0.5 else "."
+                lev[(x, y)] = 8
+            g[ty + 1][x] = "b" if abs(x - sx) <= 2 else "."     # the ledge's lip: turf, stony by the slide
+            deep = 2 + int(round(4.5 * math.sin(math.pi * t) ** 0.6 + gw[x] * 1.2))
+            mid = ty + 2 + deep / 2.0 + gw2[x] * 1.2
+            for y in range(ty + 2, ty + 2 + deep):              # the gorge below: a river winding in a stony bed
+                g[y][x] = "~" if abs(y + 0.5 - mid) <= 1.0 and deep >= 4 else "b"
+                lev[(x, y)] = 0
+            put(x, ty + 2 + deep, ".", "#")
+        for x in range(sx - 1, sx + 2): g[ty][x] = "%"          # the heap at the cliff's foot, across the trail
+        g[ty + 1][sx - 1] = "%"
+        g[ty + 1][sx] = ":"
+        bare_zone = [(sx - half - 3, ty - 8, sx + half + 3, ty + 20)]
 
     def near(x, y, chars, r):
         for yy in range(max(0, y - r), min(h, y + r + 1)):
@@ -103,8 +110,18 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
                 if g[yy][xx] in chars: return True
         return False
 
+    def near_t(x, y):
+        return any(g[yy][xx] == "t" for yy in range(y - 1, y + 2) for xx in range(x - 1, x + 2))
+
     def in_clearing(x, y):
+        if any(x0 <= x <= x1 and y0 <= y <= y1 for (x0, y0, x1, y1) in bare_zone): return True
         return any((x - cx) ** 2 + (y - cy) ** 2 <= r * r for (cx, cy, r) in clearings)
+
+    # (below the gorge the wood starts again low: young trees only, nothing tall standing in front of the cliff)
+    for (x0, y0, x1, y1) in bare_zone:
+        for y in range(y0, y1 + 1):
+            for x in range(x0, x1 + 1):
+                if g[y][x] == "." and (x, y) not in lev and y > trail_y[slide[0] + RIM] + 9 and rng.random() < 0.1 and not near_t(x, y): g[y][x] = "t"
 
     # young trees: clumps to fell, never touching each other on all sides (a man must reach each one)
     for _ in range(young_clumps):
@@ -139,9 +156,9 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
         "wood": wood,
         "rows": ["".join(r) for r in g],
     }
-    if low:  # the ground's levels (Creel: 0 to 3): the whole place stands at 3, the ravine's bed lies at 0
+    if lev:  # the ground's levels (Creel: 0 to 9): the place stands at 4, the gorge's bed at 0, the bluff at 8
         rows = doc.pop("rows")
-        doc["heights"] = ["".join("0" if (x, y) in low else "3" for x in range(w)) for y in range(h)]
+        doc["heights"] = ["".join(str(lev.get((x, y), 4)) for x in range(w)) for y in range(h)]
         doc["rows"] = rows
     with open("data/maps/%s.json" % pid, "w") as f:
         f.write("{\n")

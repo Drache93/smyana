@@ -1,5 +1,5 @@
 {
- "_doc": "The ground of a place. Creel's ground shader knows some of these by name (water, ford, tree, stump, rock: it lays leaf litter under 'tree' and 'stump'), which is why the giants are plain 'tree'. 'rubble' is a landslide's debris (#20): Creel lays scree under it. A tree is an old giant: it blocks the way and can't be felled. A young_tree can be felled for wood and leaves a stump, which is how a place shows it was worked on the way home.",
+ "_doc": "The ground of a place. Creel's ground shader knows some of these by name (water, ford, tree, stump, rock: it lays leaf litter under 'tree' and 'stump'), which is why the giants are plain 'tree'. 'rubble' is a landslide's debris (#20): Creel lays scree under it. 'bare' is bare mountain ground, stony, nothing growing on it (Smyana paints its scree). A tree is an old giant: it blocks the way and can't be felled. A young_tree can be felled for wood and leaves a stump, which is how a place shows it was worked on the way home.",
  "terrain": {
   "grass": { "walkable": true, "colour": "#5c7a3a", "colour2": "#4e6b33" },
   "trail": { "walkable": true, "colour": "#8a7350", "colour2": "#7a6444" },
@@ -8,7 +8,9 @@
   "stump": { "walkable": true, "colour": "#55683a", "colour2": "#4c5e36" },
   "rock": { "walkable": false, "move": [], "colour": "#77736a", "colour2": "#68655d" },
   "rubble": { "walkable": false, "move": [], "colour": "#6a5a44", "colour2": "#5c4e3a" },
+  "bare": { "walkable": true, "colour": "#7a766c", "colour2": "#6c685f" },
   "water": { "walkable": false, "move": [], "colour": "#3d6f7a", "colour2": "#356472" },
+  "river": { "walkable": false, "move": [], "colour": "#4d7f88", "colour2": "#447580" },
   "ford": { "walkable": true, "colour": "#6f9a98", "colour2": "#64908e" }
  }
 }

@@ -1,0 +1,12 @@
+tent_canvas 71 42
+tent_rugs 63 51
+fireplace 19 19
+woodpile 17 15
+horse_0_bay 30 9
+horse_1_grey 30 9
+horse_2_chestnut 30 9
+horse_3_dark 30 9
+mule_0_mule_sacks 26 14
+mule_1_mule_dun_kegs 26 15
+mule_2_bay_baskets 30 19
+mule_3_mule_poles 29 14
