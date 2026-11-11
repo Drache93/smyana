@@ -108,6 +108,10 @@ class Canopy:
     y:float
     s:float
 var canopies = []::Canopy
+// Sunflecks: deep in a wood, small spots of sun that get through the canopy and come and go as the boughs move
+// (sun.flecks a tree, 0 off; by day only). Each one: where (art px) and its own seed.
+var canopy_flecks = 0
+var flecks = []::float3
 var props_version = -1
 var wear_tick = -1000
 var clock_s = 0.0
@@ -547,15 +551,54 @@ def sun_from_data():
     canopy_reach = int(gfloat(sun, "canopy_reach", 3.0))
     canopy_trees = gfloat(sun, "canopy_trees", 14.0)
     canopy_dim = gfloat(sun, "canopy_dim", 0.0)
+    canopy_flecks = int(gfloat(sun, "flecks", 0.0))
+
+// The mood of the hour and the next one, and how far into the turn from one to the next (0 .. 1): the last
+// hours.blend hours (atmosphere.json) before a mood starts, the one before it turns into it, so dawn comes up and dusk
+// falls instead of switching on the hour.
+def mood_turn() -> string, string, float:
+    let hours = gobj(atmo_data, "hours")
+    let blend = gfloat(hours, "_blend", 0.0)
+    let h = hour_now()
+    let now = mood_now()
+    var next = ""
+    var next_at = 99.0
+    var first = ""
+    var first_at = 99.0
+    for(hours.keys) name, k:
+        if not starts_with(name, "_"):
+            let at = as_float(hours.a[k])
+            if at > h and at < next_at:
+                next = name
+                next_at = at
+            if at < first_at:
+                first = name
+                first_at = at
+    if next == "":  // (after the day's last: the next is tomorrow's first)
+        next = first
+        next_at = first_at + 24.0
+    let t = if blend > 0.0: clamp((h - (next_at - blend)) / blend, 0.0, 1.0) else: 0.0
+    return now, next, t
+
+// A mood's own light this season where there is one ("day.autumn").
+def mood_in_season(m:string) -> string:
+    let own = m + "." + season_now()
+    let has = exists(gobj(atmo_data, "moods").keys) name: name == own
+    return if has: own else: m
+
+var mood_key = ""
 
 def mood_tick():
-    var m = mood_now()
-    // (a season's own light where there is one: "day.autumn")
-    let own = m + "." + season_now()
-    for(gobj(atmo_data, "moods").keys) name: if name == own: m = own
-    if m != atmo_mood and m != "":
-        let why = atmo_set(atmo_data, m)
-        if why != "": print why
+    let now, next, t = mood_turn()
+    if now == "": return
+    let a = mood_in_season(now)
+    let b = mood_in_season(next)
+    let step = int(t * 48.0)  // (the turn in small steps: the light set again only when it has moved)
+    let key = "{a} {b} {step}"
+    if key == mood_key: return
+    mood_key = key
+    let why = atmo_set_between(atmo_data, a, b, float(step) / 48.0)
+    if why != "": print why
 
 // ------------------------------------------------------------------ drawing the world
 
@@ -567,7 +610,8 @@ class Drawable:
     ay:float
     col:float4
     fade:float  // 1 whole .. 0 gone
-    kind:int    // 0 what stands up (it hides the shade under it), 1 a shadow on the ground, 2 a man (he stands in the shade)
+    kind:int    // 0 what stands up (it hides the shade under it), 1 a shadow on the ground, 2 what stands in the shade,
+    // 3 drawn by hand (rings, fires), 4 a man (in the shade, and kept readable: atmo_shade_unit)
 
 var draws = []::Drawable
 var fires = []::float2  // the camp's fires, art px: where each one's foot is (draw_fire)
@@ -608,7 +652,7 @@ def collect_men(alpha:float):
             let facing = (d + 2) % 8
             let p = gp(x, y)
             add(frame_at.get(man_shadow_name(m.look, facing), -1), p.x, p.y, p.y - 0.5, float4_1, 1.0, 1)
-            add(frame_at.get(man_frame_name(m.look, if moving: 1 + step else: 0, facing), -1), p.x, p.y, p.y, SASH, 1.0, 2)
+            add(frame_at.get(man_frame_name(m.look, if moving: 1 + step else: 0, facing), -1), p.x, p.y, p.y, SASH, 1.0, 4)
             if u_carry[i] > 0: add(frame_at.get("load.wood", -1), p.x + 3.0, p.y - 27.0, p.y + 0.1, float4_1, 1.0, 2)
             eyes.push(p - float2 { 0.0, 16.0 })
 
@@ -626,6 +670,8 @@ def collect_props():
     let season = leaf_stage()
     let bare = season == "winter"
     canopies = []
+    flecks = []
+    let day = hour_now() > 6.5 and hour_now() < 19.0
     for(props) pr, pidx:
         if pr.at.x > view_lo.x - 700.0 and pr.at.x < view_hi.x + 250.0 and pr.at.y > view_lo.y - 300.0 and pr.at.y < view_hi.y + 620.0:
             if pr.kind == 0:
@@ -643,6 +689,10 @@ def collect_props():
                 if (pr.sp == "tall" or not leafy(pr.sp) or not bare) and pidx < canopy.length and canopy[pidx] > 0.0:
                     let f = frame_at.get(crown + ".shadow", -1)
                     if f >= 0: canopies.push(Canopy { f, pr.at.x, pr.at.y, 1.0 + (canopy_spread - 1.0) * canopy[pidx] })
+                    if day and canopy[pidx] > 0.5 and (pr.sp == "tall" or not bare):
+                        for(canopy_flecks) k:
+                            let h = cell_hash(pr.cell * 13 + k + 17)
+                            flecks.push(float3 { pr.at.x + float(h % 160) - 80.0, pr.at.y + float((h / 160) % 90) - 45.0, float(h % 997) })
             elif pr.kind == 1:
                 if pr.sp == "spruce":
                     add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39998.0, float4_1)
@@ -740,19 +790,46 @@ def draw_world(alpha:float):
                         flush_sprites()
                         b_sheet = -1
                         sprite_shader = "atmo_shade_canopy"
-                        // (the canopy overhead: a crown's shade grown about its middle, as far as the wood is closed)
+                        // (the canopy overhead: a crown's shade spread round itself, as far as the wood is closed: drawn again
+                        // at a ring of offsets rather than scaled up, so its pixels stay the art's size and its edge stays fine)
                         for(canopies) cp:
                             let fr = frames[cp.f]
-                            let x0 = cp.x - float(fr.ox) * fr.k
-                            let y0 = cp.y - float(fr.oy) * fr.k
-                            let mid = float2 { x0 + float(fr.w) * fr.k * 0.5, y0 + float(fr.h) * fr.k * 0.5 }
-                            sprite_xf(cp.f, [ fr.k * cp.s, 0.0, 0.0, fr.k * cp.s, mid.x + (x0 - mid.x) * cp.s, mid.y + (y0 - mid.y) * cp.s ], float4_1)
+                            let rx = float(fr.w) * fr.k * (cp.s - 1.0) * 0.5
+                            let ry = float(fr.h) * fr.k * (cp.s - 1.0) * 0.5
+                            sprite(cp.f, cp.x, cp.y, float4_1)
+                            if rx > 0.5:
+                                for(8) a:
+                                    let ang = float(a) * 45.0 + 22.5
+                                    sprite(cp.f, cp.x + cos(ang) * rx, cp.y + sin(ang) * ry, float4_1)
+                        flush_sprites()
+                        // the sunflecks: a spot of sun on the floor of the wood, swelling and gone as the boughs sway
+                        if flecks.length:
+                            gl.set_shader("color")
+                            let t = gl.time()
+                            gl.color(float4 { 0.0, 0.0, 0.0, 1.0 }):
+                                for(flecks) fl:
+                                    let s = sin((t * 9.0 + fl.z * 0.37) * 1.0) * 0.5 + 0.5
+                                    if s > 0.3:
+                                        let r = floor((3.0 + fl.z % 4.0) * s + 0.5)
+                                        if r >= 1.0:
+                                            // (a little lying oval, pixel cut: lit spots on the ground seen from above)
+                                            let w = floor(r * 1.4)
+                                            gl.translate(float2 { floor(fl.x) - r, floor(fl.y) - floor(r * 0.25) }): gl.rect(float2 { r * 2.0, max(1.0, floor(r * 0.5)) })
+                                            gl.translate(float2 { floor(fl.x) - floor(w / 2.0), floor(fl.y) - floor(r * 0.5) }): gl.rect(float2 { w, r })
+                        // back to front: what stands up wipes the shade off itself, and where a man stands is marked
+                        // (blue, added: he keeps his shade) so the light can keep him readable; a tree in front wipes that too
+                        var now = -1
+                        for(draws) d:
+                            if (d.kind == 0 or d.kind == 4) and d.f >= 0:
+                                if d.kind != now:
+                                    flush_sprites()
+                                    b_sheet = -1
+                                    now = d.kind
+                                    sprite_shader = if now == 0: "atmo_shade_clear" else: "atmo_shade_unit"
+                                    gl.blend(if now == 0: blend_alpha else: blend_add)
+                                sprite(d.f, d.x, d.ay, if d.kind == 0: float4 { d.fade, 0.0, 0.0, 1.0 } else: float4_1)
                         flush_sprites()
                         gl.blend(blend_alpha)
-                        b_sheet = -1
-                        sprite_shader = "atmo_shade_clear"
-                        for(draws) d: if d.kind == 0 and d.f >= 0: sprite(d.f, d.x, d.ay, float4 { d.fade, 0.0, 0.0, 1.0 })
-                        flush_sprites()
                         sprite_shader = "sprite"
         gl.blend(blend_alpha)
     let atmo_drawn = atmo_begin(float4 { 0.04, 0.05, 0.04, 1.0 })
