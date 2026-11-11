@@ -58,6 +58,7 @@ let shot = arg_of("shot")
 let shot_at = if arg_of("at") != "": string_to_float(arg_of("at")) else: 4.0
 let script = arg_of("script")  // "tour": the men walk the whole route by themselves (captures, and timing the loads)
 let debug_line = has_s(args, "debug")
+let show_cover = has_s(args, "cover")                                             // cover: a mark on each tile, the more solid the better it hides a man (#9), for a look
 hour_force = if arg_of("hour") != "": string_to_float(arg_of("hour")) else: -1.0  // hour:16.5: this place at that hour, for a look
 year_force = if arg_of("year") != "": string_to_int(arg_of("year")) else: -1      // year:1300: this place at that point of the year (0 summer, 1000 autumn, 2000 winter, 3000 spring), for a look
 season_force = arg_of("season")                                                   // season:autumn: this place in another season, for a look
@@ -149,18 +150,11 @@ let man_walked = dictionary<int, float>(64)  // milli-tiles each has walked here
 var selected = []::int
 var view_load_s = 0.0  // how long the last place took to load, the view's part included
 
-def cell_hash(c:int) -> int: return ((c * 2654435761) >> 7) & 0xFFFF
-
 // Which trees stand in this place (the map's "wood": beech or conifer), picked per cell.
 // (deep: the high dark woods, where the trunks run up out of sight and only the understorey is a tree's whole height)
 def old_kind(wood:string, pick:int) -> string, int:
-    let r = (pick / 3) % 8
-    var sp = if r < 4: "beech" elif r < 6: "oak" elif r < 7: "hornbeam" else: "pine"
-    if wood == "deep": sp = if r < 6: "tall" elif r < 7: "spruce" else: "beech"
-    if wood == "conifer": sp = if r < 5: "spruce" elif r < 7: "pine" else: "beech"
+    let sp = old_species(wood, pick)
     return sp, pick % (if sp == "pine": PINE_KINDS else: 3)
-
-def leafy(sp:string) -> bool: return sp == "beech" or sp == "oak" or sp == "hornbeam"
 
 // Where the year's leaves lie thin in a broadleaf wood (x, y in mask samples): grass shows and herbs grow there.
 def open_ground(x:int, y:int) -> bool:
@@ -273,9 +267,9 @@ def build_props():
             if by_rock and y >= 0: props.push(Prop { 4, 0, "slabs{(h / 7) % SLAB_KINDS}", "", off, c })
         if t == grass:
             // the undergrowth (#8): bracken in drifts, a bush here and there, now and then a fallen trunk
-            let drift = cell_hash((c / W / 4) * W + (c % W) / 4 + 9001) % 8 < 3
+            let drift = bracken_drift(c)
             let h2 = cell_hash(c + 40507)
-            if h2 % 100 < (if drift: 62 else: 7): props.push(Prop { 5, 0, "fern{h2 % FERN_KINDS}", "", off, c })
+            if bracken_at(c): props.push(Prop { 5, 0, "fern{h2 % FERN_KINDS}", "", off, c })
             if drift and h2 % 7 < 3:
                 props.push(Prop { 5, 0, "fern{(h2 / 3) % FERN_KINDS}", "", centre + iso(float((h2 / 11) % 700) - 350.0, float((h2 / 17) % 700) - 350.0), c })
             // (soft grass: pale tufts standing out of the leaves in drifts a few tiles across, thick at a drift's
@@ -1047,6 +1041,7 @@ def draw_world(alpha:float):
                 flush_sprites()
                 draw_leaf_fall()
                 draw_weather()
+                if show_cover: draw_cover()
                 fires_glow()
     sprite_snap = 1.0
     if atmo_on: atmo_end(cam_px, zoom, 1.5)
@@ -1080,6 +1075,21 @@ def draw_leaf_fall():
             gl.color(float4 { c.x, c.y, c.z, min(1.0, min(u * 8.0, (1.0 - u) * 5.0)) }):
                 gl.translate(float2 { floor(x), floor(y) }): gl.rect(if (h / 11 + int(u * 6.0)) % 2 == 0: float2 { 2.0, 1.0 } else: float2 { 1.0, 2.0 })
 
+// For a look at the cover (#9; the game shows no meter): a dark bar on every open tile in view, lit along as much of
+// its length as the tile hides a man.
+def draw_cover():
+    let grass = str_index(tr_names, "grass")
+    let trail = str_index(tr_names, "trail")
+    gl.set_shader("color")
+    for(terrain) t, c:
+        if t == grass or t == trail:
+            let at = gp(float((c % W) * 1000 + 500), float((c / W) * 1000 + 500))
+            if at.x > view_lo.x and at.x < view_hi.x and at.y > view_lo.y and at.y < view_hi.y:
+                let v = floor(float(cover_at(c)) / 10.0 + 0.5)  // (a bar of ten: how much of it is lit)
+                let p = float2 { floor(at.x) - 6.0, floor(at.y) - 2.0 }
+                gl.color(float4 { 0.05, 0.05, 0.08, 0.75 }): gl.translate(p): gl.rect(float2 { 12.0, 4.0 })
+                if v > 0.0: gl.color(float4 { 0.4, 1.0, 1.0, 1.0 }): gl.translate(p + float2_1): gl.rect(float2 { v, 2.0 })
+
 // The wind as the eye sees it (0 .. 1): the sim's wind (wind_now), coming in gusts.
 def gust() -> float:
     let t = gl.time()
@@ -1099,7 +1109,7 @@ def draw_weather():
     let t = gl.time()
     let wind = gust()
     let rain = kind == "rain"
-    let each = if rain: 3 + int(k * 6.0) else: 8 + int(k * 14.0)
+    let each = int(k * (if rain: 9.0 else: 22.0) + 0.5)  // (a spell comes on a drop at a time)
     let fall = if rain: 150.0 else: 90.0
     let lean = if rain: 0.12 + wind * 0.5 else: 0.25 + wind * 1.6  // (sideways for each pixel down)
     let c0 = floor((view_lo - float2 { fall * lean + 8.0, 0.0 }) / WEATHER_CELL)

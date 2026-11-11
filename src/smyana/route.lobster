@@ -161,11 +161,84 @@ def clock_tick():
     let span = glist(leg_now(), "year")
     if span.length > 1 and year_m < as_int(span[1]) and run_ticks % max(1, gint(gobj(route, "season"), "ticks_per_milli", 28)) == 0: year_m++
 
+// ---- cover (issue #9, D-064)
+// What grows on a cell is worked out from the cell's number, here in the sim, and the view draws the same thing.
+def cell_hash(c:int) -> int: return ((c * 2654435761) >> 7) & 0xFFFF
+
+// Which old tree stands in a wood of this kind (the map's "wood": beech, conifer or deep, the high dark woods where
+// the trunks run up out of sight).
+def old_species(wood:string, pick:int) -> string:
+    let r = (pick / 3) % 8
+    var sp = if r < 4: "beech" elif r < 6: "oak" elif r < 7: "hornbeam" else: "pine"
+    if wood == "deep": sp = if r < 6: "tall" elif r < 7: "spruce" else: "beech"
+    if wood == "conifer": sp = if r < 5: "spruce" elif r < 7: "pine" else: "beech"
+    return sp
+
+def leafy(sp:string) -> bool: return sp == "beech" or sp == "oak" or sp == "hornbeam"
+
+// The old tree on this cell (a place can say it has no pines among its beeches: "pines": 0).
+def old_tree_at(c:int) -> string:
+    let sp = old_species(gstr(su_map, "wood", "beech"), cell_hash(c) / 7)
+    return if sp == "pine" and gint(su_map, "pines", 1) == 0: "beech" else: sp
+
+// Bracken grows in drifts a few tiles across, and a little between them.
+def bracken_drift(c:int) -> bool: return cell_hash((c / W / 4) * W + (c % W) / 4 + 9001) % 8 < 3
+def bracken_at(c:int) -> bool: return cell_hash(c + 40507) % 100 < (if bracken_drift(c): 62 else: 7)
+
+// How well a man standing on this cell is hidden, 0 (in plain sight) to 100 (route.json's "cover" has the numbers).
+// The canopy is most of it: each old tree within two tiles gives some, a broadleaf by the leaves it still wears
+// (leaf_cover_of, so it thins as the leaves fall and is gone in winter), a fir or a pine all year. A young tree beside
+// him gives a little, and bracken on his own tile some more, which lasts longer into the year than the leaves and
+// stands dead through the winter at half. A felled tree is a stump on the map, which the place remembers, so its
+// cover is gone on the way home too.
+def cover_at(c:int) -> int:
+    let cv = gobj(route, "cover")
+    let old = str_index(tr_names, "tree")
+    let young = str_index(tr_names, "young_tree")
+    let x = c % W
+    let y = c / W
+    var canopy = 0
+    var low = 0
+    for(5) j: for(5) i:
+        let u = x + i - 2
+        let v = y + j - 2
+        if u >= 0 and v >= 0 and u < W and v < H:
+            let n = v * W + u
+            let near = max(abs(i - 2), abs(j - 2)) <= 1
+            if terrain[n] == old:
+                let sp = old_tree_at(n)
+                let leaves = if leafy(sp): leaf_cover_of(leaf_stage_at(n)) elif sp == "tall": gint(cv, "tall", 70) else: 100
+                canopy += gint(cv, if near: "tree_near" else: "tree_far", 10) * leaves / 100
+            elif terrain[n] == young and near:
+                low += gint(cv, "young", 8) * (if gstr(su_map, "wood", "beech") == "beech": leaf_cover_of(leaf_stage_at(n)) else: 100) / 100
+    if terrain[c] == str_index(tr_names, "grass") and bracken_at(c):
+        let stage = leaf_stage_at(c)
+        low += gint(cv, "bracken", 20) * (if stage == "winter": 50 elif stage == "spring": 80 else: 100) / 100
+    return min(100, min(gint(cv, "canopy_most", 75), canopy) + low)
+
+// How far anything sees just now, in hundredths of how far it sees on a clear day: less at night, in mist, in rain
+// and in falling snow.
+def sight_pct() -> int:
+    let cv = gobj(route, "cover")
+    let kind, hard = weather_now()
+    let dim = if kind == "clear": 0 else: gint(cv, kind, 0) * hard / 1000
+    return (100 - dim) * (if is_night(): 100 - gint(cv, "night", 40) else: 100) / 100
+
+// Whether a watcher at (fx, fy) who sees `range` on a clear day in the open (sim units, as u_x) spots a man on
+// cell c: the man's cover takes off up to cover.hides hundredths of the range, and the hour and the weather more.
+// For the spotting checks of wolves, the bear and the patrol (#60 to #62).
+def spots(fx:int, fy:int, c:int, range:int) -> bool:
+    let reach = range * sight_pct() / 100 * (100 - cover_at(c) * gint(gobj(route, "cover"), "hides", 70) / 100) / 100
+    let dx = (c % W) * TILE + TILE / 2 - fx
+    let dy = (c / W) * TILE + TILE / 2 - fy
+    return dx * dx + dy * dy <= reach * reach
+
 // ---- the weather (issue #15, D-063)
 // It comes in spells (route.json's "weather": spell_hours on the clock each): a spell is clear, or mist, rain or snow
 // by the season's chances, counted from the spell's number so two runs get the same sky. Rain that would fall where
 // snow lies falls as snow. A spell comes on and goes off over its first and last quarter. A leg can name its own
-// ("weather": "rain"), and a leg that stands still in its season (a look) is clear unless it does.
+// ("weather": "rain"), and a leg that stands still in its season (a look) is clear unless it does. The first spell of
+// the run is always clear.
 var weather_force = ""  // (for a look at a place in a weather: the game's weather: option)
 
 def weather_hash(n:int) -> int: return ((n * 2654435761 + 40503) >> 7) & 0xFFFF
@@ -174,10 +247,11 @@ def weather_hash(n:int) -> int: return ((n * 2654435761 + 40503) >> 7) & 0xFFFF
 def weather_now() -> string, int:
     let own = if weather_force != "": weather_force else: gstr(leg_now(), "weather", "")
     if own != "": return own, 1000
-    if year_still(): return "clear", 0
+    if year_fixed() >= 0: return "clear", 0
     let w = gobj(route, "weather")
     let span = max(1, gint(w, "spell_hours", 3)) * 1000
-    let mh = clock_uh / 1000  // (thousandths of an hour since the run began)
+    let mh = clock_uh / 1000         // (thousandths of an hour since the run began)
+    if mh < span: return "clear", 0  // (the men leave on a clear morning)
     let h = weather_hash(mh / span)
     let chances = gobj(gobj(w, "chances"), season_now())
     var roll = h % 100

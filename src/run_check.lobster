@@ -37,8 +37,32 @@ expect(over_budget() == "", "the place is inside the size budget")
 expect(season_now() == "summer" and year_m == gint(gobj(route, "season"), "start", -1), "the season clock starts in late summer (year {year_m})")
 expect(not exists(terrain.length) c: leaf_stage_at(c) != "summer", "every tree still wears the leaves of summer")
 expect(leaves_down() == 0 and snow_lying() == 0, "no leaves are down yet and no snow lies")
+// cover (#9): somewhere under the beeches a man is well hidden in summer and a watcher eight tiles' sight off does not
+// spot him from six; in winter, with the leaves down, he is far less hidden there and is spotted
+let grass_t = str_index(tr_names, "grass")
+var hid = 0
+var hid_c = 0
+var open_least = 100
+for(terrain) t, c:
+    if t == grass_t:
+        let v = cover_at(c)
+        if v > hid:
+            hid = v
+            hid_c = c
+        open_least = min(open_least, v)
+let watch_x = (hid_c % W) * TILE + TILE / 2 + 6 * TILE
+let watch_y = (hid_c / W) * TILE + TILE / 2
+expect(hid >= 60 and open_least <= 10, "the wood hides a man well in summer and the open ground does not ({hid} and {open_least} in a hundred)")
+expect(not spots(watch_x, watch_y, hid_c, 8 * TILE), "a watcher six tiles off does not spot him under the leaves")
+year_force = 2000
+let hid_winter = cover_at(hid_c)
+expect(hid_winter < hid * 2 / 3, "in winter the same tile hides him far less ({hid_winter})")
+expect(spots(watch_x, watch_y, hid_c, 8 * TILE), "and the same watcher spots him")
+year_force = -1
 // the weather (#15): no snow on the ground, so the men walk at their own pace whatever the sky does
 expect(weather_pace() == 100, "nothing slows the men in summer ({weather_pace()})")
+let first_sky, first_hard = weather_now()
+expect(first_sky == "clear" and first_hard == 0, "the men leave on a clear morning")
 let load0 = last_load_s
 // they walk in, and one of them fells the nearest young tree
 for(200):
@@ -64,6 +88,13 @@ for(4000) n:
         route_tick()
         if terrain[cut] == stump: felled_at = n
 expect(felled_at >= 0, "a man felled a young tree (after {felled_at} ticks): a stump is left")
+// (cover, #9: the tile beside the stump is less hidden than it was beside the tree)
+let beside = cut + 1
+let cover_stump = cover_at(beside)
+terrain[cut] = tree
+let cover_tree = cover_at(beside)
+terrain[cut] = stump
+expect(cover_stump < cover_tree, "felling the tree took its cover from the tile beside it ({cover_tree} to {cover_stump})")
 let i0 = index_of(cutter.uid)
 expect(u_carry[i0] == r_carry, "he carries a full load of wood ({u_carry[i0]})")
 u_hp[index_of(men[1].uid)] = 17  // (a hurt man, to see his health carried)
@@ -151,14 +182,16 @@ expect(pace_snow <= 75 and pace_snow >= 60, "lying snow slows the men ({pace_sno
 let clock_was = clock_uh
 var snows = 0
 var rains = 0
+var changed = 0
 for(40) n:
     clock_uh = clock_was + n * 3000000 + 1500000
     let kind, hard = weather_now()
     let again, hard2 = weather_now()
-    expect(kind == again and hard == hard2 and hard >= 0 and hard <= 1000, "a spell of weather is the same each time it is asked for")
+    if kind != again or hard != hard2 or hard < 0 or hard > 1000: changed++
     if kind == "snow": snows++
     if kind == "rain": rains++
 clock_uh = clock_was
+expect(changed == 0, "a spell of weather is the same each time it is asked for")
 expect(snows > 5 and rains == 0, "over forty spells of midwinter it snows ({snows}) and never rains ({rains})")
 for(300):
     step()

@@ -329,3 +329,10 @@ snow slows the men by up to a quarter. Weather moves the light on top of the hou
 having moods of its own, so there are three small sets of numbers and not three more moods for each hour and season.
 A leg can name its weather; a leg that stands still in its season stays clear, so the comparison scene is unchanged.
 For #15.
+
+**D-064, 2026-11-11: Cover is worked out from the trees and the clock, and is never shown as a number.** (Claude; a
+Proposal until the threats use it.) A tile hides a man by the old trees within two tiles (by the leaves each still
+wears; conifers all year), young trees beside him and bracken under him. A watcher's range is cut by up to seven
+tenths at full cover, and further by night and weather. There is no stored cover map: it is read from the map and the
+season clock when asked, so felling and leaf-fall change it with nothing to keep in step. The player reads it from the
+leaves (design doc, "Leaves as a signal"). For #9.
