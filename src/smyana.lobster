@@ -258,6 +258,11 @@ def build_props():
                 let thick = drift_at(at.x / 1000.0, at.y / 1000.0, grass_seed) * sunny
                 if thick * 100.0 > float((h3 / 1000000) % 100): props.push(Prop { 5, 0, "tuft{(h3 / 7) % TUFT_KINDS}", "", gp(at.x, at.y), c })
                 elif k < 2 and thick > 0.5 and (h3 / 3) % 10 < 2: props.push(Prop { 5, 0, "herb{(h3 / 5) % HERB_KINDS}", "", gp(at.x, at.y), c })
+            // brambles (#8): at a wood's edge, where a tree or two gives half shade, in thickets of a few tiles
+            let thicket = mixed((c / W / 3) * W + (c % W) / 3 + 5501) % 10 < 3
+            let hb = mixed(c + 88001)
+            if shading >= 1 and shading <= 4 and hb % 100 < (if thicket: 45 else: 3):
+                props.push(Prop { 5, 0, "bramble{(hb / 100) % BRAMBLE_KINDS}", "", gp(float((c % W) * 1000 + (hb / 1000) % 1000), float((c / W) * 1000 + (hb / 1000000) % 1000)), c })
             if (h2 / 100) % 100 >= 90 and (h2 / 100) % 100 < 94: props.push(Prop { 5, 0, "sapling", "", centre, c })
             if (h2 / 100) % 100 < 6: props.push(Prop { 5, 0, "bush{h2 % BUSH_KINDS}", "", centre + iso(float((h2 / 13) % 600) - 300.0, float((h2 / 19) % 600) - 300.0), c })
             elif (h2 / 100) % 100 == 99: props.push(Prop { 6, 0, "log{h2 % LOG_KINDS}", "", centre, c })

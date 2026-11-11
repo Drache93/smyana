@@ -92,3 +92,13 @@ streaks from the rock light.
   edge a pixel at a time, so needles and leaves thin out onto the grass. Smyana sets it to 0.3 everywhere.
 
 Picture 16.
+
+## Brambles (08:25 to 08:40)
+
+- A new plant of the undergrowth (#8; Claude): long dark red canes arching out of one foot and down to the ground
+  again, leaves in threes along them, green going wine red in autumn. They grow in thickets a few tiles across where
+  a tree or two gives half shade, at a wood's edge, not out in the open and not deep under a close wood.
+- The first try had a leaf at every other joint and stood high: bare hoops, like spiders (not kept). Lower canes and
+  a leaf at nearly every joint made them thickets.
+
+Picture 18. They are only looked at so far: walking through them costs nothing yet.

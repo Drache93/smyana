@@ -80,3 +80,5 @@ One line per moment worth remembering. Newest at the bottom.
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#the-pass-crags-at-the-cliffs-feet-0745-to-0805))
 - **2026-11-11:** The forest floor's edge is strewn out onto the grass, no drawn line (picture 16).
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#the-fir-woods-no-drawn-line-round-the-needle-floor-0810-to-0820))
+- **2026-11-11:** Brambles grow in thickets at the wood's edge (picture 18).
+  ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#brambles-0825-to-0840))
