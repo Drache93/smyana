@@ -97,3 +97,5 @@ One line per moment worth remembering. Newest at the bottom.
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#the-camera-goes-down-to-22-degrees-and-two-hard-looks-at-the-scene-1050-to-1120))
 - **2026-11-11:** After the reviews: the scene from further out, rust leaves after leaf-fall, pale beech trunks, the camp in the light (picture 30).
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#first-answers-to-the-reviews-1120-to-1145))
+- **2026-11-11:** The camp's horses and mules keep their colour in the shade, marked like the men (picture 13).
+  ([journal](journal/2026-11-11-moods-seasons-and-the-men.md#the-camps-horses-and-mules-claude))
