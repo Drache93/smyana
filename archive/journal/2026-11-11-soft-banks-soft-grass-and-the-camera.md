@@ -84,3 +84,11 @@ Pictures 10 (the scene) and 12 (the beech valley's ford).
 
 Picture 14. Still wrong (Claude): the rim of a face is still a ruled line, and the crags' fronts have dark upright
 streaks from the rock light.
+
+## The fir woods: no drawn line round the needle floor (08:10 to 08:20)
+
+- Looking at the route's other places in the new look (Claude): in the fir woods the brown needle floor ended on the
+  grass along a hard scalloped line. Creel's ground gets a setting, `ground_litter_fringe`, that scatters the floor's
+  edge a pixel at a time, so needles and leaves thin out onto the grass. Smyana sets it to 0.3 everywhere.
+
+Picture 16.

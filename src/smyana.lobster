@@ -462,6 +462,7 @@ def view_enter(between):
     ground_bank_px = gfloat(su_map, "bank_px", 0.0)
     ground_water_edge = gfloat(su_map, "water_edge", 0.5)
     ground_shore_soft = gfloat(su_map, "shore_soft", 0.5)
+    ground_litter_fringe = 0.3  // (no drawn line where the fallen leaves and needles end: they thin out onto the grass)
     ground_water_shallow = float3 { 0.60, 0.71, 0.84 }
     ground_water_deep = float3 { 0.40, 0.52, 0.72 }
     build_masks()

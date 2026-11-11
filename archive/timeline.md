@@ -78,3 +78,5 @@ One line per moment worth remembering. Newest at the bottom.
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#the-grass-again-fine-stems-in-drifts-0710-to-0740))
 - **2026-11-11:** Crags stand at the feet and corners of the pass's cliffs, so the faces no longer read as blocks (picture 14).
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#the-pass-crags-at-the-cliffs-feet-0745-to-0805))
+- **2026-11-11:** The forest floor's edge is strewn out onto the grass, no drawn line (picture 16).
+  ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#the-fir-woods-no-drawn-line-round-the-needle-floor-0810-to-0820))
