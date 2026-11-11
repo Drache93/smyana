@@ -347,3 +347,9 @@ the cliffs issue; Claude chose the rough relief.) Near a change of height the gr
 level, so no rim is ruled along the tiles (Creel `relief_rough`). This is a step, not the cure. Natural cliffs, with
 curved footprints, broken faces and ledges, are Casaide/creel#25. Until then, rock outcrops over the walls stay. For
 #16.
+
+**D-067, 2026-11-11: The Roman ruins are worked limestone with brick bands, laid out by the map.** (Claude; a
+Proposal.) The ruins' stone is a pale limestone cut square, so it reads as a different stone from the local gneiss.
+Their walls have a band of red brick, and the road is paved with big fitted stones and has kerbs. There is a drain
+beside the road, because the drain is what the men bring home. A map places each piece (`"ruins"`); the ground under them
+stays grass so the undergrowth grows up among them and turns with the year. For #17; the ruins' own map is #53.

@@ -142,3 +142,5 @@ One line per moment worth remembering. Newest at the bottom.
   ([journal](journal/2026-11-11-closing-the-environment-issues.md#where-the-open-issues-stand-1645-for-the-next-thread))
 - **2026-11-11:** Rough relief in Creel: the gorge's rims and ramps wander and their light runs smoothly; the walls
   seen in winter. Proper cliffs opened as Creel issue 25 at Dominic's word. ([engine](engine/2026-11-11-rough-relief.md))
+- **2026-11-11:** The Roman ruins' props: a paved road, a drain, wall stubs with a brick band, column stubs and a
+  fallen column, in a look clearing until their map is made. ([journal](journal/2026-11-11-the-roman-ruins.md))

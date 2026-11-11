@@ -7,7 +7,7 @@
 // seen. The leaves are baked once a season (their colour), behind the letter home, and kept in bake_cache/.
 
 let TREE_K = 64.0  // voxels a tile for the load of wood (baked at twice this)
-let TREE_BAKE = "trees 44"
+let TREE_BAKE = "trees 47"
 // Voxels a tile in the trees, rocks and undergrowth: one voxel is one pixel of Creel's art (WB_PX at its art scale of
 // 3), as the men's are, so they are as crisp as the men (Dominic, 2026-11-10: "evryhting crisp and sharp").
 let VOX_K = 135.7645
@@ -597,6 +597,170 @@ def tree_onto(s:Sheet, name:string, g:vgrid, shadow:bool, shade_k:float = 1.0, f
         sheet_add_bytes(s, name + ".shadow", shade, w, h, origin)
     else: sheet_add_bytes(s, name, bytes, w, h, origin)
 
+// ------------------------------------------------------------------ the Roman ruins (#17)
+// What the Romans left on the trail (D-067): a paved road, a drain, the stubs of walls and columns, columns fallen in
+// their drums. Their stone is a pale limestone, worked square, not the gneiss's split beds; the walls have courses of
+// red brick between the stone, as Roman walls in Thrace do. Moss and ivy grow on them (the rock light adds lichen on
+// their tops and moss low on their shaded sides); the undergrowth round them turns with the year as everywhere else.
+let RUIN_KINDS = 2
+let PAVING_KINDS = 4
+
+def fract1(x:float) -> float: return x - floor(x)
+
+def roman_look() -> vglook:
+    return vglook { [ float3 { 0.30, 0.42, 0.18 }, float3 { 0.20, 0.31, 0.14 }, float3 { 0.11, 0.19, 0.10 }, float3 { 0.42, 0.48, 0.22 } ],
+                    [ float3 { 0.33, 0.16, 0.11 }, float3 { 0.47, 0.24, 0.15 }, float3 { 0.60, 0.33, 0.21 }, float3 { 0.70, 0.43, 0.29 } ],
+                    [ float3 { 0.35, 0.33, 0.29 }, float3 { 0.46, 0.43, 0.38 }, float3 { 0.57, 0.53, 0.46 }, float3 { 0.67, 0.63, 0.55 }, float3 { 0.77, 0.73, 0.64 } ],
+                    false, false, false }
+
+// (u along the thing, v across it: `along_y` turns it to run along the map's y)
+def ruin_uv(p:float3, along_y:bool) -> float2: return if along_y: float2 { p.y, -p.x } else: float2 { p.x, p.y }
+
+// A broken top: how high the stone still stands at u, between lo and hi, ragged.
+def broken_top(u:float, lo:float, hi:float, seed:int) -> float:
+    let a = float(seed % 97)
+    let t = 0.5 + 0.3 * sin(u * 290.0 + a) + 0.2 * sin(u * 745.0 + a * 2.0)  // (degrees)
+    return lo + (hi - lo) * clamp(t, 0.0, 1.0)
+
+// A column still standing on its square base, its shaft fluted and its top broken off.
+def column_stub(look:vglook, kind:int) -> vgrid:
+    let rng = grng(2100 + kind)
+    let tall = [ 1.2, 0.5 ][kind]
+    let g = vg_new(look, float3 { -0.4, -0.4, 0.0 }, float3 { 0.4, 0.4, tall + 0.1 }, VOX_K, 2100 + kind)
+    let r = 0.105
+    let lean = float2 { randf_range(rng, -0.02, 0.02), randf_range(rng, -0.02, 0.02) }
+    vg_box(g, float3 { -0.4, -0.4, 0.0 }, float3 { 0.4, 0.4, tall + 0.1 }) i, p:
+        let base = abs(p.x) < 0.17 and abs(p.y) < 0.17 and p.z < 0.07
+        let torus = p.z >= 0.07 and p.z < 0.11 and magnitude(float2 { p.x, p.y }) < r + 0.025
+        let q = float2 { p.x, p.y } - lean * (p.z / tall)
+        let a = atan2(q)
+        let flute = 0.008 * max(0.0, cos(a * 20.0))
+        let top = broken_top(a / 60.0, tall * 0.8, tall, 2100 + kind)
+        if base: vg_set(g, i, VG_ROCK, 0.1)
+        elif torus: vg_set(g, i, VG_ROCK, 0.0)
+        elif p.z >= 0.11 and p.z < top and magnitude(q) < r - flute: vg_set(g, i, VG_ROCK, -0.1)
+    // (ivy up its shaded side)
+    for(18):
+        let z = randf_range(rng, 0.05, tall * 0.7)
+        let a = randf_range(rng, 120.0, 240.0)
+        vg_capsule(g, float3 { cos(a) * (r + 0.01), sin(a) * (r + 0.01), z }, float3 { cos(a) * (r + 0.02), sin(a) * (r + 0.02), z + 0.05 }, 0.02, 0.012, VG_LEAF)
+    return g
+
+// A column fallen in its drums, lying along the ground where it fell, one drum rolled off, and its capital.
+def column_fallen(look:vglook, kind:int, along_y:bool) -> vgrid:
+    let rng = grng(2200 + kind)
+    let g = vg_new(look, float3 { -0.7, -0.7, 0.0 }, float3 { 0.7, 0.7, 0.35 }, VOX_K, 2200 + kind)
+    let r = 0.1
+    var u = -0.6
+    for(3 + kind) n:
+        let len = randf_range(rng, 0.24, 0.32)
+        let off = if n == 1 + kind: randf_range(rng, 0.12, 0.2) else: randf_range(rng, -0.02, 0.02)
+        let tilt = randf_range(rng, -0.04, 0.04)
+        let a2 = float2 { u, off }
+        let b2 = float2 { u + len, off + tilt }
+        let a = if along_y: float3 { -a2.y, a2.x, r } else: float3 { a2.x, a2.y, r }
+        let b = if along_y: float3 { -b2.y, b2.x, r } else: float3 { b2.x, b2.y, r }
+        vg_cylinder(g, a, b, r, r, VG_ROCK, false, randf_range(rng, -0.2, 0.2))
+        u += len + randf_range(rng, 0.01, 0.06)
+    // the capital at its end: a square block, a little bigger than the shaft, on its side
+    vg_box(g, float3 { -0.7, -0.7, 0.0 }, float3 { 0.7, 0.7, 0.3 }) i, p:
+        let uv = ruin_uv(p, along_y)
+        if uv.x > u + 0.02 and uv.x < u + 0.2 and abs(uv.y + 0.04) < 0.15 and p.z < 0.24: vg_set(g, i, VG_ROCK, 0.2)
+    return g
+
+// A tile of the paved road: big flat stones fitted to each other, a few gone and the ground showing, kerbs each side.
+def paving(look:vglook, kind:int, along_y:bool) -> vgrid:
+    let rng = grng(2300 + kind)
+    let g = vg_new(look, float3 { -0.55, -0.55, 0.0 }, float3 { 0.55, 0.55, 0.12 }, VOX_K, 2300 + kind)
+    let seeds = map(9): float2 { randf_range(rng, -0.5, 0.5), randf_range(rng, -0.36, 0.36) }
+    let gone = map(9): randf(rng) < 0.1 + 0.06 * float(kind)
+    let lift = map(9): randf_range(rng, 0.0, 0.025)
+    vg_box(g, float3 { -0.5, -0.5, 0.0 }, float3 { 0.5, 0.5, 0.12 }) i, p:
+        let uv = ruin_uv(p, along_y)
+        if abs(uv.y) > 0.4:
+            // a kerb: long stones set on edge
+            let joint = abs(fract1(uv.x * 2.2 + (if uv.y > 0.0: 0.3 else: 0.0)) - 0.5) > 0.47
+            if not joint and abs(uv.y) < 0.48 and p.z < 0.07 + 0.015 * sin(uv.x * 515.0): vg_set(g, i, VG_ROCK, 0.1)
+        else:
+            var best = 9.0
+            var next = 9.0
+            var k = 0
+            for(seeds) q, n:
+                let d = magnitude(q - uv)
+                if d < best:
+                    next = best
+                    best = d
+                    k = n
+                elif d < next: next = d
+            if next - best > 0.026 and not gone[k] and p.z < 0.03 + lift[k]: vg_set(g, i, VG_ROCK, float(k % 3) * 0.15 - 0.3)
+    return g
+
+// A Roman drain: a channel of dressed stone running under the road's edge, lidded with slabs, some fallen in.
+def drain(look:vglook, kind:int, along_y:bool) -> vgrid:
+    let rng = grng(2400 + kind)
+    let g = vg_new(look, float3 { -0.55, -0.55, 0.0 }, float3 { 0.55, 0.55, 0.2 }, VOX_K, 2400 + kind)
+    let lids = map(4): randf(rng) < (if kind == 0: 0.75 else: 0.35)
+    vg_box(g, float3 { -0.5, -0.5, 0.0 }, float3 { 0.5, 0.5, 0.2 }) i, p:
+        let uv = ruin_uv(p, along_y)
+        let block = int(floor((uv.x + 0.5) * 4.0))
+        let joint = abs(fract1((uv.x + 0.5) * 4.0) - 0.5) > 0.46
+        let side = abs(uv.y) > 0.07 and abs(uv.y) < 0.17
+        if side and p.z < 0.1 and not joint: vg_set(g, i, VG_ROCK, if uv.y > 0.0: 0.05 else: -0.05)
+        elif abs(uv.y) <= 0.07 and p.z < 0.02: vg_set(g, i, VG_ROCK, -0.3)
+        elif lids[clamp(block, 0, 3)] and abs(uv.y) < 0.2 and p.z >= 0.1 and p.z < 0.135 and not joint: vg_set(g, i, VG_ROCK, 0.25)
+    // a lid fallen in, aslant across the channel
+    if kind == 1:
+        let c = if along_y: float3 { 0.0, 0.18, 0.03 } else: float3 { 0.18, 0.0, 0.03 }
+        rock_plate(g, c, 0.1, 0.17, 0.03, if along_y: 90.0 else: 0.0, VG_ROCK, 0.2, 0.25, 2490)
+    return g
+
+// The stub of a wall: courses of squared stone with a band of red brick through it, broken off at the top, ivy on it.
+def wall_stub(look:vglook, kind:int, along_y:bool) -> vgrid:
+    let rng = grng(2500 + kind)
+    let hi = [ 0.62, 0.34 ][kind]
+    let g = vg_new(look, float3 { -0.6, -0.6, 0.0 }, float3 { 0.6, 0.6, hi + 0.1 }, VOX_K, 2500 + kind)
+    let course = 0.06
+    let brick_lo = 0.2
+    let brick_hi = 0.27
+    vg_box(g, float3 { -0.6, -0.6, 0.0 }, float3 { 0.6, 0.6, hi + 0.1 }) i, p:
+        let uv = ruin_uv(p, along_y)
+        let top = broken_top(uv.x, hi * 0.35, hi, 2500 + kind)
+        let wide = if p.z < 0.05: 0.15 else: 0.12
+        if abs(uv.x) < 0.5 and abs(uv.y) < wide and p.z < top:
+            if p.z >= brick_lo and p.z < brick_hi:
+                let row = int(floor(p.z / 0.018))
+                let bj = abs(fract1(uv.x / 0.07 + float(row % 2) * 0.5) - 0.5) > 0.42 or fract1(p.z / 0.018) < 0.18
+                if not bj: vg_set(g, i, VG_BARK, 0.0)
+            else:
+                let row = int(floor(p.z / course))
+                let len = 0.11 + 0.04 * float(row % 3)
+                let jv = fract1(p.z / course) < 0.12
+                let ju = abs(fract1(uv.x / len + float(row) * 0.37) - 0.5) > 0.45
+                if not jv and not ju: vg_set(g, i, VG_ROCK, float(row % 4) * 0.1 - 0.15)
+    // fallen stones at its foot, and ivy over its top and down its shaded face
+    for(4) n:
+        let u = randf_range(rng, -0.45, 0.45)
+        let v = randf_range(rng, 0.17, 0.35) * (if n % 2: 1.0 else: -1.0)
+        rock_plate(g, (if along_y: float3 { -v, u, 0.0 } else: float3 { u, v, 0.0 }), 0.06, 0.04, 0.05, randf_range(rng, 0.0, 90.0), VG_ROCK, 0.1, 0.0, 2580 + n)
+    for(26):
+        let u = randf_range(rng, -0.45, 0.45)
+        let z = broken_top(u, hi * 0.35, hi, 2500 + kind) - randf_range(rng, 0.0, 0.2)
+        let v = -0.13 + randf_range(rng, -0.01, 0.02)
+        let a = if along_y: float3 { -v, u, z } else: float3 { u, v, z }
+        vg_capsule(g, a, a + float3 { randf_range(rng, -0.04, 0.04), 0.0, -randf_range(rng, 0.02, 0.08) }, 0.022, 0.014, VG_LEAF)
+    return g
+
+def bake_ruins(rs:Sheet):
+    let roman = roman_look()
+    for(RUIN_KINDS) kind:
+        tree_onto(rs, "column{kind}", column_stub(roman, kind), true)
+        for([ false, true ]) ay:
+            let d = if ay: "y" else: "x"
+            tree_onto(rs, "drums{d}{kind}", column_fallen(roman, kind, ay), true)
+            tree_onto(rs, "drain{d}{kind}", drain(roman, kind, ay), true)
+            tree_onto(rs, "wall{d}{kind}", wall_stub(roman, kind, ay), true)
+    for(PAVING_KINDS) kind: for([ false, true ]) ay: tree_onto(rs, "paving{if ay: "y" else: "x"}{kind}", paving(roman, kind, ay), true)
+
 // What every season shares: trunks, the evergreens' crowns, bare young trees, the stump, the rock, the load of wood.
 // between(): so the window can draw.
 def bake_trees(between):
@@ -650,6 +814,7 @@ def bake_trees(between):
     let debris = gneiss_look()
     debris.bark = [ float3 { 0.19, 0.15, 0.11 }, float3 { 0.27, 0.21, 0.15 }, float3 { 0.35, 0.28, 0.20 }, float3 { 0.44, 0.36, 0.26 } ]
     for(RUBBLE_KINDS) kind: tree_onto(rs, "rubble{kind}", rubble(debris, kind), true)
+    bake_ruins(rs)
     sheet_finish(rs, vox_draw_k(), true)
     trees_bake_s = seconds_elapsed() - t0
 

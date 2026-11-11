@@ -49,6 +49,10 @@
    "_doc": "Not on the route: the gorge with its bridge broken, to look at (#20). leg:gorge_look",
    "place": "gorge", "name": "The gorge", "season": "autumn", "bridge_down": 1, "exits": {}
   },
+  "ruins_look": {
+   "_doc": "Not on the route: the Roman ruins' props in a small beech clearing, to look at until the ruins have their own map (#17, #53). leg:ruins_look",
+   "place": "ruins", "name": "The Roman road", "season": "autumn", "exits": {}
+  },
   "home": { "end": true, "name": "Home" }
  },
  "letters": {
