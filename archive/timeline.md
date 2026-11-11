@@ -109,3 +109,5 @@ One line per moment worth remembering. Newest at the bottom.
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#riders-at-the-woods-edge-to-see-how-they-read-0800-to-0810-utc))
 - **2026-11-11:** Dominic drew a line under the long environment thread; the state of every open environment issue is in the handoff note.
   ([note](notes/2026-11-11-environment-handoff.md))
+- **2026-11-11:** The world is planned in 2D: one trail, seven maps, 13 legs, two hours (D-053 to D-058; pictures 60 and 62). Dominic answered the plan's questions in ten minutes and 36 issues were made from it.
+  ([journal](journal/2026-11-11-the-world-in-2d-and-the-phases.md), [the world](../docs/world.md))
