@@ -8,13 +8,14 @@
 // Frames, each with its .shadow: tent0 (canvas), tent1 (rugs), fireplace, woodpile, horse0..7 and mule0..7. A horse or
 // mule n is the animal n % 4 facing one way (n < 4) or the other: they face the camera's right or its left.
 
-let CAMP_BAKE = "camp 1"
+let CAMP_BAKE = "camp 2"
 let CAMP_DIR = "../art/camp/vox"
 let CAMP_ANIMALS = 4
 let CAMP_THINGS = [ "tent0", "tent_canvas", "tent1", "tent_rugs", "fireplace", "fireplace", "woodpile", "woodpile" ]
 // (how each is turned, in quarter turns: the rugs' striped slope comes down toward the camera)
 let CAMP_THING_TURNS = [ 0, 2, 0, 0 ]
 let CAMP_HORSES = [ "horse_0_bay", "horse_1_grey", "horse_2_chestnut", "horse_3_dark" ]
+let CAMP_RIDERS = [ "rider_0_bay", "rider_1_grey", "rider_2_chestnut", "rider_3_dark" ]  // (rider0..7: a horseman up, for a patrol)
 let CAMP_MULES = [ "mule_0_mule_sacks", "mule_1_mule_dun_kegs", "mule_2_bay_baskets", "mule_3_mule_poles" ]
 // (the two ways an animal faces, in quarter turns: its side to the camera, its head to the right, then to the left)
 let CAMP_TURNS = [ 3, 1 ]
@@ -116,7 +117,7 @@ def camp_onto(s:Sheet, name:string, model:string, turn:int, seed:int):
 // The camp's .vox files, as text: part of the bake's key, so a changed model is baked again.
 def camp_vox_text() -> string:
     var t = read_file(CAMP_DIR + "/feet.txt") or ""
-    for(CAMP_HORSES.length) i: t += (read_file("{CAMP_DIR}/{CAMP_HORSES[i]}.vox") or "") + (read_file("{CAMP_DIR}/{CAMP_MULES[i]}.vox") or "")
+    for(CAMP_HORSES.length) i: t += (read_file("{CAMP_DIR}/{CAMP_HORSES[i]}.vox") or "") + (read_file("{CAMP_DIR}/{CAMP_MULES[i]}.vox") or "") + (read_file("{CAMP_DIR}/{CAMP_RIDERS[i]}.vox") or "")
     for(CAMP_THINGS.length / 2) i: t += read_file("{CAMP_DIR}/{CAMP_THINGS[i * 2 + 1]}.vox") or ""
     return sha256_text(t)
 
@@ -132,6 +133,7 @@ def bake_camp(between):
         for(CAMP_ANIMALS) i:
             camp_onto(s, "horse{side * CAMP_ANIMALS + i}", CAMP_HORSES[i], turn, 3100 + i)
             camp_onto(s, "mule{side * CAMP_ANIMALS + i}", CAMP_MULES[i], turn, 3200 + i)
+            camp_onto(s, "rider{side * CAMP_ANIMALS + i}", CAMP_RIDERS[i], turn, 3300 + i)
             between()
     sheet_finish(s, vox_draw_k(), true)
     camp_bake_s = seconds_elapsed() - t0

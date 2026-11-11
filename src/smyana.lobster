@@ -729,7 +729,7 @@ def collect_props():
                 add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39997.0, float4_1)
                 // (the camp's horses and mules are marked like the men, so they keep their colour in the shade
                 // instead of reading as grey ghosts)
-                let beast = starts_with(pr.name, "horse") or starts_with(pr.name, "mule")
+                let beast = starts_with(pr.name, "horse") or starts_with(pr.name, "mule") or starts_with(pr.name, "rider")
                 add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0,
                     if pr.kind == 3: 0 elif beast: 4 else: 2)
 

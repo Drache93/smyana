@@ -247,3 +247,23 @@ enough yet. And the water". His words are in the notes; D-052.
 
 Picture 40 (with the ripples, from the Creel branch). To judge (Claude): whether the floor has gone spotty again,
 which Dominic disliked on 2026-11-10.
+
+## Riders at the wood's edge, to see how they read (08:00 to 08:10 UTC)
+
+Dominic: "let's put the riders there on the edge just to see how they look with the shadows and everything, make sure
+they're still visible enough". Five horsemen stand in the shade at the back of the comparison clearing, as the
+mock-up's do: the camp's four horses, each with a rider up (blue coat, white breeches, red fez, a long gun on his
+back; `rider` in `tools/camp_vox.py`, frames `rider0` to `rider7`). A test of the environment, not a decided part of
+the game.
+
+What it shows (Claude, picture 42, the close-up is twice life size: the first row as plain props, the second marked
+as the camp's animals are so they keep their own colour in the shade):
+
+- At the game's size a rider in the back wood's shade is a small dark shape. The horse reads; the man on it barely
+  does. The blue coat and the red fez are within a few shades of the grey-blue shade round them.
+- Marked like the camp's animals they are a little clearer, and that is how they are left. It is not enough to make
+  them a threat a player would notice without being told.
+- The grey horse is the only one that stands out. Value does the work here, not hue.
+
+So if a patrol in the trees is to be seen, it needs help from the light: a rim of light on units in shade, less mist
+over units than over the ground, or a paler uniform. That is the lighting thread's to try.
