@@ -161,6 +161,25 @@ def clock_tick():
     let span = glist(leg_now(), "year")
     if span.length > 1 and year_m < as_int(span[1]) and run_ticks % max(1, gint(gobj(route, "season"), "ticks_per_milli", 28)) == 0: year_m++
 
+// ---- wading a ford (issue #20, D-065)
+// How high the water stands in the streams, 0 (low) to 1000: up with the thaw as the snow goes, and in a spell of
+// rain.
+def high_water() -> int:
+    let y = year_here() % 4000
+    let thaw = if y >= 2500 and y < 2900: 1000 - abs(y - 2700) * 5 else: 0
+    let kind, hard = weather_now()
+    return max(thaw, if kind == "rain": hard else: 0)
+
+// How fast a man wades, in hundredths of his pace on dry ground (route.json's "ford"): slower with a load on his
+// back, and slower still the higher the water stands. So a ford is quick for men walking light in a dry autumn, and
+// a long cold crossing for loaded men in the thaw: the mended bridge is worth its wood on the way home.
+def wade_pace(loaded:bool) -> int:
+    let f = gobj(route, "ford")
+    return max(10, gint(f, if loaded: "loaded" else: "wade", 60) - gint(f, "high_water", 20) * high_water() / 1000)
+
+// How cold the water is to a man who wades it, 0 (a summer stream) to 100 (snowmelt): for the men's warmth (#65).
+def ford_cold() -> int: return clamp(winter_depth() / 8 + high_water() / 40, 0, 100)
+
 // ---- cover (issue #9, D-064)
 // What grows on a cell is worked out from the cell's number, here in the sim, and the view draws the same thing.
 def cell_hash(c:int) -> int: return ((c * 2654435761) >> 7) & 0xFFFF
@@ -437,12 +456,15 @@ def route_tick() -> string:
     for(u_carry) n, i:
         if n > 0 and u_carry_kind[i] == spoil: u_carry[i] = 0
     if tick % 10 != 0 or run_over(): return ""
-    // (the weather's pace on the men)
+    // (the weather's pace on the men, and the water's on a man in a ford)
     let pace = weather_pace()
+    let ford = str_index(tr_names, "ford")
     for(men) m:
         if m.alive:
             let i = index_of(m.uid)
-            if i >= 0: u_speed[i] = max(1, t_speed[u_kind[i]] * pace / 100)
+            if i >= 0:
+                let wading = terrain[cell_of(u_x[i], u_y[i])] == ford
+                u_speed[i] = max(1, t_speed[u_kind[i]] * pace / 100 * (if wading: wade_pace(u_carry[i] > 0) else: 100) / 100)
     let inside = map(gate_names): 0
     var alive = 0
     var in_any = 0
