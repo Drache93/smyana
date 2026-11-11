@@ -228,3 +228,6 @@ the fire, and the lit leaves are a stronger orange than the mock-up's (the light
   again as ours was) and its bank's slope is narrower (`"shore_soft": 0.3`), so the dark line down the near bank is
   thin and the grass hangs over it. Picture 36. Ripples all along it need a setting in Creel, which waits for the
   settings page to merge.
+
+- **With the lighting thread's cool shade and softer sun merged** (main at 07:19 UTC) the same scene is picture 38:
+  the shade is grey-blue, the lit leaves a quieter orange, and the two threads' work is seen together for the first time.
