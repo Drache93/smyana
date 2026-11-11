@@ -152,7 +152,10 @@ def tiles(wood, season):
         if autumn:
             # (soft: close warm tones on a warm bed, no dark gaps between the leaves; Dominic: "verry spotty, ground was
             # soft and pretty in the mockup")
-            fall = ["#ecb848", "#e6ae40", "#e2a538", "#dc9a30", "#d68f2c", "#cf8528", "#c87a26"]
+            # (2026-11-11, Dominic: the ground is "not rich enough yet". The fall has more shades in it, as the trees do:
+            # straw and gold, orange, and one leaf in four rust, red-brown or brown. Still no dark gaps.)
+            fall = ["#f0c658", "#ecb848", "#e6ae40", "#e2a538", "#dc9a30", "#d68f2c", "#cf8528", "#c87a26", "#e9d27c",
+                    "#bd6a26", "#b25a24", "#c65228", "#a8602c", "#9a5226"]
             t[10] = strew(make(11, ["#c8802a", "#cf892c", "#d6922e", "#dc9a30"], coarse=4, fine=12, grain=0.04, height=0.45), 111, 3600, fall, lift=0.04)
             for k, n in ((0, 520), (1, 560), (2, 640), (3, 480), (12, 560), (13, 560)):
                 t[k] = strew(tufts(t[k], 200 + k, 500, ["#7f8f40", "#8a9846", "#75853c"]), 300 + k, n, fall)

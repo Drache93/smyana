@@ -164,7 +164,8 @@ def mixed(n:int) -> int:
     v = ((v ^ (v >> 16)) * 0x45D9F3B) & 0xFFFFFFFF
     return v ^ (v >> 16)
 
-let TUFTS_A_TILE = 24
+let TUFTS_A_TILE = 36
+let LITTER_THIN = 0.38  // the leaves' weight where turf shows through them a pixel in two
 def drift_at(x:float, y:float, grain:int) -> float:
     def lattice(ix:int, iy:int, seed:int) -> float: return float(cell_hash(iy * 4099 + ix + seed) % 1000) / 1000.0
     def smooth(px:float, py:float, seed:int) -> float:
@@ -183,6 +184,9 @@ def build_props():
     let debris_t = str_index(tr_names, "rubble")
     props_version = map_version
     let wood = gstr(su_map, "wood", "beech")
+    let pines = gint(su_map, "pines", 1) != 0
+    let trail_t = str_index(tr_names, "trail")
+    let water_t = str_index(tr_names, "water")
     let grass_seed = gint(su_map, "grass_seed", 9001)  // (which way this place's drifts of grass fall)
     let old = str_index(tr_names, "tree")
     let young = str_index(tr_names, "young_tree")
@@ -196,7 +200,9 @@ def build_props():
         // (not dead centre: a wood isn't planted in rows)
         let off = gp(float((c % W) * 1000 + 500 + (h % 400) - 200), float((c / W) * 1000 + 500 + ((h / 400) % 400) - 200))
         if t == old:
-            let sp, k = old_kind(wood, h / 7)
+            let sp0, k = old_kind(wood, h / 7)
+            // (a place can say it has no pines among its beeches, "pines": 0: the mock-up's clearing has none)
+            let sp = if sp0 == "pine" and not pines: "beech" else: sp0
             props.push(Prop { 0, k, "{sp}{k}", sp, off, c })
         elif t == young:
             let fir = wood != "beech" and (h / 7) % 4 != 0
@@ -254,14 +260,26 @@ def build_props():
                 let ny = c / W + dy - 2
                 if nx >= 0 and ny >= 0 and nx < W and ny < H and terrain[ny * W + nx] == old: shading++
             let sunny = clamp(1.15 - float(shading) / 7.0, 0.08, 1.0)
+            var edge_grass = 0.0
+            for([ -1, 1, -W, W ]) d:
+                let n = c + d
+                if n >= 0 and n < W * H and abs(n % W - c % W) <= 1 and (terrain[n] == trail_t or terrain[n] == water_t): edge_grass = 0.55
             for(TUFTS_A_TILE) k:
                 // (three well-mixed numbers a tuft: where in the tile, and its chance)
                 let h3 = mixed(c * TUFTS_A_TILE + k)
                 let at = float2 { float((c % W) * 1000 + h3 % 1000), float((c / W) * 1000 + (h3 / 1000) % 1000) }
                 // (grass wants light: thick in a clearing, thin under a close wood)
-                let thick = drift_at(at.x / 1000.0, at.y / 1000.0, grass_seed) * sunny
+                // (and it masses along a trail's sides and a stream's bank, as in the mock-up)
+                let thick = max(drift_at(at.x / 1000.0, at.y / 1000.0, grass_seed), edge_grass) * sunny
                 if thick * 100.0 > float((h3 / 1000000) % 100): props.push(Prop { 5, 0, "tuft{(h3 / 7) % TUFT_KINDS}", "", gp(at.x, at.y), c })
                 elif k < 2 and thick > 0.5 and (h3 / 3) % 10 < 2: props.push(Prop { 5, 0, "herb{(h3 / 5) % HERB_KINDS}", "", gp(at.x, at.y), c })
+            // what lies about (the floor is not swept): dead branches, more of them near trees, and a mossy stone now
+            // and then
+            let hl = mixed(c + 131071)
+            if hl % 100 < 14 + shading * 5:
+                props.push(Prop { 6, 0, "branch{(hl / 100) % BRANCH_KINDS}", "", gp(float((c % W) * 1000 + (hl / 1000) % 1000), float((c / W) * 1000 + (hl / 1000000) % 1000)), c })
+            if (hl / 7) % 100 < 5:
+                props.push(Prop { 6, 0, "stone{(hl / 100) % STONE_KINDS}", "", gp(float((c % W) * 1000 + (hl / 3000) % 1000), float((c / W) * 1000 + (hl / 700000) % 1000)), c })
             // brambles (#8): at a wood's edge, where a tree or two gives half shade, in thickets of a few tiles
             let thicket = mixed((c / W / 3) * W + (c % W) / 3 + 5501) % 10 < 3
             let hb = mixed(c + 88001)
@@ -428,12 +446,19 @@ def build_litter():
                     let v = clamp((1.0 - d) * 1.3, 0.0, 0.85)
                     if v > a[y * w + x]: a[y * w + x] = v
     // autumn in a broadleaf wood: the year's leaves lie over nearly everything, thinner in the open
+    let turf_seed = gint(su_map, "grass_seed", 9001)
     if season_now() == "autumn" and gstr(su_map, "wood", "beech") == "beech":
         for(h) y: for(w) x:
             // (2026-11-11: the leaves lie over all of it, only a worn spot of turf here and there: the mock-up's grass
             // stands out of the leaves in tufts, it isn't a green floor between drifts of them)
             let patch = float(cell_hash((y / 3) * w + x / 3 + 5003) % 100) / 100.0
-            a[y * w + x] = max(a[y * w + x], if patch < 0.05 and open_ground(x, y): 0.36 else: 0.62 + 0.2 * patch)
+            // (later the same day, from the review: "one material". Where the grass stands in drifts the leaves lie
+            // thin and the turf shows through them a pixel at a time, in soft patches a few tiles across; and the
+            // leaves' weight drifts slowly elsewhere, so the floor is not one tone)
+            let thin = drift_at((float(x) + 0.5) / float(MASK_K), (float(y) + 0.5) / float(MASK_K), turf_seed)
+            let slow = drift_at((float(x) + 0.5) / float(MASK_K) * 0.6, (float(y) + 0.5) / float(MASK_K) * 0.6, turf_seed + 311)
+            let leaves = if patch < 0.05 and open_ground(x, y): 0.36 else: 0.62 + 0.2 * patch
+            a[y * w + x] = max(a[y * w + x] * (1.0 - 0.35 * thin), leaves - (leaves - LITTER_THIN) * max(thin, slow * 0.45))
     // scree under a landslide's debris (the shader's G), reaching a little past it and ragged
     let sc = map(w * h): 0.0
     let debris_t = str_index(tr_names, "rubble")
@@ -472,8 +497,10 @@ def view_enter(between):
     ground_water_edge = gfloat(su_map, "water_edge", 0.5)
     ground_shore_soft = gfloat(su_map, "shore_soft", 0.5)
     ground_litter_fringe = if season_now() == "winter": 0.1 else: 0.3  // (no drawn line where the fallen leaves and needles end: they thin out onto the grass)
-    ground_water_shallow = float3 { 0.60, 0.71, 0.84 }
-    ground_water_deep = float3 { 0.40, 0.52, 0.72 }
+    // (a clear mid blue with white dabs of ripples all along it, as the mock-up's stream; Dominic, 2026-11-11: "And the
+    // water", of what is not rich enough yet)
+    ground_water_shallow = float3 { 0.56, 0.74, 0.90 }
+    ground_water_deep = float3 { 0.33, 0.52, 0.80 }
     build_masks()
     build_stream(gfloat(su_map, "stream", 0.25))
     // (a mountain's cliffs are sheer and jog square: no corner of high ground is cut down to a slope)
@@ -1110,7 +1137,8 @@ if has_s(args, "camp") or arg_of("camp") != "":
                 u_x[i] = c.x + int(cos(a) * r)
                 u_y[i] = c.y + int(sin(a) * r)
         // (they stay where they are put: the order that walked them in from the gate is called off)
-        issue_cmd(0, CMD_STOP, copy(u_id), 0, 0, 0, 0)
+        // (each man is sent to where he stands: a stop leaves the group's march standing, and they walk on)
+        for(u_id) id, i: issue_cmd(0, CMD_MOVE, [ id ], u_x[i], u_y[i], 0, 0)
         p_id = []
         // (and a clearing in a close wood round it, as in the mock-up: open within three tiles, thick trees beyond)
         let tx = c.x / TILE

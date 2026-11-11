@@ -24,3 +24,21 @@ His messages about the game, word for word, in the order he sent them (times in 
 ## 07:04, on documenting Creel (chat)
 
 > Need to ensure creel settings and features documented as we go. We'll do full api docs, CLI etc later
+
+## 07:37, on pull request 42 (chat)
+
+> 42 needs rebase
+
+## 07:37, on the comparison picture (chat)
+
+> That comparison pic uses old camer a angle
+
+(Claude checked: the picture was at 22 degrees. Rendered again with 22 and with 30 forced, the default matched 22.)
+
+## 07:38, on the ground and the water (chat)
+
+> Is the ground still being worked on? Maybe last part thats not rich enough yet. And the water
+
+## 07:39, on the trees after leaf-fall (chat)
+
+> Trees are a bit naked there. Depends how we end up.showing the change to winter. But the rhodope autumn trees are rich with shades. Some tree yellowz some red, some orange. Like our pallette that was designed for the trees
