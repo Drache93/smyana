@@ -501,6 +501,7 @@ def view_enter(between):
     // water", of what is not rich enough yet)
     ground_water_shallow = float3 { 0.56, 0.74, 0.90 }
     ground_water_deep = float3 { 0.33, 0.52, 0.80 }
+    ground_water_ripples = gfloat(su_map, "ripples", 0.6)
     build_masks()
     build_stream(gfloat(su_map, "stream", 0.25))
     // (a mountain's cliffs are sheer and jog square: no corner of high ground is cut down to a slope)
