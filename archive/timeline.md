@@ -152,3 +152,4 @@ One line per moment worth remembering. Newest at the bottom.
   comes and goes, a culvert. ([journal](journal/2026-11-11-the-roman-road-varied.md))
 - **2026-11-11:** The men's pixels drawn evenly at any zoom (Creel `sprite_even`), after Dominic found them pixelated.
   ([journal](journal/2026-11-11-summer-greens.md))
+- **2026-11-11:** Environment thread stops: "Enough tree types for now", "Music first, cliffs after" (Dominic).
