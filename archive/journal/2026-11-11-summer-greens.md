@@ -44,3 +44,14 @@ Claude tried breaking the summer and autumn crowns into clusters by thinning the
 thinning a solid crown shows its dark inside, not sky, so the crowns only went darker. Crowns with sky between their
 clusters have to be built that way in the .vox models (leaves in clumps on twigs, as after leaf-fall), which is the rest
 of #98.
+
+## Later: the men's pixels (Creel `sprite_even`)
+
+Dominic at 21:16: "concerned the men look a little pixelated" (picture 105). The men are drawn one voxel to one art
+pixel, and the zoom is in quarter steps (2.75, 4.75...), so with nearest sampling one art pixel came out two screen
+pixels wide and the next three: uneven, jagged edges. He chose a sharp filter from three options. Creel's sprite shader
+now samples sharp bilinear when `sprite_even` is on (Casaide/creel#26): each art pixel is solid, and only the one screen
+pixel where two meet is a mix. Smyana switches it on; look option `even:0` shows the old way. The first try mixed the
+texels before recolouring the team key and left a few purple pixels, so each texel is now recoloured first. Picture
+106 is before and after at zoom 4.75. Up close the men are still pixel art, 40 voxels tall; more detail would mean
+remaking them.

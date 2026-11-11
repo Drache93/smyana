@@ -150,3 +150,5 @@ One line per moment worth remembering. Newest at the bottom.
   no brown pools under the firs. ([journal](journal/2026-11-11-summer-greens.md))
 - **2026-11-11:** The Roman road made one long varied road: heaved, gone and buried stretches, a bend, a drain that
   comes and goes, a culvert. ([journal](journal/2026-11-11-the-roman-road-varied.md))
+- **2026-11-11:** The men's pixels drawn evenly at any zoom (Creel `sprite_even`), after Dominic found them pixelated.
+  ([journal](journal/2026-11-11-summer-greens.md))
