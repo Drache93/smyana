@@ -223,3 +223,8 @@ pale band where the picture has brown earth.
 
 Picture 34. Still wrong (Claude): the stream has no ripples and its near bank is a dark line, no smoke rises from
 the fire, and the lit leaves are a stronger orange than the mock-up's (the lighting thread's).
+
+- **The clearing's stream** (07:50 UTC) is wider (`"stream": 0.42` in its map, the mock-up's is about half as wide
+  again as ours was) and its bank's slope is narrower (`"shore_soft": 0.3`), so the dark line down the near bank is
+  thin and the grass hangs over it. Picture 36. Ripples all along it need a setting in Creel, which waits for the
+  settings page to merge.

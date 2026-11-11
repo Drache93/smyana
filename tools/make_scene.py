@@ -100,6 +100,8 @@ doc = {
     "wood": "beech",
     "scene": 1,
     "pines": 0,
+    "stream": 0.42,
+    "shore_soft": 0.3,
     "grass_seed": 9057,
     "camp": camp,
     "fire": [int(round(((FIRE[0] + FIRE[1]) / 2.0 + CX) * 1000)), int(round(((FIRE[1] - FIRE[0]) / 2.0 + CY) * 1000))],
