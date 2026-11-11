@@ -50,6 +50,14 @@ ends of the day.
 
 ![Dawn and dusk in each season](../images/2026-11-11/07-dawn-and-dusk-in-each-season.jpg)
 
+## Sunflecks under the canopy (#7)
+Deep in a closed wood, a few small spots of sun now get through the canopy onto the floor. They swell
+and go as if the boughs were swaying, slowly, over about forty seconds. They only appear by day
+(`sun.flecks`: five a tree, under trees whose wood is more than half closed). They are cut out of the
+shade buffer as small pixel ovals, so they stay crisp and light whatever they fall on, tents and men
+included.
+
+![Sunflecks in the deep wood, before (left) and after](../images/2026-11-11/09-sunflecks-in-the-deep-wood-before-and-after.jpg)
+
 ## Left to do
 - Moods don't yet blend between seasons, because the season changes by place.
-- Dappled light moving on the ground (#7) is still to do.

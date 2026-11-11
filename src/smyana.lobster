@@ -108,6 +108,10 @@ class Canopy:
     y:float
     s:float
 var canopies = []::Canopy
+// Sunflecks: deep in a wood, small spots of sun that get through the canopy and come and go as the boughs move
+// (sun.flecks a tree, 0 off; by day only). Each one: where (art px) and its own seed.
+var canopy_flecks = 0
+var flecks = []::float3
 var props_version = -1
 var wear_tick = -1000
 var clock_s = 0.0
@@ -394,6 +398,7 @@ def sun_from_data():
     canopy_reach = int(gfloat(sun, "canopy_reach", 3.0))
     canopy_trees = gfloat(sun, "canopy_trees", 14.0)
     canopy_dim = gfloat(sun, "canopy_dim", 0.0)
+    canopy_flecks = int(gfloat(sun, "flecks", 0.0))
 
 // The mood of the hour and the next one, and how far into the turn from one to the next (0 .. 1): the last
 // hours.blend hours (atmosphere.json) before a mood starts, the one before it turns into it, so dawn comes up and dusk
@@ -512,6 +517,8 @@ def collect_props():
     let season = season_now()
     let bare = season == "winter"
     canopies = []
+    flecks = []
+    let day = hour_now() > 6.5 and hour_now() < 19.0
     for(props) pr, pidx:
         if pr.at.x > view_lo.x - 700.0 and pr.at.x < view_hi.x + 250.0 and pr.at.y > view_lo.y - 300.0 and pr.at.y < view_hi.y + 620.0:
             if pr.kind == 0:
@@ -529,6 +536,10 @@ def collect_props():
                 if (pr.sp == "tall" or not leafy(pr.sp) or not bare) and pidx < canopy.length and canopy[pidx] > 0.0:
                     let f = frame_at.get(crown + ".shadow", -1)
                     if f >= 0: canopies.push(Canopy { f, pr.at.x, pr.at.y, 1.0 + (canopy_spread - 1.0) * canopy[pidx] })
+                    if day and canopy[pidx] > 0.5 and (pr.sp == "tall" or not bare):
+                        for(canopy_flecks) k:
+                            let h = cell_hash(pr.cell * 13 + k + 17)
+                            flecks.push(float3 { pr.at.x + float(h % 160) - 80.0, pr.at.y + float((h / 160) % 90) - 45.0, float(h % 997) })
             elif pr.kind == 1:
                 if pr.sp == "spruce":
                     add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39998.0, float4_1)
@@ -620,6 +631,20 @@ def draw_world(alpha:float):
                             let mid = float2 { x0 + float(fr.w) * fr.k * 0.5, y0 + float(fr.h) * fr.k * 0.5 }
                             sprite_xf(cp.f, [ fr.k * cp.s, 0.0, 0.0, fr.k * cp.s, mid.x + (x0 - mid.x) * cp.s, mid.y + (y0 - mid.y) * cp.s ], float4_1)
                         flush_sprites()
+                        // the sunflecks: a spot of sun on the floor of the wood, swelling and gone as the boughs sway
+                        if flecks.length:
+                            gl.set_shader("color")
+                            let t = gl.time()
+                            gl.color(float4 { 0.0, 0.0, 0.0, 1.0 }):
+                                for(flecks) fl:
+                                    let s = sin((t * 9.0 + fl.z * 0.37) * 1.0) * 0.5 + 0.5
+                                    if s > 0.3:
+                                        let r = floor((3.0 + fl.z % 4.0) * s + 0.5)
+                                        if r >= 1.0:
+                                            // (a little lying oval, pixel cut: lit spots on the ground seen from above)
+                                            let w = floor(r * 1.4)
+                                            gl.translate(float2 { floor(fl.x) - r, floor(fl.y) - floor(r * 0.25) }): gl.rect(float2 { r * 2.0, max(1.0, floor(r * 0.5)) })
+                                            gl.translate(float2 { floor(fl.x) - floor(w / 2.0), floor(fl.y) - floor(r * 0.5) }): gl.rect(float2 { w, r })
                         // back to front: what stands up wipes the shade off itself, and where a man stands is marked
                         // (blue, added: he keeps his shade) so the light can keep him readable; a tree in front wipes that too
                         var now = -1

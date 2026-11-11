@@ -1,7 +1,7 @@
 {
  "_doc": "The light, by the hour (Creel's atmosphere pass, creel/src/view/atmosphere.lobster). A first pass: the moods change at set hours with no blend between them yet (the lighting work is issue #12). A mood named <mood>.<season> is used in that season in its place.",
  "default": "day",
- "sun": { "_doc": "how high the sun stands, degrees, for the shadows baked into the art (low: long shadows, as in the mock-ups)", "elevation": 40, "dither": 0.15, "leaf_tones": 4, "canopy": 1.8, "canopy_reach": 2, "canopy_trees": 12, "canopy_dim": 0.45 },
+ "sun": { "_doc": "how high the sun stands, degrees, for the shadows baked into the art (low: long shadows, as in the mock-ups)", "elevation": 40, "dither": 0.15, "leaf_tones": 4, "canopy": 1.8, "canopy_reach": 2, "canopy_trees": 12, "canopy_dim": 0.45, "flecks": 5 },
  "maps": {},
  "hours": { "_doc": "the hour each mood starts; _blend: the hours before it in which the one before turns into it", "_blend": 1.5, "dawn": 5, "day": 8, "dusk": 18, "night": 21 },
  "moods": {
