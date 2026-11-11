@@ -58,6 +58,7 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
         for y in range(cy - r, cy + r + 1):
             for x in range(cx - r, cx + r + 1):
                 if (x - cx) ** 2 + (y - cy) ** 2 <= r * r + rng.uniform(-1.5, 1.5): put(x, y, "#")
+    gorge = None
     # the stream: north to south, a tile wide (two or three men: it is a stream, as in the mock-ups, not a river), with
     # no gaps at its bends, a ford where the trail crosses
     bridges = []
@@ -66,7 +67,10 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
         # a bridge (#20: found broken), and `ford` tiles downstream it runs wide and shallow: a path leaves the trail
         # on each bank, goes down to the ford and comes back
         rx, ford = river[0] + RIM, river[1]
-        for x in range(rx - 9, rx + 10): trail_y[x] = trail_y[rx]
+        # (level and straight across the gorge's floor and up both ramps, easing back to its own line beyond them)
+        for x in range(w):
+            k = min(1.0, max(0.0, (abs(x - rx) - 23) / 8.0))
+            trail_y[x] = int(round(trail_y[rx] * (1 - k) + trail_y[x] * k)) if x != rx else trail_y[x]
         ty = trail_y[rx]
         sw = noise1(rng, h, 10)
         mid = []
@@ -83,6 +87,7 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
             for y in range(ty, ty + ford + 1): put(px, y, ":", ".#")
             for x in range(min(px, rx), max(px, rx) + 1): put(x, ty + ford, ":", ".#")
         bridges = [[rx - 1, ty, rx + 1, ty]]
+        gorge = (rx, 14)
     elif stream_x >= 0:
         sw = noise1(rng, h, 8)
         last = None
@@ -139,6 +144,38 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
         g[ty + 1][sx] = ":"
         bare_zone = [(sx - half - 3, ty - 8, sx + half + 3, ty + 20)]
 
+    # the gorge's depth (#16): the river runs on a floor four levels below the wood, between rock walls that jog a
+    # tile or two in runs so no rim is ruled straight. The trail comes down to the floor by a ramp cut through each
+    # wall, a level a tile, seven tiles wide (its outer rows lie under the wall's faces and can't be walked). The
+    # bridge and the ford are both on the floor, so the river is crossed as before.
+    ramp_zone = []
+    if gorge:
+        gx, half = gorge
+        def jogs():
+            # (a slow bend of the whole wall, three tiles either way, and on it steps of a tile or two in short runs)
+            bend, out, y = noise1(rng, h, 14), [], 0
+            while y < h:
+                n, j = rng.randrange(2, 5), rng.choice((-1, 0, 0, 1, 2))
+                out += [j + int(round(bend[min(yy, h - 1)] * 3)) for yy in range(y, y + n)]
+                y += n
+            return out
+        jw, je = jogs(), jogs()
+        for y in range(h):
+            for x in range(w):
+                lev[(x, y)] = 2 if gx - half - jw[y] <= x <= gx + half + je[y] else 6
+        for side in (-1, 1):
+            # (the wood behind the ramp's head, the floor before its foot, then the ramp: from the wood's edge down)
+            for k in range(4):
+                x = gx + side * (half + 3 - k)
+                for y in range(trail_y[x] - 3, trail_y[x] + 4):
+                    for d in range(-6, 9): lev[(x + side * d, y)] = 6 if d > 0 else 2
+            for k, ch in enumerate("fedc"):
+                x = gx + side * (half + 3 - k)
+                for y in range(trail_y[x] - 3, trail_y[x] + 4): lev[(x, y)] = ch
+            x0, x1 = sorted((gx + side * (half - 3), gx + side * (half + 7)))
+            ramp_zone.append((x0, min(trail_y[x0:x1 + 1]) - 4, x1, max(trail_y[x0:x1 + 1]) + 4))
+        bare_zone += ramp_zone
+
     def near(x, y, chars, r):
         for yy in range(max(0, y - r), min(h, y + r + 1)):
             for xx in range(max(0, x - r), min(w, x + r + 1)):
@@ -156,7 +193,7 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
     for (x0, y0, x1, y1) in bare_zone:
         for y in range(y0, y1 + 1):
             for x in range(x0, x1 + 1):
-                if g[y][x] == "." and (x, y) not in lev and y > trail_y[slide[0] + RIM] + 9 and rng.random() < 0.1 and not near_t(x, y): g[y][x] = "t"
+                if g[y][x] == "." and (x, y) not in lev and slide and y > trail_y[slide[0] + RIM] + 9 and rng.random() < 0.1 and not near_t(x, y): g[y][x] = "t"
 
     # young trees: clumps to fell, never touching each other on all sides (a man must reach each one)
     for _ in range(young_clumps):
@@ -214,7 +251,7 @@ place("beech_valley", "beech", 1878, 96, 64, west_y=33, east_y=28, stream_x=52, 
 # The deep fir woods: closer, darker, more rock, no stream. (Drawn with the same trees for now.)
 place("fir_woods", "deep", 1879, 96, 64, west_y=28, east_y=36, stream_x=-1, old_gap=1.4, old_fill=1.8, young_clumps=34,
       clearings=[(48, 30, 5)], rocks=[(20, 44, 4), (40, 14, 3), (66, 20, 5), (78, 50, 3)], slide=(62, 8))
-# The gorge (grey box, flat for now: no cliffs yet): a river too deep to wade, the trail's bridge over it found broken,
+# The gorge: its floor four levels below the wood, rock walls either side, a river too deep to wade, the trail's bridge over it found broken,
 # and a ford a way downstream.
 place("gorge", "beech", 1880, 96, 64, west_y=30, east_y=34, stream_x=-1, old_gap=1.6, old_fill=1.5, young_clumps=30,
       clearings=[(38, 31, 4), (58, 31, 4)], rocks=[(42, 24, 3), (55, 40, 3), (44, 52, 3), (70, 18, 4)], river=(48, 16))

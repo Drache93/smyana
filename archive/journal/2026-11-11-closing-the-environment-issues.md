@@ -197,3 +197,24 @@ obstacles, from main `9201af3` with Creel `91f157f` (Claude; decision D-065, a P
 
 Carts at a ford are issue 71. The landslide already has its two ways past: the lip of the ledge left to squeeze by,
 and four men digging the heap away. No picture: nothing new is drawn.
+
+## The gorge gets its depth (16:05 to 16:35)
+
+Dominic merged pull request 91 at 16:00 ("merged") and issue 20 was closed. Then issue 16's open part, from main
+`3d6e979` with Creel `91f157f` (Claude):
+
+- **The floor is four levels below the wood.** The river, the bridge, the ford and the two clearings are on the
+  gorge's floor; the wood either side stands four levels higher behind rock walls with crags at their feet.
+- **A ramp down each side.** The trail comes down through each wall on a slope a level a tile, seven tiles wide.
+- **No rim ruled straight.** Each wall bends slowly by up to three tiles and steps a tile or two in short runs.
+- **Why the floor and not a cut river.** Creel never lets a unit onto a tile at the foot of higher ground, deck or
+  no deck, so a river sunk below its own banks could not be bridged. With the whole floor down, the bridge and the
+  ford work as they did, and the check still mends the bridge and crosses all twenty men both ways.
+
+Picture 80, the west wall and its ramp, the trail forking to the ford, the broken bridge:
+
+![the gorge](../images/2026-11-11/80-the-gorge-with-its-depth.jpg)
+
+Not done: the walls carry no snow in winter (I did not get the wall into the winter picture I took, so I have not
+seen how it looks). The heights for the pass, the ridge, the ruins' shelf and the village's slope come with those
+places' grey-boxes (issues 52 to 55).

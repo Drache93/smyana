@@ -49,7 +49,7 @@ of the one before it, behind a letter home of about 20 seconds. That makes 12 lo
 | 1 | Village edge | 76 x 64 | 115 x 95 m | New (#52) | Village lane (start and end), east |
 | 2 | Beech valley | 96 x 64 | 145 x 95 m | Built, grey-box | West, east |
 | 3 | Deep fir woods | 96 x 64 | 145 x 95 m | Built, grey-box | West, east |
-| 4 | Gorge | 96 x 64 | 145 x 95 m | Built, grey-box; still flat | West, east |
+| 4 | Gorge | 96 x 64 | 145 x 95 m | Built, grey-box; its floor four levels below the wood, a ramp down each side | West, east |
 | 5 | Roman ruins | 76 x 76 | 115 x 115 m | New (#53) | West, east |
 | 6 | The pass | 108 x 44 | 160 x 65 m | New (#54) | West, east |
 | 7 | High ridge | 108 x 76 | 160 x 115 m | New (#55) | West only: in and out the same way |

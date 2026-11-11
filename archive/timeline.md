@@ -134,3 +134,6 @@ One line per moment worth remembering. Newest at the bottom.
   closed. ([journal](journal/2026-11-11-closing-the-environment-issues.md#snow-on-the-boughs-wind-in-the-crowns-1520-to-1550))
 - **2026-11-11:** The ford's risk (#20): wading is slow, slower loaded, slower in high water (D-065). Weather (#15)
   closed. ([journal](journal/2026-11-11-closing-the-environment-issues.md#the-fords-risk-1550-to-1605))
+- **2026-11-11:** The gorge has its depth (#16): its floor four levels below the wood, rock walls, a ramp down each
+  side. Obstacles (#20) closed.
+  ([journal](journal/2026-11-11-closing-the-environment-issues.md#the-gorge-gets-its-depth-1605-to-1635))
