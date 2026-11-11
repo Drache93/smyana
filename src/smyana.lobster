@@ -395,14 +395,52 @@ def sun_from_data():
     canopy_trees = gfloat(sun, "canopy_trees", 14.0)
     canopy_dim = gfloat(sun, "canopy_dim", 0.0)
 
-def mood_tick():
-    var m = mood_now()
-    // (a season's own light where there is one: "day.autumn")
+// The mood of the hour and the next one, and how far into the turn from one to the next (0 .. 1): the last
+// hours.blend hours (atmosphere.json) before a mood starts, the one before it turns into it, so dawn comes up and dusk
+// falls instead of switching on the hour.
+def mood_turn() -> string, string, float:
+    let hours = gobj(atmo_data, "hours")
+    let blend = gfloat(hours, "_blend", 0.0)
+    let h = hour_now()
+    let now = mood_now()
+    var next = ""
+    var next_at = 99.0
+    var first = ""
+    var first_at = 99.0
+    for(hours.keys) name, k:
+        if not starts_with(name, "_"):
+            let at = as_float(hours.a[k])
+            if at > h and at < next_at:
+                next = name
+                next_at = at
+            if at < first_at:
+                first = name
+                first_at = at
+    if next == "":  // (after the day's last: the next is tomorrow's first)
+        next = first
+        next_at = first_at + 24.0
+    let t = if blend > 0.0: clamp((h - (next_at - blend)) / blend, 0.0, 1.0) else: 0.0
+    return now, next, t
+
+// A mood's own light this season where there is one ("day.autumn").
+def mood_in_season(m:string) -> string:
     let own = m + "." + season_now()
-    for(gobj(atmo_data, "moods").keys) name: if name == own: m = own
-    if m != atmo_mood and m != "":
-        let why = atmo_set(atmo_data, m)
-        if why != "": print why
+    let has = exists(gobj(atmo_data, "moods").keys) name: name == own
+    return if has: own else: m
+
+var mood_key = ""
+
+def mood_tick():
+    let now, next, t = mood_turn()
+    if now == "": return
+    let a = mood_in_season(now)
+    let b = mood_in_season(next)
+    let step = int(t * 48.0)  // (the turn in small steps: the light set again only when it has moved)
+    let key = "{a} {b} {step}"
+    if key == mood_key: return
+    mood_key = key
+    let why = atmo_set_between(atmo_data, a, b, float(step) / 48.0)
+    if why != "": print why
 
 // ------------------------------------------------------------------ drawing the world
 
@@ -414,7 +452,8 @@ class Drawable:
     ay:float
     col:float4
     fade:float  // 1 whole .. 0 gone
-    kind:int    // 0 what stands up (it hides the shade under it), 1 a shadow on the ground, 2 a man (he stands in the shade)
+    kind:int    // 0 what stands up (it hides the shade under it), 1 a shadow on the ground, 2 what stands in the shade,
+    // 3 drawn by hand (rings, fires), 4 a man (in the shade, and kept readable: atmo_shade_unit)
 
 var draws = []::Drawable
 var fires = []::float2  // the camp's fires, art px: where each one's foot is (draw_fire)
@@ -455,7 +494,7 @@ def collect_men(alpha:float):
             let facing = (d + 2) % 8
             let p = gp(x, y)
             add(frame_at.get(man_shadow_name(m.look, facing), -1), p.x, p.y, p.y - 0.5, float4_1, 1.0, 1)
-            add(frame_at.get(man_frame_name(m.look, if moving: 1 + step else: 0, facing), -1), p.x, p.y, p.y, SASH, 1.0, 2)
+            add(frame_at.get(man_frame_name(m.look, if moving: 1 + step else: 0, facing), -1), p.x, p.y, p.y, SASH, 1.0, 4)
             if u_carry[i] > 0: add(frame_at.get("load.wood", -1), p.x + 3.0, p.y - 27.0, p.y + 0.1, float4_1, 1.0, 2)
             eyes.push(p - float2 { 0.0, 16.0 })
 
@@ -581,11 +620,20 @@ def draw_world(alpha:float):
                             let mid = float2 { x0 + float(fr.w) * fr.k * 0.5, y0 + float(fr.h) * fr.k * 0.5 }
                             sprite_xf(cp.f, [ fr.k * cp.s, 0.0, 0.0, fr.k * cp.s, mid.x + (x0 - mid.x) * cp.s, mid.y + (y0 - mid.y) * cp.s ], float4_1)
                         flush_sprites()
-                        gl.blend(blend_alpha)
-                        b_sheet = -1
-                        sprite_shader = "atmo_shade_clear"
-                        for(draws) d: if d.kind == 0 and d.f >= 0: sprite(d.f, d.x, d.ay, float4 { d.fade, 0.0, 0.0, 1.0 })
+                        // back to front: what stands up wipes the shade off itself, and where a man stands is marked
+                        // (blue, added: he keeps his shade) so the light can keep him readable; a tree in front wipes that too
+                        var now = -1
+                        for(draws) d:
+                            if (d.kind == 0 or d.kind == 4) and d.f >= 0:
+                                if d.kind != now:
+                                    flush_sprites()
+                                    b_sheet = -1
+                                    now = d.kind
+                                    sprite_shader = if now == 0: "atmo_shade_clear" else: "atmo_shade_unit"
+                                    gl.blend(if now == 0: blend_alpha else: blend_add)
+                                sprite(d.f, d.x, d.ay, if d.kind == 0: float4 { d.fade, 0.0, 0.0, 1.0 } else: float4_1)
                         flush_sprites()
+                        gl.blend(blend_alpha)
                         sprite_shader = "sprite"
         gl.blend(blend_alpha)
     let atmo_drawn = atmo_begin(float4 { 0.04, 0.05, 0.04, 1.0 })

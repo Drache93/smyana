@@ -230,3 +230,9 @@ direction, Claude's how) Dominic: "Our pic still looks like big bright omni ligh
 ground under a closed canopy lies in shade, and it goes darker and misty there, while clearings and
 open woods keep the sun. This is crisp, pixel for pixel, as D-041 asks. It replaces the blurred
 darker-woods ring that D-041 switched off.
+
+**D-047, 2026-11-11: The light turns through the day, each season has its own, and the men stay readable.**
+(Dominic's direction to keep going, Claude's how) Moods blend into each other over 1.5 hours rather than
+switching. Summer, spring and winter get their own day light, matched to the mock-ups. The men are kept
+readable by the light itself, not by UI markers (as #7 asks): a little less shade, mist and dark on
+them, stronger at dusk and night.
