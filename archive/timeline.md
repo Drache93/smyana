@@ -72,3 +72,5 @@ One line per moment worth remembering. Newest at the bottom.
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md))
 - **2026-11-11:** Trees after leaf-fall (bare boughs, the last leaves in clumps), the men round the fire, the trail
   fording the stream. ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#after-leaf-fall-and-the-camp-lived-in-0620-to-0645))
+- **2026-11-11:** The pass's cliffs jog in and out, and a river winds in the gorge (picture 08).
+  ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#the-pass-faces-that-jog-a-river-in-the-gorge-0650-to-0705))

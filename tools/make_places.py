@@ -86,19 +86,31 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
         sx, half = slide[0] + RIM, slide[1]
         ty = trail_y[sx]
         gw, gw2 = noise1(rng, w, 5), noise1(rng, w, 6)
+        # (the faces don't run ruler-straight: the ledge widens and narrows by a tile in runs of two to four tiles, the
+        # bluff stepping back and the lip stepping out, and it is at its tightest where the slide lies)
+        back, out = {}, {}
+        x = sx - half
+        while x <= sx + half:
+            n, a, b = rng.randrange(2, 5), rng.choice((0, 1, 1)), rng.choice((0, 0, 1))
+            for xx in range(x, x + n):
+                tight = abs(xx - sx) <= 2
+                back[xx], out[xx] = (0 if tight else a), (0 if tight else b)
+            x += n
         for x in range(sx - half, sx + half + 1):
             t = (x - (sx - half)) / (2.0 * half)
             wall = 3 + int(round(2 * math.sin(math.pi * t)))
-            for y in range(ty - wall, ty):                      # the bluff above
-                g[y][x] = "b" if y == ty - 1 and rng.random() < 0.5 else "."
+            for y in range(ty - back[x] - wall, ty - back[x]):  # the bluff above
+                g[y][x] = "b" if y == ty - back[x] - 1 and rng.random() < 0.15 else "."
                 lev[(x, y)] = 8
-            g[ty + 1][x] = "b" if abs(x - sx) <= 2 else "."     # the ledge's lip: turf, stony by the slide
+            for y in range(ty - back[x], ty): g[y][x] = "."     # the ledge where the bluff steps back: turf
+            for y in range(ty + 1, ty + 2 + out[x]): g[y][x] = "b" if abs(x - sx) <= 1 else "."   # the ledge's lip
             deep = 2 + int(round(4.5 * math.sin(math.pi * t) ** 0.6 + gw[x] * 1.2))
-            mid = ty + 2 + deep / 2.0 + gw2[x] * 1.2
-            for y in range(ty + 2, ty + 2 + deep):              # the gorge below: a river winding in a stony bed
+            top = ty + 2 + out[x]
+            mid = top + deep / 2.0 + gw2[x] * 1.2
+            for y in range(top, top + deep):                    # the gorge below: a river winding in a stony bed
                 g[y][x] = "~" if abs(y + 0.5 - mid) <= 1.0 and deep >= 4 else "b"
                 lev[(x, y)] = 0
-            put(x, ty + 2 + deep, ".", "#")
+            put(x, top + deep, ".", "#")
         for x in range(sx - 1, sx + 2): g[ty][x] = "%"          # the heap at the cliff's foot, across the trail
         g[ty + 1][sx - 1] = "%"
         g[ty + 1][sx] = ":"

@@ -50,3 +50,15 @@ More of the detail the mock-up has and we lacked (picture 06):
 - **The flames** are drawn a pixel of the art at a time, a red flame with an orange one and a yellow heart inside it,
   under the tripod; they were five flat bars. Still a look-only fire (D-038). Nothing grows where the men tread round
   it.
+
+## The pass: faces that jog, a river in the gorge (06:50 to 07:05)
+
+- The faces ran ruler-straight along one row of tiles. Now the ledge widens and narrows by a tile in runs of two to
+  four tiles, the bluff stepping back and the lip stepping out, tightest where the slide lies.
+- Creel cut every outer corner of high ground down to the ground below (a hill's rounded shoulder, made for hills one
+  level high). On cliffs four levels high that gave great slanted wedges at each jog (kept out of the archive: no
+  picture was saved). A setting, `relief_sharp`, keeps the corners: sheer faces that jog square.
+- The gorge's river is a narrow winding river now, by the same finer water as the clearing's stream.
+
+Picture 08. Still wrong (Claude): the jogs are square blocks, a quarry more than a mountain; faces need breaking at a
+finer grain than a tile, which Creel's ground can't do yet.

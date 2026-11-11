@@ -439,6 +439,8 @@ def view_enter(between):
     ground_water_deep = float3 { 0.40, 0.52, 0.72 }
     build_masks()
     build_stream(gfloat(su_map, "stream", 0.25))
+    // (a mountain's cliffs are sheer and jog square: no corner of high ground is cut down to a slope)
+    relief_sharp = true
     build_relief()
     trail_wear()
     build_trail()
