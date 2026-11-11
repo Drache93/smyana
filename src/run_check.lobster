@@ -78,6 +78,26 @@ for(300):
     step()
     route_tick()
 expect(gates_armed, "the men walked in clear of the gate")
+// the landslide on the pass (#20): four men dig one heap of it away
+let heap_t = str_index(tr_names, "rubble")
+let heap = find(terrain): _ == heap_t
+expect(heap >= 0, "the pass in the fir woods has a landslide across it")
+let diggers = map(4) n: men[n + 2].uid
+// (they walk up to it by the trail, then are set to dig)
+issue_cmd(0, CMD_MOVE, diggers, (heap % W - 3) * TILE + 500, (heap / W) * TILE + 500, 0, 0)
+for(1500):
+    step()
+    route_tick()
+expect(abs(u_x[index_of(diggers[0])] / TILE - heap % W) <= 6, "the diggers walked up the pass to the landslide")
+issue_cmd(0, CMD_GATHER, diggers, heap, 0, 0, 0)
+var dug_at = -1
+for(6000) n:
+    if dug_at < 0:
+        step()
+        route_tick()
+        if terrain[heap] != heap_t: dug_at = n
+expect(dug_at >= 0 and tr_names[terrain[heap]] == "bare", "four men dug a heap of the landslide away (after {dug_at} ticks): bare ground is left")
+expect(u_carry[index_of(men[2].uid)] == 0, "a digger carries nothing away")
 let back = walk_to_gate("west")
 expect(back == "west", "all the men are back at the west gate")
 route_leave(back)

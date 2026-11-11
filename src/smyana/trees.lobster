@@ -7,7 +7,7 @@
 // seen. The leaves are baked once a season (their colour), behind the letter home, and kept in bake_cache/.
 
 let TREE_K = 64.0  // voxels a tile for the load of wood (baked at twice this)
-let TREE_BAKE = "trees 33"
+let TREE_BAKE = "trees 38"
 // Voxels a tile in the trees, rocks and undergrowth: one voxel is one pixel of Creel's art (WB_PX at its art scale of
 // 3), as the men's are, so they are as crisp as the men (Dominic, 2026-11-10: "evryhting crisp and sharp").
 let VOX_K = 135.7645
@@ -18,6 +18,7 @@ let PINE_KINDS = 3
 let SPRUCE_KINDS = 3
 let YOUNG_KINDS = 2
 let ROCK_KINDS = 4
+let CRAG_KINDS = 4
 let SLAB_KINDS = 2
 var tree_draw_k = 1.0  // art px a baked px (set at the bake: Creel's art scale decides)
 def vox_draw_k() -> float: return WB_PX / ART_K / VOX_K
@@ -244,6 +245,42 @@ def bush(look:vglook, kind:int) -> vgrid:
                 leaf_dab(g, p, randf_range(rng, 0.014, 0.021), tone + randf_range(rng, -0.3, 0.3))
     return g
 
+// A bramble (#8): long canes that arch up out of one foot and come down to the ground again a tile away, crossing each
+// other, their leaves in threes along them. A tangle you see through, lower than a man's waist, broader than a bush.
+let BRAMBLE_KINDS = 2
+def bramble(look:vglook, kind:int) -> vgrid:
+    let rng = grng(1480 + kind)
+    let g = fine_grid(look, 0.62, 0.36, 1480 + kind)
+    for(7 + kind * 3):
+        let a = randf_range(rng, 0.0, 360.0)
+        let foot = float3 { randf_range(rng, -0.1, 0.1), randf_range(rng, -0.1, 0.1), 0.0 }
+        let reach = randf_range(rng, 0.28, 0.52)
+        let rise = randf_range(rng, 0.07, 0.17)
+        let bend = randf_range(rng, -0.12, 0.12)
+        let d = float3 { cos(a), sin(a), 0.0 }
+        let side = float3 { -sin(a), cos(a), 0.0 }
+        let tone = randf_range(rng, -0.5, 0.5)
+        var last = foot
+        let steps = 12
+        for(steps) k:
+            let t = float(k + 1) / float(steps)
+            let at = foot + d * (reach * t) + side * (bend * sin(t * 180.0)) + float3 { 0.0, 0.0, max(0.0, rise * sin(t * 170.0)) }
+            twig(g, last, at, 0.0066, VG_BARK, -0.2)
+            if randf(rng) < 0.85:
+                // (a leaf of three on a short stalk, to one side)
+                let stalk = at + side * (if k % 2: 0.032 else: -0.032) + float3 { 0.0, 0.0, 0.014 }
+                for(3) l: leaf_dab(g, stalk + float3 { randf_range(rng, -0.02, 0.02), randf_range(rng, -0.02, 0.02), randf_range(rng, 0.0, 0.014) }, randf_range(rng, 0.016, 0.022), tone + float(l) * 0.25 - 0.2)
+            last = at
+    return g
+
+// The bramble's canes are dark red purple; its leaves stay on late, dark green going wine red in autumn.
+def bramble_look(season:string, kind:int) -> vglook:
+    var leaf = [ float3 { 0.34, 0.50, 0.20 }, float3 { 0.22, 0.38, 0.16 }, float3 { 0.13, 0.24, 0.12 }, float3 { 0.46, 0.58, 0.24 } ]
+    if season == "autumn" and kind == 1: leaf = [ float3 { 0.62, 0.24, 0.16 }, float3 { 0.44, 0.30, 0.15 }, float3 { 0.24, 0.26, 0.12 }, float3 { 0.74, 0.40, 0.18 } ]
+    if season == "autumn" and kind == 0: leaf = [ float3 { 0.42, 0.46, 0.18 }, float3 { 0.28, 0.36, 0.15 }, float3 { 0.36, 0.18, 0.12 }, float3 { 0.60, 0.52, 0.22 } ]
+    return vglook { leaf, [ float3 { 0.22, 0.11, 0.13 }, float3 { 0.31, 0.15, 0.17 }, float3 { 0.40, 0.20, 0.21 }, float3 { 0.50, 0.27, 0.26 } ],
+                    [ float3 { 0.3, 0.3, 0.3 }, float3 { 0.5, 0.5, 0.5 } ], false, false, false }
+
 // A patch of low herbs: many small pale leaves on short stems, ragged at its edge (the pale drifts of the target
 // picture's clearing).
 let HERB_KINDS = 3
@@ -270,26 +307,24 @@ def herbs(look:vglook, kind:int) -> vgrid:
 let TUFT_KINDS = 6
 def grass_tuft(look:vglook, kind:int) -> vgrid:
     let rng = grng(1470 + kind)
-    let g = fine_grid(look, 0.14, 0.14, 1470 + kind)
-    let tall = 0.05 + 0.014 * float(kind % 3)
-    for(3 + kind % 3):
-        // (a few feet close together, so a tuft is a clump and not a fan)
-        let foot = float3 { randf_range(rng, -0.04, 0.04), randf_range(rng, -0.04, 0.04), 0.0 }
-        for(5 + kind % 2):
-            let a = randf_range(rng, 0.0, 360.0)
-            let lean = randf_range(rng, 0.008, 0.034)
-            let top = foot + float3 { cos(a) * lean, sin(a) * lean, tall * randf_range(rng, 0.55, 1.2) }
-            let steps = 7
-            for(steps) n:
-                let u = float(n) / float(steps - 1)
-                // (a stem bows out as it rises; dark at the foot, pale at the tip)
-                let p = foot + (top - foot) * u + float3 { cos(a), sin(a), 0.0 } * lean * 0.5 * u * u
-                leaf_dab(g, p, 0.0085, -0.75 + 1.6 * u + randf_range(rng, -0.1, 0.1))
-            // a leaf or two off the stem, in its upper half
-            for(1):
-                let u = randf_range(rng, 0.45, 0.95)
-                let p = foot + (top - foot) * u + float3 { randf_range(rng, -0.014, 0.014), randf_range(rng, -0.014, 0.014), 0.0 }
-                leaf_dab(g, p, 0.0098, -0.2 + 1.1 * u)
+    let g = fine_grid(look, 0.2, 0.16, 1470 + kind)
+    let tall = 0.055 + 0.016 * float(kind % 3)
+    // (airy: single stems a voxel thick standing a little apart over a hand's breadth of ground, so tufts side by
+    // side run into one soft mass and no tuft is a ball)
+    for(9 + (kind % 2) * 3):
+        let foot = float3 { randf_range(rng, -0.1, 0.1), randf_range(rng, -0.1, 0.1), 0.0 }
+        let a = randf_range(rng, 0.0, 360.0)
+        let lean = randf_range(rng, 0.004, 0.03)
+        let top = foot + float3 { cos(a) * lean, sin(a) * lean, tall * randf_range(rng, 0.5, 1.2) }
+        let steps = 8
+        for(steps) n:
+            let u = float(n) / float(steps - 1)
+            // (a stem bows out as it rises; dark at the foot, pale at the tip)
+            let p = foot + (top - foot) * u + float3 { cos(a), sin(a), 0.0 } * lean * 0.5 * u * u
+            leaf_dab(g, p, 0.0064, -0.8 + 1.7 * u + randf_range(rng, -0.1, 0.1))
+        // a leaf off the stem, in its upper half
+        let ul = randf_range(rng, 0.5, 0.95)
+        leaf_dab(g, foot + (top - foot) * ul + float3 { randf_range(rng, -0.012, 0.012), randf_range(rng, -0.012, 0.012), 0.0 }, 0.0086, -0.1 + 1.0 * ul)
     return g
 
 // The soft grass' colours: straw yellow tips over olive in autumn, fresh green in spring and summer.
@@ -374,6 +409,38 @@ def outcrop(look:vglook, kind:int) -> vgrid:
     for(3) n:
         let at = float3 { randf_range(rng, 0.4, 0.75) * (if n == 1: -1.0 else: 1.0), randf_range(rng, -0.6, 0.6), 0.0 }
         rock_plate(g, at, randf_range(rng, 0.06, 0.13), randf_range(rng, 0.05, 0.1), randf_range(rng, 0.03, 0.07), randf_range(rng, 0.0, 180.0), VG_ROCK, 0.1, randf_range(rng, -0.3, 0.3), 1190 + n)
+    return g
+
+// A crag at a cliff's foot (#20): a buttress of the same beds standing against the face, most of the face's height,
+// narrow from front to back and broad along the face (`turn` 0: a face that runs along x; 90: along y). It breaks the
+// straight foot and the square corners of a cliff made of whole tiles.
+def crag(look:vglook, kind:int, turn:float) -> vgrid:
+    let rng = grng(1500 + kind)
+    let g = vg_new(look, float3 { -0.95, -0.95, 0.0 }, float3 { 0.95, 0.95, 1.2 }, VOX_K, 1500 + kind)
+    let top = [ 0.95, 0.7, 0.45, 1.1 ][kind]
+    let dip = randf_range(rng, 0.1, 0.24) * (if kind % 2: 1.0 else: -1.0)
+    var z = 0.0
+    var c = float2 { 0.0, 0.0 }
+    var w = randf_range(rng, 0.36, 0.5)
+    var d = randf_range(rng, 0.2, 0.26)
+    var n = 0
+    while z < top:
+        let th = randf_range(rng, 0.09, 0.24)
+        let at = if turn > 45.0: float3 { c.y, c.x, z } else: float3 { c.x, c.y, z }
+        rock_plate(g, at, w, d, th, turn + randf_range(rng, -9.0, 9.0), VG_ROCK, randf_range(rng, -0.9, -0.3), dip, 1500 + kind * 31 + n * 97)
+        z += th
+        n++
+        // (it leans back to the face as it rises, and now and then a bed steps in or juts)
+        c += float2 { randf_range(rng, -0.05, 0.05), randf_range(rng, -0.03, 0.0) }
+        w = clamp(w * randf_range(rng, 0.8, 1.1), 0.2, 0.5)
+        d = clamp(d * randf_range(rng, 0.88, 1.04), 0.12, 0.26)
+    // what has come off it lies at its foot
+    for(4) k:
+        let side = if k % 2: -1.0 else: 1.0
+        let u = randf_range(rng, 0.3, 0.7) * side
+        let v = randf_range(rng, 0.05, 0.45)
+        let at = if turn > 45.0: float3 { v, u, 0.0 } else: float3 { u, v, 0.0 }
+        rock_plate(g, at, randf_range(rng, 0.06, 0.15), randf_range(rng, 0.05, 0.11), randf_range(rng, 0.03, 0.09), randf_range(rng, 0.0, 180.0), VG_ROCK, 0.1, randf_range(rng, -0.3, 0.3), 1590 + k)
     return g
 
 // A landslide's debris on one tile (#20): a low heap of earth with broken rock in it at every size, from fist stones to
@@ -481,6 +548,9 @@ def bake_trees(between):
     if sheet_load(rs, vox_draw_k()) and sheet_load(ls, tree_draw_k / 2.0): return
     let gneiss = gneiss_look()
     for(ROCK_KINDS) kind: tree_onto(rs, "rock{kind}", outcrop(gneiss, kind), true)
+    for(CRAG_KINDS) kind:
+        tree_onto(rs, "cragx{kind}", crag(gneiss, kind, 0.0), true)
+        tree_onto(rs, "cragy{kind}", crag(gneiss, kind, 90.0), true)
     for(SLAB_KINDS) kind: tree_onto(rs, "slabs{kind}", slab_pile(gneiss, kind), true)
     let debris = gneiss_look()
     debris.bark = [ float3 { 0.19, 0.15, 0.11 }, float3 { 0.27, 0.21, 0.15 }, float3 { 0.35, 0.28, 0.20 }, float3 { 0.44, 0.36, 0.26 } ]
@@ -491,8 +561,28 @@ def bake_trees(between):
     sheet_finish(ls, tree_draw_k / 2.0, false)
     trees_bake_s = seconds_elapsed() - t0
 
-// This season's leaves on the broadleaves, old and young, and the undergrowth's (winter has none: the bare wood shows).
+// What winter leaves of the undergrowth (#8): the bracken dead and rust brown, the grass as straw, the brambles' canes
+// with a few dark leaves still on. The bushes and herbs are gone.
+def dead_look(leaf:[float3], canes:bool) -> vglook:
+    let bark = if canes: [ float3 { 0.22, 0.11, 0.13 }, float3 { 0.31, 0.15, 0.17 }, float3 { 0.40, 0.20, 0.21 }, float3 { 0.50, 0.27, 0.26 } ] else: [ float3 { 0.20, 0.17, 0.14 }, float3 { 0.28, 0.24, 0.20 }, float3 { 0.37, 0.32, 0.26 }, float3 { 0.46, 0.40, 0.33 } ]
+    return vglook { leaf, bark, [ float3 { 0.3, 0.3, 0.3 }, float3 { 0.5, 0.5, 0.5 } ], false, false, false }
+
+def bake_winter():
+    if frame_at.get("fern0.winter", -1) >= 0: return
+    let vs = sheet_new("leaves_winter", "{TREE_BAKE} {VOX_K} {WB_PX}", 2048)
+    if sheet_load(vs, vox_draw_k()): return
+    let rust = [ float3 { 0.52, 0.34, 0.19 }, float3 { 0.40, 0.26, 0.15 }, float3 { 0.25, 0.17, 0.11 }, float3 { 0.62, 0.44, 0.26 } ]
+    let straw = [ float3 { 0.80, 0.72, 0.48 }, float3 { 0.63, 0.55, 0.35 }, float3 { 0.42, 0.36, 0.22 }, float3 { 0.90, 0.84, 0.62 } ]
+    let wine = [ float3 { 0.40, 0.20, 0.17 }, float3 { 0.30, 0.17, 0.15 }, float3 { 0.20, 0.13, 0.12 }, float3 { 0.48, 0.27, 0.20 } ]
+    for(FERN_KINDS) kind: tree_onto(vs, "fern{kind}.winter", fern(dead_look(rust, false), kind), true)
+    for(BRAMBLE_KINDS) kind: tree_onto(vs, "bramble{kind}.winter", bramble(dead_look(wine, true), kind), true)
+    for(TUFT_KINDS) kind: tree_onto(vs, "tuft{kind}.winter", grass_tuft(dead_look(straw, false), kind), true)
+    sheet_finish(vs, vox_draw_k(), true)
+
+// This season's leaves on the broadleaves, old and young, and the undergrowth's (in winter the bare wood shows, and
+// what is left of the undergrowth).
 def bake_season(stage:string, between):
+    if stage == "winter": bake_winter()
     if stage == trees_season or stage == "winter": return
     trees_season = stage
     if frame_at.get("beech0.crown.{stage}", -1) >= 0: return  // (baked or read earlier this run)
@@ -529,6 +619,7 @@ def bake_season(stage:string, between):
     tree_onto(vs, "sapling.{stage}", vox_tree(leaf_look("beech", season, 0), "beech_sapling_0", true), true)
     for(FERN_KINDS) kind: tree_onto(vs, "fern{kind}.{stage}", fern(under_look(season, kind, false), kind), true)
     for(BUSH_KINDS) kind: tree_onto(vs, "bush{kind}.{stage}", bush(under_look(season, kind + 1, false), kind), true)
+    for(BRAMBLE_KINDS) kind: tree_onto(vs, "bramble{kind}.{stage}", bramble(bramble_look(season, kind), kind), true)
     for(HERB_KINDS) kind: tree_onto(vs, "herb{kind}.{stage}", herbs(herb_look(season, kind), kind), true)
     for(TUFT_KINDS) kind: tree_onto(vs, "tuft{kind}.{stage}", grass_tuft(tuft_look(season, kind), kind), true)
     sheet_finish(vs, vox_draw_k(), true)

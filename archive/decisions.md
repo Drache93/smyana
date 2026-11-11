@@ -230,3 +230,9 @@ direction, Claude's how) Dominic: "Our pic still looks like big bright omni ligh
 ground under a closed canopy lies in shade, and it goes darker and misty there, while clearings and
 open woods keep the sun. This is crisp, pixel for pixel, as D-041 asks. It replaces the blurred
 darker-woods ring that D-041 switched off.
+
+**D-048, 2026-11-11: A landslide is dug away like a tree is felled.** (Claude's how, to Dominic's obstacle in #20:
+"to be cleared, climbed or walked round") A heap of the slide is ground the men can work: order them onto it and they
+dig, eight spells of work a heap, and it is left as bare ground they can walk. What they dig they throw aside: nobody
+is loaded with it, and it is worth nothing. It costs only time, against squeezing by the lip one man at a time. It is
+data (the `rubble` ground carries a resource, `spoil`), so the same works for any heap on any place.

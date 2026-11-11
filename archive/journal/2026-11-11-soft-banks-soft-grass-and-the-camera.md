@@ -62,3 +62,65 @@ More of the detail the mock-up has and we lacked (picture 06):
 
 Picture 08. Still wrong (Claude): the jogs are square blocks, a quarry more than a mountain; faces need breaking at a
 finer grain than a tile, which Creel's ground can't do yet.
+
+## The grass again: fine stems in drifts (07:10 to 07:40)
+
+- Seen in the beech valley, the first tufts read as small round bushes, evenly dotted, each with a spot of shadow
+  (Claude's own look at it; Dominic had asked for "all the soft grass").
+- A tuft is now nine to twelve single stems spread over a fifth of a tile, a leaf dab on each, and casts no shadow.
+- Where tufts stand comes from a better-mixed number (the old one put them in rows), 24 chances a tile, and the
+  drifts have a harder edge: thick inside, almost nothing outside.
+
+Pictures 10 (the scene) and 12 (the beech valley's ford).
+
+## The pass: crags at the cliffs' feet (07:45 to 08:05)
+
+- The faces can't be broken finer than a tile in Creel's ground, so the breaking is done with rock standing in front
+  of them (Claude): crags, buttresses of the same dipping beds, most of a face's height, broad along the face and
+  narrow front to back. One stands at every corner of a face and at three tiles in ten along it; loose slabs lie at
+  another three in ten. Lower faces get a lower crag.
+- The first crags were thin pale beds, a stack of pancakes (not kept). Beds are two to three times thicker now and
+  darker, nearer the face's own tone.
+
+Picture 14. Still wrong (Claude): the rim of a face is still a ruled line, and the crags' fronts have dark upright
+streaks from the rock light.
+
+## The fir woods: no drawn line round the needle floor (08:10 to 08:20)
+
+- Looking at the route's other places in the new look (Claude): in the fir woods the brown needle floor ended on the
+  grass along a hard scalloped line. Creel's ground gets a setting, `ground_litter_fringe`, that scatters the floor's
+  edge a pixel at a time, so needles and leaves thin out onto the grass. Smyana sets it to 0.3 everywhere.
+
+Picture 16.
+
+## Brambles (08:25 to 08:40)
+
+- A new plant of the undergrowth (#8; Claude): long dark red canes arching out of one foot and down to the ground
+  again, leaves in threes along them, green going wine red in autumn. They grow in thickets a few tiles across where
+  a tree or two gives half shade, at a wood's edge, not out in the open and not deep under a close wood.
+- The first try had a leaf at every other joint and stood high: bare hoops, like spiders (not kept). Lower canes and
+  a leaf at nearly every joint made them thickets.
+
+Picture 18. They are only looked at so far: walking through them costs nothing yet.
+
+## Winter: what's left of the undergrowth (08:45 to 09:00)
+
+- In winter the undergrowth simply vanished: snow, bare trees and nothing else. Now it dies back instead (#8;
+  Claude): the bracken stands dead and rust brown, one grass tuft in three shows through the snow as straw, the
+  brambles keep their canes and a few dark wine leaves. Bushes and herbs are gone until spring.
+- The strewn edge of the forest floor is much narrower in winter (0.1 against 0.3): at 0.3 it peppered the snow.
+
+Picture 20. Still wrong (Claude): two broadleaf crowns stand summer green in the snow, and the dead bracken stands as
+upright as the live (it should lie flattened).
+
+## The landslide can be dug away (09:10 to 09:35)
+
+- Until now the slide could only be squeezed past. Now the men can clear it (#20, D-048; Claude): a right click on a
+  heap sets the chosen men digging, as on a young tree. In the check, four men walk up the pass and dig one heap to
+  bare ground in about fifty seconds; nobody carries anything away.
+- First try: the men stood by the heap and did nothing. Throwing the spoil aside also wiped what kind of work the
+  man was at, so he gave up at once. Only the load is emptied now.
+- Found on the way: men ordered to dig from the far end of the place walked into a tree and stayed there; ordered to
+  walk up first, then dig, they are fine. Not fixed (the walk to far work is Creel's).
+
+No picture: it was tried in the check with no window, not yet looked at on screen.

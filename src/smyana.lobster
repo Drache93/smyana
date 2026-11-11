@@ -153,7 +153,14 @@ def build_canopy():
 
 // Where the soft grass grows, 0 (none) to 1 (thick), x and y in tiles: smooth drifts a few tiles across, and thin
 // single tufts between them.
-let TUFTS_A_TILE = 26
+// A whole number stirred well (cell_hash's low bits march in step for numbers in a row).
+def mixed(n:int) -> int:
+    var v = (n + 0x9E3779B9) & 0xFFFFFFFF
+    v = ((v ^ (v >> 16)) * 0x45D9F3B) & 0xFFFFFFFF
+    v = ((v ^ (v >> 16)) * 0x45D9F3B) & 0xFFFFFFFF
+    return v ^ (v >> 16)
+
+let TUFTS_A_TILE = 24
 def drift_at(x:float, y:float, grain:int) -> float:
     def lattice(ix:int, iy:int, seed:int) -> float: return float(cell_hash(iy * 4099 + ix + seed) % 1000) / 1000.0
     def smooth(px:float, py:float, seed:int) -> float:
@@ -165,7 +172,7 @@ def drift_at(x:float, y:float, grain:int) -> float:
         let sv = v * v * (3.0 - 2.0 * v)
         return (lattice(ix, iy, seed) * (1.0 - su) + lattice(ix + 1, iy, seed) * su) * (1.0 - sv) + (lattice(ix, iy + 1, seed) * (1.0 - su) + lattice(ix + 1, iy + 1, seed) * su) * sv
     let n = smooth(x * 0.3, y * 0.3, grain) * 0.8 + smooth(x * 0.95, y * 0.95, grain + 49) * 0.2
-    return clamp((n - 0.34) * 6.0, 0.05, 1.0)
+    return clamp((n - 0.42) * 7.0, 0.006, 1.0)
 
 def build_props():
     props = []
@@ -197,7 +204,26 @@ def build_props():
             // a landslide's debris (#20): a heap of earth and broken rock on each tile, a broken trunk here and there
             props.push(Prop { 3, 0, "rubble{(h / 7) % RUBBLE_KINDS}", "", off + iso(float((h / 5) % 500) - 250.0, float((h / 23) % 500) - 250.0), c })
             if (h / 3) % 5 == 0: props.push(Prop { 6, 0, "log{h % LOG_KINDS}", "", off + iso(float(h % 500) - 250.0, float((h / 9) % 500) - 250.0), c })
-        elif t == bare_p and level[c] > 0 and (h / 13) % 6 == 0:
+        // a cliff's foot (#20): crags stand against the face behind this tile (to its north, or to its west), more
+        // of them where the face turns a corner, and loose rock lies between them
+        if t != debris_t and t != rock:
+            let cx = c % W
+            for([ -W, -1 ]) d, side:
+                let n = c + d
+                if n >= 0 and (side == 0 or cx > 0) and level[n] - level[c] >= 2:
+                    let hs = mixed(c * 2 + side + 77001)
+                    let o = c + (if side == 0: -1 else: -W)  // (the tile beside this one, along the face)
+                    let corner = o >= 0 and (level[o] != level[c] or level[o + d] != level[n])
+                    let along = float(hs % 700 + 150)
+                    let out = float((hs / 700) % 140 + 150)
+                    let at = if side == 0: gp(float(cx * 1000) + along, float((c / W) * 1000) + out) else: gp(float(cx * 1000) + out, float((c / W) * 1000) + along)
+                    let tall = level[n] - level[c] >= 4
+                    if corner or (hs / 100000) % 10 < 3:
+                        let k = if tall: [ 0, 3, 1, 0 ][(hs / 9) % 4] else: 2
+                        props.push(Prop { 3, 0, (if side == 0: "cragx" else: "cragy") + "{k}", "", at, c })
+                    elif (hs / 100000) % 10 < 7:
+                        props.push(Prop { 4, 0, "slabs{(hs / 7) % SLAB_KINDS}", "", at, c })
+        if t == bare_p and level[c] > 0 and (h / 13) % 6 == 0:
             // bare mountain ground: a few loose slabs and stones lie on it
             props.push(Prop { 4, 0, "slabs{(h / 7) % SLAB_KINDS}", "", off, c })
         elif t == grass and (h / 11) % 3 == 0:
@@ -225,12 +251,18 @@ def build_props():
                 if nx >= 0 and ny >= 0 and nx < W and ny < H and terrain[ny * W + nx] == old: shading++
             let sunny = clamp(1.15 - float(shading) / 7.0, 0.08, 1.0)
             for(TUFTS_A_TILE) k:
-                let h3 = cell_hash(c * TUFTS_A_TILE + k + 80021)
-                let at = float2 { float((c % W) * 1000 + (h3 / 7) % 1000), float((c / W) * 1000 + (h3 / 11) % 1000) }
+                // (three well-mixed numbers a tuft: where in the tile, and its chance)
+                let h3 = mixed(c * TUFTS_A_TILE + k)
+                let at = float2 { float((c % W) * 1000 + h3 % 1000), float((c / W) * 1000 + (h3 / 1000) % 1000) }
                 // (grass wants light: thick in a clearing, thin under a close wood)
                 let thick = drift_at(at.x / 1000.0, at.y / 1000.0, grass_seed) * sunny
-                if thick * 100.0 > float(cell_hash(h3 * 31 + k * 7919 + 13) % 100): props.push(Prop { 5, 0, "tuft{(h3 / 5) % TUFT_KINDS}", "", gp(at.x, at.y), c })
+                if thick * 100.0 > float((h3 / 1000000) % 100): props.push(Prop { 5, 0, "tuft{(h3 / 7) % TUFT_KINDS}", "", gp(at.x, at.y), c })
                 elif k < 2 and thick > 0.5 and (h3 / 3) % 10 < 2: props.push(Prop { 5, 0, "herb{(h3 / 5) % HERB_KINDS}", "", gp(at.x, at.y), c })
+            // brambles (#8): at a wood's edge, where a tree or two gives half shade, in thickets of a few tiles
+            let thicket = mixed((c / W / 3) * W + (c % W) / 3 + 5501) % 10 < 3
+            let hb = mixed(c + 88001)
+            if shading >= 1 and shading <= 4 and hb % 100 < (if thicket: 45 else: 3):
+                props.push(Prop { 5, 0, "bramble{(hb / 100) % BRAMBLE_KINDS}", "", gp(float((c % W) * 1000 + (hb / 1000) % 1000), float((c / W) * 1000 + (hb / 1000000) % 1000)), c })
             if (h2 / 100) % 100 >= 90 and (h2 / 100) % 100 < 94: props.push(Prop { 5, 0, "sapling", "", centre, c })
             if (h2 / 100) % 100 < 6: props.push(Prop { 5, 0, "bush{h2 % BUSH_KINDS}", "", centre + iso(float((h2 / 13) % 600) - 300.0, float((h2 / 19) % 600) - 300.0), c })
             elif (h2 / 100) % 100 == 99: props.push(Prop { 6, 0, "log{h2 % LOG_KINDS}", "", centre, c })
@@ -435,6 +467,7 @@ def view_enter(between):
     ground_bank_px = gfloat(su_map, "bank_px", 0.0)
     ground_water_edge = gfloat(su_map, "water_edge", 0.5)
     ground_shore_soft = gfloat(su_map, "shore_soft", 0.5)
+    ground_litter_fringe = if season_now() == "winter": 0.1 else: 0.3  // (no drawn line where the fallen leaves and needles end: they thin out onto the grass)
     ground_water_shallow = float3 { 0.60, 0.71, 0.84 }
     ground_water_deep = float3 { 0.40, 0.52, 0.72 }
     build_masks()
@@ -606,8 +639,11 @@ def collect_props():
             elif pr.kind == 2:
                 add(frame_at.get("stump", -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
             elif pr.kind == 5:
-                if not bare:
-                    add(frame_at.get(pr.name + "." + season + ".shadow", -1), pr.at.x, pr.at.y, -39996.0, float4_1)
+                // (winter: the bushes and herbs are gone (they have no winter frame), two tufts in three are under the
+                // snow, and what's left stands dead)
+                if not bare or pr.name[0] != 't' or pidx % 3 == 0:
+                    // (grass casts no shade of its own: a dot of shade under every tuft made the ground spotty)
+                    if pr.name[0] != 't': add(frame_at.get(pr.name + "." + season + ".shadow", -1), pr.at.x, pr.at.y, -39996.0, float4_1)
                     add(frame_at.get(pr.name + "." + season, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
             else:
                 add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39997.0, float4_1)
@@ -814,13 +850,15 @@ def select_tick():
             last_click = gl.time()
     if gl.button("escape") == 1: selected = []
 
-// The young tree the mouse is on: its cell, or the one its picture stands on (a tree is drawn up from its foot).
+// The young tree the mouse is on: its cell, or the one its picture stands on (a tree is drawn up from its foot). Or
+// the heap of a landslide's debris the mouse is on (#20): the men dig that away as they fell a tree.
 def young_tree_at(mm:float2) -> int:
     let young = str_index(tr_names, "young_tree")
+    let heap = str_index(tr_names, "rubble")
     for(3) n:
         let x = int(mm.x / 1000.0) + n
         let y = int(mm.y / 1000.0) + n
-        if x >= 0 and y >= 0 and x < W and y < H and terrain[y * W + x] == young: return y * W + x
+        if x >= 0 and y >= 0 and x < W and y < H and (terrain[y * W + x] == young or (n == 0 and terrain[y * W + x] == heap)): return y * W + x
     return -1
 
 def order_tick():

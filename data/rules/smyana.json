@@ -16,7 +16,7 @@
   "pop_max": 20,
   "carry": 4,
   "queue_max": 1,
-  "gather_ticks": { "wood": 60, "food": 40 },
+  "gather_ticks": { "wood": 60, "food": 40, "spoil": 120 },
   "trade": { "min_tiles": 1, "sq_div": 1, "lin_pct": 0 }
  },
  "movement": {
