@@ -336,3 +336,8 @@ wears; conifers all year), young trees beside him and bracken under him. A watch
 tenths at full cover, and further by night and weather. There is no stored cover map: it is read from the map and the
 season clock when asked, so felling and leaf-fall change it with nothing to keep in step. The player reads it from the
 leaves (design doc, "Leaves as a signal"). For #9.
+
+**D-065, 2026-11-11: A ford costs time, more with a load and more in high water.** (Claude; a Proposal.) A man wades
+at six tenths of his pace, four tenths loaded, and up to a fifth less when the water is high (the thaw, or hard rain).
+The risk of a ford is time and cold, not drowning: nobody is lost to a stream by a roll of dice. How cold the water is
+is given to the needs (#65) to use. For #20.

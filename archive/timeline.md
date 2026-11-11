@@ -132,3 +132,5 @@ One line per moment worth remembering. Newest at the bottom.
   ([journal](journal/2026-11-11-closing-the-environment-issues.md#cover-in-the-leaves-1125-to-1150))
 - **2026-11-11:** Snow lies on the boughs in winter, and the crowns lean with the wind (the last of #15). Cover (#9)
   closed. ([journal](journal/2026-11-11-closing-the-environment-issues.md#snow-on-the-boughs-wind-in-the-crowns-1520-to-1550))
+- **2026-11-11:** The ford's risk (#20): wading is slow, slower loaded, slower in high water (D-065). Weather (#15)
+  closed. ([journal](journal/2026-11-11-closing-the-environment-issues.md#the-fords-risk-1550-to-1605))

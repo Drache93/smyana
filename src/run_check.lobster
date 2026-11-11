@@ -158,6 +158,12 @@ for(1500):
     step()
     route_tick()
 expect(u_x[index_of(men[6].uid)] > br_x1[0], "a man sent across with the bridge down went round by the ford")
+// (the ford, #20: a loaded man wades slower than one walking light, and both slower in high water)
+expect(wade_pace(true) < wade_pace(false) and wade_pace(false) < 100, "a loaded man wades slower than one walking light ({wade_pace(true)} and {wade_pace(false)} in a hundred)")
+let dry_wade = wade_pace(true)
+year_force = 2700
+expect(high_water() == 1000 and wade_pace(true) < dry_wade and ford_cold() > 50, "in the thaw the water is high and cold, and the ford slower ({wade_pace(true)})")
+year_force = -1
 expect(mend_bridge(menders, 0), "two men with a load of wood each set to mending it")
 expect(u_carry[index_of(menders[0])] + u_carry[index_of(menders[1])] == 2 * r_carry - br_cost[wood_k - 1], "the wood came off their backs")
 var mended_at = -1

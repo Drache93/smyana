@@ -181,3 +181,19 @@ fresh branch on main `d60ec5f` with Creel `91f157f` (Claude):
 Not checked: I compared two still frames of the lean, not the motion. Whether the rows stepping sideways read as
 wind or as a shimmer needs Dominic's eye on the running game. A crown that is faded because men stand behind it does
 not lean.
+
+## The ford's risk (15:50 to 16:05)
+
+Dominic merged pull request 90 at 15:30 and issue 15 (weather) was closed. Then the last open part of issue 20, the
+obstacles, from main `9201af3` with Creel `91f157f` (Claude; decision D-065, a Proposal):
+
+- **Wading is slow, and slower loaded.** A man in a ford walks at six tenths of his pace, or four tenths with a load
+  on his back (`"ford"` in `data/route.json`).
+- **High water.** The streams rise with the thaw and in a spell of rain, and high water takes up to another fifth off.
+  So the ford in the gorge is a fair choice for men walking light in a dry autumn and a bad one for loaded men in the
+  thaw, which is what makes the mended bridge worth its eight wood on the way home.
+- **Cold.** `ford_cold` says how cold the water is (by the depth of winter and the snowmelt), for the men's warmth to
+  read when needs are built (issue 65). Nothing reads it yet.
+
+Carts at a ford are issue 71. The landslide already has its two ways past: the lip of the ledge left to squeeze by,
+and four men digging the heap away. No picture: nothing new is drawn.
