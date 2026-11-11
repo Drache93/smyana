@@ -137,3 +137,6 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-11:** The gorge has its depth (#16): its floor four levels below the wood, rock walls, a ramp down each
   side. Obstacles (#20) closed.
   ([journal](journal/2026-11-11-closing-the-environment-issues.md#the-gorge-gets-its-depth-1605-to-1635))
+- **2026-11-11:** The gorge's walls reworked after Dominic's "those are all hard edges": stepped, uneven, under rock
+  outcrops. Where issues 16, 17, 6 and 3 stand is written down for the next thread.
+  ([journal](journal/2026-11-11-closing-the-environment-issues.md#where-the-open-issues-stand-1645-for-the-next-thread))

@@ -151,29 +151,38 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
     ramp_zone = []
     if gorge:
         gx, half = gorge
-        def jogs():
-            # (a slow bend of the whole wall, three tiles either way, and on it steps of a tile or two in short runs)
-            bend, out, y = noise1(rng, h, 14), [], 0
-            while y < h:
-                n, j = rng.randrange(2, 5), rng.choice((-1, 0, 0, 1, 2))
-                out += [j + int(round(bend[min(yy, h - 1)] * 3)) for yy in range(y, y + n)]
-                y += n
-            return out
-        jw, je = jogs(), jogs()
+        # (Dominic, 2026-11-11, on the first try, which had sheer walls four levels high: "erm those are all hard
+        # edges on the gorge though". A wall is now a broken slope of rock: it climbs its four levels over four or
+        # five tiles in ledges, each ledge's edge wandering by a noise of its own, the wall's foot bending slowly, so
+        # no face is tall and none runs straight for long. Bare stony ground and outcrops lie on the ledges.)
+        bend = {-1: noise1(rng, h, 14), 1: noise1(rng, h, 14)}
+        wide = {-1: noise1(rng, h, 9), 1: noise1(rng, h, 9)}
+        rough = [noise1(rng, w, 3) for _ in range(h)]
+        rough2 = [noise1(rng, h, 4) for _ in range(w)]
+        ty_at = {-1: trail_y[gx - half - 2], 1: trail_y[gx + half + 2]}
         for y in range(h):
             for x in range(w):
-                lev[(x, y)] = 2 if gx - half - jw[y] <= x <= gx + half + je[y] else 6
+                side = -1 if x < gx else 1
+                d = abs(x - gx) - half                      # tiles out from the floor's edge
+                on_ramp = abs(y - ty_at[side]) <= 3
+                if on_ramp:                                 # the ramp: a level a tile, the same in all its rows
+                    lev[(x, y)] = 2 if d <= 0 else "cdef"[d - 1] if d <= 4 else 6
+                    continue
+                # (beside the ramp the wall stands where the ramp does, and bends away from it over a few rows)
+                ease = min(1.0, (abs(y - ty_at[side]) - 3) / 6.0)
+                dd = d - bend[side][y] * 3.0 * ease + (rough[y][x] * 0.9 + rough2[x][y] * 0.9) * (0.4 + 0.6 * ease)
+                span = 4.0 + wide[side][y] * 1.2 * ease     # how many tiles the wall takes to climb
+                k = int(math.ceil(dd * 4.0 / span))
+                lev[(x, y)] = 2 + max(0, min(4, k))
+                # (the wall is rock: outcrops of gneiss stand on nearly every ledge and along the rim above, each its
+                # own shape, so what the eye meets is broken rock and not the ledges' square edges)
+                if 0 < k <= 5 and g[y][x] in ".":
+                    r = rng.random()
+                    g[y][x] = "#" if r < (0.85 if k <= 4 else 0.45) else "b"
+                elif k == 0 and dd > -1.0 and g[y][x] in "." and rng.random() < 0.3: g[y][x] = "#"   # (fallen rock at the foot)
         for side in (-1, 1):
-            # (the wood behind the ramp's head, the floor before its foot, then the ramp: from the wood's edge down)
-            for k in range(4):
-                x = gx + side * (half + 3 - k)
-                for y in range(trail_y[x] - 3, trail_y[x] + 4):
-                    for d in range(-6, 9): lev[(x + side * d, y)] = 6 if d > 0 else 2
-            for k, ch in enumerate("fedc"):
-                x = gx + side * (half + 3 - k)
-                for y in range(trail_y[x] - 3, trail_y[x] + 4): lev[(x, y)] = ch
             x0, x1 = sorted((gx + side * (half - 3), gx + side * (half + 7)))
-            ramp_zone.append((x0, min(trail_y[x0:x1 + 1]) - 4, x1, max(trail_y[x0:x1 + 1]) + 4))
+            ramp_zone.append((x0, ty_at[side] - 4, x1, ty_at[side] + 4))
         bare_zone += ramp_zone
 
     def near(x, y, chars, r):

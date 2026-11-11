@@ -182,3 +182,9 @@ the first trunks: picture 44.)
 
 **16:00** (chat, pull request 91 merged)
 > merged
+
+**16:09** (chat, with two screenshots of the gorge in pull request 92)
+> erm those are all hard edges on the gorge though
+
+**16:11** (chat)
+> stop the agent after that re-work. And we'll start a new opus thread focued on the remaining issues
