@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Writes data/maps/camp_clearing.json: the mock-up's beech clearing (archive picture 23) laid out tile for tile, to
 compare the game beside it (Dominic, 2026-11-10: "please recreate the scene with river on the right, full trees at the
-back, clearing, so we can compare better"). Not on the route: `leg:camp_look camp:30,31`.
+back, clearing, so we can compare better"). Not on the route: `leg:camp_look camp:28,31 look:30,30 hour:16 zoom:2`.
 On screen right is x - y and down is x + y; at the mock-up's zoom the window shows about twelve tiles each way.
 Run from the repo's root: python3 tools/make_scene.py"""
 import json, math, random
@@ -38,7 +38,7 @@ stream = [int(round(v * 1000)) for p in pts[::2] for v in p]
 # the clearing: an oval, wider than deep on screen, the stream through its right side
 def in_clearing(x, y):
     r, d = sr(x, y)
-    return ((r + 0.5) / 6.6) ** 2 + ((d - 0.6) / 5.2) ** 2 <= 1.0
+    return ((r + 2.4) / 8.4) ** 2 + ((d + 0.9) / 6.2) ** 2 <= 1.0
 
 # the trail: from the fire rightwards to the stream and over it
 pts = []
@@ -70,7 +70,7 @@ olds = []
 def near(x, y, chars, rad):
     return any(g[yy][xx] in chars for yy in range(max(0, y - rad), min(H, y + rad + 1)) for xx in range(max(0, x - rad), min(W, x + rad + 1)))
 
-for (r, d) in ((-5.6, -1.2), (5.4, 0.2), (-4.2, 4.6), (2.2, 5.6), (-1.0, -5.4), (3.0, -4.8), (-6.4, 2.2), (6.2, 3.6)):
+for (r, d) in ((5.4, 0.2), (-4.2, 4.6), (2.2, 5.6), (3.0, -4.8), (-7.6, 3.2), (6.2, 3.6)):   # (none up-sun of the camp: it stands in the light)
     x, y = int(round((r + d) / 2.0 + CX)), int(round((d - r) / 2.0 + CY))
     if g[y][x] == "." and not by_camp(x, y):
         g[y][x] = "T"

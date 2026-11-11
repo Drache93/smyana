@@ -92,3 +92,5 @@ One line per moment worth remembering. Newest at the bottom.
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#the-gorge-goes-onto-the-route-1035-to-1050))
 - **2026-11-11:** The camera looks down at 22 degrees, as a setting of the game (D-051, pictures 26, 28); two critical reviews of the scene set the next work.
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#the-camera-goes-down-to-22-degrees-and-two-hard-looks-at-the-scene-1050-to-1120))
+- **2026-11-11:** After the reviews: the scene from further out, rust leaves after leaf-fall, pale beech trunks, the camp in the light (picture 30).
+  ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#first-answers-to-the-reviews-1120-to-1145))

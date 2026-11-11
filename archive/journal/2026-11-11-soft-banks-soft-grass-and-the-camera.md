@@ -167,3 +167,19 @@ Picture 24: the gorge in winter, the ford and the side path to it.
 
 Pictures 26 (the scene at 22 degrees above the mock-up) and 28 (the pass at 22 degrees). Still wrong (Claude): the
 stream's edge steps more coarsely at the lower angle.
+
+## First answers to the reviews (11:20 to 11:45)
+
+- **Further out.** The scene was shot a third too close (men 80 to 100 px tall against the mock-up's 60 to 75). At
+  zoom 2 in place of 2.75 the back of the wood has its crowns in frame and trees close the clearing in on every
+  side: much of "the back is empty" and "nothing frames it" was the framing, not the planting. The comparison is
+  shot at `zoom:2` from now on.
+- **Rust, not red and gold, after leaf-fall.** The "late" stage has its own leaf colours: russet, burnt orange and
+  brown. Full autumn keeps its reds and golds (Dominic's: autumn's rich colours are the game's poster).
+- **Pale trunks.** Beech and hornbeam bark is a pale silver grey now; it was near black in shade.
+- **The camp in the light.** The clearing is opened up and to the left, and the two big trees up-sun of the camp are
+  gone, so the fire and the tents stand at the edge of the sunlit pool.
+
+Picture 30. Still to do from the reviews (Claude): crowns as a mass of fine twigs, the ground in patches, grass
+denser and lower, the stream's stones, ripples and overhang, logs and a chopping block by the camp, fewer men at the
+fire.
