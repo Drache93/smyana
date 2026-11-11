@@ -211,3 +211,15 @@ More of the reviews' list, by Claude, measured on the mock-up at the game's 22 d
 Picture 32. Still wrong (Claude): the lit ground is one orange (the patches of olive, moss and earth are next), the
 stream has no stones or ripples and its bank is a dark line, the camp has no logs, block or smoke, and the trail is a
 pale band where the picture has brown earth.
+
+## Turf through the leaves, and things lying about the camp (done by 07:40 UTC)
+
+- **The floor is not one material.** In an autumn beech wood the leaves lie thin where the grass stands in drifts
+  (the same drifts, so tufts stand on olive turf and not on orange), and the turf shows through them a pixel at a
+  time. Elsewhere the leaves' weight drifts slowly so the orange is not one tone (`LITTER_THIN` in
+  `src/smyana.lobster`). The first try showed lawns of plain green at a drift's middle; the leaves were made heavier.
+- **The camp's clutter** in the comparison scene, from the wood's own pieces: a log to sit on before the fire, a
+  block by the woodpile, stones by the tent, a flat slab of gneiss to step on in the ford.
+
+Picture 34. Still wrong (Claude): the stream has no ripples and its near bank is a dark line, no smoke rises from
+the fire, and the lit leaves are a stronger orange than the mock-up's (the lighting thread's).

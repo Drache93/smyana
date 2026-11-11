@@ -161,6 +161,7 @@ def mixed(n:int) -> int:
     return v ^ (v >> 16)
 
 let TUFTS_A_TILE = 36
+let LITTER_THIN = 0.38  // the leaves' weight where turf shows through them a pixel in two
 def drift_at(x:float, y:float, grain:int) -> float:
     def lattice(ix:int, iy:int, seed:int) -> float: return float(cell_hash(iy * 4099 + ix + seed) % 1000) / 1000.0
     def smooth(px:float, py:float, seed:int) -> float:
@@ -434,12 +435,19 @@ def build_litter():
                     let v = clamp((1.0 - d) * 1.3, 0.0, 0.85)
                     if v > a[y * w + x]: a[y * w + x] = v
     // autumn in a broadleaf wood: the year's leaves lie over nearly everything, thinner in the open
+    let turf_seed = gint(su_map, "grass_seed", 9001)
     if season_now() == "autumn" and gstr(su_map, "wood", "beech") == "beech":
         for(h) y: for(w) x:
             // (2026-11-11: the leaves lie over all of it, only a worn spot of turf here and there: the mock-up's grass
             // stands out of the leaves in tufts, it isn't a green floor between drifts of them)
             let patch = float(cell_hash((y / 3) * w + x / 3 + 5003) % 100) / 100.0
-            a[y * w + x] = max(a[y * w + x], if patch < 0.05 and open_ground(x, y): 0.36 else: 0.62 + 0.2 * patch)
+            // (later the same day, from the review: "one material". Where the grass stands in drifts the leaves lie
+            // thin and the turf shows through them a pixel at a time, in soft patches a few tiles across; and the
+            // leaves' weight drifts slowly elsewhere, so the floor is not one tone)
+            let thin = drift_at((float(x) + 0.5) / float(MASK_K), (float(y) + 0.5) / float(MASK_K), turf_seed)
+            let slow = drift_at((float(x) + 0.5) / float(MASK_K) * 0.6, (float(y) + 0.5) / float(MASK_K) * 0.6, turf_seed + 311)
+            let leaves = if patch < 0.05 and open_ground(x, y): 0.36 else: 0.62 + 0.2 * patch
+            a[y * w + x] = max(a[y * w + x] * (1.0 - 0.35 * thin), leaves - (leaves - LITTER_THIN) * max(thin, slow * 0.45))
     // scree under a landslide's debris (the shader's G), reaching a little past it and ragged
     let sc = map(w * h): 0.0
     let debris_t = str_index(tr_names, "rubble")

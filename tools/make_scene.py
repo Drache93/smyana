@@ -60,6 +60,12 @@ stand("tent0", FIRE[0] + 0.2, FIRE[1] - 2.2)
 stand("tent1", FIRE[0] + 2.1, FIRE[1] - 2.0)
 stand("tent1", FIRE[0] - 1.5, FIRE[1] - 2.3)
 stand("woodpile", FIRE[0] - 1.2, FIRE[1] + 0.6)
+# (what the mock-up's camp has lying about it, from the wood's own pieces: a log to sit on before the fire, a block to
+# split wood on by the pile, stones by the tent, and flat slabs of gneiss to step on in the ford)
+stand("log0", FIRE[0] + 1.3, FIRE[1] + 1.1)
+stand("stump", FIRE[0] - 2.0, FIRE[1] + 1.3)
+stand("slabs0", FIRE[0] + 3.4, FIRE[1] - 1.5)
+stand("slabs1", FIRE[0] + 7.0, FIRE[1] + 4.0)
 for i in range(3): stand("mule%d" % [1, 4, 6][i], FIRE[0] + 4.0 + i * 0.95, FIRE[1] - 2.1 + 0.15 * (i % 2))
 for i in range(5): stand("horse%d" % [0, 5, 2, 1, 7][i], FIRE[0] + 2.2 + i * 0.95, FIRE[1] - 3.8 - 0.2 * (i % 2))
 # the men who aren't at the fire: by the mules, on the trail, at the stream and over it, as in the mock-up
