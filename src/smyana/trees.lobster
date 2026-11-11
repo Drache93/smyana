@@ -7,7 +7,7 @@
 // seen. The leaves are baked once a season (their colour), behind the letter home, and kept in bake_cache/.
 
 let TREE_K = 64.0  // voxels a tile for the load of wood (baked at twice this)
-let TREE_BAKE = "trees 49"
+let TREE_BAKE = "trees 52"
 // Voxels a tile in the trees, rocks and undergrowth: one voxel is one pixel of Creel's art (WB_PX at its art scale of
 // 3), as the men's are, so they are as crisp as the men (Dominic, 2026-11-10: "evryhting crisp and sharp").
 let VOX_K = 135.7645
@@ -55,9 +55,14 @@ def autumn_leaf(sp:string, kind:int) -> [float3]:
     return [ gold, gold, orange ][kind % 3]
 
 def leaf_look(sp:string, season:string, kind:int) -> vglook:
-    var leaf = [ float3 { 0.47, 0.62, 0.22 }, float3 { 0.30, 0.47, 0.17 }, float3 { 0.16, 0.30, 0.13 }, float3 { 0.58, 0.60, 0.24 } ]
-    if sp == "oak": leaf = [ float3 { 0.38, 0.54, 0.20 }, float3 { 0.24, 0.40, 0.15 }, float3 { 0.13, 0.25, 0.11 }, float3 { 0.48, 0.54, 0.22 } ]
-    if sp == "hornbeam": leaf = [ float3 { 0.52, 0.66, 0.26 }, float3 { 0.35, 0.51, 0.19 }, float3 { 0.19, 0.33, 0.14 }, float3 { 0.62, 0.66, 0.28 } ]
+    // (summer, Dominic 2026-11-11: "the green scene ... is too green, and lacking variation. the lighter coloured trees
+    // are almost invisible on the grass". The crowns are a cooler, deeper green than the meadow under them, each kind
+    // of tree its own green, and each tree of a kind a little different: one fresher and yellower, one darker and bluer)
+    var leaf = [ float3 { 0.40, 0.58, 0.20 }, float3 { 0.23, 0.42, 0.16 }, float3 { 0.10, 0.24, 0.12 }, float3 { 0.50, 0.60, 0.22 } ]
+    if sp == "oak": leaf = [ float3 { 0.30, 0.45, 0.19 }, float3 { 0.17, 0.32, 0.14 }, float3 { 0.08, 0.18, 0.10 }, float3 { 0.40, 0.48, 0.22 } ]
+    if sp == "hornbeam": leaf = [ float3 { 0.34, 0.54, 0.28 }, float3 { 0.20, 0.39, 0.21 }, float3 { 0.09, 0.23, 0.14 }, float3 { 0.44, 0.56, 0.30 } ]
+    let tint = [ float3 { 1.0, 1.0, 1.0 }, float3 { 0.86, 0.94, 1.12 }, float3 { 1.1, 1.04, 0.84 } ][kind % 3]
+    leaf = map(leaf) c: c * tint
     if season == "spring": leaf = map(leaf) c: c * 1.12 + float3 { 0.12, 0.14, 0.06 }
     if season == "autumn": leaf = autumn_leaf(sp, kind)
     // (beech and hornbeam bark is pale silver grey)
@@ -397,7 +402,11 @@ def grass_tuft(look:vglook, kind:int) -> vgrid:
 
 // The soft grass' colours: straw yellow tips over olive in autumn, fresh green in spring and summer.
 def tuft_look(season:string, kind:int) -> vglook:
-    var leaf = [ float3 { 0.56, 0.70, 0.30 }, float3 { 0.38, 0.54, 0.22 }, float3 { 0.20, 0.32, 0.14 }, float3 { 0.74, 0.82, 0.42 } ]
+    // (late summer: one fresh, one deep green, one gone straw; warmer than the crowns over them)
+    var leaf = [ [ float3 { 0.54, 0.64, 0.28 }, float3 { 0.36, 0.48, 0.20 }, float3 { 0.19, 0.29, 0.13 }, float3 { 0.70, 0.76, 0.40 } ],
+                 [ float3 { 0.46, 0.60, 0.30 }, float3 { 0.30, 0.44, 0.21 }, float3 { 0.16, 0.27, 0.13 }, float3 { 0.60, 0.70, 0.40 } ],
+                 [ float3 { 0.72, 0.70, 0.40 }, float3 { 0.52, 0.52, 0.27 }, float3 { 0.26, 0.28, 0.14 }, float3 { 0.84, 0.80, 0.54 } ] ][kind % 3]
+    if season == "spring": leaf = [ float3 { 0.56, 0.70, 0.30 }, float3 { 0.38, 0.54, 0.22 }, float3 { 0.20, 0.32, 0.14 }, float3 { 0.74, 0.82, 0.42 } ]
     if season == "autumn": leaf = [ float3 { 0.86, 0.82, 0.42 }, float3 { 0.64, 0.62, 0.27 }, float3 { 0.32, 0.33, 0.14 }, float3 { 0.97, 0.94, 0.64 } ]
     if season == "autumn" and kind % 3 == 2: leaf = [ float3 { 0.70, 0.72, 0.34 }, float3 { 0.48, 0.54, 0.24 }, float3 { 0.25, 0.31, 0.14 }, float3 { 0.86, 0.86, 0.50 } ]
     return vglook { leaf, [ float3 { 0.20, 0.17, 0.14 }, float3 { 0.28, 0.24, 0.20 }, float3 { 0.37, 0.32, 0.26 }, float3 { 0.46, 0.40, 0.33 } ],
@@ -456,7 +465,9 @@ def moss_stone(look:vglook, kind:int) -> vgrid:
 
 // The undergrowth's leaves by season: bracken goes bronze and gold in autumn, the bushes yellow and red.
 def under_look(season:string, kind:int, moss:bool) -> vglook:
-    var leaf = [ float3 { 0.44, 0.62, 0.24 }, float3 { 0.29, 0.47, 0.19 }, float3 { 0.16, 0.30, 0.14 }, float3 { 0.60, 0.68, 0.28 } ]
+    var leaf = [ [ float3 { 0.38, 0.58, 0.22 }, float3 { 0.24, 0.43, 0.17 }, float3 { 0.12, 0.27, 0.13 }, float3 { 0.52, 0.64, 0.26 } ],
+                 [ float3 { 0.30, 0.48, 0.24 }, float3 { 0.18, 0.35, 0.18 }, float3 { 0.09, 0.21, 0.12 }, float3 { 0.42, 0.54, 0.28 } ],
+                 [ float3 { 0.48, 0.60, 0.24 }, float3 { 0.32, 0.46, 0.18 }, float3 { 0.17, 0.29, 0.13 }, float3 { 0.62, 0.68, 0.30 } ] ][kind % 3]
     if season == "spring": leaf = [ float3 { 0.56, 0.74, 0.30 }, float3 { 0.40, 0.60, 0.24 }, float3 { 0.22, 0.38, 0.16 }, float3 { 0.70, 0.80, 0.40 } ]
     // (autumn: one bracken bronze, one still green, one gone pale yellow)
     if season == "autumn" and not moss and kind % 3 == 0: leaf = autumn_leaf("oak", 0)
@@ -468,6 +479,9 @@ def under_look(season:string, kind:int, moss:bool) -> vglook:
 // The low herbs: pale yellow green, paler still in autumn.
 def herb_look(season:string, kind:int) -> vglook:
     var leaf = [ float3 { 0.66, 0.76, 0.34 }, float3 { 0.46, 0.60, 0.26 }, float3 { 0.24, 0.36, 0.16 }, float3 { 0.80, 0.84, 0.44 } ]
+    // (summer: one patch pale and silvery, one warm, one the herbs' own green)
+    if season == "summer" and kind == 0: leaf = [ float3 { 0.62, 0.70, 0.50 }, float3 { 0.44, 0.52, 0.36 }, float3 { 0.22, 0.30, 0.20 }, float3 { 0.76, 0.80, 0.60 } ]
+    if season == "summer" and kind == 1: leaf = [ float3 { 0.66, 0.70, 0.38 }, float3 { 0.48, 0.54, 0.27 }, float3 { 0.25, 0.31, 0.15 }, float3 { 0.80, 0.80, 0.50 } ]
     if season == "autumn": leaf = [ float3 { 0.80, 0.79, 0.30 }, float3 { 0.60, 0.65, 0.25 }, float3 { 0.31, 0.38, 0.15 }, float3 { 0.91, 0.87, 0.42 } ]
     if season == "autumn" and kind == 2: leaf = [ float3 { 0.74, 0.78, 0.36 }, float3 { 0.52, 0.60, 0.26 }, float3 { 0.28, 0.36, 0.15 }, float3 { 0.86, 0.86, 0.46 } ]
     return vglook { leaf, [ float3 { 0.20, 0.17, 0.14 }, float3 { 0.28, 0.24, 0.20 }, float3 { 0.37, 0.32, 0.26 }, float3 { 0.46, 0.40, 0.33 } ],

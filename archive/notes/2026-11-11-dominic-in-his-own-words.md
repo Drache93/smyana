@@ -200,3 +200,7 @@ around")
 
 **16:48** (chat, on pull request 94, the Roman ruins)
 > follow up issue after rest is done, the roman ruined road is quite samey
+
+**20:45** (chat, starting the Opus thread to finish the environment, with a screenshot of a summer wood: archive
+picture 97)
+> okay lets start an opus thread to finish that off. Fir have lots of brown at the bottom, and lighting seems to be a ltitle washed out on the, any idea why? Worried the green scene (summer etc) is too green, and lacking variation. the lighter coloured trees are almost invisible on the grass

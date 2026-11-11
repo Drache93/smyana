@@ -146,3 +146,5 @@ One line per moment worth remembering. Newest at the bottom.
   fallen column, in a look clearing until their map is made. ([journal](journal/2026-11-11-the-roman-ruins.md))
 - **2026-11-11:** Silver fir and black pine as their own trees; beech trunks thicker and forking lower; a felled tree
   leaves its top and a sawn round by its stump. ([journal](journal/2026-11-11-trees-fir-black-pine-and-the-felled.md))
+- **2026-11-11:** Summer fixed after Dominic's look: clear light, crowns cooler and deeper than the meadow, varied greens,
+  no brown pools under the firs. ([journal](journal/2026-11-11-summer-greens.md))

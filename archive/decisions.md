@@ -358,3 +358,10 @@ stays grass so the undergrowth grows up among them and turns with the year. For 
 mechanics give felling stages of their own, a stump the men made always has the tree's top, boughs and a round of its
 trunk lying beside it, so a cut wood looks worked. The fir and the black pine are their own shapes; a pine among the
 beeches is half Scots, half black. For #6.
+
+**D-069, 2026-11-11: Summer's crowns are cooler and deeper than the meadow, and the summer light is clear.** (Dominic
+asked; Claude chose how.) Dominic found the summer scene washed out, too green and samey, with light trees lost on the
+grass. The summer light no longer lays a yellow highlight and a pale yellow-green haze over everything; its shade is
+cool. The crowns are deeper and bluer greens, each kind its own and each tree of a kind fresher or darker, while the
+meadow under them is warmer and olive, with one tuft in three gone straw. Last year's leaves under the beeches are dull
+and mossy, and the floor under the conifers is thin needles on moss, not a dark brown pool round every tree.
