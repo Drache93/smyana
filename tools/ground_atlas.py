@@ -121,10 +121,15 @@ def tiles(wood, season):
     gneiss. Conifer wood: moss and bilberry where the beech has grass, a dark rusty floor of needles."""
     conifer = wood == "conifer"
     autumn = season == "autumn"
-    grass = ["#3a4f2a", "#44592e", "#4e6433", "#586f39"] if conifer else ["#46602f", "#516d34", "#5c7a3a", "#688841"]
+    grass = ["#3a4f2a", "#44592e", "#4e6433", "#586f39"] if conifer else ["#55622e", "#606d33", "#6b7838", "#77823e"]
     dark = ["#26391f", "#2d4324", "#354d29", "#3d582f"] if conifer else ["#2f4727", "#37532c", "#405f32", "#4a6c39"]
     litter = ["#33271a", "#3f2f1e", "#4b3823", "#584229"] if conifer else ["#573a1f", "#6b4724", "#7f552a", "#946431"]
     fleck = ["#6e4a26", "#2a2016", "#7d5a30"] if conifer else ["#b07a34", "#c08a3c", "#44301c", "#9a5c28"]
+    if season == "" and conifer:
+        # (summer, Dominic 2026-11-11: "Fir have lots of brown at the bottom". Under the conifers the needles lie thin
+        # on moss: an olive-brown floor with green through it, not a dark rusty pool round every tree)
+        litter = ["#3d3c25", "#45432a", "#4d4a2f", "#555134"]
+        fleck = ["#6a4a28", "#5a4026", "#7a5a32", "#4f6a2c", "#5d7632", "#2e2a1c"]
     if autumn:  # the year's fall lies bright on last year's: gold, orange, red
         litter = litter if conifer else ["#7a4319", "#9a551a", "#bb6a1c", "#d8851f"]
         fleck = ["#f2b21e", "#e8701a", "#c4341a", "#f6cf4a", "#8a3a14", "#ff9a22"]
@@ -162,10 +167,12 @@ def tiles(wood, season):
             t[4] = strew(pebbles(make(5, ["#9c8358", "#a48b5e", "#ac9364", "#b49b6a"], fine=30, grain=0.08, height=0.35), 404, 60, ["#a39a86", "#968d7a"]), 304, 200, fall)
             t[9] = strew(make(10, ["#6e5a3e", "#746042", "#7a6546", "#806a4a"], grain=0.1, height=0.4), 309, 500, fall)
         elif season != "winter":
-            old = ["#8a5c2c", "#845628", "#90622f", "#7c5126", "#966834"]
-            t[10] = strew(make(11, ["#74491f", "#7a4e22", "#805325", "#865828"], coarse=5, fine=18, grain=0.06, height=0.45), 111, 3200, old, lift=0.04)
+            # (last year's leaves gone dull and dark under the summer's green, moss and seedlings through them: in the
+            # first summer render they read as orange pools of autumn round every tree)
+            old = ["#6e5234", "#664a2e", "#755a3a", "#5e4630", "#7a6040", "#56602e", "#4c5a2a", "#62702f"]
+            t[10] = strew(make(11, ["#4f3f2a", "#54442d", "#5a4830", "#5f4d33"], coarse=5, fine=18, grain=0.06, height=0.45), 111, 3200, old, lift=0.04)
             for k in (0, 2, 3, 12, 13):
-                t[k] = tufts(t[k], 200 + k, 600, ["#6f8f44", "#7fa04c", "#5c7a3a", "#8cab55"])
+                t[k] = tufts(t[k], 200 + k, 600, ["#7f8f44", "#8f9a4c", "#6c7a3a", "#a2a258", "#b0a465"])
             t[4] = strew(pebbles(t[4], 404, 260, ["#9b9485", "#b0a896", "#857e70"]), 304, 120, old)
     else:
         t[4] = pebbles(t[4], 404, 260, ["#9b9485", "#b0a896", "#857e70"])
