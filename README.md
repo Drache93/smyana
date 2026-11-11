@@ -21,6 +21,7 @@ git submodule update --init --remote   # the Creel engine, at its main
 src/lint.sh --fix             # lobsterfmt's layout for every file of ours (lint lists warnings too)
 ./play.sh windowed season:autumn leg:fir_woods_out   # a look at any leg in any season
 ./play.sh windowed season:autumn hour:18.5 camp:52,48 zoom:2.75   # the men round a fire at dusk
+./play.sh windowed leg:camp_look camp:29,31 hour:19 debug   # the camp with its music (hour:22 for the men's song); music:off, music:homecoming
 ```
 
 It needs [Lobster](https://github.com/Drache93/lobster) (`LOBSTER=/path/to/bin/lobster`, by

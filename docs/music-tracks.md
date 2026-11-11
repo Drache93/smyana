@@ -68,6 +68,61 @@ So every track is made to be cut to and from:
 | 23 | Ending and credits | The theme at rest: kaval, tambura, strings. | 2–3 min | |
 | 24 | Menu and pause | The theme very quietly, drone and kaval. | 1–2 min loop | |
 
+## The first draft (2026-11-11)
+
+Dominic asked for "first draft" of "all the music that we planned" on 2026-11-11. Claude drafted every track but the
+ruins (17), which he parked on 2026-11-10: 33 minutes in 26 files. They are in the game
+(`assets/audio/music/<name>.ogg`), written in [`music/pieces/set_03_score.py`](../music/pieces/set_03_score.py), and
+[`data/music.json`](../data/music.json) says which plays when. All are drafts to be heard and changed. None has been
+heard by Dominic yet.
+
+| # | File | Length | What the draft does |
+|---|---|---|---|
+| 1 | `01_summer_day` | 2:06 | Rests on G and D, the bright notes. No drone. |
+| 2 | `02_summer_dusk` | 1:38 | Ends on the theme's last line. |
+| 3 | `03_autumn_day` | 2:06 | Spike 02 with the kaval nearer and a quiet low gaida drone, after "too soft now". |
+| 4 | `04_autumn_dusk` | 2:00 | The second take, made longer; the two play together at the end. |
+| 5 | `05_autumn_night` | 1:42 |  |
+| 6 | `06_winter_day` | 1:46 |  |
+| 7 | `07_winter_night` | 1:05 | The theme, one voice on a vowel, no words. |
+| 8 | `08_spring_morning` | 0:42 | Set 02's "morning" as it was. Short. |
+| 9 | `09_spring_day` | 1:20 |  |
+| 10 | `10_wary` | 0:56 | Loop. |
+| 11 | `11_hiding` | 1:14 | Loop. Nothing in it is evenly spaced. |
+| 12 | `12_beasts` | 0:46 | Loop. Hits in uneven twos and threes, with holes. |
+| 13 | `13_bandits` | 1:04 | Loop. Set 02's "fight", longer. |
+| 14 | `14_ottomans` | 1:12 | Loop. Zurna (new voice) over a held one, davul, their own scale (E F G# A B C D). |
+| 15 | `15_chase` | 1:03 | Loop. The bandits' tunes at 184 beats a minute. |
+| 16 | `16_end_stroke_1` to `_4` | 0:04 each | Four single drum blows with their echo. |
+| 17 | (none) | | Still parked. |
+| 18 | `18_a_man_dies` | 0:52 | A voice on a vowel: quick notes on one pitch, as if said, then the fall. |
+| 19 | `19_the_fire` | 1:45 | Hummed once, then two men open their mouths, not quite together. |
+| 20 | `20_intro` | 2:01 | The fallback: the theme sung solo on a vowel, opening out, left hanging on its first line. |
+| 21 | `21_leaving_the_village` | 1:25 | Two groups of women, one answering the other, no instruments. A tune of its own. |
+| 22 | `22_homecoming` | 2:34 | One gaida alone, then the theme walked three times with more each time. |
+| 23 | `23_ending` | 1:50 |  |
+| 24 | `24_menu` | 1:24 | Loop. |
+
+**The main theme is written** (a proposal, like the rest): four slow lines on the five notes E G A B D.
+
+1. The call: up to the fifth, and it stays there, unanswered.
+2. The answer: over the top and down to rest on the fourth, not yet home.
+3. The turn: the highest line, the thought of home.
+4. Home: down through the same steps to the home note.
+
+Tracks 7, 9, 19, 20, 22, 23 and 24 are made of it, and summer dusk ends on its last line.
+
+**How the game uses them now** (Claude's first pass, all of it data):
+
+- Calm: by season and by the light's mood of the hour (dawn, day, dusk, night). Nine tracks over sixteen slots, so
+  some share: summer and winter have two each, autumn three, spring two. A track plays once, then 90 seconds of
+  forest before the next.
+- At night with a fire lit, "the fire" takes turns with the season's night track.
+- Danger: `wary`, `hiding`, `beasts`, `bandits`, `ottomans`, `chase`. Nothing in the game raises danger yet, so
+  with `debug` the keys 1 to 6 start each and 0 ends it.
+- Moments: `death`, `intro`, `leaving`, `homecoming`, `ending`, `menu`. Only the homecoming is wired, to the end of
+  the run.
+
 ## The instruments, and where each belongs
 
 | Instrument | Tried? | Belongs to |
@@ -82,7 +137,7 @@ So every track is made to be cut to and from:
 | Bells (chan) | Yes | Summer and spring: a flock means people near. |
 | Solo singing voice | A vowel only | Winter night, the lament, the intro. Needs a real singer. See "Singing". |
 | Deep held voices, overtones, struck bronze | Yes | Tried for the ruins. The steady overtones sounded like a phone alarm; not to be reused as they are. |
-| Zurna and davul | No | Ottomans only. |
+| Zurna and davul | Yes (first draft) | Ottomans only. |
 | Low strings | Yes | Dropped from calm music (they made the first piece sound "Viking"). Maybe the ending. |
 
 ## Singing
@@ -113,9 +168,8 @@ make the catches in the throat that this style is known for.
 
 ## One theme through it all
 
-Tracks 7, 9, 19, 20, 22, 23 and 24 share one melody, the main theme, not yet written. It should
-be a slow five-note song about leaving, singable by one voice. Writing it is the next real
-composing job, and it should come before the calm tracks are finished so they can borrow from it.
+Tracks 7, 9, 19, 20, 22, 23 and 24 share one melody, the main theme: a slow five-note song about
+leaving, singable by one voice. A first version was written on 2026-11-11 (see "The first draft").
 
 ## Open questions for Dominic
 

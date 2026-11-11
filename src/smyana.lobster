@@ -45,6 +45,7 @@ import smyana.men_view
 import smyana.trees
 import smyana.cliff
 import smyana.camp
+import smyana.music
 
 // ------------------------------------------------------------------ what it was started with
 
@@ -62,6 +63,7 @@ let shots_dir = arg_of("shots")                                                 
 var shots_n = 0
 var shots_next = 3.0
 var wall_s = 0.0
+let music_arg = arg_of("music")  // music:off, or music:<a danger, a moment or a track> to hear it from the start (data/music.json)
 let capture = shot != "" or script != "" or arg_of("shots") != ""
 
 // ------------------------------------------------------------------ the camera (art px: a tile is 96 x 48)
@@ -1196,6 +1198,20 @@ def load_next():
     view_load_s = seconds_elapsed() - t0
     print "loaded {leg_id} in {view_load_s} s (the world {last_load_s} s, crowns baked {trees_bake_s} s), behind a letter of {gint(route, "letter_seconds", 20)} s"
 
+score_load()
+score_on = music_arg != "off"
+if music_arg != "" and music_arg != "off":
+    // (music:bandits, music:homecoming, music:05_autumn_night)
+    score_danger(music_arg)
+    if score_track == "": score_moment(music_arg)
+    if score_track == "": score_play(music_arg, "moment", false, "asked for")
+
+// With debug, the number keys try the music's swaps: 1 to 6 a danger begins, 0 it is over.
+def score_keys():
+    for([ "wary", "hiding", "beasts", "bandits", "ottomans", "chase" ]) kind, k:
+        if gl.button("{k + 1}") == 1: score_danger(kind)
+    if gl.button("0") == 1: score_safe()
+
 while gl.frame():
     let dt = min(gl.delta_time(), 0.1)
     frame_no++
@@ -1222,8 +1238,11 @@ while gl.frame():
             if edge != "" and phase == "play":
                 leave_edge = edge
                 set_phase("leaving")
+                score_leave()
                 selected = []
         mood_tick()
+        if phase != "leaving": score_tick(dt, season_now(), mood_now(), fires.length > 0)
+        if debug_line: score_keys()
     if phase == "arriving" and phase_t >= 1.5: set_phase("play")
     if phase == "leaving" and phase_t >= 1.5:
         route_leave(leave_edge)
@@ -1239,6 +1258,7 @@ while gl.frame():
         if letter_loaded and (phase_t >= hold or skip):
             paused = false
             set_phase(if run_over(): "end" else: "arriving")
+            if run_over(): score_moment("homecoming")
     if drawing():
         gl.clear(float4 { 0.035, 0.055, 0.04, 1.0 })
         gl.blend(1)
