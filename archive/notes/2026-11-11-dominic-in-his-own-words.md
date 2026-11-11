@@ -49,3 +49,11 @@ His messages about the game, word for word, in the order he sent them (times in 
 
 (Claude's answer: leave the riders out of the camp scene, where they read as cavalry resting with the masons, and keep
 them for an Ottoman patrol that passes while the men hide. Not decided.)
+
+## 07:57, on the riders and what the scene is for (voice, as transcribed in chat)
+
+> Doesn't really matter, this is just so that we can sort out the environment. Look, this scene isn't going to be a final scene necessarily, although if it looks good enough, it could be a scene we show in a picture, in which case, yes, we might add more detail to it, add some brightness on the edge, but all we're focusing for is just trying to make sure the environment looks as good as possible. So actually, that said, let's put the riders there on the edge just to see how they look with the shadows and everything, make sure they're still visible enough so that yeah, we can see that if we use that as a gameplay mechanic, if it works well or not, and or whether there'll need to be some environmental adjustments or some bloom to help highlight them.
+
+## 07:57, on finishing the environment and starting the music (voice, as transcribed in chat)
+
+> With that said, I think the environment is getting really close now, so we should get a fable agent if it's not already finished, or if it should be continuing to go through all the issues and make sure they're all ticked off. So remind it that it needs to close off all the open issues for environment, and I think it's time to also start an agent, a fable agent, on putting together all the music that we planned. So we can get first draft of that. We should then be in a situation where we can get a very minimal demo, just men standing around a camp with music playing.

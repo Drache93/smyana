@@ -16,12 +16,14 @@ NAMES = ["CANVAS", "CANVAS2", "CANVAS3", "INSIDE", "POLE", "POLE2", "ROPE",
          "RED", "BLACK", "WHITE", "OCHRE", "BROWN", "BLUE", "GREEN",
          "STONE", "STONE2", "STONE3", "ASH", "ASH2", "CHAR", "EMBER", "COPPER", "COPPER2", "IRON", "WOOD", "WOOD2",
          "BAY", "BAY2", "HAIR", "GREY", "GREY2", "CHESTNUT", "CHESTNUT2", "DUN", "DUN2", "MUZZLE", "HOOF", "EYE",
-         "LEATHER", "LEATHER2", "FELT", "SACK", "SACK2", "BLANKET", "BRASS", "WICKER", "WICKER2", "BLANKET2", "GREY3", "LOG", "LOG2", "CUT"]
+         "LEATHER", "LEATHER2", "FELT", "SACK", "SACK2", "BLANKET", "BRASS", "WICKER", "WICKER2", "BLANKET2", "GREY3", "LOG", "LOG2", "CUT",
+         "COAT", "COAT2", "FEZ", "SKIN", "SASH"]
 COLOURS = [0xd6ccb4, 0xbcb198, 0x9c9078, 0x2a231d, 0x6e4e32, 0x4e3624, 0xb2a282,
            0xa33328, 0x2a2522, 0xe0d6be, 0xc08a3a, 0x6b4a30, 0x2c3a52, 0x4c5a36,
            0x8d877e, 0x6f6a62, 0xa8a296, 0x5c5852, 0x8a857c, 0x1f1b18, 0xb4481c, 0xb0683a, 0x7a4428, 0x3c3e41, 0x8a6440, 0x6a4a2e,
            0x6a3e24, 0x55301c, 0x1e1916, 0xc8c3b8, 0xa29e95, 0x8c4c26, 0x6e3a1c, 0x8a7458, 0x6c5a44, 0xb5a48c, 0x2a2420, 0x120e0c,
-           0x6b4a2e, 0x4a3220, 0x5e4a38, 0xb59a74, 0x957c5c, 0xa8302a, 0xc49a48, 0x9a7a48, 0x7a5e34, 0x2c3444, 0x8a857e, 0xa0825c, 0x8a6c4a, 0xd8c49a]
+           0x6b4a2e, 0x4a3220, 0x5e4a38, 0xb59a74, 0x957c5c, 0xa8302a, 0xc49a48, 0x9a7a48, 0x7a5e34, 0x2c3444, 0x8a857e, 0xa0825c, 0x8a6c4a, 0xd8c49a,
+           0x3454a8, 0x28407e, 0xc22a20, 0xc79a78, 0xd9b03c]
 for _i, _n in enumerate(NAMES): globals()[_n] = _i + 1
 
 # ---- a grid to draw in -----------------------------------------------------------------------------------------
@@ -272,11 +274,11 @@ COATS = {
 }
 
 
-def animal(coat, mule):
+def animal(coat, mule, tall=2.3):
     """A small Balkan mountain horse (about 1.5 m at the withers, the mock-up's size), or
     a mule (longer ears and head, a thin tail with a tuft, a short upright mane). Faces +x."""
     c, shade, hair, low, muzzle = COATS[coat]
-    m = Model(1.6, 1.0, 2.3)
+    m = Model(1.6, 1.0, tall)
     s = 1.0 if mule else 1.1  # (the mock-up's horses stand a little bigger than a Rhodope pony)
     def S(p): return (p[0] * s, p[1] * s, p[2] * s)
     def belly(g): return np.where(g[..., 2] < 0.86 * s, shade, c)
@@ -389,6 +391,25 @@ def riding_saddle(m, s, blanket):
     m.capsule((0.12, -0.27, 0.78), (0.12, 0.27, 0.78), 0.015, 0.015, LEATHER)  # the girth
 
 
+def rider(m, s):
+    """A horseman in the saddle, for a look at how riders read at a wood's edge (Dominic, 2026-11-11; the mock-up's
+    patrol): a blue coat, white breeches, black boots, a yellow sash, a red fez, a long gun slung across his back."""
+    z0 = 1.0 * s + 0.3
+    m.blob((-0.02, 0, z0 + 0.06), (0.16, 0.19, 0.13), WHITE)
+    for y in (-1, 1):
+        m.capsule((-0.02, y * 0.13, z0 + 0.05), (0.16, y * 0.27, z0 - 0.26), 0.085, 0.07, WHITE)
+        m.capsule((0.16, y * 0.27, z0 - 0.26), (0.1, y * 0.29, z0 - 0.5), 0.065, 0.055, BLACK)
+        m.capsule((0.1, y * 0.29, z0 - 0.62), (0.2, y * 0.29, z0 - 0.64), 0.055, 0.045, BLACK)
+        m.capsule((0.0, y * 0.2, z0 + 0.52), (0.08, y * 0.25, z0 + 0.3), 0.065, 0.055, COAT)
+        m.capsule((0.08, y * 0.25, z0 + 0.3), (0.26, y * 0.14, z0 + 0.24), 0.055, 0.045, COAT2)
+        m.blob((0.3, y * 0.13, z0 + 0.24), (0.045, 0.045, 0.045), SKIN)
+    m.capsule((-0.02, 0, z0 + 0.14), (0.0, 0, z0 + 0.5), 0.17, 0.19, lambda g: np.where(g[..., 1] < 0, COAT2, COAT))
+    m.blob((-0.02, 0, z0 + 0.2), (0.19, 0.2, 0.05), SASH)
+    m.blob((0.03, 0, z0 + 0.74), (0.105, 0.1, 0.12), SKIN)
+    m.capsule((0.01, 0, z0 + 0.82), (0.0, 0, z0 + 0.95), 0.105, 0.09, FEZ)
+    m.capsule((-0.2, -0.16, z0 + 0.1), (-0.14, 0.2, z0 + 0.85), 0.022, 0.018, lambda g: np.where(g[..., 2] > z0 + 0.4, IRON, WOOD2))
+
+
 def blanket_red(g): return np.where((np.floor(g[..., 0] * M / 3) % 4) == 0, BLACK, BLANKET)
 def blanket_blue(g): return np.where((np.floor(g[..., 0] * M / 2) % 5) == 0, RED, BLANKET2)
 def blanket_felt(g): return np.where(np.abs(g[..., 2] - 1.05) < 1.0 / M, RED, FELT)
@@ -404,6 +425,11 @@ def models():
         m, s = animal(coat, False)
         riding_saddle(m, s, blanket)
         out.append(("horse_%d_%s" % (i, coat), m))
+    for i, (coat, blanket) in enumerate(HORSES):  # (the same horses, each with a rider up)
+        m, s = animal(coat, False, 2.8)
+        riding_saddle(m, s, blanket)
+        rider(m, s)
+        out.append(("rider_%d_%s" % (i, coat), m))
     for i, (coat, load) in enumerate(MULES):
         m, s = animal(coat, coat.startswith("mule"))
         pack_saddle(m, s, load, random.Random(i))
