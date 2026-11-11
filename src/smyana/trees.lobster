@@ -671,10 +671,48 @@ def bake_winter():
     for(TUFT_KINDS) kind: tree_onto(vs, "tuft{kind}.winter", grass_tuft(dead_look(straw, false), kind), true)
     sheet_finish(vs, vox_draw_k(), true)
 
+// Snow on the boughs (#15): the same models with snow lying two voxels deep on whatever is open to the sky above it,
+// a little of it missing so it reads as a dusting and not a slab. The bare broadleaves, old and young, and the
+// evergreens' crowns. Baked with winter; each casts the shadow of the tree without its snow.
+let SNOW_LOOK = [ float3 { 0.62, 0.69, 0.83 }, float3 { 0.80, 0.86, 0.95 }, float3 { 0.95, 0.97, 1.0 } ]
+
+def snowed(g:vgrid) -> vgrid:
+    g.look = vglook { g.look.leaf, g.look.bark, SNOW_LOOK, false, g.look.tree, g.look.standing }
+    for(g.n.y) y: for(g.n.x) x:
+        var open = 99  // (empty voxels above, counted going down the column)
+        for(g.n.z) k:
+            let z = g.n.z - 1 - k
+            let i = vg_index(g, x, y, z)
+            if g.mat[i] != 0 and g.mat[i] != VG_CUT:
+                if open >= 6 and vg_hash(g.seed + 5, x / 2, y / 2, z / 3) < 0.82:
+                    for(2) up: if z + 1 + up < g.n.z: vg_set(g, vg_index(g, x, y, z + 1 + up), VG_CUT, 0.0)
+                open = 0
+            elif g.mat[i] == 0: open++
+    return g
+
+def bake_snow(between):
+    if frame_at.get("beech0.snow", -1) >= 0: return
+    let vs = sheet_new("snow", "{TREE_BAKE} {VOX_K} {WB_PX} {vox_tree_text()}", 4096)
+    if sheet_load(vs, vox_draw_k()): return
+    let beech = beech_look("summer")
+    for(BROADLEAVES) sp: for(LEAF_KINDS) kind:
+        tree_onto(vs, "{sp}{kind}.snow", snowed(vox_tree(leaf_look(sp, "summer", kind), vox_name(sp, kind), false)), false)
+        between()
+    for(LEAF_KINDS) kind:
+        tree_onto(vs, "pine{kind}.crown.ever.snow", snowed(vox_tree(pine_look(), vox_name("pine", kind), true)), false)
+        tree_onto(vs, "spruce{kind}.crown.ever.snow", snowed(vox_tree(spruce_look(), vox_name("spruce", kind), true)), false)
+        between()
+    for(YOUNG_KINDS) kind:
+        tree_onto(vs, "young{kind}.bare.snow", snowed(vox_tree(beech, "beech_young_{kind}", false)), false)
+        tree_onto(vs, "yspruce{kind}.snow", snowed(young_spruce(spruce_look(), kind)), false)
+    sheet_finish(vs, vox_draw_k(), true)
+
 // This season's leaves on the broadleaves, old and young, and the undergrowth's (in winter the bare wood shows, and
 // what is left of the undergrowth).
 def bake_season(stage:string, between):
-    if stage == "winter": bake_winter()
+    if stage == "winter":
+        bake_winter()
+        bake_snow(between)
     if stage == trees_season or stage == "winter": return
     trees_season = stage
     if frame_at.get("beech0.crown.{stage}", -1) >= 0: return  // (baked or read earlier this run)

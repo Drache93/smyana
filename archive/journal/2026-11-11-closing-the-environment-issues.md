@@ -161,3 +161,23 @@ To do this, which tree and which bracken stand on a tile is now worked out in th
 same rule (it was in the view only). The pictures are unchanged by it.
 
 Rendered from this branch on main `a26605e` with Creel `91f157f`.
+
+## Snow on the boughs, wind in the crowns (15:20 to 15:50)
+
+Dominic merged pull requests 88 and 89 ("ok", 12:22); issue 9 was closed. The last two things on issue 15, from a
+fresh branch on main `d60ec5f` with Creel `91f157f` (Claude):
+
+- **Snow on the boughs.** The bare broadleaves, old and young, and the evergreens' crowns have a second picture each,
+  baked from the same model with snow two voxels deep on whatever is open to the sky. A tree changes to it once
+  enough snow lies, each from its own day, and loses it on its own day in the thaw. Picture 78 is the beech valley in
+  midwinter:
+
+![snow on the boughs](../images/2026-11-11/78-snow-on-the-boughs.jpg)
+
+- **Wind in the crowns.** A crown leans with the gusts: its foot stays, its top is carried over by up to four and a
+  half pixels of the art in a storm and about one on a calm day, each tree in its own time, in steps of half a pixel
+  so it stays crisp. No Creel change: Creel already draws a picture through a slant (`sprite_xf`).
+
+Not checked: I compared two still frames of the lean, not the motion. Whether the rows stepping sideways read as
+wind or as a shimmer needs Dominic's eye on the running game. A crown that is faded because men stand behind it does
+not lean.
