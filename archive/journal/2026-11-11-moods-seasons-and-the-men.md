@@ -42,7 +42,14 @@ no canopy.
 
 ![Summer, spring, winter and autumn by day](../images/2026-11-11/05-a-day-in-each-season.jpg)
 
+## Dawn and dusk in each season
+Each season now has its own dawn, and summer, spring and winter have their own dusk. Dawns are soft
+and misty, with the fire's glow smaller in the morning. Autumn's dawn is warm haze. Winter's dawn is
+pale pink-grey and its dusk is cold blue with a faint warm edge. The snow stays greyed down at both
+ends of the day.
+
+![Dawn and dusk in each season](../images/2026-11-11/07-dawn-and-dusk-in-each-season.jpg)
+
 ## Left to do
-- Dawn has no season variants yet. Dusk has only autumn's.
 - Moods don't yet blend between seasons, because the season changes by place.
 - Dappled light moving on the ground (#7) is still to do.
