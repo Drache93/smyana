@@ -204,3 +204,15 @@ around")
 **20:45** (chat, starting the Opus thread to finish the environment, with a screenshot of a summer wood: archive
 picture 97)
 > okay lets start an opus thread to finish that off. Fir have lots of brown at the bottom, and lighting seems to be a ltitle washed out on the, any idea why? Worried the green scene (summer etc) is too green, and lacking variation. the lighter coloured trees are almost invisible on the grass
+
+**21:13** (chat, on pull request 100)
+> conflict
+
+**21:14** (chat)
+> merged
+
+**21:16** (chat, with a screenshot of the men close up: archive picture 105)
+> concerned the men look a little pixelated
+
+(Asked how to fix it, he chose "Even pixels at any zoom (sharp filter)" over whole-number zoom steps or remaking the
+men at twice the detail.)

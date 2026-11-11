@@ -654,6 +654,9 @@ def sun_from_data():
     vg_sun_shadow = gint(sun, "self_shadow", 1) != 0
     vg_shade = gfloat(sun, "self_shade", 0.4)
     bake_light = "sun {elev} {vg_dither} {vg_leaf_tones} {vg_sun_shadow} {vg_shade}"
+    // (Dominic, 2026-11-11: "concerned the men look a little pixelated". At a zoom between whole numbers every art px
+    // drawn the same size, crisp, not two screen px and then three; look option even:0 shows it without)
+    sprite_even = arg_of("even") != "0"
     canopy_spread = gfloat(sun, "canopy", 0.0)
     canopy_reach = int(gfloat(sun, "canopy_reach", 3.0))
     canopy_trees = gfloat(sun, "canopy_trees", 14.0)
