@@ -8,7 +8,7 @@
 // Frames, each with its .shadow: tent0 (canvas), tent1 (rugs), fireplace, woodpile, horse0..7 and mule0..7. A horse or
 // mule n is the animal n % 4 facing one way (n < 4) or the other: they face the camera's right or its left.
 
-let CAMP_BAKE = "camp 2"
+let CAMP_BAKE = "camp 3"
 let CAMP_DIR = "../art/camp/vox"
 let CAMP_ANIMALS = 4
 let CAMP_THINGS = [ "tent0", "tent_canvas", "tent1", "tent_rugs", "fireplace", "fireplace", "woodpile", "woodpile" ]
@@ -19,6 +19,9 @@ let CAMP_RIDERS = [ "rider_0_bay", "rider_1_grey", "rider_2_chestnut", "rider_3_
 let CAMP_MULES = [ "mule_0_mule_sacks", "mule_1_mule_dun_kegs", "mule_2_bay_baskets", "mule_3_mule_poles" ]
 // (the two ways an animal faces, in quarter turns: its side to the camera, its head to the right, then to the left)
 let CAMP_TURNS = [ 3, 1 ]
+// (a rider faces any of four ways: rider0..3 and 4..7 as the horses, 8..11 down the screen to the right, as one who
+// rides along the men's own path, 12..15 up it to the left)
+let CAMP_RIDER_TURNS = [ 3, 1, 0, 2 ]
 var camp_feet = []::string
 var camp_bake_s = 0.0  // how long the last bake took (0: read from bake_cache/)
 
@@ -133,7 +136,9 @@ def bake_camp(between):
         for(CAMP_ANIMALS) i:
             camp_onto(s, "horse{side * CAMP_ANIMALS + i}", CAMP_HORSES[i], turn, 3100 + i)
             camp_onto(s, "mule{side * CAMP_ANIMALS + i}", CAMP_MULES[i], turn, 3200 + i)
-            camp_onto(s, "rider{side * CAMP_ANIMALS + i}", CAMP_RIDERS[i], turn, 3300 + i)
             between()
+    for(CAMP_RIDER_TURNS) turn, side:
+        for(CAMP_ANIMALS) i: camp_onto(s, "rider{side * CAMP_ANIMALS + i}", CAMP_RIDERS[i], turn, 3300 + i)
+        between()
     sheet_finish(s, vox_draw_k(), true)
     camp_bake_s = seconds_elapsed() - t0

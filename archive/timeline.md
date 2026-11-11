@@ -111,3 +111,5 @@ One line per moment worth remembering. Newest at the bottom.
   ([note](notes/2026-11-11-environment-handoff.md))
 - **2026-11-11:** Riders in the shade read again: Creel's `unit_rim` lights their sunward edge (picture 15). The lighting thread stops here.
   ([journal](journal/2026-11-11-moods-seasons-and-the-men.md#riders-in-the-woods-shade-claude))
+- **2026-11-11:** The riders at the wood's edge face along the men's path and stand in under the trees (picture 44).
+  ([journal](journal/2026-11-11-closing-the-environment-issues.md#the-riders-face-along-the-path-under-the-trees-1000-to-1010))

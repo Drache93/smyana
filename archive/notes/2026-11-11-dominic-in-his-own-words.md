@@ -63,3 +63,14 @@ them for an Ottoman patrol that passes while the men hide. Not decided.)
 > The lighting and environment threads, I think, are starting to get too long. The lighting one doesn't seem to be using the latest version of everything, so we're still seeing old pictures with old stuff. We should draw a line on them. If there's, find a good place for them both to stop and then start a fresh thread to close all the open issues.
 
 (Claude stopped the environment thread here and wrote [the handoff](2026-11-11-environment-handoff.md).)
+
+## 08:04, on the two pull requests left by the old threads (chat)
+
+> 45 has conflict, 46 can be merged?
+
+## 08:37, on the riders at the wood's edge (chat)
+
+> riders at the edge shouldnt be looking away, should be facing to the right - like they're following your path - and be much closer to the trees
+
+(Claude turned them to face down the screen to the right, the way the trail runs to the ford, and stood them in under
+the first trunks: picture 44.)
