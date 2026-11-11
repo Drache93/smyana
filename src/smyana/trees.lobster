@@ -7,7 +7,7 @@
 // seen. The leaves are baked once a season (their colour), behind the letter home, and kept in bake_cache/.
 
 let TREE_K = 64.0  // voxels a tile for the load of wood (baked at twice this)
-let TREE_BAKE = "trees 40"
+let TREE_BAKE = "trees 42"
 // Voxels a tile in the trees, rocks and undergrowth: one voxel is one pixel of Creel's art (WB_PX at its art scale of
 // 3), as the men's are, so they are as crisp as the men (Dominic, 2026-11-10: "evryhting crisp and sharp").
 let VOX_K = 135.7645
@@ -33,6 +33,7 @@ var trees_season = ""   // the season whose crowns are loaded
 let BROADLEAVES = [ "beech", "oak", "hornbeam" ]
 let LEAF_KINDS = 3
 
+let BRISTLE = 0.05       // how many of a thin branch's voxels sprout a fine twig after leaf-fall
 var late_leaves = false  // (set while the "late" stage is baked)
 def autumn_leaf(sp:string, kind:int) -> [float3]:
     // sun, mid, shade, dry
@@ -314,23 +315,31 @@ let TUFT_KINDS = 6
 def grass_tuft(look:vglook, kind:int) -> vgrid:
     let rng = grng(1470 + kind)
     let g = fine_grid(look, 0.2, 0.16, 1470 + kind)
-    let tall = 0.055 + 0.016 * float(kind % 3)
+    // (low: ankle to shin high, as the mock-up's drifts are; the review of 2026-11-11: "about half the height, with a
+    // dark green base under the pale tips")
+    let tall = 0.034 + 0.01 * float(kind % 3)
+    // the base: short dark blades close to the ground, thick at the middle and ragged at the edge
+    for(26 + (kind % 2) * 8):
+        let a = randf_range(rng, 0.0, 360.0)
+        let rr = 0.13 * sqrt(randf(rng))
+        let at = float3 { cos(a) * rr, sin(a) * rr, randf_range(rng, 0.004, 0.016) }
+        leaf_dab(g, at, 0.0066, randf_range(rng, -1.0, -0.55))
     // (airy: single stems a voxel thick standing a little apart over a hand's breadth of ground, so tufts side by
     // side run into one soft mass and no tuft is a ball)
-    for(9 + (kind % 2) * 3):
-        let foot = float3 { randf_range(rng, -0.1, 0.1), randf_range(rng, -0.1, 0.1), 0.0 }
+    for(13 + (kind % 2) * 4):
+        let foot = float3 { randf_range(rng, -0.12, 0.12), randf_range(rng, -0.12, 0.12), 0.0 }
         let a = randf_range(rng, 0.0, 360.0)
-        let lean = randf_range(rng, 0.004, 0.03)
+        let lean = randf_range(rng, 0.004, 0.022)
         let top = foot + float3 { cos(a) * lean, sin(a) * lean, tall * randf_range(rng, 0.5, 1.2) }
-        let steps = 8
+        let steps = 6
         for(steps) n:
             let u = float(n) / float(steps - 1)
             // (a stem bows out as it rises; dark at the foot, pale at the tip)
             let p = foot + (top - foot) * u + float3 { cos(a), sin(a), 0.0 } * lean * 0.5 * u * u
-            leaf_dab(g, p, 0.0064, -0.8 + 1.7 * u + randf_range(rng, -0.1, 0.1))
-        // a leaf off the stem, in its upper half
-        let ul = randf_range(rng, 0.5, 0.95)
-        leaf_dab(g, foot + (top - foot) * ul + float3 { randf_range(rng, -0.012, 0.012), randf_range(rng, -0.012, 0.012), 0.0 }, 0.0086, -0.1 + 1.0 * ul)
+            leaf_dab(g, p, 0.0064, -0.9 + 1.5 * u * u + randf_range(rng, -0.1, 0.1))
+        // its pale head: a dab or two at the tip (the mock-up's yellow dots over the olive)
+        leaf_dab(g, top + float3 { 0.0, 0.0, 0.004 }, 0.009, randf_range(rng, 0.7, 1.0))
+        if randf(rng) < 0.5: leaf_dab(g, top + float3 { randf_range(rng, -0.014, 0.014), randf_range(rng, -0.014, 0.014), -0.004 }, 0.0076, randf_range(rng, 0.4, 0.9))
     return g
 
 // The soft grass' colours: straw yellow tips over olive in autumn, fresh green in spring and summer.
@@ -642,6 +651,31 @@ def bake_season(stage:string, between):
                 let i = vg_index(g, x, y, z)
                 if g.mat[i] == VG_LEAF and vg_at(f, float(x), float(y), float(z)) > keep: write_int8_le(g.mat, i, 0)
         return g
+    // After leaf-fall the twigs are the crown (the mock-up, and the review of 2026-11-11: "a dense mass of fine dark
+    // twigs, like a bristle, with leaves as a sparse scatter of round dabs inside it"). Every thin branch of the wood
+    // sprouts fine dark twigs a voxel thick, out and up from the tree's middle, into the picture of its last leaves.
+    def bristle(g:vgrid, name:string) -> vgrid:
+        let wood = vox_tree(g.look, name, false)
+        let rng = grng(g.seed + 311)
+        def is_bark(x:int, y:int, z:int) -> int:
+            return if x >= 0 and y >= 0 and z >= 0 and x < wood.n.x and y < wood.n.y and z < wood.n.z and wood.mat[vg_index(wood, x, y, z)] == VG_BARK: 1 else: 0
+        for(wood.n.z) z: for(wood.n.y) y: for(wood.n.x) x:
+            if wood.mat[vg_index(wood, x, y, z)] == VG_BARK and z > wood.n.z / 4:
+                // (thin: wood two voxels off on few sides)
+                let thick = is_bark(x + 2, y, z) + is_bark(x - 2, y, z) + is_bark(x, y + 2, z) + is_bark(x, y - 2, z) + is_bark(x, y, z + 2) + is_bark(x, y, z - 2)
+                if thick <= 2 and randf(rng) < BRISTLE:
+                    let at = (float(int3 { x, y, z } + wood.lo) + 0.5) / VOX_K
+                    let out = normalize(float3 { at.x, at.y, 0.0 } + float3 { 0.0001, 0.0, 0.0 })
+                    let dir = normalize(out * randf_range(rng, 0.2, 1.0) + float3 { randf_range(rng, -0.7, 0.7), randf_range(rng, -0.7, 0.7), randf_range(rng, 0.1, 1.1) })
+                    let l = randf_range(rng, 0.05, 0.15)
+                    let mid = at + dir * l * 0.5 + float3 { randf_range(rng, -0.012, 0.012), randf_range(rng, -0.012, 0.012), 0.0 }
+                    vg_capsule(g, at, mid, 0.55 / VOX_K, 0.5 / VOX_K, VG_BARK)
+                    vg_capsule(g, mid, at + dir * l, 0.5 / VOX_K, 0.45 / VOX_K, VG_BARK)
+        return g
+    def twig_look(sp:string, kind:int) -> vglook:
+        let look = leaf_look(sp, season, kind)
+        look.bark = [ float3 { 0.09, 0.08, 0.08 }, float3 { 0.15, 0.13, 0.13 }, float3 { 0.22, 0.20, 0.19 }, float3 { 0.31, 0.28, 0.26 } ]
+        return look
     // (after leaf-fall an old tree keeps only some of its leaves: the oak most; the young ones keep theirs)
     for(BROADLEAVES) sp: for(LEAF_KINDS) kind:
         let crown = "{sp}{kind}.crown.{stage}"
@@ -654,7 +688,7 @@ def bake_season(stage:string, between):
             let _, shade = vm_split_shadow(bytes, w, h)
             for(w * h) px: write_int8_le(shade, px * 4 + 3, min(235, int(float(shade[px * 4 + 3]) * 1.5)))
             sheet_add_bytes(vs, crown + ".shadow", shade, w, h, origin)
-            tree_onto(vs, crown, fallen(vox_tree(leaf_look(sp, season, kind), vox_name(sp, kind), true, true), if sp == "oak": 0.5 else: 0.4), false)
+            tree_onto(vs, crown, bristle(fallen(vox_tree(twig_look(sp, kind), vox_name(sp, kind), true, true), if sp == "oak": 0.5 else: 0.4), vox_name(sp, kind)), false)
         else: tree_onto(vs, crown, whole, true, 1.5)
         between()
     for(YOUNG_KINDS) kind: tree_onto(vs, "young{kind}.{stage}", fallen(vox_tree(leaf_look("beech", season, kind + 1), "beech_young_{kind}", true), 0.55), true)

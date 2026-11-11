@@ -183,3 +183,31 @@ stream's edge steps more coarsely at the lower angle.
 Picture 30. Still to do from the reviews (Claude): crowns as a mass of fine twigs, the ground in patches, grass
 denser and lower, the stream's stones, ripples and overhang, logs and a chopping block by the camp, fewer men at the
 fire.
+
+## Twigs for crowns, low grass, and the scene laid out as the picture (done by 07:20 UTC)
+
+(The clock times on the sections above ran ahead of the real clock, which is Claude's mistake; Dominic's messages in the notes carry the true times.)
+
+More of the reviews' list, by Claude, measured on the mock-up at the game's 22 degrees and zoom 2.
+
+- **The twigs are the crown.** After leaf-fall every thin branch of an old tree sprouts fine dark twigs a voxel
+  thick, out and up from the tree's middle (`bristle` in `src/smyana/trees.lobster`). They are baked into the picture
+  of the tree's last leaves, in a darker bark than the pale trunk, so a crown is a dark bristle with rust dabs in it.
+  The trunks and boughs are the same models as before.
+- **Grass low and thick.** A tuft is ankle to shin high now, about half what it was, with a base of short dark
+  blades under pale heads. Half as many again stand on a tile, and they mass along a trail's sides and a stream's
+  bank everywhere, not only in the drifts.
+- **The scene as the picture.** The stream comes in at the right edge level with the camp and leaves at the bottom's
+  middle. The trail winds from the fire down to a ford. One big beech stands at the left third and one at the right.
+  The wood up-sun of the camp is opened so the tents, the fire and the horses stand in the light. Twelve of the
+  twenty men are away from the fire: at the ford, by the mules and horses, on the trail, on watch. No pines stand
+  among this clearing's beeches (`"pines": 0` in a place's map). The command is now
+  `leg:camp_look camp:29,32 look:30,30 hour:16 zoom:2`.
+- **A bug on the way.** With the ford in its new place the men walked off east while the picture was taken. They had
+  always been told to: the order that walks them in from the gate was only stopped, and a stop leaves the group's
+  march standing. Before, the march's end lay in the stream, so nothing happened. Each man is now sent to where he
+  stands.
+
+Picture 32. Still wrong (Claude): the lit ground is one orange (the patches of olive, moss and earth are next), the
+stream has no stones or ripples and its bank is a dark line, the camp has no logs, block or smoke, and the trail is a
+pale band where the picture has brown earth.
