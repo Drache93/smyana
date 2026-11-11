@@ -268,3 +268,11 @@ pallette that was designed for the trees". The "late" stage had been thinned to 
 brown, after a review against the mock-up (Claude, earlier the same day). Now each tree keeps its own yellow, orange or
 red and about half its crown, over the fine twigs. How bare the trees go on the way to winter is still open ("Depends
 how we end up showing the change to winter").
+
+**D-053, 2026-11-11: Which calm track plays when is data, by season and the light's mood of the hour.** (Claude's
+how, to Dominic's D-036 and D-042; open to him) The nine calm tracks are shared over four seasons and four moods of
+the day (dawn, day, dusk, night) in `data/music.json`: dawn has the day's track except in spring, which has a morning
+of its own. A track plays once and the forest is then left alone for 90 seconds, a short gap so the first demo is not
+mostly silence; the plan's "a few minutes" waits for the sounds of the world. At night with a fire lit, the men's song
+takes turns with the season's night track. The main theme the frame tracks share is a first version, a proposal like
+every track of the first draft.

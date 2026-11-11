@@ -107,3 +107,5 @@ One line per moment worth remembering. Newest at the bottom.
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#richer-the-trees-colours-back-the-floor-the-water-0740-to-0800-utc))
 - **2026-11-11:** Riders stood at the wood's edge to see how they read in the shade: the horse reads, the man barely (picture 42).
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#riders-at-the-woods-edge-to-see-how-they-read-0800-to-0810-utc))
+- **2026-11-11:** The whole score in first draft: 23 of the 24 planned tracks (the ruins stay parked), 33 minutes, with the main theme written. The game plays them by season, hour and danger (D-053); the camp has music.
+  ([journal](journal/2026-11-11-the-whole-score-in-first-draft.md))

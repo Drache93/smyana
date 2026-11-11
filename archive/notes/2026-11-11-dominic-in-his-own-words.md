@@ -57,3 +57,5 @@ them for an Ottoman patrol that passes while the men hide. Not decided.)
 ## 07:57, on finishing the environment and starting the music (voice, as transcribed in chat)
 
 > With that said, I think the environment is getting really close now, so we should get a fable agent if it's not already finished, or if it should be continuing to go through all the issues and make sure they're all ticked off. So remind it that it needs to close off all the open issues for environment, and I think it's time to also start an agent, a fable agent, on putting together all the music that we planned. So we can get first draft of that. We should then be in a situation where we can get a very minimal demo, just men standing around a camp with music playing.
+
+(The music's first draft, made the same morning: [journal](../journal/2026-11-11-the-whole-score-in-first-draft.md).)
