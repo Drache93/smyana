@@ -850,13 +850,15 @@ def select_tick():
             last_click = gl.time()
     if gl.button("escape") == 1: selected = []
 
-// The young tree the mouse is on: its cell, or the one its picture stands on (a tree is drawn up from its foot).
+// The young tree the mouse is on: its cell, or the one its picture stands on (a tree is drawn up from its foot). Or
+// the heap of a landslide's debris the mouse is on (#20): the men dig that away as they fell a tree.
 def young_tree_at(mm:float2) -> int:
     let young = str_index(tr_names, "young_tree")
+    let heap = str_index(tr_names, "rubble")
     for(3) n:
         let x = int(mm.x / 1000.0) + n
         let y = int(mm.y / 1000.0) + n
-        if x >= 0 and y >= 0 and x < W and y < H and terrain[y * W + x] == young: return y * W + x
+        if x >= 0 and y >= 0 and x < W and y < H and (terrain[y * W + x] == young or (n == 0 and terrain[y * W + x] == heap)): return y * W + x
     return -1
 
 def order_tick():

@@ -112,3 +112,15 @@ Picture 18. They are only looked at so far: walking through them costs nothing y
 
 Picture 20. Still wrong (Claude): two broadleaf crowns stand summer green in the snow, and the dead bracken stands as
 upright as the live (it should lie flattened).
+
+## The landslide can be dug away (09:10 to 09:35)
+
+- Until now the slide could only be squeezed past. Now the men can clear it (#20, D-048; Claude): a right click on a
+  heap sets the chosen men digging, as on a young tree. In the check, four men walk up the pass and dig one heap to
+  bare ground in about fifty seconds; nobody carries anything away.
+- First try: the men stood by the heap and did nothing. Throwing the spoil aside also wiped what kind of work the
+  man was at, so he gave up at once. Only the load is emptied now.
+- Found on the way: men ordered to dig from the far end of the place walked into a tree and stayed there; ordered to
+  walk up first, then dig, they are fine. Not fixed (the walk to far work is Creel's).
+
+No picture: it was tried in the check with no window, not yet looked at on screen.

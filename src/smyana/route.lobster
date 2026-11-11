@@ -177,6 +177,11 @@ def men_read():
 // gate's edge ("" while they aren't).
 def route_tick() -> string:
     run_ticks++
+    // (clearing a landslide (#20): what a man digs out he throws aside, down the slope, so he is never loaded with
+    // it and digs on till the heap is gone)
+    let spoil = str_index(resource_names, "spoil") + 1
+    for(u_carry) n, i:
+        if n > 0 and u_carry_kind[i] == spoil: u_carry[i] = 0
     if tick % 10 != 0 or run_over(): return ""
     let inside = map(gate_names): 0
     var alive = 0

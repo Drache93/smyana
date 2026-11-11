@@ -84,3 +84,5 @@ One line per moment worth remembering. Newest at the bottom.
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#brambles-0825-to-0840))
 - **2026-11-11:** Winter keeps dead bracken, straw and bramble canes instead of an empty floor (picture 20).
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#winter-whats-left-of-the-undergrowth-0845-to-0900))
+- **2026-11-11:** The men can dig the landslide away, heap by heap (D-048).
+  ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#the-landslide-can-be-dug-away-0910-to-0935))
