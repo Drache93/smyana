@@ -372,3 +372,10 @@ sizes, so no tile repeats. It bows a little off straight and runs whole, heaved 
 with only the kerbs showing, and fades into the trail at both ends (`ROAD_PLAN`). Its drain comes and goes and runs
 under it once in a culvert (`ROAD_DRAIN`). Grass and undergrowth grow where its stones are gone or buried, and a young
 tree has come up through its kerb. The road's pieces cast no baked shadow (a long flat piece's shadow drew stray lines).
+
+**D-071, 2026-11-11: Every art pixel is drawn the same size at any zoom.** (Dominic chose it from three options; Claude
+built it.) Smyana zooms in quarter steps, so with nearest sampling one art pixel was two screen pixels wide and the next
+three, which made the men's edges jagged. Creel's `sprite_even` samples sprites sharp bilinear: every art pixel is
+solid and only the screen pixel where two meet is a mix, so the art stays crisp (D-041) and reads evenly. The ground is
+not changed. Rejected: zooming only in whole-number steps (fewer, bigger zoom jumps), and remaking the men at twice the
+detail (a much bigger job that changes their look).
