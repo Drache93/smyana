@@ -124,3 +124,19 @@ upright as the live (it should lie flattened).
   walk up first, then dig, they are fine. Not fixed (the walk to far work is Creel's).
 
 No picture: it was tried in the check with no window, not yet looked at on screen.
+
+## The gorge: a broken bridge and a ford (09:45 to 10:30)
+
+- A third place, the gorge, as a grey box and not yet on the route (`leg:gorge_look`): a river three tiles wide that
+  can't be waded, the trail's bridge over it found broken, and sixteen tiles downstream a wide shallow ford with a
+  side path to it from each bank (#20; Claude). It is flat for now: no cliffs, so not yet a gorge to look at.
+- The bridge is timber: two round beams on trestle posts, split planks across. Broken, only its two ends stand, a
+  plank hanging from each.
+- Mending it (D-049): a right click on the broken bridge with men chosen. Creel already had map bridges that
+  workers rebuild for a price; Smyana pays the price from the wood the chosen men carry. In the check, two men with a
+  load each mend it in 455 ticks (about 23 seconds) and all twenty cross.
+- `mended` on the command line shows a place with its bridges standing, for pictures.
+
+Picture 22 (broken above, mended below). Still wrong (Claude): the trail fades out before it reaches the bank, the
+ford's wading is no slower for a loaded man and no colder late in the year, and mending has not been tried by hand
+on screen, only in the check.

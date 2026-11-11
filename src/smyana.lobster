@@ -649,6 +649,16 @@ def collect_props():
                 add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39997.0, float4_1)
                 add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, if pr.kind == 3: 0 else: 2)
 
+    // the map's bridges (#20): a standing one's deck tile by tile, a broken one's two ends
+    for(br_id.length) k:
+        let cells = br_cells[k]
+        for(cells) c, n:
+            let part = if br_up[k] == 1: 0 elif n == 0: 1 elif n == cells.length - 1: 2 else: -1
+            if part >= 0:
+                let at = gp(float((c % W) * 1000 + 500), float((c / W) * 1000 + 500))
+                add(frame_at.get("bridge{part}.shadow", -1), at.x, at.y, -39997.0, float4_1)
+                add(frame_at.get("bridge{part}", -1), at.x, at.y, at.y - 20.0, float4_1, 1.0, 0)
+
 // An ellipse on the ground (2:1) round p.
 def draw_ring(p:float2, r:float, col:float4):
     let n = 24
@@ -867,7 +877,15 @@ def order_tick():
     if not ids.length: return
     let mm = mouse_milli()
     let tree = young_tree_at(mm)
-    if tree >= 0:
+    // (a broken bridge under the mouse: mend it, if the chosen men carry the wood for it)
+    let mc = clamp(int(mm.y / 1000.0), 0, H - 1) * W + clamp(int(mm.x / 1000.0), 0, W - 1)
+    var broken = -1
+    for(br_cells) cells, k:
+        let under = find(cells): _ == mc
+        if br_up[k] == 0 and under >= 0: broken = k
+    if broken >= 0:
+        if mend_bridge(ids, broken): mark_at = gp(mm.x, mm.y)
+    elif tree >= 0:
         issue_cmd(0, CMD_GATHER, ids, tree, 0, 0, 0)
         mark_at = gp(float((tree % W) * 1000 + 500), float((tree / W) * 1000 + 500))
     else:
@@ -976,6 +994,11 @@ bake_trees(): waiting_frame()
 bake_camp(): waiting_frame()
 run_begin()
 if arg_of("leg") != "": enter_leg(arg_of("leg"), "west")  // leg:<id>: start at this leg of the route, for a look
+if has_s(args, "mended"):
+    // (mended: this place's broken bridges standing again, for a look)
+    for(br_id.length) k:
+        br_up[k] = 1
+        set_deck(br_cells[k], true)
 // camp or camp:<x>,<y>: the men round a fire (at that tile), for a look at the camp's light
 if has_s(args, "camp") or arg_of("camp") != "":
     let at = arg_of("camp")

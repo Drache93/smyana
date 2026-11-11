@@ -7,7 +7,7 @@
 // seen. The leaves are baked once a season (their colour), behind the letter home, and kept in bake_cache/.
 
 let TREE_K = 64.0  // voxels a tile for the load of wood (baked at twice this)
-let TREE_BAKE = "trees 38"
+let TREE_BAKE = "trees 39"
 // Voxels a tile in the trees, rocks and undergrowth: one voxel is one pixel of Creel's art (WB_PX at its art scale of
 // 3), as the men's are, so they are as crisp as the men (Dominic, 2026-11-10: "evryhting crisp and sharp").
 let VOX_K = 135.7645
@@ -443,6 +443,38 @@ def crag(look:vglook, kind:int, turn:float) -> vgrid:
         rock_plate(g, at, randf_range(rng, 0.06, 0.15), randf_range(rng, 0.05, 0.11), randf_range(rng, 0.03, 0.09), randf_range(rng, 0.0, 180.0), VG_ROCK, 0.1, randf_range(rng, -0.3, 0.3), 1590 + k)
     return g
 
+// A timber bridge over a river (#20), a tile of it at a time, its deck running along x: two round beams from bank to
+// bank on trestle posts, split planks laid across them. part 0: a whole tile of deck. part 1, 2: what is left at the
+// west and the east bank when it is broken: the beams' stumps, a few planks, one hanging.
+def bridge_part(look:vglook, part:int) -> vgrid:
+    let rng = grng(1700 + part)
+    let g = vg_new(look, float3 { -0.6, -0.6, 0.0 }, float3 { 0.6, 0.6, 0.5 }, VOX_K, 1700 + part)
+    def timber(lo:float3, hi:float3, tone:float):
+        vg_box(g, lo, hi) i, p:
+            if p.x >= lo.x and p.x < hi.x and p.y >= lo.y and p.y < hi.y and p.z >= lo.z and p.z < hi.z: vg_set(g, i, VG_BARK, tone)
+    // (how far the deck still runs along this tile: all of it, or a bank's end of it)
+    let x0 = if part == 2: 0.12 else: -0.5
+    let x1 = if part == 1: -0.12 else: 0.5
+    let top = 0.2
+    for([ -0.3, 0.3 ]) y:
+        vg_cylinder(g, float3 { x0, y, top - 0.045 }, float3 { x1, y, top - 0.045 }, 0.04, 0.04, VG_BARK)
+        // a trestle post under each beam at the bank's end (and at both ends of a whole tile)
+        for([ -0.42, 0.42 ]) x: if x > x0 and x < x1: vg_cylinder(g, float3 { x, y, 0.0 }, float3 { x, y, top - 0.05 }, 0.035, 0.035, VG_BARK)
+    var x = x0
+    while x < x1 - 0.05:
+        let wide = randf_range(rng, 0.075, 0.11)
+        let over = randf_range(rng, 0.0, 0.05)
+        timber(float3 { x, -0.4 - over, top }, float3 { min(x1, x + wide - 0.012), 0.4 + randf_range(rng, 0.0, 0.05), top + 0.03 }, randf_range(rng, -0.1, 0.9))
+        x += wide
+    if part > 0:
+        // the broken end: a beam's splintered stump, a plank hanging down from it
+        let bx = if part == 1: x1 else: x0
+        let out = if part == 1: 1.0 else: -1.0
+        vg_cylinder(g, float3 { bx, 0.3, top - 0.045 }, float3 { bx + out * 0.16, 0.3, top - 0.09 }, 0.04, 0.02, VG_BARK)
+        vg_cylinder(g, float3 { bx, 0.3, top - 0.045 }, float3 { bx + out * 0.02, 0.3, top - 0.045 }, 0.035, 0.035, VG_WOOD, true)
+        timber(float3 { min(bx, bx + out * 0.05), -0.38, 0.03 }, float3 { max(bx, bx + out * 0.05), -0.3, top }, 0.5)
+    return g
+
 // A landslide's debris on one tile (#20): a low heap of earth with broken rock in it at every size, from fist stones to
 // a block as big as a man, lying at all angles. Its look's bark is the earth.
 let RUBBLE_KINDS = 6
@@ -551,6 +583,9 @@ def bake_trees(between):
     for(CRAG_KINDS) kind:
         tree_onto(rs, "cragx{kind}", crag(gneiss, kind, 0.0), true)
         tree_onto(rs, "cragy{kind}", crag(gneiss, kind, 90.0), true)
+    // (a bridge's timber: weathered grey brown, split faces paler)
+    let timber_look = vglook { beech.leaf, [ float3 { 0.26, 0.21, 0.16 }, float3 { 0.37, 0.30, 0.22 }, float3 { 0.49, 0.41, 0.30 }, float3 { 0.62, 0.53, 0.40 } ], gneiss.rock, false, false, false }
+    for(3) part: tree_onto(rs, "bridge{part}", bridge_part(timber_look, part), true)
     for(SLAB_KINDS) kind: tree_onto(rs, "slabs{kind}", slab_pile(gneiss, kind), true)
     let debris = gneiss_look()
     debris.bark = [ float3 { 0.19, 0.15, 0.11 }, float3 { 0.27, 0.21, 0.15 }, float3 { 0.35, 0.28, 0.20 }, float3 { 0.44, 0.36, 0.26 } ]
