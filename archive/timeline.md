@@ -86,3 +86,5 @@ One line per moment worth remembering. Newest at the bottom.
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#winter-whats-left-of-the-undergrowth-0845-to-0900))
 - **2026-11-11:** The men can dig the landslide away, heap by heap (D-048).
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#the-landslide-can-be-dug-away-0910-to-0935))
+- **2026-11-11:** A gorge place with a river, a broken timber bridge the men mend with carried wood, and a ford downstream (picture 22, D-049).
+  ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#the-gorge-a-broken-bridge-and-a-ford-0945-to-1030))

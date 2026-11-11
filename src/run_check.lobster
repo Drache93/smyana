@@ -111,5 +111,33 @@ expect(home == "west", "the men crossed the valley to the west gate")
 route_leave(home)
 route_arrive(home)
 expect(run_over() and men_alive() == 20, "home: the run is over, twenty men alive")
+// off the route: the gorge, its bridge found broken (#20). Two men with a load of wood each mend it, and all cross.
+enter_leg("gorge_look", "west")
+expect(place_now() == "gorge" and br_up.length == 1 and br_up[0] == 0, "the gorge: its bridge is down")
+let wood_k = str_index(resource_names, "wood") + 1
+expect(not mend_bridge([ men[5].uid ], 0), "a man with no wood cannot mend the bridge")
+let menders = [ men[0].uid, men[1].uid ]
+for(menders) id:
+    u_carry[index_of(id)] = r_carry
+    u_carry_kind[index_of(id)] = wood_k
+issue_cmd(0, CMD_MOVE, ids_alive(), br_x0[0] - 3 * TILE, br_y0[0] + 500, 0, 0)
+for(1500):
+    step()
+    route_tick()
+expect(mend_bridge(menders, 0), "two men with a load of wood each set to mending it")
+expect(u_carry[index_of(menders[0])] + u_carry[index_of(menders[1])] == 2 * r_carry - br_cost[wood_k - 1], "the wood came off their backs")
+var mended_at = -1
+for(3000) n:
+    if mended_at < 0:
+        step()
+        route_tick()
+        if br_up[0] == 1: mended_at = n
+expect(mended_at >= 0, "the bridge stands again (after {mended_at} ticks)")
+issue_cmd(0, CMD_MOVE, ids_alive(), br_x1[0] + 6 * TILE, br_y0[0] + 500, 0, 0)
+for(1200):
+    step()
+    route_tick()
+let across = filter(ids_alive()) id: u_x[index_of(id)] > br_x1[0]
+expect(across.length == 20, "all the men crossed it to the east bank ({across.length})")
 print "loads: first place {load0} s, last place {last_load_s} s"
 print (if failed: "run_check: {failed} FAILED" else: "run_check: ok")

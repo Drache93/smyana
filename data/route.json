@@ -26,6 +26,10 @@
    "_doc": "Not on the route: the mock-up's beech clearing (archive picture 23), to compare the game beside it. leg:camp_look camp:29,31",
    "place": "camp_clearing", "name": "The beech clearing after leaf-fall", "season": "autumn", "leaf_fall": 60, "exits": {}
   },
+  "gorge_look": {
+   "_doc": "Not on the route yet: the gorge's river, its broken bridge and the ford downstream (#20). leg:gorge_look",
+   "place": "gorge", "name": "The gorge", "season": "autumn", "bridge_down": 1, "exits": {}
+  },
   "home": { "end": true, "name": "Home" }
  },
  "letters": {

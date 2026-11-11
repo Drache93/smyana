@@ -236,3 +236,10 @@ darker-woods ring that D-041 switched off.
 dig, eight spells of work a heap, and it is left as bare ground they can walk. What they dig they throw aside: nobody
 is loaded with it, and it is worth nothing. It costs only time, against squeezing by the lip one man at a time. It is
 data (the `rubble` ground carries a resource, `spoil`), so the same works for any heap on any place.
+
+**D-049, 2026-11-11: A broken bridge is mended with the wood on the men's backs.** (Claude's how, to Dominic's
+obstacle in #20: "The men can repair it with wood they've cut (slow, and it costs wood), or go another way.") Mending
+costs eight wood, two full loads, and it is taken off the loads of the men sent to mend it: no store, no pile, in
+keeping with "carrying is people". With too little wood between them nothing happens. Two men take about twenty
+seconds; more are quicker. The other way is a ford a way downstream, reached by a side path from each bank. A place
+remembers whether its bridge was left mended or down.

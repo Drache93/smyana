@@ -24,7 +24,7 @@ def noise1(rng, n, step):
 RIM = 10  # tiles of thick forest round every place, so the view never runs off the map (the camera stays inside it)
 
 
-def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, young_clumps, clearings, rocks, slide=None):
+def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, young_clumps, clearings, rocks, slide=None, river=None):
     # (the numbers are given for the part you walk in: the rim is added round it)
     w, h, west_y, east_y = w + RIM * 2, h + RIM * 2, west_y + RIM, east_y + RIM
     if stream_x >= 0: stream_x += RIM
@@ -60,7 +60,30 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
                 if (x - cx) ** 2 + (y - cy) ** 2 <= r * r + rng.uniform(-1.5, 1.5): put(x, y, "#")
     # the stream: north to south, a tile wide (two or three men: it is a stream, as in the mock-ups, not a river), with
     # no gaps at its bends, a ford where the trail crosses
-    if stream_x >= 0:
+    bridges = []
+    if river:
+        # a river too wide and deep to wade (the gorge's): three tiles across, wandering little. The trail meets it at
+        # a bridge (#20: found broken), and `ford` tiles downstream it runs wide and shallow: a path leaves the trail
+        # on each bank, goes down to the ford and comes back
+        rx, ford = river[0] + RIM, river[1]
+        for x in range(rx - 9, rx + 10): trail_y[x] = trail_y[rx]
+        ty = trail_y[rx]
+        sw = noise1(rng, h, 10)
+        mid = []
+        for y in range(h):
+            near_bridge = max(0.0, 1.0 - abs(y - ty) / 6.0)
+            mid.append(int(round(rx + sw[y] * 2 * (1.0 - near_bridge))))
+            wide = 3 if abs(y - (ty + ford)) <= 2 else 1
+            for x in range(mid[y] - wide, mid[y] + wide + 1): put(x, y, "~", ".#")
+        for y in range(ty + ford - 1, ty + ford + 2):
+            for x in range(w):
+                if g[y][x] == "~": g[y][x] = "="
+        for side in (-1, 1):
+            px = rx + side * 7
+            for y in range(ty, ty + ford + 1): put(px, y, ":", ".#")
+            for x in range(min(px, rx), max(px, rx) + 1): put(x, ty + ford, ":", ".#")
+        bridges = [[rx - 1, ty, rx + 1, ty]]
+    elif stream_x >= 0:
         sw = noise1(rng, h, 8)
         last = None
         for y in range(h):
@@ -148,7 +171,7 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
     olds = []
     for _ in range(int(w * h * old_fill)):
         x, y = rng.randrange(2, w - 2), rng.randrange(2, h - 2)
-        if g[y][x] != "." or in_clearing(x, y) or near(x, y, ":=~%", 1) or near(x, y, "t", 1): continue
+        if g[y][x] != "." or in_clearing(x, y) or near(x, y, ":=~%", 2 if river else 1) or near(x, y, "t", 1): continue
         gap = 2.0 if rim(x, y) else old_gap  # (the rim is a wall of trees)
         # (round a clearing the trees stand close, so it is a small lit room in a dark wood, as in the target picture)
         if any(r * r < (x - cx) ** 2 + (y - cy) ** 2 <= (r + 2.2) ** 2 for (cx, cy, r) in clearings): gap = 1.15
@@ -168,6 +191,10 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
         "wood": wood,
         "rows": ["".join(r) for r in g],
     }
+    if bridges:  # (Creel: a timber deck over these tiles, x0, y0, x1, y1)
+        rows = doc.pop("rows")
+        doc["bridges"] = bridges
+        doc["rows"] = rows
     if lev:  # the ground's levels (Creel: 0 to 9): the place stands at 4, the gorge's bed at 0, the bluff at 8
         rows = doc.pop("rows")
         doc["heights"] = ["".join(str(lev.get((x, y), 4)) for x in range(w)) for y in range(h)]
@@ -187,3 +214,7 @@ place("beech_valley", "beech", 1878, 96, 64, west_y=33, east_y=28, stream_x=52, 
 # The deep fir woods: closer, darker, more rock, no stream. (Drawn with the same trees for now.)
 place("fir_woods", "deep", 1879, 96, 64, west_y=28, east_y=36, stream_x=-1, old_gap=1.4, old_fill=1.8, young_clumps=34,
       clearings=[(48, 30, 5)], rocks=[(20, 44, 4), (40, 14, 3), (66, 20, 5), (78, 50, 3)], slide=(62, 8))
+# The gorge (grey box, flat for now: no cliffs yet): a river too deep to wade, the trail's bridge over it found broken,
+# and a ford a way downstream.
+place("gorge", "beech", 1880, 96, 64, west_y=30, east_y=34, stream_x=-1, old_gap=1.6, old_fill=1.5, young_clumps=30,
+      clearings=[(38, 31, 4), (58, 31, 4)], rocks=[(42, 24, 3), (55, 40, 3), (44, 52, 3), (70, 18, 4)], river=(48, 16))
