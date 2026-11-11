@@ -26,7 +26,7 @@ let BAKE_DIR = "../bake_cache"
 
 var bake_light = ""  // the light the art is baked under (the sun's height): part of every sheet's key
 
-def sheet_new(file:string, key:string, w:int) -> Sheet: return Sheet { file, "{key} {bake_light}", w }
+def sheet_new(file:string, key:string, w:int) -> Sheet: return Sheet { file, "{key} {bake_light} elev {vx_ELEV}", w }
 
 // Room for a frame w x h on the sheet: its corner.
 def sheet_place(s:Sheet, w:int, h:int) -> int2:

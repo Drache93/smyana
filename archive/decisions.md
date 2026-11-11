@@ -249,3 +249,9 @@ remembers whether its bridge was left mended or down.
 the firs in winter, the beeches in spring. The season's work lies beyond the gorge's east gate and isn't played: the
 men leave by that gate in autumn and come back in by it in winter. So the landslide and the bridge are each met
 twice, and are found the second time as they were left. The new letters are placeholders, as the others are.
+
+**D-051, 2026-11-11: The camera looks down at 22 degrees, and the angle is the game's setting.** (Dominic) "let's try
+lowering camera angle", after seeing 30 and 22 side by side with the mock-up, and then: "Camera angle should be game
+setting not engine enforced". Creel keeps 30 degrees as its own and gains the settings; Smyana asks for 22 in
+`data/route.json` (`camera_elev`). Everything baked is baked again for the angle. It is a try: `elev:30` on the command
+line shows the old view.

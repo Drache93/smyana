@@ -150,3 +150,20 @@ on screen, only in the check.
 - Three placeholder letters were added and one reworded (Claude's words, to be replaced by Dominic's).
 
 Picture 24: the gorge in winter, the ford and the side path to it.
+
+## The camera goes down to 22 degrees, and two hard looks at the scene (10:50 to 11:20)
+
+- Dominic chose the lower camera (D-051) and asked that it be the game's setting, not the engine's. Creel's view
+  angle was four fixed numbers (the units' bake, the props' bake, the ground's squash and the height of a level) and
+  two more inside its ground shaders; they are settings now, 30 degrees unless a game says otherwise. Smyana reads
+  `camera_elev` from `data/route.json` and sets them before anything is baked. Every bake's key carries the angle.
+- Dominic also asked for a critical reviewer on the comparison picture. Two reviews came back (both by Claude
+  agents, neither is Dominic's word): one is kept whole in `notes/2026-11-11-critique-of-the-comparison-scene.md`.
+  They agree on the worst of it: the back of the wood is an empty floor with a few trunks, the trees are saplings
+  beside the mock-up's beeches (thin dark trunks, blobs of pure red and yellow where it has pale thick trunks and a
+  mass of fine twigs with a few rust leaves), nothing frames the clearing in the foreground, the ground is one
+  orange carpet, the grass is still too thin, the stream is paint on the ground with no stones or ripples, the camp
+  stands in shade while the sun falls on bare ground, and the view is about a third too close.
+
+Pictures 26 (the scene at 22 degrees above the mock-up) and 28 (the pass at 22 degrees). Still wrong (Claude): the
+stream's edge steps more coarsely at the lower angle.

@@ -1,5 +1,6 @@
 {
- "_doc": "The run: the places in order, and which edge of each leads where (issue #4, D-020). A 'leg' is one visit to a place: the same place is a different leg on the way home, in another season, and it remembers what the men did there. 'exits' maps an edge of the place's map (its 'gates') to the next leg and the edge the men walk in by; an edge with no exit is closed. 'hours' is how long the walk between the two places takes on the clock. Three places are grey-boxed so far: the men turn round beyond the gorge; the ridge and the pass come later.",
+ "_doc": "The run: the places in order, and which edge of each leads where (issue #4, D-020). A 'leg' is one visit to a place: the same place is a different leg on the way home, in another season, and it remembers what the men did there. 'exits' maps an edge of the place's map (its 'gates') to the next leg and the edge the men walk in by; an edge with no exit is closed. 'camera_elev' is how steeply the camera looks down on the ground, in degrees (D-051; the engine's own is 30). 'hours' is how long the walk between the two places takes on the clock. Three places are grey-boxed so far: the men turn round beyond the gorge; the ridge and the pass come later.",
+ "camera_elev": 22,
  "start": "beech_valley_out",
  "start_edge": "west",
  "start_hour": 7,
