@@ -107,3 +107,5 @@ One line per moment worth remembering. Newest at the bottom.
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#richer-the-trees-colours-back-the-floor-the-water-0740-to-0800-utc))
 - **2026-11-11:** Riders stood at the wood's edge to see how they read in the shade: the horse reads, the man barely (picture 42).
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#riders-at-the-woods-edge-to-see-how-they-read-0800-to-0810-utc))
+- **2026-11-11:** Dominic drew a line under the long environment thread; the state of every open environment issue is in the handoff note.
+  ([note](notes/2026-11-11-environment-handoff.md))
