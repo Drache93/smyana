@@ -41,3 +41,10 @@ old tree's crown shade as wide as the wood round it is closed (D-046).
 - The sun is fixed for the whole run. Moving it with the hour needs a re-bake or a few baked
   hours to fade between.
 - Moods still switch at set hours with no blend.
+
+## Moods between, and units kept readable (2026-11-11, Claude)
+`atmo_set_between(j, a, b, t)` sets the light t of the way from mood a to mood b, mixing every
+number and colour. A new `atmo_shade_unit` shader, drawn with additive blending, marks where a unit
+stands in the shade buffer's blue channel and leaves its shade alone. A new mood knob, `unit_lift`
+(0 to 1), takes some shade, deep wood and mist off what is marked and lifts it a little. The knob
+is off when the game draws no shade.

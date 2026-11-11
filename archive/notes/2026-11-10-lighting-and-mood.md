@@ -52,3 +52,10 @@ blur Claude added. The target is crisp: hard-edged light shade, sharp art.
 Summary (Claude): the light still falls the same everywhere. In the mock-up the trees carry
 shade in their branches (the trees thread took that, in how trees are baked) and the wood behind
 the clearing is dark and misty, so the clearing reads as a lit room in a dark wood (this thread).
+
+## When the dark-wood PR merged (2026-11-11, 05:44)
+
+> but you're not done there, why did you stop?
+
+Summary (Claude): keep going toward the mock-ups across the moods, the seasons and seeing the men
+(issues #14, #11, #7), and don't stop after each PR.
