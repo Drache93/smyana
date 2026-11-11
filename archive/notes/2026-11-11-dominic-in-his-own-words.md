@@ -167,3 +167,12 @@ the first trunks: picture 44.)
 
 **10:19** (chat)
 > Okay have 86 work be finished then if its close
+
+**about 10:20** (chat)
+> Environment needs to be our focus
+
+**about 10:22** (chat, on pull request 47)
+> 47 conflicts
+
+**10:44** (chat, pull request 47 merged)
+> Done

@@ -105,3 +105,35 @@ branch on Smyana main `a5ed604` with Creel `7100d3d`:
 
 (The season clock's decision is D-062. It was written as D-059 until the start-up thread's D-059 to D-061 reached main
 first, and the state note of 10:25 still calls it D-059.)
+
+## Weather: mist, rain and snow (10:45 to 11:25)
+
+Dominic merged pull request 47 at 10:44 ("Done"). Issues 10, 11, 13 and 14 were closed with a comment each saying what
+was built and where the rest went. Then weather (issue 15), from a fresh branch on main `a26605e` with Creel `91f157f`.
+
+What was built (Claude; decision D-063, a Proposal):
+
+- **Spells in the sim.** The weather comes in spells of three hours on the clock (`"weather"` in `data/route.json`).
+  A spell is clear, mist, rain or snow by the season's chances, worked out from the spell's number, so two runs see
+  the same sky. Rain falls as snow where snow lies. A spell comes on and goes off over its first and last quarter. A
+  leg can name its own weather, and a leg that stands still in its season (the comparison scene) stays clear.
+- **Snow slows the men.** Lying snow takes up to a quarter off their pace, and snow coming down hard a tenth more.
+- **The light under it.** `"weather"` in `data/atmosphere.json` says how far each of a mood's numbers moves under mist,
+  rain and snow. Overcast takes the sun and most of the cast shade away and greys the colours; it is added to whatever
+  the hour and the season have set, so rain at dusk is still dusk.
+- **Rain and snow coming down.** Drawn into the world a pixel of the art at a time, so they take the hour's light and
+  stay crisp. Rain is short strokes leaning with the wind, with a fleck where each lands. Snow is single pixels
+  swinging as they sink.
+- **Wind.** A little always, more in rain and snow, in gusts. It leans the rain, carries the snow and blows the
+  falling leaves sideways.
+- `weather:rain` (or `mist`, `snow`) on the command line shows a place in that weather.
+
+Picture 74: the beech valley in autumn, clear and in rain; the fir woods at eight in the morning, clear and in mist;
+the beech valley in midwinter with snow falling.
+
+![weather](../images/2026-11-11/74-weather-rain-mist-and-snow.jpg)
+
+Not done, said plainly: the crowns do not sway in the wind (they are baked pictures; only what falls shows the wind),
+no snow lies on the boughs, and weather has no sound (sound is issue 59). Falling snow is hard to see against lying
+snow and reads mostly against trunks and men. I looked at still pictures only, not at the weather coming and going
+over a walk.
