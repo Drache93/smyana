@@ -623,13 +623,17 @@ def draw_world(alpha:float):
                         flush_sprites()
                         b_sheet = -1
                         sprite_shader = "atmo_shade_canopy"
-                        // (the canopy overhead: a crown's shade grown about its middle, as far as the wood is closed)
+                        // (the canopy overhead: a crown's shade spread round itself, as far as the wood is closed: drawn again
+                        // at a ring of offsets rather than scaled up, so its pixels stay the art's size and its edge stays fine)
                         for(canopies) cp:
                             let fr = frames[cp.f]
-                            let x0 = cp.x - float(fr.ox) * fr.k
-                            let y0 = cp.y - float(fr.oy) * fr.k
-                            let mid = float2 { x0 + float(fr.w) * fr.k * 0.5, y0 + float(fr.h) * fr.k * 0.5 }
-                            sprite_xf(cp.f, [ fr.k * cp.s, 0.0, 0.0, fr.k * cp.s, mid.x + (x0 - mid.x) * cp.s, mid.y + (y0 - mid.y) * cp.s ], float4_1)
+                            let rx = float(fr.w) * fr.k * (cp.s - 1.0) * 0.5
+                            let ry = float(fr.h) * fr.k * (cp.s - 1.0) * 0.5
+                            sprite(cp.f, cp.x, cp.y, float4_1)
+                            if rx > 0.5:
+                                for(8) a:
+                                    let ang = float(a) * 45.0 + 22.5
+                                    sprite(cp.f, cp.x + cos(ang) * rx, cp.y + sin(ang) * ry, float4_1)
                         flush_sprites()
                         // the sunflecks: a spot of sun on the floor of the wood, swelling and gone as the boughs sway
                         if flecks.length:

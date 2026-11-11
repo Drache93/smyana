@@ -59,5 +59,32 @@ included.
 
 ![Sunflecks in the deep wood, before (left) and after](../images/2026-11-11/09-sunflecks-in-the-deep-wood-before-and-after.jpg)
 
+## After the critique of the comparison scene (07:00)
+At Dominic's request, another Claude critiqued the comparison scene against the target
+(`/mnt/project-files/smyana-trees/comparison-critique-2026-11-11.md`). Its measurements: ours averaged
+RGB 107, 72, 34 at saturation 154 (out of 255), the target 89, 69, 51 at 98. Our top third was a flat
+brown (53, 40, 30), and the target's is grey (66, 58, 55). These were the light's parts:
+
+- **Shade is cool and lighter.** The autumn shade is now blue-grey (`#a6b0c0`) and loses a third of
+  its colour. Before, it was the same orange turned down to brown.
+- **Mist rises up the screen.** The haze is stronger and blue-grey from a third of the way up, so
+  the back wood goes paler row by row. That stands in for the perspective we can't have. The
+  deep-wood mist is now paler than the floor under it, where before it was darker.
+- **Lit ground is less orange.** Autumn's saturation is down from -0.16 to -0.36, with a softer,
+  straw-coloured highlight.
+- **The men keep their own colour in shade,** only darkened, instead of going grey.
+- **Water keeps its light in shade.** A stream in shade read as a road. The shader tells water by
+  its colour (blue over red) and shades it less.
+- **The fire's glow is about a man wide** instead of a large yellow disc.
+- **Shade edges are at the art's pixel size.** The canopy shade used to be scaled up, which
+  magnified its pixels into stair steps. It is now the crown's own shade drawn again at a ring of
+  offsets.
+
+Measured after: ours 90, 77, 58 at saturation 86, top third 67, 64, 61. That is within a few points
+of the target. Where the light falls (the camp should stand in the sunlit pool) depends on the
+scene's layout, which is the trees thread's.
+
+![Cool shade, mist and blue water, above the target](../images/2026-11-11/11-cool-shade-mist-and-blue-water-above-the-target.jpg)
+
 ## Left to do
 - Moods don't yet blend between seasons, because the season changes by place.
