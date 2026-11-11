@@ -341,3 +341,9 @@ leaves (design doc, "Leaves as a signal"). For #9.
 at six tenths of his pace, four tenths loaded, and up to a fifth less when the water is high (the thaw, or hard rain).
 The risk of a ford is time and cold, not drowning: nobody is lost to a stream by a roll of dice. How cold the water is
 is given to the needs (#65) to use. For #20.
+
+**D-066, 2026-11-11: Raised ground is rough near every drop, and proper cliffs are Creel's work.** (Dominic asked for
+the cliffs issue; Claude chose the rough relief.) Near a change of height the ground rises and falls by up to 0.9 of a
+level, so no rim is ruled along the tiles (Creel `relief_rough`). This is a step, not the cure. Natural cliffs, with
+curved footprints, broken faces and ledges, are Casaide/creel#25. Until then, rock outcrops over the walls stay. For
+#16.

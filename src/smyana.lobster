@@ -575,6 +575,8 @@ def view_enter(between):
     build_stream(gfloat(su_map, "stream", 0.25))
     // (a mountain's cliffs are sheer and jog square: no corner of high ground is cut down to a slope)
     relief_sharp = true
+    // (and no rim is ruled straight along the tiles: the ground by a drop rises and falls, Dominic's "hard edges")
+    relief_rough = (if arg_of("rough") != "": string_to_float(arg_of("rough")) else: gfloat(su_map, "rough", 0.9))
     build_relief()
     trail_wear()
     build_trail()

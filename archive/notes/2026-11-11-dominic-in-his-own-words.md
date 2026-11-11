@@ -188,3 +188,9 @@ the first trunks: picture 44.)
 
 **16:11** (chat)
 > stop the agent after that re-work. And we'll start a new opus thread focued on the remaining issues
+
+**16:32** (chat, to the new thread on the remaining environment issues; "door around" is voice typing for "worked
+around")
+> Open an issue on creel for proper cliffs. Our work so far was door around
+
+(Opened as Casaide/creel#25.)

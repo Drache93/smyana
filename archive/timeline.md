@@ -140,3 +140,5 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-11:** The gorge's walls reworked after Dominic's "those are all hard edges": stepped, uneven, under rock
   outcrops. Where issues 16, 17, 6 and 3 stand is written down for the next thread.
   ([journal](journal/2026-11-11-closing-the-environment-issues.md#where-the-open-issues-stand-1645-for-the-next-thread))
+- **2026-11-11:** Rough relief in Creel: the gorge's rims and ramps wander and their light runs smoothly; the walls
+  seen in winter. Proper cliffs opened as Creel issue 25 at Dominic's word. ([engine](engine/2026-11-11-rough-relief.md))
