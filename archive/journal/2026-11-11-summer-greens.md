@@ -31,3 +31,16 @@ the tufts below it, which is why the light trees vanished on the grass.
 
 Autumn and winter are unchanged (checked on the comparison scene). Pictures: 98 (before and after, the gorge's beech
 side in summer), 100 (a conifer wood in summer after).
+
+## Later: saplings of each kind (#98)
+
+Saplings were all young beeches. Now each wood has its own (`tools/tree_vox.py` makes `oak_sapling_0`,
+`hornbeam_sapling_0`, `spruce_sapling_0`, `fir_sapling_0`, after the other trees so their seeds don't change): a
+broadleaf wood's are half beech, the rest oak and hornbeam; a conifer wood's are spruce, fir and some beech. A sapling
+is one picture, its stem and leaves together. The conifers' are evergreen and stand through the winter; the
+broadleaves' still go under the snow with the rest of the undergrowth.
+
+Claude tried breaking the summer and autumn crowns into clusters by thinning their leaves with noise. It didn't work:
+thinning a solid crown shows its dark inside, not sky, so the crowns only went darker. Crowns with sky between their
+clusters have to be built that way in the .vox models (leaves in clumps on twigs, as after leaf-fall), which is the rest
+of #98.

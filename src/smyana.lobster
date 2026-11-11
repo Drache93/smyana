@@ -309,7 +309,11 @@ def build_props():
             let hb = mixed(c + 88001)
             if shading >= 1 and shading <= 4 and hb % 100 < (if thicket: 45 else: 3):
                 props.push(Prop { 5, 0, "bramble{(hb / 100) % BRAMBLE_KINDS}", "", gp(float((c % W) * 1000 + (hb / 1000) % 1000), float((c / W) * 1000 + (hb / 1000000) % 1000)), c })
-            if (h2 / 100) % 100 >= 90 and (h2 / 100) % 100 < 94: props.push(Prop { 5, 0, "sapling", "", centre, c })
+            if (h2 / 100) % 100 >= 90 and (h2 / 100) % 100 < 94:
+                // (a sapling of the wood's own kinds, #98)
+                let r = (h2 / 10000) % 10
+                let sp = if wood == "beech": (if r < 5: "beech" elif r < 8: "oak" else: "hornbeam") else: (if r < 4: "spruce" elif r < 7: "fir" else: "beech")
+                props.push(Prop { 5, 0, "sapling_" + sp, "", centre, c })
             if (h2 / 100) % 100 < 6: props.push(Prop { 5, 0, "bush{h2 % BUSH_KINDS}", "", centre + iso(float((h2 / 13) % 600) - 300.0, float((h2 / 19) % 600) - 300.0), c })
             elif (h2 / 100) % 100 == 99: props.push(Prop { 6, 0, "log{h2 % LOG_KINDS}", "", centre, c })
     // the camp, where the place has one laid out ("camp": [name, x, y in milli-tiles] each: the tents, the woodpile,
@@ -904,7 +908,11 @@ def collect_props():
             elif pr.kind == 5:
                 // (winter: the bushes and herbs are gone (they have no winter frame), two tufts in three are under the
                 // snow, and what's left stands dead)
-                if not bare or pr.name[0] != 't' or pidx % 3 == 0:
+                // (a conifer's sapling is evergreen: one picture all year)
+                if pr.name == "sapling_spruce" or pr.name == "sapling_fir":
+                    add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39996.0, float4_1)
+                    add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
+                elif not bare or pr.name[0] != 't' or pidx % 3 == 0:
                     // (grass casts no shade of its own: a dot of shade under every tuft made the ground spotty)
                     if pr.name[0] != 't': add(frame_at.get(pr.name + "." + season + ".shadow", -1), pr.at.x, pr.at.y, -39996.0, float4_1)
                     add(frame_at.get(pr.name + "." + season, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
