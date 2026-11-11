@@ -659,13 +659,13 @@ def collect_props():
                 add(frame_at.get("bridge{part}.shadow", -1), at.x, at.y, -39997.0, float4_1)
                 add(frame_at.get("bridge{part}", -1), at.x, at.y, at.y - 20.0, float4_1, 1.0, 0)
 
-// An ellipse on the ground (2:1) round p.
+// An ellipse on the ground round p, as flat as the camera sees the ground.
 def draw_ring(p:float2, r:float, col:float4):
     let n = 24
     for(n) k:
         let a0 = 360.0 * float(k) / float(n)
         let a1 = 360.0 * float(k + 1) / float(n)
-        ui_line(p + float2 { cos(a0) * r, sin(a0) * r * 0.5 }, p + float2 { cos(a1) * r, sin(a1) * r * 0.5 }, 1.2, col)
+        ui_line(p + float2 { cos(a0) * r, sin(a0) * r * iso_k / 0.048 }, p + float2 { cos(a1) * r, sin(a1) * r * iso_k / 0.048 }, 1.2, col)
 
 var mark_at = float2_0  // where the last order pointed (art px), and when
 var mark_t = -10.0
@@ -971,6 +971,15 @@ pace_background = not capture
 pace(PACE_MATCH)
 lib_load("../data")
 route_load()
+// The camera's angle is the game's own setting (D-051; Dominic: "Camera angle should be game setting not engine
+// enforced"): route.json's "camera_elev", degrees down from level, 22 where Creel's own is 30. Lower, so the wood
+// stands taller and you see further into it, as in the mock-ups. Creel's settings for it all follow from the one
+// angle, and are set here before anything is baked or drawn (elev:<degrees> for a look at another).
+let view_elev = if arg_of("elev") != "": string_to_float(arg_of("elev")) else: gfloat(route, "camera_elev", 30.0)
+iso_k = 0.048 * sin(view_elev)
+vx_ELEV = view_elev
+VM_VIEW = float3 { -view_elev, 45.0, 0.0 }
+LEVEL_PX = 20.0 * cos(view_elev) / cos(30.0)
 atmo_data = lib_data("atmosphere.json")
 for(atmo_problems(atmo_data)) why: print why
 sun_from_data()

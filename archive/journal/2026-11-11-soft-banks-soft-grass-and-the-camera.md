@@ -140,3 +140,46 @@ No picture: it was tried in the check with no window, not yet looked at on scree
 Picture 22 (broken above, mended below). Still wrong (Claude): the trail fades out before it reaches the bank, the
 ford's wading is no slower for a loaded man and no colder late in the year, and mending has not been tried by hand
 on screen, only in the check.
+
+## The gorge goes onto the route (10:35 to 10:50)
+
+- The run is six visits now (D-050): out through the beech valley, the fir woods and the gorge, and home through
+  the gorge and the firs in winter and the beeches in spring. The check walks all of it: digs at the slide, sends a
+  man round by the ford while the bridge is down, mends the bridge, comes back in winter and finds it standing and
+  the dug heap still gone.
+- Three placeholder letters were added and one reworded (Claude's words, to be replaced by Dominic's).
+
+Picture 24: the gorge in winter, the ford and the side path to it.
+
+## The camera goes down to 22 degrees, and two hard looks at the scene (10:50 to 11:20)
+
+- Dominic chose the lower camera (D-051) and asked that it be the game's setting, not the engine's. Creel's view
+  angle was four fixed numbers (the units' bake, the props' bake, the ground's squash and the height of a level) and
+  two more inside its ground shaders; they are settings now, 30 degrees unless a game says otherwise. Smyana reads
+  `camera_elev` from `data/route.json` and sets them before anything is baked. Every bake's key carries the angle.
+- Dominic also asked for a critical reviewer on the comparison picture. Two reviews came back (both by Claude
+  agents, neither is Dominic's word): one is kept whole in `notes/2026-11-11-critique-of-the-comparison-scene.md`.
+  They agree on the worst of it: the back of the wood is an empty floor with a few trunks, the trees are saplings
+  beside the mock-up's beeches (thin dark trunks, blobs of pure red and yellow where it has pale thick trunks and a
+  mass of fine twigs with a few rust leaves), nothing frames the clearing in the foreground, the ground is one
+  orange carpet, the grass is still too thin, the stream is paint on the ground with no stones or ripples, the camp
+  stands in shade while the sun falls on bare ground, and the view is about a third too close.
+
+Pictures 26 (the scene at 22 degrees above the mock-up) and 28 (the pass at 22 degrees). Still wrong (Claude): the
+stream's edge steps more coarsely at the lower angle.
+
+## First answers to the reviews (11:20 to 11:45)
+
+- **Further out.** The scene was shot a third too close (men 80 to 100 px tall against the mock-up's 60 to 75). At
+  zoom 2 in place of 2.75 the back of the wood has its crowns in frame and trees close the clearing in on every
+  side: much of "the back is empty" and "nothing frames it" was the framing, not the planting. The comparison is
+  shot at `zoom:2` from now on.
+- **Rust, not red and gold, after leaf-fall.** The "late" stage has its own leaf colours: russet, burnt orange and
+  brown. Full autumn keeps its reds and golds (Dominic's: autumn's rich colours are the game's poster).
+- **Pale trunks.** Beech and hornbeam bark is a pale silver grey now; it was near black in shade.
+- **The camp in the light.** The clearing is opened up and to the left, and the two big trees up-sun of the camp are
+  gone, so the fire and the tents stand at the edge of the sunlit pool.
+
+Picture 30. Still to do from the reviews (Claude): crowns as a mass of fine twigs, the ground in patches, grass
+denser and lower, the stream's stones, ripples and overhang, logs and a chopping block by the camp, fewer men at the
+fire.

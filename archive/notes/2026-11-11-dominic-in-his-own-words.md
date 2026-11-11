@@ -12,3 +12,11 @@ His messages about the game, word for word, in the order he sent them (times in 
 
 **05:45**
 > Also.... should we adjust the camera angle i wonder, feels more special in the mockup with the angle
+
+## 06:50, on the comparison picture and the camera (chat)
+
+> Pleaelse start a critical fable agent to look carefully at yhr comparison picture. And let's try lowering camera angle
+
+## 06:53, on where the camera angle is set (chat)
+
+> Camera angle should be game setting not engine enforced

@@ -16,7 +16,7 @@ def cliff_shaders() -> string:
     PIXEL
         INPUTS iface:2 iinfo:4
         UNIFORM float art_px
-        float level_px = 20.0;
+        UNIFORM float level_px
         float rim = iinfo.x;
         float foot = iinfo.z;
         float side = iinfo.y;

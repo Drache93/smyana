@@ -1,5 +1,5 @@
-// The run with no window: twenty men walk through the beech valley, fell a tree on the way, cross to the fir woods and
-// come back, and the valley still has its stump. Proves issue #4's swap: one map per place, the men, their loads and
+// The run with no window: twenty men walk through the beech valley, fell a tree on the way, cross to the fir woods, dig
+// at the landslide, mend the gorge's bridge, and come back the same way: the valley still has its stump. Proves issue #4's swap: one map per place, the men, their loads and
 // the clock carried across, the place remembered. Run from src/: lobster run_check.lobster (./check.sh does).
 import from "../creel/src"
 import smyana.sim
@@ -98,32 +98,25 @@ for(6000) n:
         if terrain[heap] != heap_t: dug_at = n
 expect(dug_at >= 0 and tr_names[terrain[heap]] == "bare", "four men dug a heap of the landslide away (after {dug_at} ticks): bare ground is left")
 expect(u_carry[index_of(men[2].uid)] == 0, "a digger carries nothing away")
-let back = walk_to_gate("west")
-expect(back == "west", "all the men are back at the west gate")
-route_leave(back)
-route_arrive(back)
-expect(place_now() == "beech_valley" and arrived_by == "east" and season_now() == "spring", "the beech valley again, from the east, in spring")
-expect(terrain[cut] == stump, "the tree felled on the way out is still a stump")
-let mem = place_memory.get("fir_woods")
-expect(mem != nil, "the fir woods are remembered too")
-let home = walk_to_gate("west")
-expect(home == "west", "the men crossed the valley to the west gate")
-route_leave(home)
-route_arrive(home)
-expect(run_over() and men_alive() == 20, "home: the run is over, twenty men alive")
-// off the route: the gorge, its bridge found broken (#20). Two men with a load of wood each mend it, and all cross.
-enter_leg("gorge_look", "west")
+// east past what is left of the slide, to the gorge: its bridge is found broken (#20)
+let east = walk_to_gate("east")
+expect(east == "east", "all the men got by the landslide to the east gate")
+route_leave(east)
+route_arrive(east)
 expect(place_now() == "gorge" and br_up.length == 1 and br_up[0] == 0, "the gorge: its bridge is down")
 let wood_k = str_index(resource_names, "wood") + 1
 expect(not mend_bridge([ men[5].uid ], 0), "a man with no wood cannot mend the bridge")
-let menders = [ men[0].uid, men[1].uid ]
-for(menders) id:
-    u_carry[index_of(id)] = r_carry
-    u_carry_kind[index_of(id)] = wood_k
+// (the cutter still has his load from the beech valley; a second man is given one)
+let menders = [ cutter.uid, men[1].uid ]
+u_carry[index_of(men[1].uid)] = r_carry
+u_carry_kind[index_of(men[1].uid)] = wood_k
 issue_cmd(0, CMD_MOVE, ids_alive(), br_x0[0] - 3 * TILE, br_y0[0] + 500, 0, 0)
+// (one man is sent to the far bank while the bridge is down: the only way is the ford downstream)
+issue_cmd(0, CMD_MOVE, [ men[6].uid ], br_x1[0] + 3 * TILE, br_y0[0] + 500, 0, 0)
 for(1500):
     step()
     route_tick()
+expect(u_x[index_of(men[6].uid)] > br_x1[0], "a man sent across with the bridge down went round by the ford")
 expect(mend_bridge(menders, 0), "two men with a load of wood each set to mending it")
 expect(u_carry[index_of(menders[0])] + u_carry[index_of(menders[1])] == 2 * r_carry - br_cost[wood_k - 1], "the wood came off their backs")
 var mended_at = -1
@@ -133,11 +126,35 @@ for(3000) n:
         route_tick()
         if br_up[0] == 1: mended_at = n
 expect(mended_at >= 0, "the bridge stands again (after {mended_at} ticks)")
-issue_cmd(0, CMD_MOVE, ids_alive(), br_x1[0] + 6 * TILE, br_y0[0] + 500, 0, 0)
-for(1200):
+let over = walk_to_gate("east")
+expect(over == "east", "all the men crossed it to the east gate")
+// the season's work is beyond that gate: they come back in by it in winter, and the bridge is as they left it
+route_leave(over)
+route_arrive(over)
+expect(place_now() == "gorge" and arrived_by == "east" and season_now() == "winter", "the gorge again, from the east, in winter")
+expect(br_up[0] == 1, "the bridge they mended still stands")
+for(300):
     step()
     route_tick()
-let across = filter(ids_alive()) id: u_x[index_of(id)] > br_x1[0]
-expect(across.length == 20, "all the men crossed it to the east bank ({across.length})")
+let west1 = walk_to_gate("west")
+expect(west1 == "west", "the men crossed back to the west gate")
+route_leave(west1)
+route_arrive(west1)
+expect(place_now() == "fir_woods" and arrived_by == "east" and season_now() == "winter", "the fir woods again, from the east, in winter")
+expect(tr_names[terrain[heap]] == "bare", "the heap they dug away is still gone")
+for(300):
+    step()
+    route_tick()
+let back = walk_to_gate("west")
+expect(back == "west", "all the men are back at the west gate")
+route_leave(back)
+route_arrive(back)
+expect(place_now() == "beech_valley" and arrived_by == "east" and season_now() == "spring", "the beech valley again, from the east, in spring")
+expect(terrain[cut] == stump, "the tree felled on the way out is still a stump")
+let home = walk_to_gate("west")
+expect(home == "west", "the men crossed the valley to the west gate")
+route_leave(home)
+route_arrive(home)
+expect(run_over() and men_alive() == 20, "home: the run is over, twenty men alive")
 print "loads: first place {load0} s, last place {last_load_s} s"
 print (if failed: "run_check: {failed} FAILED" else: "run_check: ok")
