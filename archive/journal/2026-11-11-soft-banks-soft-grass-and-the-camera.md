@@ -1,0 +1,36 @@
+# 2026-11-11: soft banks, soft grass, and a look at the camera's angle
+
+Dominic, of the comparison scene: "ew're still missing lot of detail. The ebankment is too sharp, should be softly going
+down. And missing all the soft grass". And: "should we adjust the camera angle i wonder, feels more special in the mockup
+with the angle". His words are in `archive/notes/2026-11-11-dominic-in-his-own-words.md`.
+
+## The camera (a trial, not a change)
+
+Our camera looks down from 30 degrees above the ground, as Age of Anything's does. The mock-up looks lower. A trial at
+22 degrees (three numbers in Creel and one in its ground shader, not committed) gives picture 02: now, the trial, the
+mock-up. Lower stacks the trunks into a wall at the back and lets the crowns frame the clearing. It costs sight of the
+men behind trees, and the screen reaches about a third deeper into the map. Dominic's to decide; asked.
+
+## The stream
+
+- The bank was a wall of dark earth a few pixels high along the far shore. It is gone. The ground now slopes down to
+  the water on both sides: its own cover carries on down the slope, damper and darker, earth showing by the waterline,
+  the slope turned to the sun lit and the other in shade (Creel: `ground_shore_soft`).
+- The stream is narrower than its tiles and winds. Creel's water mask is a tile's worth of water, blurred, so Smyana
+  paints the water again after it, finer (`build_stream`): along the stream's own line where the map gives one
+  (`"streams"`), else through the middle of the water's tiles. The men still walk the same tiles.
+- The water is the mock-up's pale blue under the sky, not teal (Creel: `ground_water_shallow`, `ground_water_deep`).
+
+## The grass
+
+Looking closely at the mock-up: its grass is not a green floor. It is pale upright tufts, shin to knee high, standing
+out of the fallen leaves, thick in drifts and thinning to single tufts. Ours was flat green patches with flat dabs of
+herbs on them.
+
+- A tuft of grass as a model (`grass_tuft`): thin stems from a few feet close together, dark at the foot and straw
+  yellow at the tip, six shapes. Up to 26 a tile, by a smooth drift a few tiles across, and thinner under a close wood.
+- In autumn the leaves lie over the open ground as well, with only a worn spot of turf here and there.
+
+Picture 04 is the scene above the mock-up. Still open (Claude): the tufts could stand closer yet at a drift's middle;
+the trail fades under the leaves before it reaches the stream; the men do not sit round the fire; the crowns are in
+full leaf where the mock-up's are nearly bare.

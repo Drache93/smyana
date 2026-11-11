@@ -30,9 +30,10 @@ def run(points, ch, over):
 pts = []
 for i in range(-60, 61):
     d = i / 3.0                      # down
-    r = 4.6 - 0.36 * d + 0.9 * math.sin(d * 0.45)   # right
+    r = 4.6 - 0.36 * d + 1.5 * math.sin(d * 0.5)   # right
     pts.append(((r + d) / 2.0 + CX, (d - r) / 2.0 + CY))
 run(pts, "~", ".")
+stream = [int(round(v * 1000)) for p in pts[::2] for v in p]
 
 # the clearing: an oval, wider than deep on screen, the stream through its right side
 def in_clearing(x, y):
@@ -89,7 +90,9 @@ doc = {
     "gates": {"west": [CX - 3, CY - 1, CX - 1, CY + 1]},
     "wood": "beech",
     "scene": 1,
+    "grass_seed": 9057,
     "camp": camp,
+    "streams": [stream],
 }
 with open("data/maps/camp_clearing.json", "w") as f:
     f.write("{\n")

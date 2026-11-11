@@ -67,3 +67,6 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-10:** The wood behind a clearing goes dark and misty under its canopy, so the clearing is
   a lit room in a dark wood, as in the mock-up.
   ([journal](journal/2026-11-10-lighting-and-mood.md#fourth-pass-a-dark-wood-round-a-lit-clearing))
+- **2026-11-11:** The stream's banks slope softly down to a narrow pale stream, and the grass is pale tufts standing
+  out of the leaves; a trial of a lower camera beside the mock-up.
+  ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md))
