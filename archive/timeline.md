@@ -76,3 +76,5 @@ One line per moment worth remembering. Newest at the bottom.
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#the-pass-faces-that-jog-a-river-in-the-gorge-0650-to-0705))
 - **2026-11-11:** Grass is fine stems massed in drifts, no dots and no spot shadows (pictures 10, 12).
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#the-grass-again-fine-stems-in-drifts-0710-to-0740))
+- **2026-11-11:** Crags stand at the feet and corners of the pass's cliffs, so the faces no longer read as blocks (picture 14).
+  ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#the-pass-crags-at-the-cliffs-feet-0745-to-0805))

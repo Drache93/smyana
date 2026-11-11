@@ -204,7 +204,26 @@ def build_props():
             // a landslide's debris (#20): a heap of earth and broken rock on each tile, a broken trunk here and there
             props.push(Prop { 3, 0, "rubble{(h / 7) % RUBBLE_KINDS}", "", off + iso(float((h / 5) % 500) - 250.0, float((h / 23) % 500) - 250.0), c })
             if (h / 3) % 5 == 0: props.push(Prop { 6, 0, "log{h % LOG_KINDS}", "", off + iso(float(h % 500) - 250.0, float((h / 9) % 500) - 250.0), c })
-        elif t == bare_p and level[c] > 0 and (h / 13) % 6 == 0:
+        // a cliff's foot (#20): crags stand against the face behind this tile (to its north, or to its west), more
+        // of them where the face turns a corner, and loose rock lies between them
+        if t != debris_t and t != rock:
+            let cx = c % W
+            for([ -W, -1 ]) d, side:
+                let n = c + d
+                if n >= 0 and (side == 0 or cx > 0) and level[n] - level[c] >= 2:
+                    let hs = mixed(c * 2 + side + 77001)
+                    let o = c + (if side == 0: -1 else: -W)  // (the tile beside this one, along the face)
+                    let corner = o >= 0 and (level[o] != level[c] or level[o + d] != level[n])
+                    let along = float(hs % 700 + 150)
+                    let out = float((hs / 700) % 140 + 150)
+                    let at = if side == 0: gp(float(cx * 1000) + along, float((c / W) * 1000) + out) else: gp(float(cx * 1000) + out, float((c / W) * 1000) + along)
+                    let tall = level[n] - level[c] >= 4
+                    if corner or (hs / 100000) % 10 < 3:
+                        let k = if tall: [ 0, 3, 1, 0 ][(hs / 9) % 4] else: 2
+                        props.push(Prop { 3, 0, (if side == 0: "cragx" else: "cragy") + "{k}", "", at, c })
+                    elif (hs / 100000) % 10 < 7:
+                        props.push(Prop { 4, 0, "slabs{(hs / 7) % SLAB_KINDS}", "", at, c })
+        if t == bare_p and level[c] > 0 and (h / 13) % 6 == 0:
             // bare mountain ground: a few loose slabs and stones lie on it
             props.push(Prop { 4, 0, "slabs{(h / 7) % SLAB_KINDS}", "", off, c })
         elif t == grass and (h / 11) % 3 == 0:

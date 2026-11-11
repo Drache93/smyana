@@ -7,7 +7,7 @@
 // seen. The leaves are baked once a season (their colour), behind the letter home, and kept in bake_cache/.
 
 let TREE_K = 64.0  // voxels a tile for the load of wood (baked at twice this)
-let TREE_BAKE = "trees 34"
+let TREE_BAKE = "trees 36"
 // Voxels a tile in the trees, rocks and undergrowth: one voxel is one pixel of Creel's art (WB_PX at its art scale of
 // 3), as the men's are, so they are as crisp as the men (Dominic, 2026-11-10: "evryhting crisp and sharp").
 let VOX_K = 135.7645
@@ -18,6 +18,7 @@ let PINE_KINDS = 3
 let SPRUCE_KINDS = 3
 let YOUNG_KINDS = 2
 let ROCK_KINDS = 4
+let CRAG_KINDS = 4
 let SLAB_KINDS = 2
 var tree_draw_k = 1.0  // art px a baked px (set at the bake: Creel's art scale decides)
 def vox_draw_k() -> float: return WB_PX / ART_K / VOX_K
@@ -374,6 +375,38 @@ def outcrop(look:vglook, kind:int) -> vgrid:
         rock_plate(g, at, randf_range(rng, 0.06, 0.13), randf_range(rng, 0.05, 0.1), randf_range(rng, 0.03, 0.07), randf_range(rng, 0.0, 180.0), VG_ROCK, 0.1, randf_range(rng, -0.3, 0.3), 1190 + n)
     return g
 
+// A crag at a cliff's foot (#20): a buttress of the same beds standing against the face, most of the face's height,
+// narrow from front to back and broad along the face (`turn` 0: a face that runs along x; 90: along y). It breaks the
+// straight foot and the square corners of a cliff made of whole tiles.
+def crag(look:vglook, kind:int, turn:float) -> vgrid:
+    let rng = grng(1500 + kind)
+    let g = vg_new(look, float3 { -0.95, -0.95, 0.0 }, float3 { 0.95, 0.95, 1.2 }, VOX_K, 1500 + kind)
+    let top = [ 0.95, 0.7, 0.45, 1.1 ][kind]
+    let dip = randf_range(rng, 0.1, 0.24) * (if kind % 2: 1.0 else: -1.0)
+    var z = 0.0
+    var c = float2 { 0.0, 0.0 }
+    var w = randf_range(rng, 0.36, 0.5)
+    var d = randf_range(rng, 0.2, 0.26)
+    var n = 0
+    while z < top:
+        let th = randf_range(rng, 0.09, 0.24)
+        let at = if turn > 45.0: float3 { c.y, c.x, z } else: float3 { c.x, c.y, z }
+        rock_plate(g, at, w, d, th, turn + randf_range(rng, -9.0, 9.0), VG_ROCK, randf_range(rng, -0.9, -0.3), dip, 1500 + kind * 31 + n * 97)
+        z += th
+        n++
+        // (it leans back to the face as it rises, and now and then a bed steps in or juts)
+        c += float2 { randf_range(rng, -0.05, 0.05), randf_range(rng, -0.03, 0.0) }
+        w = clamp(w * randf_range(rng, 0.8, 1.1), 0.2, 0.5)
+        d = clamp(d * randf_range(rng, 0.88, 1.04), 0.12, 0.26)
+    // what has come off it lies at its foot
+    for(4) k:
+        let side = if k % 2: -1.0 else: 1.0
+        let u = randf_range(rng, 0.3, 0.7) * side
+        let v = randf_range(rng, 0.05, 0.45)
+        let at = if turn > 45.0: float3 { v, u, 0.0 } else: float3 { u, v, 0.0 }
+        rock_plate(g, at, randf_range(rng, 0.06, 0.15), randf_range(rng, 0.05, 0.11), randf_range(rng, 0.03, 0.09), randf_range(rng, 0.0, 180.0), VG_ROCK, 0.1, randf_range(rng, -0.3, 0.3), 1590 + k)
+    return g
+
 // A landslide's debris on one tile (#20): a low heap of earth with broken rock in it at every size, from fist stones to
 // a block as big as a man, lying at all angles. Its look's bark is the earth.
 let RUBBLE_KINDS = 6
@@ -479,6 +512,9 @@ def bake_trees(between):
     if sheet_load(rs, vox_draw_k()) and sheet_load(ls, tree_draw_k / 2.0): return
     let gneiss = gneiss_look()
     for(ROCK_KINDS) kind: tree_onto(rs, "rock{kind}", outcrop(gneiss, kind), true)
+    for(CRAG_KINDS) kind:
+        tree_onto(rs, "cragx{kind}", crag(gneiss, kind, 0.0), true)
+        tree_onto(rs, "cragy{kind}", crag(gneiss, kind, 90.0), true)
     for(SLAB_KINDS) kind: tree_onto(rs, "slabs{kind}", slab_pile(gneiss, kind), true)
     let debris = gneiss_look()
     debris.bark = [ float3 { 0.19, 0.15, 0.11 }, float3 { 0.27, 0.21, 0.15 }, float3 { 0.35, 0.28, 0.20 }, float3 { 0.44, 0.36, 0.26 } ]

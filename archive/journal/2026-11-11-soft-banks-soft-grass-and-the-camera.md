@@ -72,3 +72,15 @@ finer grain than a tile, which Creel's ground can't do yet.
   drifts have a harder edge: thick inside, almost nothing outside.
 
 Pictures 10 (the scene) and 12 (the beech valley's ford).
+
+## The pass: crags at the cliffs' feet (07:45 to 08:05)
+
+- The faces can't be broken finer than a tile in Creel's ground, so the breaking is done with rock standing in front
+  of them (Claude): crags, buttresses of the same dipping beds, most of a face's height, broad along the face and
+  narrow front to back. One stands at every corner of a face and at three tiles in ten along it; loose slabs lie at
+  another three in ten. Lower faces get a lower crag.
+- The first crags were thin pale beds, a stack of pancakes (not kept). Beds are two to three times thicker now and
+  darker, nearer the face's own tone.
+
+Picture 14. Still wrong (Claude): the rim of a face is still a ruled line, and the crags' fronts have dark upright
+streaks from the rock light.
