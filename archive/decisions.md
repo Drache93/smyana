@@ -296,3 +296,19 @@ end of development we get the load time down". Every load is measured from phase
 
 **D-058, 2026-11-11: An old-fashioned map in the loader is a stretch goal.** (Dominic) "could be fun if stretch goal we
 have a old fashioned looking map we show in the loader". Behind the letter home, drawn from the world picture (#84).
+
+**D-059, 2026-11-11: The game opens on a live menu, not a loading screen.** (Dominic, #86) "we want very minimal
+loader. The game menu should show the village (once ready - just the men in forest for now is fine) alive in real time
+-> when you "start" , the menu should just fade away". The loader is the name, Смяна, on the dark; the menu is the same
+name over the men going about the wood, with Start and Quit. Under the menu the men move but the run's clock and gates
+wait. The name is set in Old Standard TT (SIL Open Font License), a 19th-century book face with Cyrillic (Claude).
+
+**D-060, 2026-11-11: Where anything touches the ground is the darkest point.** (Dominic, #86) "Darkest point should be
+where anything touches the ground". Every trunk, young tree, stump and man has a small dark oval at its foot, drawn on
+the ground, which the shade darkens further. Shade under a closed canopy is never lighter than one lone tree's: Creel's
+`mist` keeps the haze's hue but no longer lightens ("Lone trees its dark, overlapping its grey").
+
+**D-061, 2026-11-11: The zoom and the camera's speed follow the window, not its pixels.** (Claude, for Dominic's #86)
+The zoom is in steps of the window's height, so the wheel always returns to the default and a Retina screen sees what
+a small one does; it starts one step further out than before. The camera moves 1.6 window heights a second. The mouse
+has the game's own cursors: a pointer, a pointer with an order's ring, and an axe over a young tree.

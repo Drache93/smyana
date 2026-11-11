@@ -111,3 +111,6 @@ One line per moment worth remembering. Newest at the bottom.
   ([note](notes/2026-11-11-environment-handoff.md))
 - **2026-11-11:** The world is planned in 2D: one trail, seven maps, 13 legs, two hours (D-053 to D-058; pictures 60 and 62). Dominic answered the plan's questions in ten minutes and 36 issues were made from it.
   ([journal](journal/2026-11-11-the-world-in-2d-and-the-phases.md), [the world](../docs/world.md))
+- **2026-11-11:** Start-up and feel (#86): a live menu over the men in the wood, a loader that is just the name, start
+  21 s to 4 s, own cursors, a zoom that comes back, a faster camera, and dark feet under every tree (D-059 to D-061).
+  ([journal](journal/2026-11-11-the-menu-cursors-and-tree-feet.md))

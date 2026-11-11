@@ -111,3 +111,21 @@ On "Are bandits a threat in the demo, or only wolves, the bear and the patrol?":
 On the target dates Claude guessed (phase 1 by 15 November):
 
 > realistically much shorter. We have done the whole env in less than a day. We will complete phase 1 today i expect
+
+## 08:35, issue #86 "Start up and QL" (GitHub)
+
+> * Camera movement too slow
+> * We need custom cursors
+> * Default camera zoom seems too close, when i zoom out, i cant zoom back to the default
+> * Trees with overlapping shadows you cant see the very base/ring shadow. Darkest point should be where anything touches the ground
+> * Overlapping tree shadows seem to be brighter. Lone trees its dark, overlapping its grey
+> * Game start is slow, we want very minimal loader. The game menu should show the village (once ready - just the men in forest for now is fine) alive in real time -> when you "start" , the menu should just fade away
+
+**08:35** (chat)
+> https://github.com/Drache93/smyana/issues/86 have an agent pick this up when youre back
+
+**10:18** (chat)
+> Yes we need to pace ourselves, have them document current state and stop
+
+**10:19** (chat)
+> Okay have 86 work be finished then if its close
