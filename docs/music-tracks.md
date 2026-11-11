@@ -31,7 +31,7 @@ So every track is made to be cut to and from:
 | 1 | Summer day | Kaval and tambura, unhurried, bright end of the five-note scale. Bells far off. | 2–3 min | |
 | 2 | Summer dusk | Gadulka alone over a soft drone. Warm, a little homesick. | 2 min | |
 | 3 | Autumn day | Kaval in mist, men humming far away. Dominic found the first try "too soft now": it needs more body, perhaps a quiet gaida drone under it. | 2–3 min | 06 autumn mist |
-| 4 | Autumn dusk | Kaba gaida and kaval answering each other over the low drone. The sound Dominic liked first ("I liked the bagpipes"). | 2–3 min | 05, 11 autumn dusk |
+| 4 | Autumn dusk | **Made through the design stage** (2026-11-11, the demo's song): one kaba gaida at the camp, as slow as it can go, a low kaval far off at the end. See [`music-design.md`](music-design.md#autumn-dusk-as-made-2026-11-11-evening). | 2 min 26 s | 04 (2026-11-11) |
 | 5 | Autumn night | Low gadulka, long gaps, the drone barely there. | 2 min | |
 | 6 | Winter day | Almost nothing: wind, single tambura notes, a kaval phrase now and then. | 2 min | |
 | 7 | Winter night | One man's voice, unaccompanied. The deepest point of the run. | 1–2 min | |

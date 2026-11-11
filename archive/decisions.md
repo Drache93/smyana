@@ -396,3 +396,12 @@ stay in the game as placeholders until each is replaced by a designed one.
 
 (D-072 and D-073 were written as D-059 and D-060 on the music branch, pull request #63, and renumbered on
 2026-11-11 at 22:05 UTC when it was merged up to main, where those numbers had gone to the start-up thread.)
+
+**D-074, 2026-11-11: The demo's one song is autumn dusk: one kaba gaida, as slow as it can go.** (Dominic asked for
+"one good song for that demo"; the choice of song and everything in it is Claude's, made while he was away, and open
+to him.) It is the track the camp plays at dusk in autumn. Its sheet (`docs/music-design.md`) held, with one addition:
+a fourth phrase with the piece's one leap, up a fifth to the pipe's top note, answered at the end by the far kaval's
+leap down a fifth. The pipe is a new, rounder kaba gaida whose bag pressure wanders, so held notes are never still;
+the mist is the pipe's own long dark echo, not a separate haze of high notes; the drone is low in the mix and grows
+only for the leap. Every later song goes through the same written checklist, one at a time.
+

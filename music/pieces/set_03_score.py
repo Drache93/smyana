@@ -220,32 +220,10 @@ def autumn_day():
 
 
 def autumn_dusk():
-    """04. Kaba gaida and kaval answering each other over the low drone: the sketch Dominic liked ("I liked
-    the bagpipes"), its second take, made longer. At the end the two play together for the first time."""
-    rng = np.random.default_rng(1104)
-    total = 120.0
-    kaval = lines([
-        (5.0, "B4/3.0~ 'D5 B4/0.5 A4/0.9 B4/0.5 D5/2.4~ 'E5 D5/0.4 B4/0.9 A4/0.5 G4/0.5 A4/3.2~"),
-        (34.5, "E5/2.4~ D5/0.5 B4/0.6 D5/2.6~"),
-        (57.5, "G4/0.8 A4/0.8 B4/2.8~ 'D5 B4/0.4 A4/0.7 G4/0.9 E4/1.1 D4/0.8 E4/5.0~"),
-        (88.5, "D5/2.6~ 'E5 D5/0.4 B4/0.8 A4/0.5 G4/0.6 A4/0.5 G4/0.5 E4/3.0~"),
-        (102.0, "B4/1.4 A4/0.8 G4/0.8 E4/6.0~"),
-    ])
-    gaida = lines([
-        (20.5, "'B4 E4/2.6~ 'B4 E4/0.4 D4/0.5 E4/0.5 G4/0.9 A4/2.4~ 'B4 A4/0.4 G4/0.8 'B4 G4/0.3 E4/0.5 D4/0.5 E4/3.2~"),
-        (41.0, "G4/0.5 A4/0.5 B4/2.6~ A4/0.08 B4/0.5 A4/0.9 'B4 G4/1.2 'B4 G4/0.3 E4/0.5 D4/0.6 E4/0.5 D4/0.5 B3/1.0 'B4 D4/0.6 'B4 E4/4.2~"),
-        (75.0, "'B4 E4/2.0~ G4/0.5 A4/0.5 B4/2.8~ 'D5 B4/0.4 A4/0.8 'B4 G4/0.4 A4/2.6~"),
-        (101.0, "'B4 E4/0.8 D4/0.7 'B4 E4/7.5~"),
-    ])
-    drone = s.gaida_drone(E("E2"), 1.0, total - 2, total, rng, dark=1300)
-    mix = s.mixdown([
-        (s.kaval(kaval, total, rng, breath_level=0.16), -23, 0.35, 0.35, 1.0),
-        (s.gaida_chanter(gaida, total, rng), -20, -0.25, 0.7, 0.6),
-        (drone, -28, -0.15, 0.7, 0.45),
-        (s.mist([(0.0, total - 2, ["B4", "E5", "G5", "A5"])], total, rng), -35, 0.0, 0.2, 1.0),
-        (s.wind(total, rng), -37, 0, 1.0, 0.0),
-    ], rng, echo=5.5, predelay=0.05, dark=3000)
-    done("04_autumn_dusk", mix, "calm", fade_in=2.0, fade_out=6.0, midi=[("Kaval", 75, kaval), ("Kaba gaida", 109, gaida)])
+    """04. Made through the design stage now (2026-11-11 evening): see song_04_autumn_dusk.py and the sheet in
+    docs/music-design.md. The first draft's version (gaida and kaval answering, quick) is in git history."""
+    import song_04_autumn_dusk
+    song_04_autumn_dusk.track()
 
 
 def autumn_night():
@@ -681,8 +659,14 @@ def menu():
 def index():
     """data/music_tracks.json: how long each of the game's tracks is, for the game to know when one is over."""
     tracks = {}
+    path = ROOT / "data" / "music_tracks.json"
+    known = json.loads(path.read_text())["seconds"] if path.exists() else {}
     for ogg in sorted(GAME.glob("*.ogg")):
-        with wave.open(str(OUT / f"{ogg.stem}.wav")) as w:
+        wav = OUT / f"{ogg.stem}.wav"
+        if not wav.exists():                      # not rendered in this checkout: keep the length written before
+            tracks[ogg.stem] = known[ogg.stem]
+            continue
+        with wave.open(str(wav)) as w:
             tracks[ogg.stem] = round(w.getnframes() / w.getframerate(), 2)
     doc = {"_doc": "How long each track in assets/audio/music is, seconds. Written by music/pieces/set_03_score.py index.",
            "seconds": tracks}

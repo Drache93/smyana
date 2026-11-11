@@ -187,6 +187,38 @@ def gaida_chanter(events, total, rng):
     return amp * tone
 
 
+def kaba_chanter(events, total, rng):
+    """The kaba gaida's melody pipe, played slowly: deep and round, not bright, and never quite still.
+
+    Made for the designed autumn dusk (docs/music-design.md) after "the pipes are over used or just too flat". A piper
+    can't play louder or softer, but the bag's pressure wanders as he squeezes and breathes: the note leans a few
+    cents sharp and grows a little brighter, then sinks back. That slow movement is what keeps a held note alive. A
+    phrase starts flat and rises into tune as the bag fills, and a little air rasps in the reed.
+    """
+    f, amp, _ = curves(events, total, glide=0.018, attack=0.3, release=0.35,
+                       vib_cents=9, vib_hz=4.6, rng=rng)
+    n = len(f)
+    t = np.arange(n) / SR
+    press = wander(total, 0.35, rng)                      # the squeeze on the bag, -1..1, a few times a minute
+    # a phrase (a note after a rest of over a second) starts flat and settles
+    fill = np.zeros(n)
+    prev_end = -10.0
+    for a, d, m, _ in events:
+        if m is None:
+            continue
+        if a - prev_end > 1.0:
+            k = t >= a
+            fill[k] += -35 * np.exp(-(t[k] - a) / 0.35) * (t[k] - a < 3)
+        prev_end = a + d
+    f = f * 2 ** ((6 * press + fill) / 1200)
+    dark = eq(harmonics(f, reed_weights(30, 0.31)), bumps([(470, 220, 1.4), (1150, 350, 0.6), (2300, 600, 0.3)], 3000))
+    bright = eq(harmonics(f, reed_weights(30, 0.22)), bumps([(520, 240, 1.0), (1700, 450, 0.9), (2900, 700, 0.4)], 4600))
+    mix = 0.5 + 0.35 * press
+    tone = (1 - mix) * dark / (np.abs(dark).max() + 1e-9) + mix * bright / (np.abs(bright).max() + 1e-9)
+    rasp = noise(total, 900, 3200, rng) * (0.6 + 0.4 * wander(total, 5, rng))
+    return amp * (tone + 0.025 * rasp) * (1 + 0.03 * press)
+
+
 def gaida_drone(midi, start, stop, total, rng, shape=None, dark=2600):
     """The long low pipe. It sags flat as the bag fills, then settles.
 

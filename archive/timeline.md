@@ -156,3 +156,5 @@ One line per moment worth remembering. Newest at the bottom.
   ([journal](journal/2026-11-11-the-whole-score-in-first-draft.md))
 - **2026-11-11:** Dominic heard the first draft: "samey", "pipe going up and down quick", and "each song needs a clear design stage" (D-073). Measured, he was right: every move in every tune was a step. Design sheets and bare sketches for autumn dusk and the fire (pictures 63 and 64).
   ([design](../docs/music-design.md), [journal](journal/2026-11-11-the-whole-score-in-first-draft.md#two-hours-later-samey-and-a-design-stage-for-every-song))
+- **2026-11-11:** One good song for the demo: autumn dusk, the first track made through the design stage, a slow kaba gaida at the camp (D-074, pictures 107 and 108). The steps every song goes through are written down.
+  ([journal](journal/2026-11-11-one-good-song-autumn-dusk.md), [design](../docs/music-design.md#autumn-dusk-as-made-2026-11-11-evening))

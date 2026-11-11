@@ -232,3 +232,12 @@ picture 97)
 
 (Asked how to fix it, he chose "Even pixels at any zoom (sharp filter)" over whole-number zoom steps or remaking the
 men at twice the detail.)
+
+**21:13** (project chat, on the phases)
+> for the music for phase 1, lets focus on just getting that music creation solid. So we make one good song for that demo. We can then start on phase 2
+
+**21:55** (project chat, as the music thread started)
+> I won't.be  available to review. So continue to next to next phase once done as we discusses
+
+(So the music thread chose the song itself, autumn dusk, made it without his sign-off on the sheet, and handed on to
+phase 2. See [the journal](../journal/2026-11-11-one-good-song-autumn-dusk.md).)

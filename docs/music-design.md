@@ -1,7 +1,7 @@
 # Designing each song before it is made
 
 Status: **Proposal** by Claude, 2026-11-11, after Dominic heard the first draft of the score. The rule itself is his
-(D-060): "each song needs a clear design stage. Like we did for 2D before 3D". How the stage works, and the two
+(D-073): "each song needs a clear design stage. Like we did for 2D before 3D". How the stage works, and the two
 sheets below, are for him to change or agree.
 
 ## What he heard, and what the measurements say
@@ -115,12 +115,82 @@ Pencil sketch (the pipe, its drone and the kaval's two notes, nothing else):
 Pencil sketch (hummed, since the bench can't sing words; one voice, then five, and the knock):
 [`02-music-pencil-sketch-the-fire.ogg`](../archive/audio/2026-11-11/02-music-pencil-sketch-the-fire.ogg)
 
+## Autumn dusk, as made (2026-11-11, evening)
+
+Dominic, 21:13 UTC: "for the music for phase 1, lets focus on just getting that music creation solid. So we make one
+good song for that demo." Then, 21:55: "I won't.be available to review. So continue to next to next phase once done".
+So Claude chose the song and finished it without his sign-off on the sheet. **It is Claude's call, open to him.**
+
+**Why autumn dusk.** The demo is the men round the camp, and the game plays this track there in autumn from 18h to
+21h (picture 108). Autumn is the poster boy. The bagpipe is the sound he liked first. And the fire song, the other
+camp track, wants real men's voices, which the bench can't make.
+
+![Autumn dusk as made](../archive/images/2026-11-11/107-music-autumn-dusk-as-made.png)
+
+What changed from the sheet, and why:
+
+| | The sheet | As made | Why |
+|---|---|---|---|
+| Length | open ("too still to carry two minutes?") | 2 min 26 s | A calm track plays once, for 2 to 3 minutes. |
+| Form | three phrases, then the kaval | three phrases, **a fourth with the one leap**, then the kaval | Three phrases alone end at 1:15. The fourth jumps from home up a fifth to B and on to the pipe's top note, D, the highest and longest note in the piece, then walks down by steps. The kaval's closing leap down a fifth now answers it. |
+| The pipe | the bench's gaida | a new **kaba gaida** voice (`synth.kaba_chanter`) | "Pipes ... too flat". The old one was a fixed bright buzz. The new one is deeper and rounder, and the bag's pressure wanders: a held note leans a few cents sharp and a little brighter, then sinks back. Each phrase starts flat and rises into tune as the bag fills. |
+| Mist | not on the sheet | the same pipe again, far under, in a long dark echo | "A little too Viking... needs more mist", and "too soft now" when the mist replaced the pipe. Here the pipe stays close and clear, and each held note leaves a haze behind it. The haze thickens for the leap: the one swell, since a bagpipe can't swell. |
+| Drone | drops out for the kaval | quiet (0.6) for the first phrase, growing to full at the leap, gone for the kaval | Loud, bright low drones were the "Viking" part. |
+| Kaval | low, near | low, **far off** across the valley, softer than the pipe | The only other player, and only once the pipe has stopped. |
+
+Measured against the first draft (`python3 music/pieces/song_04_autumn_dusk.py` prints these):
+
+| | First draft | As made |
+|---|---|---|
+| A note lasts, on average | 1.2 s | 3.8 s |
+| Notes under a second | 70% | none |
+| Notes, in about the same time | 50 in 75 s | 29 in 146 s |
+| Quiet to loud | 9 to 11 dB | 13 dB |
+| Energy in 600-1300 Hz (the "phone alarm" band) | | 15%, at full 15% of the time |
+
+What only hearing it can say: whether the new pipe still sounds like a "trumpet"; whether 2 min 26 s of a pipe this
+slow holds or drags; whether the haze is mist or mud. If the pipe fails, the shape still stands, and the MIDI
+(`music/tracks/04_autumn_dusk.mid`) can go to a sample library or a real piper.
+
+Files: the track [`04-music-autumn-dusk-the-demo-song.ogg`](../archive/audio/2026-11-11/04-music-autumn-dusk-the-demo-song.ogg),
+its pencil sketch [`03-music-pencil-sketch-autumn-dusk-as-made.ogg`](../archive/audio/2026-11-11/03-music-pencil-sketch-autumn-dusk-as-made.ogg),
+made by [`music/pieces/song_04_autumn_dusk.py`](../music/pieces/song_04_autumn_dusk.py). It replaces the first
+draft's track 04 in the game.
+
+## Making a song: the checklist
+
+What the autumn dusk went through, written down so every song after it goes the same way. One song at a time, never a
+batch (D-073).
+
+1. **Choose it for a place in the game.** Say where it is heard and what is on screen. Look at that place in the game
+   (a screenshot), not at the track list.
+2. **The sheet.** Fill in every row of the table above, in this file. The "not like" row names its neighbours in
+   `data/music.json` and how this one differs from each. Draw the shape (`design_sketches.sheet`).
+3. **The pencil sketch.** The tune alone on one plain sound (`pencil()` in the song's file). Under a minute if it can
+   be. Is the shape right?
+4. **Dominic hears the sheet and the sketch.** When he can't, Claude goes on, says so here, and marks the song as
+   Claude's call.
+5. **The track.** One file per song, `music/pieces/song_NN_<name>.py`, with the tune as text at the top and the form
+   in its docstring. It writes the game's file through `set_03_score.done`, so its level matches the rest.
+6. **Measure it**, since Claude can't hear: the song's `report()` (note lengths, leaps, notes said twice, where the
+   energy sits, quiet to loud) and `python3 music/measure.py <track>` (key, alarm band). Compare with what it
+   replaces and with its neighbours. Fix what the numbers show before anyone listens. A part that plays only briefly
+   is levelled where it plays (`level_over`), or it comes out far too loud.
+7. **Hear it in the game.** `SDL_AUDIODRIVER=dummy` and the camp look print `music: <track>`; take a screenshot of
+   where it plays.
+8. **Write down what changed from the sheet and why**, under the sheet, and the open questions only hearing it can
+   answer.
+9. **Archive it**: the render (Opus) and its pencil sketch in `archive/audio/<date>/`, the shape picture in
+   `archive/images/<date>/`, Dominic's words in the notes, a journal entry, the decision, the timeline. MP3s for
+   him in the project's files.
+
 ## What comes next
 
-1. Dominic hears the two pencil sketches and reads the two sheets. Is the stage right, and are these two shapes?
+1. Dominic hears the finished autumn dusk in the camp demo, and its sheet and the fire's.
 2. **The main theme gets a sheet next.** Seven tracks borrow it, and its first version has the fault of everything
    else: all steps, mostly quick.
-3. Then one sheet at a time, in the order the demo needs them. Nothing is arranged until its sketch is liked.
+3. Then one sheet at a time, in the order the demo needs them, once the music comes round again: for phase 1 Dominic
+   asked for one good song, then phase 2 (the world in grey box). Nothing is arranged until its sketch is liked.
 4. The Ottomans' sheet has to answer "too synth" with an idea, not a better buzz: perhaps the drum alone, close, and
    the pipe only as a far echo, or a real recording.
 

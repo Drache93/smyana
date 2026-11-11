@@ -61,5 +61,7 @@ writes the files the game plays to `assets/audio/music/` (Ogg Vorbis), an MP3 of
 | `spike_03_danger.py` | Music that follows the game: calm, hiding (heartbeat), a fight (tapan and gaida in fast 2/4), a dead stop, and the kaval alone afterwards. 80s. Lengths in the fight are written in beats (`bpm=`). |
 | `set_02_tracks.py` | Five separate tracks made to be swapped in and out: fight, hiding, morning, autumn dusk (second take), ruins. Adds tambura, gadulka, bells and open voices. Run one with `python3 music/pieces/set_02_tracks.py fight`. |
 | `set_03_score.py` | The whole score, first draft: every track of the plan but the ruins, as the files the game plays. Holds the main theme (`THEME`). Adds the zurna. `python3 music/pieces/set_03_score.py` renders all (about ten minutes), or name some: `... summer_day bandits`. |
+| `design_sketches.py` | The design stage (D-073): draws a song's shape beside the first draft's and renders its pencil sketch. Sheets for autumn dusk and the fire. |
+| `song_04_autumn_dusk.py` | **The first song made through the design stage**, the demo's song: one kaba gaida at the camp, as slow as it can go, then a far kaval. Adds `synth.kaba_chanter`. Prints how its tune moves and where its sound sits beside the first draft's. Its track replaces set 03's track 04. The steps every song now goes through are in [`docs/music-design.md`](../docs/music-design.md#making-a-song-the-checklist). |
 
 The plan for the whole score is in [`docs/music-tracks.md`](../docs/music-tracks.md).
