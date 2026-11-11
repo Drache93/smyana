@@ -297,7 +297,90 @@ end of development we get the load time down". Every load is measured from phase
 **D-058, 2026-11-11: An old-fashioned map in the loader is a stretch goal.** (Dominic) "could be fun if stretch goal we
 have a old fashioned looking map we show in the loader". Behind the letter home, drawn from the world picture (#84).
 
-**D-059, 2026-11-11: Which calm track plays when is data, by season and the light's mood of the hour.** (Claude's
+**D-059, 2026-11-11: The game opens on a live menu, not a loading screen.** (Dominic, #86) "we want very minimal
+loader. The game menu should show the village (once ready - just the men in forest for now is fine) alive in real time
+-> when you "start" , the menu should just fade away". The loader is the name, Смяна, on the dark; the menu is the same
+name over the men going about the wood, with Start and Quit. Under the menu the men move but the run's clock and gates
+wait. The name is set in Old Standard TT (SIL Open Font License), a 19th-century book face with Cyrillic (Claude).
+
+**D-060, 2026-11-11: Where anything touches the ground is the darkest point.** (Dominic, #86) "Darkest point should be
+where anything touches the ground". Every trunk, young tree, stump and man has a small dark oval at its foot, drawn on
+the ground, which the shade darkens further. Shade under a closed canopy is never lighter than one lone tree's: Creel's
+`mist` keeps the haze's hue but no longer lightens ("Lone trees its dark, overlapping its grey").
+
+**D-061, 2026-11-11: The zoom and the camera's speed follow the window, not its pixels.** (Claude, for Dominic's #86)
+The zoom is in steps of the window's height, so the wheel always returns to the default and a Retina screen sees what
+a small one does; it starts one step further out than before. The camera moves 1.6 window heights a second. The mouse
+has the game's own cursors: a pointer, a pointer with an order's ring, and an axe over a young tree.
+
+**D-062, 2026-11-11: The season is a clock, and each leg of the route gives it two ends.** (Claude; a Proposal until
+Dominic has seen it move.) The year is counted in thousandths of a season (0 high summer, 1000 full autumn, 2000
+midwinter, 3000 spring). It moves while the men are in a place, between the two ends that leg gives it, and the walk
+to the next place brings it at least to that leg's first end. Higher ground runs ahead in autumn and behind in spring.
+Each tree turns on its own day, up to 200 thousandths either side. The ground, the light, the length of the day and
+the leaves' cover all read the one clock. Why two ends and not a free-running clock: the pictures per season are made
+for a place, and a player who waits in the first valley must not find winter there. A leg that names a season stands
+still in it (the looks). Closes #10.
+
+**D-063, 2026-11-11: Weather comes in spells, counted from the clock.** (Claude; a Proposal until Dominic has seen
+it.) A spell of three hours is clear, mist, rain or snow by the season's chances, and which one is worked out from the
+spell's number, so it is the same in every run and the sim stays repeatable. Rain falls as snow where snow lies. Lying
+snow slows the men by up to a quarter. Weather moves the light on top of the hour's and the season's mood instead of
+having moods of its own, so there are three small sets of numbers and not three more moods for each hour and season.
+A leg can name its weather; a leg that stands still in its season stays clear, so the comparison scene is unchanged.
+For #15.
+
+**D-064, 2026-11-11: Cover is worked out from the trees and the clock, and is never shown as a number.** (Claude; a
+Proposal until the threats use it.) A tile hides a man by the old trees within two tiles (by the leaves each still
+wears; conifers all year), young trees beside him and bracken under him. A watcher's range is cut by up to seven
+tenths at full cover, and further by night and weather. There is no stored cover map: it is read from the map and the
+season clock when asked, so felling and leaf-fall change it with nothing to keep in step. The player reads it from the
+leaves (design doc, "Leaves as a signal"). For #9.
+
+**D-065, 2026-11-11: A ford costs time, more with a load and more in high water.** (Claude; a Proposal.) A man wades
+at six tenths of his pace, four tenths loaded, and up to a fifth less when the water is high (the thaw, or hard rain).
+The risk of a ford is time and cold, not drowning: nobody is lost to a stream by a roll of dice. How cold the water is
+is given to the needs (#65) to use. For #20.
+
+**D-066, 2026-11-11: Raised ground is rough near every drop, and proper cliffs are Creel's work.** (Dominic asked for
+the cliffs issue; Claude chose the rough relief.) Near a change of height the ground rises and falls by up to 0.9 of a
+level, so no rim is ruled along the tiles (Creel `relief_rough`). This is a step, not the cure. Natural cliffs, with
+curved footprints, broken faces and ledges, are Casaide/creel#25. Until then, rock outcrops over the walls stay. For
+#16.
+
+**D-067, 2026-11-11: The Roman ruins are worked limestone with brick bands, laid out by the map.** (Claude; a
+Proposal.) The ruins' stone is a pale limestone cut square, so it reads as a different stone from the local gneiss.
+Their walls have a band of red brick, and the road is paved with big fitted stones and has kerbs. There is a drain
+beside the road, because the drain is what the men bring home. A map places each piece (`"ruins"`); the ground under them
+stays grass so the undergrowth grows up among them and turns with the year. For #17; the ruins' own map is #53.
+
+**D-068, 2026-11-11: A felled tree leaves its stump, its lopped top and a sawn round.** (Claude; a Proposal.) Until the
+mechanics give felling stages of their own, a stump the men made always has the tree's top, boughs and a round of its
+trunk lying beside it, so a cut wood looks worked. The fir and the black pine are their own shapes; a pine among the
+beeches is half Scots, half black. For #6.
+
+**D-069, 2026-11-11: Summer's crowns are cooler and deeper than the meadow, and the summer light is clear.** (Dominic
+asked; Claude chose how.) Dominic found the summer scene washed out, too green and samey, with light trees lost on the
+grass. The summer light no longer lays a yellow highlight and a pale yellow-green haze over everything; its shade is
+cool. The crowns are deeper and bluer greens, each kind its own and each tree of a kind fresher or darker, while the
+meadow under them is warmer and olive, with one tuft in three gone straw. Last year's leaves under the beeches are dull
+and mossy, and the floor under the conifers is thin needles on moss, not a dark brown pool round every tree.
+
+**D-070, 2026-11-11: The Roman road is one long road, cut into tiles, that changes as it goes.** (Dominic asked for
+it to be less samey, #97; Claude chose how.) Every stone and kerb is laid once along the whole road, stones of many
+sizes, so no tile repeats. It bows a little off straight and runs whole, heaved by roots, with its stones gone, buried
+with only the kerbs showing, and fades into the trail at both ends (`ROAD_PLAN`). Its drain comes and goes and runs
+under it once in a culvert (`ROAD_DRAIN`). Grass and undergrowth grow where its stones are gone or buried, and a young
+tree has come up through its kerb. The road's pieces cast no baked shadow (a long flat piece's shadow drew stray lines).
+
+**D-071, 2026-11-11: Every art pixel is drawn the same size at any zoom.** (Dominic chose it from three options; Claude
+built it.) Smyana zooms in quarter steps, so with nearest sampling one art pixel was two screen pixels wide and the next
+three, which made the men's edges jagged. Creel's `sprite_even` samples sprites sharp bilinear: every art pixel is
+solid and only the screen pixel where two meet is a mix, so the art stays crisp (D-041) and reads evenly. The ground is
+not changed. Rejected: zooming only in whole-number steps (fewer, bigger zoom jumps), and remaking the men at twice the
+detail (a much bigger job that changes their look).
+
+**D-072, 2026-11-11: Which calm track plays when is data, by season and the light's mood of the hour.** (Claude's
 how, to Dominic's D-036 and D-042; open to him) The nine calm tracks are shared over four seasons and four moods of
 the day (dawn, day, dusk, night) in `data/music.json`: dawn has the day's track except in spring, which has a morning
 of its own. A track plays once and the forest is then left alone for 90 seconds, a short gap so the first demo is not
@@ -305,8 +388,11 @@ mostly silence; the plan's "a few minutes" waits for the sounds of the world. At
 takes turns with the season's night track. The main theme the frame tracks share is a first version, a proposal like
 every track of the first draft.
 
-**D-060, 2026-11-11: Each song has a design stage before it is made.** (Dominic) "each song needs a clear design
+**D-073, 2026-11-11: Each song has a design stage before it is made.** (Dominic) "each song needs a clear design
 stage. Like we did for 2D before 3D", after hearing the first draft of the score: "worry we're just churning out songs
 with not much thoughts". How (Claude's, for him to agree): a sheet in plain words with a picture of the tune's shape,
 then a "pencil" sketch of the tune alone, and only then the track (`docs/music-design.md`). The first draft's tracks
 stay in the game as placeholders until each is replaced by a designed one.
+
+(D-072 and D-073 were written as D-059 and D-060 on the music branch, pull request #63, and renumbered on
+2026-11-11 at 22:05 UTC when it was merged up to main, where those numbers had gone to the start-up thread.)

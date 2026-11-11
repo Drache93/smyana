@@ -109,9 +109,50 @@ One line per moment worth remembering. Newest at the bottom.
   ([journal](journal/2026-11-11-soft-banks-soft-grass-and-the-camera.md#riders-at-the-woods-edge-to-see-how-they-read-0800-to-0810-utc))
 - **2026-11-11:** Dominic drew a line under the long environment thread; the state of every open environment issue is in the handoff note.
   ([note](notes/2026-11-11-environment-handoff.md))
+- **2026-11-11:** Riders in the shade read again: Creel's `unit_rim` lights their sunward edge (picture 15). The lighting thread stops here.
+  ([journal](journal/2026-11-11-moods-seasons-and-the-men.md#riders-in-the-woods-shade-claude))
+- **2026-11-11:** The riders at the wood's edge face along the men's path and stand in under the trees (picture 44).
+  ([journal](journal/2026-11-11-closing-the-environment-issues.md#the-riders-face-along-the-path-under-the-trees-1000-to-1010))
 - **2026-11-11:** The world is planned in 2D: one trail, seven maps, 13 legs, two hours (D-053 to D-058; pictures 60 and 62). Dominic answered the plan's questions in ten minutes and 36 issues were made from it.
   ([journal](journal/2026-11-11-the-world-in-2d-and-the-phases.md), [the world](../docs/world.md))
-- **2026-11-11:** The whole score in first draft: 23 of the 24 planned tracks (the ruins stay parked), 33 minutes, with the main theme written. The game plays them by season, hour and danger (D-059); the camp has music.
+- **2026-11-11:** The season is a clock (D-062): trees turn one by one, leaves come down, snow settles and goes, the light stands between two seasons, the days shorten into winter (picture 46).
+  ([journal](journal/2026-11-11-closing-the-environment-issues.md#the-season-clock-1010-to-1050))
+- **2026-11-11:** The environment work pauses, with its state written down: the season clock done and kept as a patch, the shadows on the horses half fixed.
+  ([note](notes/2026-11-11-environment-state-at-the-pause.md))
+- **2026-11-11:** Men and horses take the shade of the ground at their feet, so a tree's shadow is no longer painted flat across a horse (picture 48).
+  ([journal](journal/2026-11-11-closing-the-environment-issues.md#the-trees-shadows-on-the-horses-1015-to-1040))
+- **2026-11-11:** Start-up and feel (#86): a live menu over the men in the wood, a loader that is just the name, start
+  21 s to 4 s, own cursors, a zoom that comes back, a faster camera, and dark feet under every tree (D-059 to D-061).
+  ([journal](journal/2026-11-11-the-menu-cursors-and-tree-feet.md))
+- **2026-11-11:** Weather (#15): spells of mist, rain and snow by the season, the light under them, snow that slows
+  the men, wind in what falls (D-063). Issues 10, 11, 13 and 14 closed after pull request 47.
+  ([journal](journal/2026-11-11-closing-the-environment-issues.md#weather-mist-rain-and-snow-1045-to-1125))
+- **2026-11-11:** Cover (#9): how well each tile hides a man, from the trees, the bracken and the season clock, and
+  a spotting check for the threats to use (D-064).
+  ([journal](journal/2026-11-11-closing-the-environment-issues.md#cover-in-the-leaves-1125-to-1150))
+- **2026-11-11:** Snow lies on the boughs in winter, and the crowns lean with the wind (the last of #15). Cover (#9)
+  closed. ([journal](journal/2026-11-11-closing-the-environment-issues.md#snow-on-the-boughs-wind-in-the-crowns-1520-to-1550))
+- **2026-11-11:** The ford's risk (#20): wading is slow, slower loaded, slower in high water (D-065). Weather (#15)
+  closed. ([journal](journal/2026-11-11-closing-the-environment-issues.md#the-fords-risk-1550-to-1605))
+- **2026-11-11:** The gorge has its depth (#16): its floor four levels below the wood, rock walls, a ramp down each
+  side. Obstacles (#20) closed.
+  ([journal](journal/2026-11-11-closing-the-environment-issues.md#the-gorge-gets-its-depth-1605-to-1635))
+- **2026-11-11:** The gorge's walls reworked after Dominic's "those are all hard edges": stepped, uneven, under rock
+  outcrops. Where issues 16, 17, 6 and 3 stand is written down for the next thread.
+  ([journal](journal/2026-11-11-closing-the-environment-issues.md#where-the-open-issues-stand-1645-for-the-next-thread))
+- **2026-11-11:** Rough relief in Creel: the gorge's rims and ramps wander and their light runs smoothly; the walls
+  seen in winter. Proper cliffs opened as Creel issue 25 at Dominic's word. ([engine](engine/2026-11-11-rough-relief.md))
+- **2026-11-11:** The Roman ruins' props: a paved road, a drain, wall stubs with a brick band, column stubs and a
+  fallen column, in a look clearing until their map is made. ([journal](journal/2026-11-11-the-roman-ruins.md))
+- **2026-11-11:** Silver fir and black pine as their own trees; beech trunks thicker and forking lower; a felled tree
+  leaves its top and a sawn round by its stump. ([journal](journal/2026-11-11-trees-fir-black-pine-and-the-felled.md))
+- **2026-11-11:** Summer fixed after Dominic's look: clear light, crowns cooler and deeper than the meadow, varied greens,
+  no brown pools under the firs. ([journal](journal/2026-11-11-summer-greens.md))
+- **2026-11-11:** The Roman road made one long varied road: heaved, gone and buried stretches, a bend, a drain that
+  comes and goes, a culvert. ([journal](journal/2026-11-11-the-roman-road-varied.md))
+- **2026-11-11:** The men's pixels drawn evenly at any zoom (Creel `sprite_even`), after Dominic found them pixelated.
+  ([journal](journal/2026-11-11-summer-greens.md))
+- **2026-11-11:** The whole score in first draft: 23 of the 24 planned tracks (the ruins stay parked), 33 minutes, with the main theme written. The game plays them by season, hour and danger (D-072); the camp has music.
   ([journal](journal/2026-11-11-the-whole-score-in-first-draft.md))
-- **2026-11-11:** Dominic heard the first draft: "samey", "pipe going up and down quick", and "each song needs a clear design stage" (D-060). Measured, he was right: every move in every tune was a step. Design sheets and bare sketches for autumn dusk and the fire (pictures 63 and 64).
+- **2026-11-11:** Dominic heard the first draft: "samey", "pipe going up and down quick", and "each song needs a clear design stage" (D-073). Measured, he was right: every move in every tune was a step. Design sheets and bare sketches for autumn dusk and the fire (pictures 63 and 64).
   ([design](../docs/music-design.md), [journal](journal/2026-11-11-the-whole-score-in-first-draft.md#two-hours-later-samey-and-a-design-stage-for-every-song))

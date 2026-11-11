@@ -4,6 +4,7 @@
 // Run from src/ (../play.sh does):  lobster smyana.lobster -- [windowed] [shot:<png> at:<seconds>] [script:tour] [debug]
 // No panels or bars (D-021): what there is to read is in the world. Left click or drag picks men, right click sends
 // them (onto a young tree: fell it), the arrows or WASD move the camera, the wheel zooms, F finds the men, Space pauses.
+// It opens on the menu: the men in the wood, alive, under the game's name; Start and the name fades away (#86).
 import from "../creel/src"
 import color
 import gl
@@ -46,6 +47,7 @@ import smyana.trees
 import smyana.cliff
 import smyana.camp
 import smyana.music
+import smyana.cursors
 
 // ------------------------------------------------------------------ what it was started with
 
@@ -57,8 +59,12 @@ let shot = arg_of("shot")
 let shot_at = if arg_of("at") != "": string_to_float(arg_of("at")) else: 4.0
 let script = arg_of("script")  // "tour": the men walk the whole route by themselves (captures, and timing the loads)
 let debug_line = has_s(args, "debug")
+let show_cover = has_s(args, "cover")                                             // cover: a mark on each tile, the more solid the better it hides a man (#9), for a look
 hour_force = if arg_of("hour") != "": string_to_float(arg_of("hour")) else: -1.0  // hour:16.5: this place at that hour, for a look
+year_force = if arg_of("year") != "": string_to_int(arg_of("year")) else: -1      // year:1300: this place at that point of the year (0 summer, 1000 autumn, 2000 winter, 3000 spring), for a look
+wood_force = arg_of("wood")                                                       // wood:conifer: this place with another wood's trees, for a look
 season_force = arg_of("season")                                                   // season:autumn: this place in another season, for a look
+weather_force = arg_of("weather")                                                 // weather:rain: this place in mist, rain or snow, for a look
 let shots_dir = arg_of("shots")                                                   // a picture every few seconds into this folder (with script:tour)
 var shots_n = 0
 var shots_next = 3.0
@@ -70,6 +76,19 @@ let capture = shot != "" or script != "" or arg_of("shots") != ""
 
 var cam = float2_0  // art px at the middle of the window
 var zoom = 1.5      // screen px an art px
+
+// The zoom (#86) in steps of the window's own height, so a view is the same on any screen (a Retina display has twice
+// the pixels) and the wheel always comes back to where it started. 1 is the window 325 art px high (a man about a
+// tenth of it); each step is rounded to a quarter so the pixels of the art keep an even size. Dominic: "Default camera
+// zoom seems too close, when i zoom out, i cant zoom back to the default": it starts a step further out than before.
+let ZOOM_STEPS = [ 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.15, 1.3, 1.5 ]
+let ZOOM_START = 4
+var zoom_step = ZOOM_START
+var zoom_fixed = 0.0  // the zoom: option's zoom, till the wheel turns (0: the step's)
+def zoom_of(step:int) -> float:
+    return max(0.5, floor(float(gl.window_size().y) / 325.0 * ZOOM_STEPS[step] * 4.0 + 0.5) / 4.0)
+// How fast the camera moves: window heights a second, whatever the zoom (Dominic: "Camera movement too slow").
+let CAM_SPEED = 1.6
 
 def to_screen(p:float2) -> float2: return (p - cam) * zoom + float(gl.window_size()) / 2.0
 def from_screen(p:float2) -> float2: return (p - float(gl.window_size()) / 2.0) / zoom + cam
@@ -110,6 +129,15 @@ class Canopy:
     y:float
     s:float
 var canopies = []::Canopy
+// The broadleaves in view that are shedding (#11): where each one's foot is (art px), its kind, and how fast it sheds
+// (0 .. 1). Their leaves are drawn coming down (draw_leaf_fall).
+class Shedding:
+    at:float2
+    sp:string
+    pick:int
+    rate:float
+    seed:int
+var shedding = []::Shedding
 // Sunflecks: deep in a wood, small spots of sun that get through the canopy and come and go as the boughs move
 // (sun.flecks a tree, 0 off; by day only). Each one: where (art px) and its own seed.
 var canopy_flecks = 0
@@ -125,18 +153,11 @@ let man_walked = dictionary<int, float>(64)  // milli-tiles each has walked here
 var selected = []::int
 var view_load_s = 0.0  // how long the last place took to load, the view's part included
 
-def cell_hash(c:int) -> int: return ((c * 2654435761) >> 7) & 0xFFFF
-
 // Which trees stand in this place (the map's "wood": beech or conifer), picked per cell.
 // (deep: the high dark woods, where the trunks run up out of sight and only the understorey is a tree's whole height)
 def old_kind(wood:string, pick:int) -> string, int:
-    let r = (pick / 3) % 8
-    var sp = if r < 4: "beech" elif r < 6: "oak" elif r < 7: "hornbeam" else: "pine"
-    if wood == "deep": sp = if r < 6: "tall" elif r < 7: "spruce" else: "beech"
-    if wood == "conifer": sp = if r < 5: "spruce" elif r < 7: "pine" else: "beech"
+    let sp = old_species(wood, pick)
     return sp, pick % (if sp == "pine": PINE_KINDS else: 3)
-
-def leafy(sp:string) -> bool: return sp == "beech" or sp == "oak" or sp == "hornbeam"
 
 // Where the year's leaves lie thin in a broadleaf wood (x, y in mask samples): grass shows and herbs grow there.
 def open_ground(x:int, y:int) -> bool:
@@ -185,7 +206,7 @@ def build_props():
     props = []
     let debris_t = str_index(tr_names, "rubble")
     props_version = map_version
-    let wood = gstr(su_map, "wood", "beech")
+    let wood = place_wood()
     let pines = gint(su_map, "pines", 1) != 0
     let trail_t = str_index(tr_names, "trail")
     let water_t = str_index(tr_names, "water")
@@ -204,12 +225,15 @@ def build_props():
         if t == old:
             let sp0, k = old_kind(wood, h / 7)
             // (a place can say it has no pines among its beeches, "pines": 0: the mock-up's clearing has none)
-            let sp = if sp0 == "pine" and not pines: "beech" else: sp0
+            let sp = if (sp0 == "pine" or sp0 == "bpine") and not pines: "beech" else: sp0
             props.push(Prop { 0, k, "{sp}{k}", sp, off, c })
         elif t == young:
             let fir = wood != "beech" and (h / 7) % 4 != 0
             props.push(Prop { 1, h / 7, if fir: "yspruce{(h / 7) % YOUNG_KINDS}" else: "young{(h / 7) % YOUNG_KINDS}", if fir: "spruce" else: "beech", centre, c })
-        elif t == stump: props.push(Prop { 2, 0, "stump", "", centre, c })
+        elif t == stump:
+            // (and what was left when it was sawn up lies beside it: its top and boughs, a round of its trunk)
+            props.push(Prop { 2, 0, "stump", "", centre, c })
+            props.push(Prop { 6, 0, "brash{(h / 7) % BRASH_KINDS}", "", centre + iso(float((h / 5) % 300) + 150.0, float((h / 11) % 300) - 150.0), c })
         elif t == rock:
             props.push(Prop { 3, 0, "rock{(h / 7) % ROCK_KINDS}", "", off, c })
         elif t == debris_t:
@@ -249,9 +273,9 @@ def build_props():
             if by_rock and y >= 0: props.push(Prop { 4, 0, "slabs{(h / 7) % SLAB_KINDS}", "", off, c })
         if t == grass:
             // the undergrowth (#8): bracken in drifts, a bush here and there, now and then a fallen trunk
-            let drift = cell_hash((c / W / 4) * W + (c % W) / 4 + 9001) % 8 < 3
+            let drift = bracken_drift(c)
             let h2 = cell_hash(c + 40507)
-            if h2 % 100 < (if drift: 62 else: 7): props.push(Prop { 5, 0, "fern{h2 % FERN_KINDS}", "", off, c })
+            if bracken_at(c): props.push(Prop { 5, 0, "fern{h2 % FERN_KINDS}", "", off, c })
             if drift and h2 % 7 < 3:
                 props.push(Prop { 5, 0, "fern{(h2 / 3) % FERN_KINDS}", "", centre + iso(float((h2 / 11) % 700) - 350.0, float((h2 / 17) % 700) - 350.0), c })
             // (soft grass: pale tufts standing out of the leaves in drifts a few tiles across, thick at a drift's
@@ -303,6 +327,22 @@ def build_props():
             props = filter(props) pr: pr.kind != 5 or abs(pr.at.x - f.x) > 46.0 or abs(pr.at.y - f.y) > 26.0
         for(camp) e, i: props.push(Prop { 4, 0, as_str(e.a[0]), "", stands[i], 0 })
 
+    // the Roman ruins (#17), where the place has them ("ruins": [name, x, y in milli-tiles] each): the undergrowth
+    // grows up round them but not through a wall or a column; on the road (#97) it grows only where the stones are gone
+    // or buried, and not in its drain
+    let ruins = glist(su_map, "ruins")
+    if ruins.length:
+        let stands = map(ruins) e: gp(as_float(e.a[1]), as_float(e.a[2]))
+        let cells = map(ruins) e: (as_int(e.a[2]) / 1000) * W + as_int(e.a[1]) / 1000
+        props = filter(props) pr: pr.kind != 5 or not exists(ruins) e, i:
+            let name = as_str(e.a[0])
+            if starts_with(name, "road"):
+                let n = clamp(string_to_int(substring(name, 4, name.length - 4)), 0, ROAD_PLAN.length - 1)
+                let c = ROAD_PLAN[n]
+                let d = ROAD_DRAIN[n]
+                pr.cell == cells[i] and (c == 'w' or c == 'h') or pr.cell == cells[i] + W and (d == 'd' or d == 'c')
+            else: abs(pr.at.x - stands[i].x) < 34.0 and abs(pr.at.y - stands[i].y) < 18.0
+        for(ruins) e, i: props.push(Prop { 3, 0, as_str(e.a[0]), "", stands[i], cells[i] })
     build_canopy()
 
 // The trail is a path a man or two wide, not a road a tile wide (the mock-ups: a thin tan line through the leaves).
@@ -425,14 +465,24 @@ def trail_wear():
 // litter is painted here: full under each giant's crown, fading out at its edge.
 let LITTER_REACH = 1.5  // tiles
 
+// How much of the year's leaves lie as a carpet over a broadleaf wood's floor, 0 .. 1: they come down through the
+// autumn (the season clock's leaves_down) and the snow covers them.
+def leaf_carpet() -> float:
+    if year_still(): return if season_now() == "autumn": 1.0 else: 0.0
+    return float(leaves_down()) / 1000.0 * (1.0 - float(snow_lying()) / 1000.0)
+
+var carpet_step = -1  // (the carpet the litter was last painted for, in eighths)
+
 def build_litter():
+    let carpet = leaf_carpet()
+    carpet_step = int(carpet * 8.0 + 0.5)
     let w = W * MASK_K
     let h = H * MASK_K
     let a = map(w * h): 0.0
     let r = int(LITTER_REACH * 3.2 * float(MASK_K)) + 1
     for(props) pr:
         if pr.kind == 0 or pr.kind == 2:
-            let reach = (if pr.kind == 0: (if leafy(pr.sp): LITTER_REACH else: 1.0) else: 0.6) * (if season_now() == "autumn" and leafy(pr.sp): 1.25 else: 1.0) * (0.8 + 0.4 * float(cell_hash(pr.cell) % 100) / 100.0)
+            let reach = (if pr.kind == 0: (if leafy(pr.sp): LITTER_REACH else: 1.0) else: 0.6) * (if leafy(pr.sp): 1.0 + 0.25 * carpet else: 1.0) * (0.8 + 0.4 * float(cell_hash(pr.cell) % 100) / 100.0)
             let cx = float(pr.cell % W) + 0.5
             let cy = float(pr.cell / W) + 0.5
             let lobe = float(cell_hash(pr.cell) % 360)
@@ -449,7 +499,7 @@ def build_litter():
                     if v > a[y * w + x]: a[y * w + x] = v
     // autumn in a broadleaf wood: the year's leaves lie over nearly everything, thinner in the open
     let turf_seed = gint(su_map, "grass_seed", 9001)
-    if season_now() == "autumn" and gstr(su_map, "wood", "beech") == "beech":
+    if carpet > 0.0 and place_wood() == "beech":
         for(h) y: for(w) x:
             // (2026-11-11: the leaves lie over all of it, only a worn spot of turf here and there: the mock-up's grass
             // stands out of the leaves in tufts, it isn't a green floor between drifts of them)
@@ -460,7 +510,9 @@ def build_litter():
             let thin = drift_at((float(x) + 0.5) / float(MASK_K), (float(y) + 0.5) / float(MASK_K), turf_seed)
             let slow = drift_at((float(x) + 0.5) / float(MASK_K) * 0.6, (float(y) + 0.5) / float(MASK_K) * 0.6, turf_seed + 311)
             let leaves = if patch < 0.05 and open_ground(x, y): 0.36 else: 0.62 + 0.2 * patch
-            a[y * w + x] = max(a[y * w + x] * (1.0 - 0.35 * thin), leaves - (leaves - LITTER_THIN) * max(thin, slow * 0.45))
+            // (as the leaves come down through the autumn the carpet thickens from what lies under each tree)
+            let full = max(a[y * w + x] * (1.0 - 0.35 * thin), leaves - (leaves - LITTER_THIN) * max(thin, slow * 0.45))
+            a[y * w + x] = a[y * w + x] + (full - a[y * w + x]) * carpet
     // scree under a landslide's debris (the shader's G), reaching a little past it and ragged
     let sc = map(w * h): 0.0
     let debris_t = str_index(tr_names, "rubble")
@@ -479,6 +531,43 @@ def build_litter():
     prop_tex = gl.create_texture(map(h) y: map(w) x: float4 { a[y * w + x], sc[y * w + x], 0.0, 0.0 }, texture_format_clamp | texture_format_nomipmap)
     ground_stale = true
 
+// The ground by the season (#11): its textures are a set per season (the summer's, which spring shares, autumn's
+// with the year's leaves, winter's with the first snow), and as the season clock moves the next set turns in over
+// the one before it a texel at a time (Creel's ground_atlas_next and ground_atlas_mix): the leaves gather through the
+// autumn, the snow comes over them, and it goes in spring. Which sets, and how far: from the clock's leaves_down
+// and snow_lying.
+var ground_base = ""
+var ground_next = ""
+var ground_mix_step = -1
+
+def ground_turn() -> string, string, float:
+    if year_still():
+        let name = if season_now() == "autumn": "_autumn" elif season_now() == "winter": "_winter" else: ""
+        return name, name, 0.0
+    let snow = float(snow_lying()) / 1000.0
+    if snow > 0.0: return (if year_here() % 4000 < 2250: "_autumn" else: ""), "_winter", snow
+    return "", "_autumn", float(leaves_down()) / 1000.0
+
+def ground_season_tick():
+    let base, next, t = ground_turn()
+    def atlas(name:string) -> resource<texture>?:
+        return gl.load_texture("../data/ground/atlas" + (if place_wood() != "beech": "_conifer" else: "") + name + ".png", texture_format_clamp | texture_format_nomipmap | texture_format_nearest_mag | texture_format_nearest_min)
+    if base != ground_base or next != ground_next:
+        ground_atlas_tex = atlas(base)
+        ground_atlas_next = if next != base: atlas(next) else: nil
+        ground_base = base
+        ground_next = next
+        ground_mix_step = -1
+    let step = int(t * 48.0 + 0.5)
+    if step != ground_mix_step:
+        ground_mix_step = step
+        ground_atlas_mix = float(step) / 48.0
+        // (no drawn line where the fallen leaves and needles end: they thin out onto the grass; under snow less so)
+        ground_litter_fringe = 0.3 - 0.2 * (if next == "_winter": ground_atlas_mix elif base == "_winter": 1.0 else: 0.0)
+        ground_stale = true
+    // (and the carpet of leaves on a beech wood's floor thickens with it, painted again an eighth at a time)
+    if carpet_step >= 0 and int(leaf_carpet() * 8.0 + 0.5) != carpet_step: build_litter()
+
 // The view of a place just loaded: its ground and its trees in this season, the camera on the men.
 def view_enter(between):
     ground_quad = nil
@@ -492,13 +581,13 @@ def view_enter(between):
     selected = []
     if run_over(): return
     // the ground's own textures: a beech wood's leaf litter and grass, or a conifer wood's needles and moss
-    ground_atlas_tex = gl.load_texture("../data/ground/atlas" + (if gstr(su_map, "wood", "beech") != "beech": "_conifer" else: "") + (if season_now() == "autumn": "_autumn" elif season_now() == "winter": "_winter" else: "") + ".png", texture_format_clamp | texture_format_nomipmap | texture_format_nearest_mag | texture_format_nearest_min)
+    ground_base = ""
+    ground_season_tick()
     // (a stream is narrower than its tiles and runs a little below its banks, as in the mock-ups)
     // (the water: a narrow stream between banks that slope, pale under the sky as the mock-up's is)
     ground_bank_px = gfloat(su_map, "bank_px", 0.0)
     ground_water_edge = gfloat(su_map, "water_edge", 0.5)
     ground_shore_soft = gfloat(su_map, "shore_soft", 0.5)
-    ground_litter_fringe = if season_now() == "winter": 0.1 else: 0.3  // (no drawn line where the fallen leaves and needles end: they thin out onto the grass)
     // (a clear mid blue with white dabs of ripples all along it, as the mock-up's stream; Dominic, 2026-11-11: "And the
     // water", of what is not rich enough yet)
     ground_water_shallow = float3 { 0.56, 0.74, 0.90 }
@@ -508,10 +597,12 @@ def view_enter(between):
     build_stream(gfloat(su_map, "stream", 0.25))
     // (a mountain's cliffs are sheer and jog square: no corner of high ground is cut down to a slope)
     relief_sharp = true
+    // (and no rim is ruled straight along the tiles: the ground by a drop rises and falls, Dominic's "hard edges")
+    relief_rough = (if arg_of("rough") != "": string_to_float(arg_of("rough")) else: gfloat(su_map, "rough", 0.9))
     build_relief()
     trail_wear()
     build_trail()
-    bake_season(leaf_stage(), between)
+    for(leg_stages()) st: bake_season(st, between)
     build_props()
     build_litter()
     cam = men_centre()
@@ -520,6 +611,12 @@ def view_enter(between):
 
 var atmo_data = jobj()
 
+// The hour a mood starts, this time of year (#13: the days shorten into winter): atmosphere.json's "hours" are high
+// summer's, "hours_winter" midwinter's, and between them the hour moves with the season clock.
+def mood_hour(name:string) -> float:
+    let at = gfloat(gobj(atmo_data, "hours"), name, 0.0)
+    return at + (gfloat(gobj(atmo_data, "hours_winter"), name, at) - at) * float(winter_depth()) / 1000.0
+
 def mood_now() -> string:
     let hours = gobj(atmo_data, "hours")
     let h = hour_now()
@@ -527,9 +624,9 @@ def mood_now() -> string:
     var best_at = -1.0
     var last = ""
     var last_at = -1.0
-    for(hours.keys) name, k:
+    for(hours.keys) name:
         if not starts_with(name, "_"):
-            let at = as_float(hours.a[k])
+            let at = mood_hour(name)
             if at <= h and at > best_at:
                 best = name
                 best_at = at
@@ -559,11 +656,22 @@ def sun_from_data():
     vg_sun_shadow = gint(sun, "self_shadow", 1) != 0
     vg_shade = gfloat(sun, "self_shade", 0.4)
     bake_light = "sun {elev} {vg_dither} {vg_leaf_tones} {vg_sun_shadow} {vg_shade}"
+    // (Dominic, 2026-11-11: "concerned the men look a little pixelated". At a zoom between whole numbers every art px
+    // drawn the same size, crisp, not two screen px and then three; look option even:0 shows it without)
+    sprite_even = arg_of("even") != "0"
     canopy_spread = gfloat(sun, "canopy", 0.0)
     canopy_reach = int(gfloat(sun, "canopy_reach", 3.0))
     canopy_trees = gfloat(sun, "canopy_trees", 14.0)
     canopy_dim = gfloat(sun, "canopy_dim", 0.0)
     canopy_flecks = int(gfloat(sun, "flecks", 0.0))
+
+// A tree's picture with snow on its boughs (#15) once enough snow lies for it, each tree from its own day (and losing
+// it on its own day in the thaw); the plain picture till then, and where there is no snowy one.
+def snow_frame(name:string, cell:int) -> int:
+    if snow_lying() > 250 + cell_hash(cell * 3 + 1) % 500:
+        let f = frame_at.get(name + ".snow", -1)
+        if f >= 0: return f
+    return frame_at.get(name, -1)
 
 // The mood of the hour and the next one, and how far into the turn from one to the next (0 .. 1): the last
 // hours.blend hours (atmosphere.json) before a mood starts, the one before it turns into it, so dawn comes up and dusk
@@ -577,9 +685,9 @@ def mood_turn() -> string, string, float:
     var next_at = 99.0
     var first = ""
     var first_at = 99.0
-    for(hours.keys) name, k:
+    for(hours.keys) name:
         if not starts_with(name, "_"):
-            let at = as_float(hours.a[k])
+            let at = mood_hour(name)
             if at > h and at < next_at:
                 next = name
                 next_at = at
@@ -592,25 +700,62 @@ def mood_turn() -> string, string, float:
     let t = if blend > 0.0: clamp((h - (next_at - blend)) / blend, 0.0, 1.0) else: 0.0
     return now, next, t
 
-// A mood's own light this season where there is one ("day.autumn").
-def mood_in_season(m:string) -> string:
-    let own = m + "." + season_now()
+// A mood's own light in a season where there is one ("day.autumn").
+def mood_in_season(m:string, season:string) -> string:
+    let own = m + "." + season
     let has = exists(gobj(atmo_data, "moods").keys) name: name == own
     return if has: own else: m
+
+// The two seasons the light stands between, and how far from the first to the second (#14): at a season's height the
+// light is that season's own, and between two heights it turns from the one to the other, slowly round the heights.
+def light_seasons() -> string, string, float:
+    if year_still(): return season_now(), season_now(), 0.0
+    let y = year_here() % 4000
+    let t = float(y % 1000) / 1000.0
+    return SEASONS[y / 1000], SEASONS[(y / 1000 + 1) % 4], t * t * (3.0 - 2.0 * t)
 
 var mood_key = ""
 
 def mood_tick():
     let now, next, t = mood_turn()
     if now == "": return
-    let a = mood_in_season(now)
-    let b = mood_in_season(next)
+    let s0, s1, st = light_seasons()
     let step = int(t * 48.0)  // (the turn in small steps: the light set again only when it has moved)
-    let key = "{a} {b} {step}"
+    let sstep = int(st * 32.0)
+    let wkind, whard = weather_now()
+    let wstep = whard * 24 / 1000
+    let key = "{now} {next} {step} {s0} {s1} {sstep} {wkind} {wstep}"
     if key == mood_key: return
     mood_key = key
-    let why = atmo_set_between(atmo_data, a, b, float(step) / 48.0)
+    // (the hour's turn in the season before, then in the season coming, and the light between the two)
+    let why = atmo_set_between(atmo_data, mood_in_season(now, s0), mood_in_season(next, s0), float(step) / 48.0)
     if why != "": print why
+    if sstep > 0 and atmo_on:
+        let n0 = atmo_nums
+        let c0 = atmo_cols
+        let o0 = atmo_opt
+        let p0 = atmo_opt_cols
+        let why1 = atmo_set_between(atmo_data, mood_in_season(now, s1), mood_in_season(next, s1), float(step) / 48.0)
+        if why1 != "": print why1
+        let k = float(sstep) / 32.0
+        atmo_nums = map(atmo_nums) v, i: lerp(n0[i], v, k)
+        atmo_cols = map(atmo_cols) v, i: lerp(c0[i], v, k)
+        atmo_opt = map(atmo_opt) v, i: lerp(o0[i], v, k)
+        atmo_opt_cols = map(atmo_opt_cols) v, i: lerp(p0[i], v, k)
+    weather_light(wkind, float(wstep) / 24.0)
+
+// What the weather does to the light (#15: "weather changes the mood"): atmosphere.json's "weather" gives, for mist,
+// rain and snow, how much each of a mood's numbers moves at the weather's full strength (added to whatever the hour
+// and the season have set), and a haze colour the mood's own turns toward.
+def weather_light(kind:string, k:float):
+    if k <= 0.0 or not atmo_on: return
+    let w = gobj(gobj(atmo_data, "weather"), kind)
+    atmo_nums = map(atmo_nums) v, i: clamp(v + gfloat(w, ATMO_NUMS[i], 0.0) * k, ATMO_MIN[i], ATMO_MAX[i])
+    atmo_opt = map(atmo_opt) v, i: clamp(v + gfloat(w, ATMO_OPT[i], 0.0) * k, 0.0, ATMO_OPT_MAX[i])
+    let haze = gstr(w, "haze_colour", "")
+    if haze != "":
+        let hi = find(ATMO_COLS) n: n == "haze_colour"
+        atmo_cols = map(atmo_cols) v, i: (if i == hi: lerp(v, atmo_hex(haze), k * gfloat(w, "haze_colour_mix", 0.6)) else: v)
 
 // ------------------------------------------------------------------ drawing the world
 
@@ -624,23 +769,57 @@ class Drawable:
     fade:float  // 1 whole .. 0 gone
     kind:int    // 0 what stands up (it hides the shade under it), 1 a shadow on the ground, 2 what stands in the shade,
     // 3 drawn by hand (rings, fires), 4 a man (in the shade, and kept readable: atmo_shade_unit)
+    lean:float  // art px its top leans to the right just now (a crown in the wind, #15)
 
 var draws = []::Drawable
 var fires = []::float2  // the camp's fires, art px: where each one's foot is (draw_fire)
 var view_lo = float2_0
 var view_hi = float2_0
 
-def add(f:int, x:float, y:float, sort_y:float, col:float4, fade:float = 1.0, kind:int = -1):
+def add(f:int, x:float, y:float, sort_y:float, col:float4, fade:float = 1.0, kind:int = -1, lean:float = 0.0):
     if f < 0: return
     let fr = frames[f]
     let x0 = x - float(fr.ox) * fr.k
     let y0 = y - float(fr.oy) * fr.k
     if x0 < view_hi.x and y0 < view_hi.y and x0 + float(fr.w) * fr.k > view_lo.x and y0 + float(fr.h) * fr.k > view_lo.y:
-        draws.push(Drawable { sort_y, draws.length, f, x, y, col, fade, if kind >= 0: kind elif sort_y < -39000.0: 1 else: 0 })
+        draws.push(Drawable { sort_y, draws.length, f, x, y, col, fade, if kind >= 0: kind elif sort_y < -39000.0: 1 else: 0, lean })
 
 def prev_pos(i:int) -> int, int:
     let found, at = binary_search(p_id, u_id[i])
     return if found: p_x[at] else: u_x[i], if found: p_y[at] else: u_y[i]
+
+// Where things touch the ground (#86, Dominic: "Darkest point should be where anything touches the ground"): a small
+// dark oval at the foot of every trunk, young tree, stump and man, drawn on the ground under them. Each: x, y (art px)
+// and its half width. In shade, or deep under the canopy where the shade is all one, it is darker still, so a tree
+// still stands on the ground there.
+var feet = []::float3
+let FOOT_DARK = float4 { 0.035, 0.03, 0.022, 0.0 }
+
+// Half a trunk's width at the ground, in its sheet's pixels (measured on the baked trunks: an oak's is broad, a
+// hornbeam's slim; a spruce's inside its low boughs).
+def trunk_half(sp:string) -> float:
+    return if sp == "oak": 16.0 elif sp == "hornbeam": 9.0 elif sp == "beech": 11.5 elif sp == "tall": 11.0 elif sp == "bpine": 12.0 elif sp == "fir": 11.0 else: 10.0
+
+def foot_at(f:int, x:float, y:float, half:float):
+    if f >= 0 and x > view_lo.x - 20.0 and x < view_hi.x + 20.0 and y > view_lo.y - 10.0 and y < view_hi.y + 10.0:
+        feet.push(float3 { x, y, half * frames[f].k })
+
+// The feet, all at once: two ovals as flat as the ground is seen, a pixel row at a time (crisp, as the art): a faint one
+// a little wider than the trunk and a darker one its own width, so it is darkest right at the foot.
+def draw_feet():
+    let flat = iso_k / 0.048  // (the ground's ovals: sin of the camera's angle)
+    def oval(c:float2, half:float, a:float):
+        let rows = max(1, int(half * flat + 0.5))
+        for(rows * 2) j:
+            let dy = (float(j - rows) + 0.5) / float(rows)
+            let w = floor(half * sqrt(max(0.0, 1.0 - dy * dy)) + 0.5)
+            if w >= 1.0: ui_fill(float2 { c.x - w, c.y + float(j - rows) }, float2 { w * 2.0, 1.0 }, float4 { FOOT_DARK.x, FOOT_DARK.y, FOOT_DARK.z, a })
+    ui_batch():
+        for(feet) f:
+            let c = float2 { floor(f.x + 0.5), floor(f.y + 0.5) }
+            let half = max(1.5, f.z)
+            oval(c, half * 1.9 + 1.0, 0.25)
+            oval(c, half * 1.15 + 0.5, 0.5)
 
 let SASH = float4 { 0.66, 0.19, 0.16, 1.0 }  // the sash's red (the men's 'team' colour)
 let ART_UP = 58.8                            // art px a tile of height
@@ -665,6 +844,7 @@ def collect_men(alpha:float):
             let p = gp(x, y)
             add(frame_at.get(man_shadow_name(m.look, facing), -1), p.x, p.y, p.y - 0.5, float4_1, 1.0, 1)
             add(frame_at.get(man_frame_name(m.look, if moving: 1 + step else: 0, facing), -1), p.x, p.y, p.y, SASH, 1.0, 4)
+            feet.push(float3 { p.x, p.y, 2.2 })
             if u_carry[i] > 0: add(frame_at.get("load.wood", -1), p.x + 3.0, p.y - 27.0, p.y + 0.1, float4_1, 1.0, 2)
             eyes.push(p - float2 { 0.0, 16.0 })
 
@@ -679,25 +859,30 @@ def crown_fade(foot:float2, sp:string) -> float:
     return least
 
 def collect_props():
-    let season = leaf_stage()
-    let bare = season == "winter"
     canopies = []
     flecks = []
+    shedding = []
     let day = hour_now() > 6.5 and hour_now() < 19.0
     for(props) pr, pidx:
         if pr.at.x > view_lo.x - 700.0 and pr.at.x < view_hi.x + 250.0 and pr.at.y > view_lo.y - 300.0 and pr.at.y < view_hi.y + 620.0:
+            // (each tree and each clump of the undergrowth wears its own stage of the year: no two turn on one day)
+            let season = leaf_stage_at(pr.cell + (if pr.kind == 5: pidx else: 0))
+            let bare = season == "winter"
             if pr.kind == 0:
                 // (deep in a wood a tree stands under its neighbours' crowns: drawn darker, as the floor round it is)
                 let dim = float4 { 1.0, 1.0, 1.0, 1.0 - canopy_dim * (if pidx < canopy.length: canopy[pidx] else: 0.0) }
                 add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -40000.0, float4_1)
-                add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, dim)
+                add(snow_frame(pr.name, pr.cell), pr.at.x, pr.at.y, pr.at.y, dim)
+                foot_at(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, trunk_half(pr.sp))
                 let crown = if pr.sp == "tall": "spruce{pr.pick}.crown.ever" else: pr.name + ".crown." + (if leafy(pr.sp): season else: "ever")
                 if pr.sp == "tall":
                     // its crown is out of sight overhead: only its shade reaches the ground
                     add(frame_at.get(crown + ".shadow", -1), pr.at.x, pr.at.y, -39999.0, float4_1)
                 elif not leafy(pr.sp) or not bare:
+                    // (in autumn its leaves come down, fastest as the crown thins)
+                    if leafy(pr.sp) and (season == "autumn" or season == "late"): shedding.push(Shedding { pr.at, pr.sp, pr.pick, if season == "late": 1.0 else: 0.5, cell_hash(pr.cell) })
                     add(frame_at.get(crown + ".shadow", -1), pr.at.x, pr.at.y, -39999.0, float4_1)
-                    add(frame_at.get(crown, -1), pr.at.x, pr.at.y, pr.at.y + 0.2, dim, crown_fade(pr.at, pr.sp))
+                    add(snow_frame(crown, pr.cell), pr.at.x, pr.at.y, pr.at.y + 0.2, dim, crown_fade(pr.at, pr.sp), -1, crown_lean(pr.cell))
                 if (pr.sp == "tall" or not leafy(pr.sp) or not bare) and pidx < canopy.length and canopy[pidx] > 0.0:
                     let f = frame_at.get(crown + ".shadow", -1)
                     if f >= 0: canopies.push(Canopy { f, pr.at.x, pr.at.y, 1.0 + (canopy_spread - 1.0) * canopy[pidx] })
@@ -708,16 +893,19 @@ def collect_props():
             elif pr.kind == 1:
                 if pr.sp == "spruce":
                     add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39998.0, float4_1)
-                    add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
+                    add(snow_frame(pr.name, pr.cell), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
+                    foot_at(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, 6.0)
                 else:
                     // (a young beech: its wood, and over it this season's leaves)
+                    foot_at(frame_at.get(pr.name + ".bare", -1), pr.at.x, pr.at.y, 6.0)
                     add(frame_at.get(pr.name + ".bare.shadow", -1), pr.at.x, pr.at.y, -39998.0, float4_1)
-                    add(frame_at.get(pr.name + ".bare", -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
+                    add(snow_frame(pr.name + ".bare", pr.cell), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
                     if not bare:
                         add(frame_at.get(pr.name + "." + season + ".shadow", -1), pr.at.x, pr.at.y, -39998.0, float4_1)
                         add(frame_at.get(pr.name + "." + season, -1), pr.at.x, pr.at.y, pr.at.y + 0.1, float4_1, 1.0, 2)
             elif pr.kind == 2:
                 add(frame_at.get("stump", -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
+                foot_at(frame_at.get("stump", -1), pr.at.x, pr.at.y, 6.5)
             elif pr.kind == 5:
                 // (winter: the bushes and herbs are gone (they have no winter frame), two tufts in three are under the
                 // snow, and what's left stands dead)
@@ -780,14 +968,16 @@ def draw_world(alpha:float):
     view_lo = from_screen(float2_0) - float2_1
     view_hi = from_screen(ws) + float2_1
     draws = []
+    feet = []
     collect_men(alpha)
     collect_props()
-    draws.push(Drawable { -30000.0, draws.length, -4, 0.0, 0.0, float4_1, 1.0, 3 })  // the rings: on the ground, over the shadows
+    draws.push(Drawable { -39990.0, draws.length, -6, 0.0, 0.0, float4_1, 1.0, 3, 0.0 })  // the feet: on the ground, over its shadows
+    draws.push(Drawable { -30000.0, draws.length, -4, 0.0, 0.0, float4_1, 1.0, 3, 0.0 })  // the rings: on the ground, over the shadows
     for(fires) p, i:
         // (the fireplace: its ring of stones, its logs and the tripod with the cauldron; the flames are the game's own)
         add(frame_at.get("fireplace.shadow", -1), p.x, p.y, -39997.0, float4_1)
         add(frame_at.get("fireplace", -1), p.x, p.y, p.y, float4_1, 1.0, 2)
-        draws.push(Drawable { p.y + 0.05, draws.length, -5, float(i), 0.0, float4_1, 1.0, 3 })
+        draws.push(Drawable { p.y + 0.05, draws.length, -5, float(i), 0.0, float4_1, 1.0, 3, 0.0 })
     qsort_in_place(draws) a, b: a.y < b.y or (a.y == b.y and a.seq < b.seq)
     // the ground's shadows into the light's shade buffer, where they join into one shade (a low sun's long shadows
     // overlap everywhere in a wood), then what stands up out of them wipes them off itself: the trees and rocks are lit
@@ -832,21 +1022,30 @@ def draw_world(alpha:float):
                                             let w = floor(r * 1.4)
                                             gl.translate(float2 { floor(fl.x) - r, floor(fl.y) - floor(r * 0.25) }): gl.rect(float2 { r * 2.0, max(1.0, floor(r * 0.5)) })
                                             gl.translate(float2 { floor(fl.x) - floor(w / 2.0), floor(fl.y) - floor(r * 0.5) }): gl.rect(float2 { w, r })
-                        // back to front: what stands up wipes the shade off itself, and where a man stands is marked
-                        // (blue, added: he keeps his shade) so the light can keep him readable; a tree in front wipes that too
-                        var now = -1
-                        for(draws) d:
-                            if (d.kind == 0 or d.kind == 4) and d.f >= 0:
-                                if d.kind != now:
-                                    flush_sprites()
-                                    b_sheet = -1
-                                    now = d.kind
-                                    sprite_shader = if now == 0: "atmo_shade_clear" else: "atmo_shade_unit"
-                                    gl.blend(if now == 0: blend_alpha else: blend_add)
-                                sprite(d.f, d.x, d.ay, if d.kind == 0: float4 { d.fade, 0.0, 0.0, 1.0 } else: float4_1)
-                        flush_sprites()
-                        gl.blend(blend_alpha)
-                        sprite_shader = "sprite"
+        // back to front: what stands up wipes the shade off itself; a man or a horse takes the shade
+        // of the ground at his feet from his feet to his head (Dominic, 2026-11-11, of the trees' shadows on the
+        // camp's horses: "feels like it flat from camera perspective"), and a man is marked so the light can keep
+        // him readable; a tree in front wipes that too
+        atmo_shade_standing()
+        gl.translate(ws / 2.0):
+            gl.scale(zoom):
+                gl.translate(-cam_px):
+                    var now = -1
+                    b_sheet = -1
+                    for(draws) d:
+                        if d.f >= 0 and (d.kind == 0 or d.kind == 4):
+                            let k = if d.kind == 0: 0 else: 1
+                            if k != now:
+                                flush_sprites()
+                                b_sheet = -1
+                                now = k
+                                sprite_shader = if now == 0: "atmo_shade_clear" else: "atmo_shade_stand"
+                                gl.blend(if now == 0: blend_alpha else: blend_none)
+                            // (the ground just behind his feet, toward the sun: his own shadow falls the other way)
+                            sprite(d.f, d.x, d.ay, if d.kind == 0: float4 { d.fade, 0.0, 0.0, 1.0 } else: atmo_stand_colour((float2 { d.x, d.ay - 3.0 } - cam_px) * zoom + ws / 2.0))
+                    flush_sprites()
+                    gl.blend(blend_alpha)
+                    sprite_shader = "sprite"
         gl.blend(blend_alpha)
     let atmo_drawn = atmo_begin(float4 { 0.04, 0.05, 0.04, 1.0 })
     let stale_was = ground_stale
@@ -868,13 +1067,139 @@ def draw_world(alpha:float):
                         flush_sprites()
                         draw_fire(int(d.x))
                         b_sheet = -1
+                    elif d.f == -6:
+                        flush_sprites()
+                        draw_feet()
+                        b_sheet = -1
                     elif shading and d.kind == 1: pass()
                     elif d.fade < 1.0: sprite_faded(d.f, d.x, d.ay, d.col, d.fade)
+                    elif d.lean != 0.0: sprite_leaning(d.f, d.x, d.ay, d.col, d.lean)
                     else: sprite(d.f, d.x, d.ay, d.col)
                 flush_sprites()
+                draw_leaf_fall()
+                draw_weather()
+                if show_cover: draw_cover()
                 fires_glow()
     sprite_snap = 1.0
     if atmo_on: atmo_end(cam_px, zoom, 1.5)
+
+// The leaves coming down (#11: "leaves fall and pile up"): from each shedding crown in view a few leaves at a time, a
+// pixel or two of the tree's own autumn colour each, swinging as they fall from the crown to the ground at its foot.
+// Drawn into the world, so the light falls on them as on everything else.
+let LEAVES_A_TREE = 5
+
+def draw_leaf_fall():
+    if not shedding.length: return
+    let t = gl.time()
+    let blow = gust() * 60.0  // (how far the wind carries a leaf on its way down, art px)
+    gl.set_shader("color")
+    for(shedding) sh:
+        let cols = autumn_leaf(sh.sp, sh.pick)
+        let top = crown_up(sh.sp) * ART_UP
+        let reach = crown_reach(sh.sp) * 60.0
+        for(int(float(LEAVES_A_TREE) * sh.rate + 0.5)) k:
+            let h = mixed(sh.seed * 31 + k)
+            let period = 3.5 + float(h % 300) / 100.0
+            let turn = t / period + float((h / 300) % 1000) / 1000.0
+            let u = turn - floor(turn)
+            // (each fall is its own: where in the crown it lets go changes with every turn)
+            let h2 = mixed(h + int(floor(turn)) * 7919)
+            let x0 = float(h2 % 2001) / 1000.0 - 1.0
+            let from_up = top * (0.55 + 0.5 * float((h2 / 2001) % 1000) / 1000.0)
+            let x = sh.at.x + x0 * reach + sin((u * 2.2 + float(h % 97) / 97.0) * 360.0) * 5.0 + u * (7.0 + blow)
+            let y = sh.at.y - from_up * (1.0 - u) + x0 * x0 * 6.0 - float((h2 / 7) % 14)
+            let c = cols[h % cols.length]
+            gl.color(float4 { c.x, c.y, c.z, min(1.0, min(u * 8.0, (1.0 - u) * 5.0)) }):
+                gl.translate(float2 { floor(x), floor(y) }): gl.rect(if (h / 11 + int(u * 6.0)) % 2 == 0: float2 { 2.0, 1.0 } else: float2 { 1.0, 2.0 })
+
+// For a look at the cover (#9; the game shows no meter): a dark bar on every open tile in view, lit along as much of
+// its length as the tile hides a man.
+def draw_cover():
+    let grass = str_index(tr_names, "grass")
+    let trail = str_index(tr_names, "trail")
+    gl.set_shader("color")
+    for(terrain) t, c:
+        if t == grass or t == trail:
+            let at = gp(float((c % W) * 1000 + 500), float((c / W) * 1000 + 500))
+            if at.x > view_lo.x and at.x < view_hi.x and at.y > view_lo.y and at.y < view_hi.y:
+                let v = floor(float(cover_at(c)) / 10.0 + 0.5)  // (a bar of ten: how much of it is lit)
+                let p = float2 { floor(at.x) - 6.0, floor(at.y) - 2.0 }
+                gl.color(float4 { 0.05, 0.05, 0.08, 0.75 }): gl.translate(p): gl.rect(float2 { 12.0, 4.0 })
+                if v > 0.0: gl.color(float4 { 0.4, 1.0, 1.0, 1.0 }): gl.translate(p + float2_1): gl.rect(float2 { v, 2.0 })
+
+// Wind in the canopy (#15): a crown leans with the gusts, its foot still and its top carried over by up to a few
+// pixels of the art in a storm, each tree in its own time. In steps of half a pixel, so a crown moves a row at a time
+// and stays crisp.
+let CROWN_LEAN = 4.5
+
+def crown_lean(cell:int) -> float:
+    let t = gl.time()
+    let own = float(cell_hash(cell + 911) % 360)
+    let swing = 0.55 + 0.3 * sin(t * 70.0 + own) + 0.15 * sin(t * 173.0 + own * 2.0)
+    return floor(float(wind_now()) / 1000.0 * CROWN_LEAN * swing * 2.0 + 0.5) / 2.0
+
+// A frame with its top leaning `lean` art px to the right of where it stands (its bottom row stays put).
+def sprite_leaning(f:int, x:float, y:float, col:float4, lean:float):
+    let fr = frames[f]
+    let x0 = floor(x * sprite_snap) / sprite_snap - float(fr.ox) * fr.k
+    let y0 = floor(y * sprite_snap) / sprite_snap - float(fr.oy) * fr.k
+    sprite_xf(f, [ fr.k, 0.0, -lean / float(fr.h), fr.k, x0 + lean, y0 ], col)
+
+// The wind as the eye sees it (0 .. 1): the sim's wind (wind_now), coming in gusts.
+def gust() -> float:
+    let t = gl.time()
+    return float(wind_now()) / 1000.0 * (0.7 + 0.2 * sin(t * 47.0) + 0.1 * sin(t * 131.0 + 40.0))
+
+// Rain and snow coming down (#15), drawn into the world a pixel of the art at a time, so the light of the hour falls
+// on them and they stay as crisp as everything else. The air is cut into squares fixed to the ground; each holds a few
+// drops or flakes that fall through it over and over, each from its own place and at its own time, so nothing moves
+// with the camera. Rain is short slanted strokes, leaning with the wind, and a fleck where each lands; snow is single
+// pixels (a few are two wide) swinging as they sink and carried along by the wind.
+let WEATHER_CELL = 44.0
+
+def draw_weather():
+    let kind, hard = weather_now()
+    if hard <= 0 or (kind != "rain" and kind != "snow"): return
+    let k = float(hard) / 1000.0
+    let t = gl.time()
+    let wind = gust()
+    let rain = kind == "rain"
+    let each = int(k * (if rain: 9.0 else: 22.0) + 0.5)  // (a spell comes on a drop at a time)
+    let fall = if rain: 150.0 else: 90.0
+    let lean = if rain: 0.12 + wind * 0.5 else: 0.25 + wind * 1.6  // (sideways for each pixel down)
+    let c0 = floor((view_lo - float2 { fall * lean + 8.0, 0.0 }) / WEATHER_CELL)
+    let c1 = floor((view_hi + float2 { 8.0, fall }) / WEATHER_CELL)
+    gl.set_shader("color")
+    for(int(c1.y - c0.y) + 1) gy: for(int(c1.x - c0.x) + 1) gx:
+        let cx = int(c0.x) + gx
+        let cy = int(c0.y) + gy
+        for(each) n:
+            let h = mixed(cx * 7349 + cy * 9151 + n * 613)
+            let period = if rain: 0.55 + float(h % 30) / 100.0 else: 4.5 + float(h % 250) / 100.0
+            let turn = t / period + float((h / 250) % 1000) / 1000.0
+            let u = turn - floor(turn)
+            let h2 = mixed(h + int(floor(turn)) * 7919)
+            let x0 = (float(cx) + float(h2 % 1000) / 1000.0) * WEATHER_CELL
+            let y1 = (float(cy) + float((h2 / 1000) % 1000) / 1000.0) * WEATHER_CELL  // (where it lands)
+            if rain:
+                if u < 0.86:
+                    let v = u / 0.86
+                    let y = y1 - fall * (1.0 - v)
+                    let x = x0 - fall * (1.0 - v) * lean
+                    let long = 8 + h % 6
+                    gl.color(float4 { 0.8, 0.86, 0.94, 0.42 + 0.2 * k }):
+                        for(long / 2 + 1) q:  // (two pixels of height at a time, stepping aside as the stroke leans)
+                            gl.translate(float2 { floor(x - float(q) * 2.0 * lean), floor(y) - float(q) * 2.0 }): gl.rect(float2 { 1.0, 2.0 })
+                else:
+                    let v = (u - 0.86) / 0.14
+                    gl.color(float4 { 0.82, 0.88, 0.95, 0.4 * (1.0 - v) }):
+                        gl.translate(float2 { floor(x0) - 1.0 - floor(v * 2.0), floor(y1) }): gl.rect(float2 { 3.0 + floor(v * 2.0) * 2.0, 1.0 })
+            else:
+                let y = y1 - fall * (1.0 - u)
+                let x = x0 - fall * (1.0 - u) * lean + sin((u * 1.7 + float(h % 89) / 89.0) * 360.0) * 4.0
+                let big = h % 3 == 0
+                gl.color(float4 { 0.96, 0.97, 1.0, (if big: 0.95 else: 0.85) * min(1.0, min(u * 6.0, (1.0 - u) * 6.0)) }):
+                    gl.translate(float2 { floor(x), floor(y) }): gl.rect(if big: float2 { 2.0, 2.0 } else: float2_1)
 
 // The camp's fires (for now only for a look: the camp option lights one among the men at dusk): the fireplace's model,
 // flames drawn unlit, a glow each in the light (atmosphere.json's "glows": "building_fire"), and a thread of smoke.
@@ -931,6 +1256,76 @@ def draw_lines(texts:[string], t:float, size:int):
             gl.color(float4 { 0.93, 0.89, 0.78, a }):
                 gl.translate(float2 { floor(ws.x / 2.0 - min(w, ws.x * 0.7) / 2.0), floor(y) }): gl.text(l)
         y += gap
+
+// ------------------------------------------------------------------ the menu (#86)
+// Dominic: "Game start is slow, we want very minimal loader. The game menu should show the village (once ready - just
+// the men in forest for now is fine) alive in real time -> when you "start", the menu should just fade away". So the
+// loader is the game's name on the dark, and the menu is the same name over the wood, the men in it going about the
+// camp, with two words under it. Start, and the words fade off the game that is already running.
+
+let MENU_ITEMS = [ "Start", "Quit" ]
+// Old Standard (SIL Open Font License, data/fonts/OldStandard/OFL.txt): a book face of the 19th century, made for
+// Cyrillic as well as Latin, for the name as the game's pictures write it, Смяна.
+let TITLE_FONT = "../data/fonts/OldStandard/OldStandard-Bold.ttf"
+let MENU_FONT = "../data/fonts/OldStandard/OldStandard-Regular.ttf"
+var menu_alpha = 1.0  // the menu's words: 1 shown, fading to 0 once started
+var menu_hover = -1
+var menu_mill_t = 0.0
+
+// The game's name, high in the middle (the loader's and the menu's, in the same place), and under it the menu's words
+// at `items` (0: none). Returns the word under the mouse, or -1.
+def draw_title(a:float, items:float) -> int:
+    if a <= 0.0: return -1
+    let ws = float(gl.window_size())
+    let ink = float4 { 0.95, 0.91, 0.79, a }
+    let dark = float4 { 0.02, 0.02, 0.015, a * 0.55 }
+    gl.set_shader("color")
+    // (a dark edge round the letters, so they read over the light grass and the dark wood alike)
+    def centred(t:string, y:float, size:int, col:float4) -> float2, float2:
+        gl.set_font_size(size)
+        let w = float(gl.text_size(t))
+        let at = float2 { floor(ws.x / 2.0 - w.x / 2.0), floor(y) }
+        let off = max(1.0, floor(float(size) / 40.0))
+        gl.color(float4 { dark.x, dark.y, dark.z, dark.w * col.w / max(a, 0.001) }):
+            for([ float2 { -off, 0.0 }, float2 { off, 0.0 }, float2 { 0.0, -off }, float2 { off, off * 2.0 } ]) o: gl.translate(at + o): gl.text(t)
+        gl.color(col): gl.translate(at): gl.text(t)
+        return at, w
+    gl.set_font_name(TITLE_FONT)
+    centred("Смяна", ws.y * 0.12, int(ws.y / 6.5), ink)
+    gl.set_font_name(MENU_FONT)
+    var hover = -1
+    if items > 0.0:
+        let m = mouse_px()
+        let size = int(ws.y / 26.0)
+        for(MENU_ITEMS) t, i:
+            let y = ws.y * 0.66 + float(i) * float(size) * 2.0
+            gl.set_font_size(size)
+            let w = float(gl.text_size(t))
+            let lo = float2 { ws.x / 2.0 - w.x / 2.0 - 12.0, y - 6.0 }
+            let over = m.x >= lo.x and m.x <= lo.x + w.x + 24.0 and m.y >= lo.y and m.y <= lo.y + w.y + 12.0
+            if over: hover = i
+            centred(t, y, size, float4 { ink.x, ink.y, ink.z, items * (if over: 1.0 else: 0.8) })
+    return hover
+
+// The men go about the camp while the menu is up: now and then one of them takes a few steps about the others.
+def menu_mill(dt:float):
+    menu_mill_t -= dt
+    if menu_mill_t > 0.0 or not u_x.length: return
+    menu_mill_t = 0.8 + float(rnd(100)) / 60.0
+    var c = int2_0
+    for(u_x.length) i: c += int2 { u_x[i], u_y[i] }
+    c = c / u_x.length
+    let i = rnd(u_x.length)
+    let x = clamp(c.x + rnd(5000) - 2500, 500, W * TILE - 500)
+    let y = clamp(c.y + rnd(5000) - 2500, 500, H * TILE - 500)
+    issue_cmd(0, CMD_MOVE, [ u_id[i] ], x, y, 0, 0)
+
+// The camera while the menu is up: over the men, drifting slowly as if someone stood watching.
+def menu_camera(dt:float):
+    let t = gl.time()
+    let to = men_centre() + float2 { sin(t * 4.0) * 40.0, cos(t * 3.0) * 14.0 }
+    cam += (to - cam) * min(1.0, dt * 0.6)
+    cam_keep()
 
 // ------------------------------------------------------------------ orders
 
@@ -1016,7 +1411,7 @@ def cam_keep():
 def camera_tick():
     let ws = float(gl.window_size())
     let m = mouse_px()
-    let sp = 900.0 * gl.delta_time() / zoom
+    let sp = CAM_SPEED * ws.y * gl.delta_time() / zoom
     var d = float2_0
     if gl.button("left") >= 1 or gl.button("a") >= 1: d.x -= 1.0
     if gl.button("right") >= 1 or gl.button("d") >= 1: d.x += 1.0
@@ -1029,9 +1424,14 @@ def camera_tick():
         if m.x >= ws.x - 4.0: d.x += 1.0
         if m.y >= ws.y - 4.0: d.y += 1.0
     cam += d * sp
+    // the wheel: a step in or out, about the point under the mouse
     let wheel = gl.mousewheel_delta()
-    if wheel > 0: zoom = min(4.0, zoom + 0.25)
-    if wheel < 0: zoom = max(0.75, zoom - 0.25)
+    if wheel != 0:
+        let under = from_screen(m)
+        zoom_step = clamp(zoom_step + (if wheel > 0: 1 else: -1), 0, ZOOM_STEPS.length - 1)
+        zoom_fixed = 0.0
+        zoom = zoom_of(zoom_step)
+        if inside: cam = under - (m - ws / 2.0) / zoom
     if gl.button("f") == 1: cam = men_centre()
     // (the camera stays over the place)
     cam_keep()
@@ -1094,17 +1494,17 @@ LEVEL_PX = 20.0 * cos(view_elev) / cos(30.0)
 atmo_data = lib_data("atmosphere.json")
 for(atmo_problems(atmo_data)) why: print why
 sun_from_data()
-zoom = max(1.0, floor(float(gl.window_size().y) / 325.0 * 4.0) / 4.0)
-if arg_of("zoom") != "": zoom = string_to_float(arg_of("zoom"))  // zoom:2.75: the camera this close, for a look beside a mock-up
+if arg_of("zoom") != "": zoom_fixed = string_to_float(arg_of("zoom"))  // zoom:2.75: the camera this close, for a look beside a mock-up
+zoom = if zoom_fixed > 0.0: zoom_fixed else: zoom_of(zoom_step)
+cursors_load("../data/cursors")
 
-// A frame of words while something long is made (the first start bakes the men and the trees).
-let waiting_lines = [ "Smyana" ]
-let waiting_t0 = seconds_elapsed()
+// The loader (#86: "very minimal"): the game's name on the dark while the art is read (or, the first time, baked), where
+// the menu will show it.
 def waiting_frame():
     if not gl.frame(): return
     gl.clear(float4 { 0.03, 0.03, 0.025, 1.0 })
     gl.blend(1)
-    draw_lines(waiting_lines, 10.0 + seconds_elapsed() - waiting_t0, int(float(gl.window_size().y) / 36.0))
+    draw_title(1.0, 0.0)
 
 waiting_frame()
 waiting_frame()
@@ -1175,7 +1575,10 @@ print "start: {seconds_elapsed() - boot0} s (men baked in {men_bake_s} s, trees 
 
 // ------------------------------------------------------------------ the loop
 
-var phase = "arriving"  // arriving (fading in), play, leaving (fading out), letter, end
+// menu (the game running under its name: the start), arriving (fading in), play, leaving (fading out), letter, end.
+// A picture or the tour starts playing at once (menu: the menu, for a look).
+var phase = if capture and not has_s(args, "menu"): "arriving" else: "menu"
+if phase != "menu": menu_alpha = 0.0
 var phase_t = 0.0
 var leave_edge = ""
 var letter = []::string
@@ -1216,12 +1619,22 @@ while gl.frame():
     let dt = min(gl.delta_time(), 0.1)
     frame_no++
     phase_t += dt
-    if gl.button("space") == 1: paused = not paused
-    if phase == "play" or phase == "arriving" or phase == "leaving":
+    if zoom_fixed <= 0.0: zoom = zoom_of(zoom_step)  // (the window may have changed size)
+    if phase == "menu":
+        menu_mill(dt)
+        menu_camera(dt)
+        let go = (menu_hover == 0 and gl.button("mouse1") == 1) or gl.button("return") == 1 or gl.button("space") == 1
+        if menu_hover == 1 and gl.button("mouse1") == 1: break
+        if go and phase_t > 0.5:
+            // (the men stop where they are: the run is theirs now)
+            for(u_id) id, i: issue_cmd(0, CMD_MOVE, [ id ], u_x[i], u_y[i], 0, 0)
+            set_phase("play")
+    elif gl.button("space") == 1: paused = not paused
+    if phase == "menu" or phase == "play" or phase == "arriving" or phase == "leaving":
         if phase == "play":
             select_tick()
             order_tick()
-        camera_tick()
+        if phase != "menu": camera_tick()
         if not paused: acc = min(acc + dt, 0.5)
         while acc >= 0.05:
             p_id = copy(u_id)
@@ -1231,8 +1644,9 @@ while gl.frame():
             for(u_x.length) i:
                 let px, py = prev_pos(i)
                 if u_moving[i] == 1: man_walked.set(u_id[i], man_walked.get(u_id[i], 0.0) + sqrt(float(dist2(px, py, u_x[i], u_y[i]))))
-            let edge = route_tick()
-            tour_tick()
+            // (under the menu the men only move: the run's clock and its gates wait for Start)
+            let edge = if phase == "menu": "" else: route_tick()
+            if phase != "menu": tour_tick()
             clock_s += 0.05
             acc -= 0.05
             if edge != "" and phase == "play":
@@ -1243,6 +1657,7 @@ while gl.frame():
         mood_tick()
         if phase != "leaving": score_tick(dt, season_now(), mood_now(), fires.length > 0)
         if debug_line: score_keys()
+        ground_season_tick()
     if phase == "arriving" and phase_t >= 1.5: set_phase("play")
     if phase == "leaving" and phase_t >= 1.5:
         route_leave(leave_edge)
@@ -1259,6 +1674,12 @@ while gl.frame():
             paused = false
             set_phase(if run_over(): "end" else: "arriving")
             if run_over(): score_moment("homecoming")
+    // the cursor: an axe over a young tree the chosen men would fell, the pointer with an order's ring where they would
+    // walk, else the pointer
+    let ws = float(gl.window_size())
+    let mp = mouse_px()
+    let in_window = mp.x >= 0.0 and mp.y >= 0.0 and mp.x < ws.x and mp.y < ws.y
+    cursor_show(if phase != "play" or not selected.length or not in_window: CURSOR_POINT elif young_tree_at(mouse_milli()) >= 0: CURSOR_FELL else: CURSOR_GO)
     if drawing():
         gl.clear(float4 { 0.035, 0.055, 0.04, 1.0 })
         gl.blend(1)
@@ -1273,13 +1694,15 @@ while gl.frame():
                 let b = mouse_px()
                 ui_batch():
                     for([ [ a, float2 { b.x, a.y } ], [ float2 { b.x, a.y }, b ], [ b, float2 { a.x, b.y } ], [ float2 { a.x, b.y }, a ] ]) l: ui_line(l[0], l[1], 1.2, float4 { 0.95, 0.91, 0.79, 0.7 })
-            veil(if phase == "arriving": 1.0 - phase_t / 1.5 elif phase == "leaving": phase_t / 1.5 else: 0.0)
+            veil(if phase == "arriving" or phase == "menu": 1.0 - phase_t / 1.5 elif phase == "leaving": phase_t / 1.5 else: 0.0)
+            if phase != "menu": menu_alpha = max(0.0, menu_alpha - dt / 1.2)
+            menu_hover = draw_title(menu_alpha, if phase == "menu": clamp((phase_t - 1.0) / 1.0, 0.0, 1.0) else: menu_alpha)
         if debug_line:
             gl.set_shader("color")
             gl.set_font_name(FONT)
             gl.set_font_size(16)
             gl.color(float4 { 1.0, 1.0, 1.0, 0.8 }):
-                gl.translate(float2 { 10.0, 8.0 }): gl.text("{leg_id}  {season_now()}  {int(hour_now())}h  {atmo_mood}  men {men_alive()}  {int(1.0 / max(dt, 0.001))} fps  {phase}")
+                gl.translate(float2 { 10.0, 8.0 }): gl.text("{leg_id}  {season_now()} {year_here()}  {int(hour_now())}h  {atmo_mood}  men {men_alive()}  {int(1.0 / max(dt, 0.001))} fps  {phase}")
     if shot != "" and not shot_taken and (clock_s >= shot_at or (phase == "end" and phase_t > 5.0)) and (arg_of("in") == "" or arg_of("in") == phase or arg_of("in") == leg_id):
         gl.screenshot(shot)
         shot_taken = true

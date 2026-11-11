@@ -68,8 +68,10 @@ stand("slabs0", FIRE[0] + 3.4, FIRE[1] - 1.5)
 stand("slabs1", FIRE[0] + 7.0, FIRE[1] + 4.0)
 for i in range(3): stand("mule%d" % [1, 4, 6][i], FIRE[0] + 4.0 + i * 0.95, FIRE[1] - 2.1 + 0.15 * (i % 2))
 # (Dominic, 2026-11-11: "let's put the riders there on the edge just to see how they look with the shadows": the mock-up's
-# line of horsemen in the shade at the back of the clearing, heads to the right)
-for i in range(5): stand("rider%d" % [3, 0, 1, 2, 3][i], FIRE[0] + 2.6 + i * 1.3, FIRE[1] - 7.2 - 0.25 * (i % 2))
+# line of horsemen in the shade at the back of the clearing. Later that morning: "riders at the edge shouldnt be looking
+# away, should be facing to the right - like they're following your path - and be much closer to the trees": they
+# face down the screen to the right, the way the trail runs to the ford, and stand in under the first trunks)
+for i in range(5): stand("rider%d" % [11, 8, 9, 10, 11][i], FIRE[0] + 2.6 + i * 1.3, FIRE[1] - 8.9 - 0.25 * (i % 2))
 for i in range(5): stand("horse%d" % [0, 5, 2, 1, 7][i], FIRE[0] + 2.2 + i * 0.95, FIRE[1] - 3.8 - 0.2 * (i % 2))
 # the men who aren't at the fire: by the mules, on the trail, at the stream and over it, as in the mock-up
 men = []

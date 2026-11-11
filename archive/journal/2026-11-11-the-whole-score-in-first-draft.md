@@ -84,7 +84,7 @@ What measuring can't say is whether any of it feels right. Nobody has heard thes
 
 ## Decisions
 
-D-059 (Claude, open to Dominic): which calm track plays in which season and hour, and the 90 second gap.
+D-072 (Claude, open to Dominic): which calm track plays in which season and hour, and the 90 second gap.
 
 ## What is known to be thin
 
@@ -129,4 +129,4 @@ No track was changed. The first draft stays in the game as placeholders.
 
 ### Decisions
 
-D-060 (Dominic): each song has a design stage before it is made.
+D-073 (Dominic): each song has a design stage before it is made.

@@ -7,7 +7,7 @@
 // seen. The leaves are baked once a season (their colour), behind the letter home, and kept in bake_cache/.
 
 let TREE_K = 64.0  // voxels a tile for the load of wood (baked at twice this)
-let TREE_BAKE = "trees 44"
+let TREE_BAKE = "trees 53"
 // Voxels a tile in the trees, rocks and undergrowth: one voxel is one pixel of Creel's art (WB_PX at its art scale of
 // 3), as the men's are, so they are as crisp as the men (Dominic, 2026-11-10: "evryhting crisp and sharp").
 let VOX_K = 135.7645
@@ -32,6 +32,7 @@ var trees_season = ""   // the season whose crowns are loaded
 // kind a little differently (kind), from yellow through orange to red.
 let BROADLEAVES = [ "beech", "oak", "hornbeam" ]
 let LEAF_KINDS = 3
+let OTHER_CONIFERS = [ "fir", "bpine" ]
 
 let LATE_KEEP = 0.56     // how much of a crown still hangs after leaf-fall (of its noise field: about half its leaves)
 let BRISTLE = 0.05       // how many of a thin branch's voxels sprout a fine twig after leaf-fall
@@ -54,9 +55,14 @@ def autumn_leaf(sp:string, kind:int) -> [float3]:
     return [ gold, gold, orange ][kind % 3]
 
 def leaf_look(sp:string, season:string, kind:int) -> vglook:
-    var leaf = [ float3 { 0.47, 0.62, 0.22 }, float3 { 0.30, 0.47, 0.17 }, float3 { 0.16, 0.30, 0.13 }, float3 { 0.58, 0.60, 0.24 } ]
-    if sp == "oak": leaf = [ float3 { 0.38, 0.54, 0.20 }, float3 { 0.24, 0.40, 0.15 }, float3 { 0.13, 0.25, 0.11 }, float3 { 0.48, 0.54, 0.22 } ]
-    if sp == "hornbeam": leaf = [ float3 { 0.52, 0.66, 0.26 }, float3 { 0.35, 0.51, 0.19 }, float3 { 0.19, 0.33, 0.14 }, float3 { 0.62, 0.66, 0.28 } ]
+    // (summer, Dominic 2026-11-11: "the green scene ... is too green, and lacking variation. the lighter coloured trees
+    // are almost invisible on the grass". The crowns are a cooler, deeper green than the meadow under them, each kind
+    // of tree its own green, and each tree of a kind a little different: one fresher and yellower, one darker and bluer)
+    var leaf = [ float3 { 0.40, 0.58, 0.20 }, float3 { 0.23, 0.42, 0.16 }, float3 { 0.10, 0.24, 0.12 }, float3 { 0.50, 0.60, 0.22 } ]
+    if sp == "oak": leaf = [ float3 { 0.30, 0.45, 0.19 }, float3 { 0.17, 0.32, 0.14 }, float3 { 0.08, 0.18, 0.10 }, float3 { 0.40, 0.48, 0.22 } ]
+    if sp == "hornbeam": leaf = [ float3 { 0.34, 0.54, 0.28 }, float3 { 0.20, 0.39, 0.21 }, float3 { 0.09, 0.23, 0.14 }, float3 { 0.44, 0.56, 0.30 } ]
+    let tint = [ float3 { 1.0, 1.0, 1.0 }, float3 { 0.86, 0.94, 1.12 }, float3 { 1.1, 1.04, 0.84 } ][kind % 3]
+    leaf = map(leaf) c: c * tint
     if season == "spring": leaf = map(leaf) c: c * 1.12 + float3 { 0.12, 0.14, 0.06 }
     if season == "autumn": leaf = autumn_leaf(sp, kind)
     // (beech and hornbeam bark is pale silver grey)
@@ -70,6 +76,18 @@ def beech_look(season:string) -> vglook: return leaf_look("beech", season, 0)
 def pine_look() -> vglook:
     return vglook { [ float3 { 0.36, 0.50, 0.30 }, float3 { 0.23, 0.37, 0.24 }, float3 { 0.12, 0.23, 0.17 }, float3 { 0.44, 0.52, 0.30 } ],
                     [ float3 { 0.25, 0.19, 0.15 }, float3 { 0.36, 0.26, 0.19 }, float3 { 0.49, 0.33, 0.22 }, float3 { 0.62, 0.41, 0.26 } ],
+                    [ float3 { 0.3, 0.3, 0.3 }, float3 { 0.5, 0.5, 0.5 } ], false, true, true }
+
+// Silver fir: dark glossy needles with a silver underside, smooth silver grey bark.
+def fir_look() -> vglook:
+    return vglook { [ float3 { 0.25, 0.40, 0.30 }, float3 { 0.15, 0.29, 0.23 }, float3 { 0.08, 0.17, 0.15 }, float3 { 0.36, 0.46, 0.40 } ],
+                    [ float3 { 0.27, 0.27, 0.27 }, float3 { 0.40, 0.40, 0.39 }, float3 { 0.53, 0.53, 0.51 }, float3 { 0.64, 0.64, 0.61 } ],
+                    [ float3 { 0.3, 0.3, 0.3 }, float3 { 0.5, 0.5, 0.5 } ], false, true, true }
+
+// Black pine: long dark needles in dense tufts, bark nearly black, deeply furrowed.
+def bpine_look() -> vglook:
+    return vglook { [ float3 { 0.26, 0.37, 0.22 }, float3 { 0.15, 0.25, 0.16 }, float3 { 0.07, 0.14, 0.10 }, float3 { 0.32, 0.40, 0.23 } ],
+                    [ float3 { 0.12, 0.11, 0.11 }, float3 { 0.20, 0.19, 0.18 }, float3 { 0.29, 0.27, 0.25 }, float3 { 0.39, 0.36, 0.33 } ],
                     [ float3 { 0.3, 0.3, 0.3 }, float3 { 0.5, 0.5, 0.5 } ], false, true, true }
 
 def spruce_look() -> vglook:
@@ -86,8 +104,11 @@ def gneiss_look() -> vglook:
                     true, false, false }
 
 // Where a tree's crown is centred over its foot, and how far it spreads (tiles): what fades over a man.
-def crown_up(sp:string) -> float: return if sp == "beech": 1.35 elif sp == "oak": 1.2 elif sp == "hornbeam": 1.0 elif sp == "pine": 1.7 else: 1.2
-def crown_reach(sp:string) -> float: return if sp == "beech": 0.8 elif sp == "oak": 0.8 elif sp == "hornbeam": 0.55 elif sp == "pine": 0.55 else: 0.45
+def crown_up(sp:string) -> float:
+    return if sp == "beech": 1.35 elif sp == "oak": 1.2 elif sp == "hornbeam": 1.0 elif sp == "pine": 1.7 elif sp == "bpine": 1.6 elif sp == "fir": 1.3 else: 1.2
+
+def crown_reach(sp:string) -> float:
+    return if sp == "beech": 0.8 elif sp == "oak": 0.8 elif sp == "hornbeam": 0.55 elif sp == "pine": 0.55 elif sp == "bpine": 0.75 elif sp == "fir": 0.5 else: 0.45
 
 // A deep wood's spruce or fir: a bare dark trunk with dead snags, far taller than the picture shows. Its top is
 // faded out when it's baked (tree_onto's fade), so the trunks run up out of sight: the canopy is over the camera.
@@ -139,6 +160,39 @@ def tree_stump(look:vglook) -> vgrid:
     // (a young beech's stump: a third of a man high, as thick as its trunk was)
     vg_cylinder(g, float3_0, float3 { 0.0, 0.0, 0.1 }, 0.04, 0.03, VG_BARK)
     vg_cylinder(g, float3 { 0.0, 0.0, 0.1 }, float3 { 0.0, 0.0, 0.115 }, 0.03, 0.03, VG_WOOD, true)
+    return g
+
+// What is left when the men have felled a young tree and sawn it up (#6, D-068): its top and boughs, lopped and
+// lying where it fell, the leaves withering on them, and a round or two sawn off the trunk that they have not carried
+// away. Beside every stump.
+let BRASH_KINDS = 2
+def brash(look:vglook, kind:int) -> vgrid:
+    let rng = grng(1600 + kind)
+    let g = vg_new(look, float3 { -0.6, -0.6, 0.0 }, float3 { 0.6, 0.6, 0.3 }, VOX_K, 1600 + kind)
+    let a = randf_range(rng, 0.0, 360.0)
+    let d = float3 { cos(a), sin(a), 0.0 }
+    let side = float3 { -sin(a), cos(a), 0.0 }
+    // the lopped top: a thin pole with its boughs, lying
+    let base = d * -0.35 + float3 { 0.0, 0.0, 0.025 }
+    let tip = d * 0.45 + float3 { 0.0, 0.0, 0.02 }
+    vg_capsule(g, base, tip, 0.025, 0.008, VG_BARK)
+    vg_cylinder(g, base - d * 0.01, base, 0.024, 0.024, VG_WOOD, true)
+    let rough = vg_field(g, 0.1, 1601 + kind)
+    for(7) n:
+        let t = randf_range(rng, 0.15, 0.95)
+        let at = base + (tip - base) * t
+        let s = if n % 2: 1.0 else: -1.0
+        let out = at + (d * randf_range(rng, 0.05, 0.15) + side * s * randf_range(rng, 0.12, 0.24)) + float3 { 0.0, 0.0, randf_range(rng, 0.0, 0.06) }
+        vg_capsule(g, at, out, 0.009, 0.004, VG_BARK)
+        vg_blob(g, out, 0.045, 1.6, 0.6, rough, VG_LEAF, randf_range(rng, -0.5, 0.3), 0.35, nil, 0.0)
+    // rounds sawn off the trunk, one on its side
+    let r0 = base + side * 0.22 - d * 0.1
+    vg_cylinder(g, float3 { r0.x, r0.y, 0.0 }, float3 { r0.x, r0.y, 0.07 }, 0.035, 0.035, VG_BARK)
+    vg_cylinder(g, float3 { r0.x, r0.y, 0.07 }, float3 { r0.x, r0.y, 0.078 }, 0.032, 0.032, VG_WOOD, true)
+    if kind == 1:
+        let r1 = r0 + side * 0.09 + d * 0.05 + float3 { 0.0, 0.0, 0.035 }
+        vg_cylinder(g, r1 - d * 0.035, r1 + d * 0.035, 0.035, 0.035, VG_BARK)
+        vg_cylinder(g, r1 + d * 0.035, r1 + d * 0.042, 0.032, 0.032, VG_WOOD, true)
     return g
 
 // ------------------------------------------------------------------ trees made as .vox (D-035)
@@ -348,7 +402,11 @@ def grass_tuft(look:vglook, kind:int) -> vgrid:
 
 // The soft grass' colours: straw yellow tips over olive in autumn, fresh green in spring and summer.
 def tuft_look(season:string, kind:int) -> vglook:
-    var leaf = [ float3 { 0.56, 0.70, 0.30 }, float3 { 0.38, 0.54, 0.22 }, float3 { 0.20, 0.32, 0.14 }, float3 { 0.74, 0.82, 0.42 } ]
+    // (late summer: one fresh, one deep green, one gone straw; warmer than the crowns over them)
+    var leaf = [ [ float3 { 0.54, 0.64, 0.28 }, float3 { 0.36, 0.48, 0.20 }, float3 { 0.19, 0.29, 0.13 }, float3 { 0.70, 0.76, 0.40 } ],
+                 [ float3 { 0.46, 0.60, 0.30 }, float3 { 0.30, 0.44, 0.21 }, float3 { 0.16, 0.27, 0.13 }, float3 { 0.60, 0.70, 0.40 } ],
+                 [ float3 { 0.72, 0.70, 0.40 }, float3 { 0.52, 0.52, 0.27 }, float3 { 0.26, 0.28, 0.14 }, float3 { 0.84, 0.80, 0.54 } ] ][kind % 3]
+    if season == "spring": leaf = [ float3 { 0.56, 0.70, 0.30 }, float3 { 0.38, 0.54, 0.22 }, float3 { 0.20, 0.32, 0.14 }, float3 { 0.74, 0.82, 0.42 } ]
     if season == "autumn": leaf = [ float3 { 0.86, 0.82, 0.42 }, float3 { 0.64, 0.62, 0.27 }, float3 { 0.32, 0.33, 0.14 }, float3 { 0.97, 0.94, 0.64 } ]
     if season == "autumn" and kind % 3 == 2: leaf = [ float3 { 0.70, 0.72, 0.34 }, float3 { 0.48, 0.54, 0.24 }, float3 { 0.25, 0.31, 0.14 }, float3 { 0.86, 0.86, 0.50 } ]
     return vglook { leaf, [ float3 { 0.20, 0.17, 0.14 }, float3 { 0.28, 0.24, 0.20 }, float3 { 0.37, 0.32, 0.26 }, float3 { 0.46, 0.40, 0.33 } ],
@@ -407,7 +465,9 @@ def moss_stone(look:vglook, kind:int) -> vgrid:
 
 // The undergrowth's leaves by season: bracken goes bronze and gold in autumn, the bushes yellow and red.
 def under_look(season:string, kind:int, moss:bool) -> vglook:
-    var leaf = [ float3 { 0.44, 0.62, 0.24 }, float3 { 0.29, 0.47, 0.19 }, float3 { 0.16, 0.30, 0.14 }, float3 { 0.60, 0.68, 0.28 } ]
+    var leaf = [ [ float3 { 0.38, 0.58, 0.22 }, float3 { 0.24, 0.43, 0.17 }, float3 { 0.12, 0.27, 0.13 }, float3 { 0.52, 0.64, 0.26 } ],
+                 [ float3 { 0.30, 0.48, 0.24 }, float3 { 0.18, 0.35, 0.18 }, float3 { 0.09, 0.21, 0.12 }, float3 { 0.42, 0.54, 0.28 } ],
+                 [ float3 { 0.48, 0.60, 0.24 }, float3 { 0.32, 0.46, 0.18 }, float3 { 0.17, 0.29, 0.13 }, float3 { 0.62, 0.68, 0.30 } ] ][kind % 3]
     if season == "spring": leaf = [ float3 { 0.56, 0.74, 0.30 }, float3 { 0.40, 0.60, 0.24 }, float3 { 0.22, 0.38, 0.16 }, float3 { 0.70, 0.80, 0.40 } ]
     // (autumn: one bracken bronze, one still green, one gone pale yellow)
     if season == "autumn" and not moss and kind % 3 == 0: leaf = autumn_leaf("oak", 0)
@@ -419,6 +479,9 @@ def under_look(season:string, kind:int, moss:bool) -> vglook:
 // The low herbs: pale yellow green, paler still in autumn.
 def herb_look(season:string, kind:int) -> vglook:
     var leaf = [ float3 { 0.66, 0.76, 0.34 }, float3 { 0.46, 0.60, 0.26 }, float3 { 0.24, 0.36, 0.16 }, float3 { 0.80, 0.84, 0.44 } ]
+    // (summer: one patch pale and silvery, one warm, one the herbs' own green)
+    if season == "summer" and kind == 0: leaf = [ float3 { 0.62, 0.70, 0.50 }, float3 { 0.44, 0.52, 0.36 }, float3 { 0.22, 0.30, 0.20 }, float3 { 0.76, 0.80, 0.60 } ]
+    if season == "summer" and kind == 1: leaf = [ float3 { 0.66, 0.70, 0.38 }, float3 { 0.48, 0.54, 0.27 }, float3 { 0.25, 0.31, 0.15 }, float3 { 0.80, 0.80, 0.50 } ]
     if season == "autumn": leaf = [ float3 { 0.80, 0.79, 0.30 }, float3 { 0.60, 0.65, 0.25 }, float3 { 0.31, 0.38, 0.15 }, float3 { 0.91, 0.87, 0.42 } ]
     if season == "autumn" and kind == 2: leaf = [ float3 { 0.74, 0.78, 0.36 }, float3 { 0.52, 0.60, 0.26 }, float3 { 0.28, 0.36, 0.15 }, float3 { 0.86, 0.86, 0.46 } ]
     return vglook { leaf, [ float3 { 0.20, 0.17, 0.14 }, float3 { 0.28, 0.24, 0.20 }, float3 { 0.37, 0.32, 0.26 }, float3 { 0.46, 0.40, 0.33 } ],
@@ -597,6 +660,253 @@ def tree_onto(s:Sheet, name:string, g:vgrid, shadow:bool, shade_k:float = 1.0, f
         sheet_add_bytes(s, name + ".shadow", shade, w, h, origin)
     else: sheet_add_bytes(s, name, bytes, w, h, origin)
 
+// ------------------------------------------------------------------ the Roman ruins (#17)
+// What the Romans left on the trail (D-067): a paved road, a drain, the stubs of walls and columns, columns fallen in
+// their drums. Their stone is a pale limestone, worked square, not the gneiss's split beds; the walls have courses of
+// red brick between the stone, as Roman walls in Thrace do. Moss and ivy grow on them (the rock light adds lichen on
+// their tops and moss low on their shaded sides); the undergrowth round them turns with the year as everywhere else.
+let RUIN_KINDS = 2
+
+def fract1(x:float) -> float: return x - floor(x)
+
+def roman_look() -> vglook:
+    return vglook { [ float3 { 0.30, 0.42, 0.18 }, float3 { 0.20, 0.31, 0.14 }, float3 { 0.11, 0.19, 0.10 }, float3 { 0.42, 0.48, 0.22 } ],
+                    [ float3 { 0.33, 0.16, 0.11 }, float3 { 0.47, 0.24, 0.15 }, float3 { 0.60, 0.33, 0.21 }, float3 { 0.70, 0.43, 0.29 } ],
+                    [ float3 { 0.35, 0.33, 0.29 }, float3 { 0.46, 0.43, 0.38 }, float3 { 0.57, 0.53, 0.46 }, float3 { 0.67, 0.63, 0.55 }, float3 { 0.77, 0.73, 0.64 } ],
+                    false, false, false }
+
+// (u along the thing, v across it: `along_y` turns it to run along the map's y)
+def ruin_uv(p:float3, along_y:bool) -> float2: return if along_y: float2 { p.y, -p.x } else: float2 { p.x, p.y }
+
+// A broken top: how high the stone still stands at u, between lo and hi, ragged.
+def broken_top(u:float, lo:float, hi:float, seed:int) -> float:
+    let a = float(seed % 97)
+    let t = 0.5 + 0.3 * sin(u * 290.0 + a) + 0.2 * sin(u * 745.0 + a * 2.0)  // (degrees)
+    return lo + (hi - lo) * clamp(t, 0.0, 1.0)
+
+// A column still standing on its square base, its shaft fluted and its top broken off.
+def column_stub(look:vglook, kind:int) -> vgrid:
+    let rng = grng(2100 + kind)
+    let tall = [ 1.2, 0.5 ][kind]
+    let g = vg_new(look, float3 { -0.4, -0.4, 0.0 }, float3 { 0.4, 0.4, tall + 0.1 }, VOX_K, 2100 + kind)
+    let r = 0.105
+    let lean = float2 { randf_range(rng, -0.02, 0.02), randf_range(rng, -0.02, 0.02) }
+    vg_box(g, float3 { -0.4, -0.4, 0.0 }, float3 { 0.4, 0.4, tall + 0.1 }) i, p:
+        let base = abs(p.x) < 0.17 and abs(p.y) < 0.17 and p.z < 0.07
+        let torus = p.z >= 0.07 and p.z < 0.11 and magnitude(float2 { p.x, p.y }) < r + 0.025
+        let q = float2 { p.x, p.y } - lean * (p.z / tall)
+        let a = atan2(q)
+        let flute = 0.008 * max(0.0, cos(a * 20.0))
+        let top = broken_top(a / 60.0, tall * 0.8, tall, 2100 + kind)
+        if base: vg_set(g, i, VG_ROCK, 0.1)
+        elif torus: vg_set(g, i, VG_ROCK, 0.0)
+        elif p.z >= 0.11 and p.z < top and magnitude(q) < r - flute: vg_set(g, i, VG_ROCK, -0.1)
+    // (ivy up its shaded side)
+    for(18):
+        let z = randf_range(rng, 0.05, tall * 0.7)
+        let a = randf_range(rng, 120.0, 240.0)
+        vg_capsule(g, float3 { cos(a) * (r + 0.01), sin(a) * (r + 0.01), z }, float3 { cos(a) * (r + 0.02), sin(a) * (r + 0.02), z + 0.05 }, 0.02, 0.012, VG_LEAF)
+    return g
+
+// A column fallen in its drums, lying along the ground where it fell, one drum rolled off, and its capital.
+def column_fallen(look:vglook, kind:int, along_y:bool) -> vgrid:
+    let rng = grng(2200 + kind)
+    let g = vg_new(look, float3 { -0.7, -0.7, 0.0 }, float3 { 0.7, 0.7, 0.35 }, VOX_K, 2200 + kind)
+    let r = 0.1
+    var u = -0.6
+    for(3 + kind) n:
+        let len = randf_range(rng, 0.24, 0.32)
+        let off = if n == 1 + kind: randf_range(rng, 0.12, 0.2) else: randf_range(rng, -0.02, 0.02)
+        let tilt = randf_range(rng, -0.04, 0.04)
+        let a2 = float2 { u, off }
+        let b2 = float2 { u + len, off + tilt }
+        let a = if along_y: float3 { -a2.y, a2.x, r } else: float3 { a2.x, a2.y, r }
+        let b = if along_y: float3 { -b2.y, b2.x, r } else: float3 { b2.x, b2.y, r }
+        vg_cylinder(g, a, b, r, r, VG_ROCK, false, randf_range(rng, -0.2, 0.2))
+        u += len + randf_range(rng, 0.01, 0.06)
+    // the capital at its end: a square block, a little bigger than the shaft, on its side
+    vg_box(g, float3 { -0.7, -0.7, 0.0 }, float3 { 0.7, 0.7, 0.3 }) i, p:
+        let uv = ruin_uv(p, along_y)
+        if uv.x > u + 0.02 and uv.x < u + 0.2 and abs(uv.y + 0.04) < 0.15 and p.z < 0.24: vg_set(g, i, VG_ROCK, 0.2)
+    return g
+
+// The Roman road (#97; Dominic, 2026-11-11: "the roman ruined road is quite samey"). One long road, cut into pieces a
+// tile long so the map can place them: every stone and kerb is laid once along the whole road, so no piece repeats
+// another, and the stones are of many sizes. The road bows a little off straight and changes as it goes (ROAD_PLAN):
+// whole, heaved up by roots, its stones gone and the ground showing, buried under soil with only its kerbs showing,
+// and fading out at both ends into the trail. Its drain comes and goes beside it (ROAD_DRAIN) and once runs under it
+// in a culvert. tools/make_places.py lays the pieces in this order, and lets the grass over the gone and buried ones.
+// (It runs along the map's x only; a road along y waits for the ruins' own map, #53.)
+let ROAD_PLAN = "fwhwgwwbbwhgf"   // f fading out, w whole, h heaved by roots, g stones gone, b buried
+let ROAD_DRAIN = "..ddcd..dd..."  // d the drain beside it, c a culvert under the road, . silted up and gone
+let ROAD_BEND = 0.22              // how far the road bows off straight at its middle (tiles)
+let ROAD_HALF = 0.42              // the paving's half width, inside the kerbs (tiles)
+
+def road_mid(u:float) -> float: return ROAD_BEND * sin(180.0 * (u + 0.5) / float(ROAD_PLAN.length))
+
+// How the road is at u (in pieces): how many stones are gone, how hard roots heave them, how deep it's buried, how
+// many kerb stones are gone. Blended between pieces, so a stretch turns into the next one.
+def road_state(u:float) -> float4:
+    def of(n:int) -> float4:
+        let c = ROAD_PLAN[clamp(n, 0, ROAD_PLAN.length - 1)]
+        return switch c:
+            case 'h': float4 { 0.12, 1.0, 0.0, 0.3 }
+            case 'g': float4 { 0.6, 0.25, 0.0, 0.45 }
+            case 'b': float4 { 0.3, 0.0, 1.0, 0.15 }
+            case 'f': float4 { 0.35, 0.3, 0.0, 0.5 }
+            default: float4 { 0.04, 0.1, 0.0, 0.06 }
+    let n = int(floor(u))
+    let t = u - float(n)
+    let st = of(n) * (1.0 - t) + of(n + 1) * t
+    // (at its ends the road fades into the trail: fewer stones and no kerb)
+    let fade = clamp(1.4 - min(u + 0.5, float(ROAD_PLAN.length) - 0.5 - u), 0.0, 1.0)
+    return float4 { min(1.0, st.x + fade * 0.75), st.y, st.z, min(1.0, st.w + fade) }
+
+class road_stone:
+    at:float2  // along the road (pieces), across it from its middle (tiles)
+    gone:bool
+    lift:float   // its top above the paving's
+    tilt:float2  // how its top slopes (heaved by a root)
+    tone:float
+
+def road_piece(look:vglook, n:int) -> vgrid:
+    let g = vg_new(look, float3 { -0.5, -0.62, 0.0 }, float3 { 0.5, 1.0, 0.16 }, VOX_K, 2600 + n)
+    let su = 0.2
+    let sw = 0.19
+    // the stones near this piece: one on each cell of a lattice, a cell now and then with none (a bigger stone beside
+    // it) or two (smaller ones)
+    let stones = []
+    for(int(1.8 / su) + 3) di:
+        let i = int(floor((float(n) - 0.9) / su)) + di
+        for(6) dj:
+            let j = dj - 3
+            let h = vg_hash(2600, i, j, 0)
+            for(if h < 0.14: 0 elif h > 0.84: 2 else: 1) k:
+                let r = float2 { vg_hash(2601, i, j, k), vg_hash(2602, i, j, k) }
+                let at = float2 { (float(i) + 0.15 + 0.7 * r.x) * su, (float(j) + 0.15 + 0.7 * r.y) * sw }
+                let st = road_state(at.x)
+                let a = vg_hash(2603, i, j, k) * 360.0
+                let heave = st.y * vg_hash(2604, i, j, k)
+                let bury = st.z > vg_hash(2605, i, j, k) * 1.15
+                stones.push(road_stone { at, vg_hash(2606, i, j, k) < st.x or bury and vg_hash(2607, i, j, k) < 0.8,
+                                         if bury: -0.022 else: 0.012 * vg_hash(2608, i, j, k) + heave * 0.045,
+                                         float2 { cos(a), sin(a) } * heave * 0.22, vg_hash(2609, i, j, k) * 0.9 - 0.45 })
+    for(g.n.y) y:
+        bake_pulse()
+        for(g.n.x) x:
+            let p = float2 { float(x + g.lo.x) + 0.5, float(y + g.lo.y) + 0.5 } / g.k
+            let u = float(n) + p.x
+            let w = p.y - road_mid(u)
+            let st = road_state(u)
+            let dc = ROAD_DRAIN[n]
+            var top = 0.0
+            var tone = 0.0
+            // (the culvert: a row of long lids across the road, mid-piece, the drain's mouth open on the far side)
+            let culvert = dc == 'c' and abs(p.x) < 0.09 and w > -0.72 and w < 0.72
+            if p.x < -0.5 or p.x >= 0.5: top = 0.0
+            elif culvert:
+                if abs(w) < 0.5:
+                    if abs(fract1(w / 0.24) - 0.5) < 0.46 and abs(p.x) < 0.085:
+                        top = 0.045
+                        tone = 0.3 - 0.1 * float(int(floor(w / 0.24)) % 2)
+                elif abs(p.x) > 0.055:
+                    top = 0.05
+                    tone = 0.05
+                else:
+                    top = 0.012
+                    tone = -0.5
+            elif abs(w) < ROAD_HALF:
+                var best = 9.0
+                var next = 9.0
+                var near = -1
+                let q = float2 { u, w }
+                for(stones) s, k:
+                    let d = magnitude((s.at - q) * float2 { 0.9, 1.0 })
+                    if d < best:
+                        next = best
+                        best = d
+                        near = k
+                    elif d < next: next = d
+                if near >= 0 and next - best > 0.02:
+                    let s = stones[near]
+                    if not s.gone:
+                        top = 0.03 + s.lift + dot(s.tilt, q - s.at)
+                        tone = s.tone
+            elif abs(w) < ROAD_HALF + 0.07:
+                // a kerb: long stones on edge, some gone, some knocked askew
+                let side = if w > 0.0: 1 else: 0
+                let along = u / 0.42 + float(side) * 0.37
+                let seg = int(floor(along))
+                let hk = vg_hash(2700 + side, seg, 0, 0)
+                if hk > st.w and abs(fract1(along) - 0.5) < 0.46:
+                    let skew = (vg_hash(2702 + side, seg, 0, 0) - 0.5) * 0.08 * (0.3 + st.y)
+                    if abs(abs(w) - ROAD_HALF - 0.035 - skew * (fract1(along) - 0.5)) < 0.035:
+                        top = 0.065 + 0.03 * (vg_hash(2704 + side, seg, 0, 0) - 0.5) - st.z * 0.02
+                        tone = 0.1 + 0.2 * (hk - 0.5)
+            elif w > 0.55 and w < 0.72 and (dc == 'd' or dc == 'c'):
+                // the drain: dressed side blocks, a floor, lids over it here and there
+                let block = int(floor(u * 4.0))
+                let joint = abs(fract1(u * 4.0) - 0.5) > 0.46
+                let lid = vg_hash(2710, block, 0, 0) < 0.4
+                if lid and not joint:
+                    top = 0.075
+                    tone = 0.25
+                elif (w < 0.6 or w > 0.67) and not joint:
+                    top = 0.05
+                    tone = if w < 0.6: 0.05 else: -0.05
+                elif w >= 0.6 and w <= 0.67:
+                    top = 0.012
+                    tone = -0.35
+            let zt = min(int(top * g.k) - g.lo.z, g.n.z)
+            for(zt) z: vg_set(g, vg_index(g, x, y, z), VG_ROCK, tone)
+    return g
+
+// The stub of a wall: courses of squared stone with a band of red brick through it, broken off at the top, ivy on it.
+def wall_stub(look:vglook, kind:int, along_y:bool) -> vgrid:
+    let rng = grng(2500 + kind)
+    let hi = [ 0.62, 0.34 ][kind]
+    let g = vg_new(look, float3 { -0.6, -0.6, 0.0 }, float3 { 0.6, 0.6, hi + 0.1 }, VOX_K, 2500 + kind)
+    let course = 0.06
+    let brick_lo = 0.2
+    let brick_hi = 0.27
+    vg_box(g, float3 { -0.6, -0.6, 0.0 }, float3 { 0.6, 0.6, hi + 0.1 }) i, p:
+        let uv = ruin_uv(p, along_y)
+        let top = broken_top(uv.x, hi * 0.35, hi, 2500 + kind)
+        let wide = if p.z < 0.05: 0.15 else: 0.12
+        if abs(uv.x) < 0.5 and abs(uv.y) < wide and p.z < top:
+            if p.z >= brick_lo and p.z < brick_hi:
+                let row = int(floor(p.z / 0.018))
+                let bj = abs(fract1(uv.x / 0.07 + float(row % 2) * 0.5) - 0.5) > 0.42 or fract1(p.z / 0.018) < 0.18
+                if not bj: vg_set(g, i, VG_BARK, 0.0)
+            else:
+                let row = int(floor(p.z / course))
+                let len = 0.11 + 0.04 * float(row % 3)
+                let jv = fract1(p.z / course) < 0.12
+                let ju = abs(fract1(uv.x / len + float(row) * 0.37) - 0.5) > 0.45
+                if not jv and not ju: vg_set(g, i, VG_ROCK, float(row % 4) * 0.1 - 0.15)
+    // fallen stones at its foot, and ivy over its top and down its shaded face
+    for(4) n:
+        let u = randf_range(rng, -0.45, 0.45)
+        let v = randf_range(rng, 0.17, 0.35) * (if n % 2: 1.0 else: -1.0)
+        rock_plate(g, (if along_y: float3 { -v, u, 0.0 } else: float3 { u, v, 0.0 }), 0.06, 0.04, 0.05, randf_range(rng, 0.0, 90.0), VG_ROCK, 0.1, 0.0, 2580 + n)
+    for(26):
+        let u = randf_range(rng, -0.45, 0.45)
+        let z = broken_top(u, hi * 0.35, hi, 2500 + kind) - randf_range(rng, 0.0, 0.2)
+        let v = -0.13 + randf_range(rng, -0.01, 0.02)
+        let a = if along_y: float3 { -v, u, z } else: float3 { u, v, z }
+        vg_capsule(g, a, a + float3 { randf_range(rng, -0.04, 0.04), 0.0, -randf_range(rng, 0.02, 0.08) }, 0.022, 0.014, VG_LEAF)
+    return g
+
+def bake_ruins(rs:Sheet):
+    let roman = roman_look()
+    for(RUIN_KINDS) kind:
+        tree_onto(rs, "column{kind}", column_stub(roman, kind), true)
+        for([ false, true ]) ay:
+            let d = if ay: "y" else: "x"
+            tree_onto(rs, "drums{d}{kind}", column_fallen(roman, kind, ay), true)
+            tree_onto(rs, "wall{d}{kind}", wall_stub(roman, kind, ay), true)
+    for(ROAD_PLAN.length) n: tree_onto(rs, "road{n}", road_piece(roman, n), false)
+
 // What every season shares: trunks, the evergreens' crowns, bare young trees, the stump, the rock, the load of wood.
 // between(): so the window can draw.
 def bake_trees(between):
@@ -613,6 +923,8 @@ def bake_trees(between):
             between()
         for(YOUNG_KINDS) kind: tree_onto(vs, "young{kind}.bare", vox_tree(beech, "beech_young_{kind}", false), true)
         tree_onto(vs, "stump", tree_stump(beech), true)
+        let withered = [ float3 { 0.62, 0.42, 0.20 }, float3 { 0.48, 0.32, 0.16 }, float3 { 0.30, 0.21, 0.12 }, float3 { 0.70, 0.55, 0.30 } ]
+        for(BRASH_KINDS) kind: tree_onto(vs, "brash{kind}", brash(dead_look(withered, false), kind), true)
         for(LOG_KINDS) kind: tree_onto(vs, "log{kind}", fallen_log(under_look("summer", kind, true), kind), true)
         for(BRANCH_KINDS) kind: tree_onto(vs, "branch{kind}", fallen_branch(leaf_look("oak", "summer", 0), kind), true)
         sheet_finish(vs, vox_draw_k(), true)
@@ -630,9 +942,23 @@ def bake_trees(between):
         for(YOUNG_KINDS) kind: tree_onto(cs, "yspruce{kind}", young_spruce(spruce, kind), true)
         sheet_finish(cs, vox_draw_k(), true)
         trees_bake_s = seconds_elapsed() - t0
+    // the Rhodopes' other conifers (#6): silver fir and black pine, each its own shape
+    let fs = sheet_new("conifers2", "{TREE_BAKE} {VOX_K} {WB_PX} {vox_tree_text()}", 4096)
+    if not sheet_load(fs, vox_draw_k()):
+        for(OTHER_CONIFERS) sp: for(LEAF_KINDS) kind:
+            let look = if sp == "fir": fir_look() else: bpine_look()
+            tree_onto(fs, "{sp}{kind}", vox_tree(look, vox_name(sp, kind), false), true)
+            tree_onto(fs, "{sp}{kind}.crown.ever", vox_tree(look, vox_name(sp, kind), true), true, if sp == "fir": 0.8 else: 0.6)
+            between()
+        sheet_finish(fs, vox_draw_k(), true)
+        trees_bake_s = seconds_elapsed() - t0
     let rs = sheet_new("rocks", "{TREE_BAKE} {VOX_K} {WB_PX}", 2048)
     let ls = sheet_new("load", "{TREE_BAKE} {TREE_K} {WB_PX}", 256)
-    if sheet_load(rs, vox_draw_k()) and sheet_load(ls, tree_draw_k / 2.0): return
+    // (the load is baked finer still: a sheet of its own, drawn at its own size)
+    if not sheet_load(ls, tree_draw_k / 2.0):
+        tree_onto(ls, "load.wood", wood_load(beech), false)
+        sheet_finish(ls, tree_draw_k / 2.0, true)
+    if sheet_load(rs, vox_draw_k()): return
     let gneiss = gneiss_look()
     for(ROCK_KINDS) kind: tree_onto(rs, "rock{kind}", outcrop(gneiss, kind), true)
     for(CRAG_KINDS) kind:
@@ -646,10 +972,8 @@ def bake_trees(between):
     let debris = gneiss_look()
     debris.bark = [ float3 { 0.19, 0.15, 0.11 }, float3 { 0.27, 0.21, 0.15 }, float3 { 0.35, 0.28, 0.20 }, float3 { 0.44, 0.36, 0.26 } ]
     for(RUBBLE_KINDS) kind: tree_onto(rs, "rubble{kind}", rubble(debris, kind), true)
+    bake_ruins(rs)
     sheet_finish(rs, vox_draw_k(), true)
-    // (the load is baked finer still: a sheet of its own, drawn at its own size)
-    tree_onto(ls, "load.wood", wood_load(beech), false)
-    sheet_finish(ls, tree_draw_k / 2.0, false)
     trees_bake_s = seconds_elapsed() - t0
 
 // What winter leaves of the undergrowth (#8): the bracken dead and rust brown, the grass as straw, the brambles' canes
@@ -670,10 +994,59 @@ def bake_winter():
     for(TUFT_KINDS) kind: tree_onto(vs, "tuft{kind}.winter", grass_tuft(dead_look(straw, false), kind), true)
     sheet_finish(vs, vox_draw_k(), true)
 
+// Snow on the boughs (#15): the same models with snow lying two voxels deep on whatever is open to the sky above it,
+// a little of it missing so it reads as a dusting and not a slab. The bare broadleaves, old and young, and the
+// evergreens' crowns. Baked with winter; each casts the shadow of the tree without its snow.
+let SNOW_LOOK = [ float3 { 0.62, 0.69, 0.83 }, float3 { 0.80, 0.86, 0.95 }, float3 { 0.95, 0.97, 1.0 } ]
+
+def snowed(g:vgrid) -> vgrid:
+    g.look = vglook { g.look.leaf, g.look.bark, SNOW_LOOK, false, g.look.tree, g.look.standing }
+    for(g.n.y) y: for(g.n.x) x:
+        var open = 99  // (empty voxels above, counted going down the column)
+        for(g.n.z) k:
+            let z = g.n.z - 1 - k
+            let i = vg_index(g, x, y, z)
+            if g.mat[i] != 0 and g.mat[i] != VG_CUT:
+                if open >= 6 and vg_hash(g.seed + 5, x / 2, y / 2, z / 3) < 0.82:
+                    for(2) up: if z + 1 + up < g.n.z: vg_set(g, vg_index(g, x, y, z + 1 + up), VG_CUT, 0.0)
+                open = 0
+            elif g.mat[i] == 0: open++
+    return g
+
+def bake_snow(between):
+    if frame_at.get("beech0.snow", -1) >= 0: return
+    let vs = sheet_new("snow", "{TREE_BAKE} {VOX_K} {WB_PX} {vox_tree_text()}", 4096)
+    if sheet_load(vs, vox_draw_k()): return
+    let beech = beech_look("summer")
+    for(BROADLEAVES) sp: for(LEAF_KINDS) kind:
+        tree_onto(vs, "{sp}{kind}.snow", snowed(vox_tree(leaf_look(sp, "summer", kind), vox_name(sp, kind), false)), false)
+        between()
+    for(LEAF_KINDS) kind:
+        tree_onto(vs, "pine{kind}.crown.ever.snow", snowed(vox_tree(pine_look(), vox_name("pine", kind), true)), false)
+        tree_onto(vs, "spruce{kind}.crown.ever.snow", snowed(vox_tree(spruce_look(), vox_name("spruce", kind), true)), false)
+        between()
+    for(YOUNG_KINDS) kind:
+        tree_onto(vs, "young{kind}.bare.snow", snowed(vox_tree(beech, "beech_young_{kind}", false)), false)
+        tree_onto(vs, "yspruce{kind}.snow", snowed(young_spruce(spruce_look(), kind)), false)
+    sheet_finish(vs, vox_draw_k(), true)
+
+// Snow on the fir's and the black pine's crowns: a sheet of their own.
+def bake_snow_conifers(between):
+    if frame_at.get("fir0.crown.ever.snow", -1) >= 0: return
+    let vs = sheet_new("snow2", "{TREE_BAKE} {VOX_K} {WB_PX} {vox_tree_text()}", 4096)
+    if sheet_load(vs, vox_draw_k()): return
+    for(OTHER_CONIFERS) sp: for(LEAF_KINDS) kind:
+        tree_onto(vs, "{sp}{kind}.crown.ever.snow", snowed(vox_tree(if sp == "fir": fir_look() else: bpine_look(), vox_name(sp, kind), true)), false)
+        between()
+    sheet_finish(vs, vox_draw_k(), true)
+
 // This season's leaves on the broadleaves, old and young, and the undergrowth's (in winter the bare wood shows, and
 // what is left of the undergrowth).
 def bake_season(stage:string, between):
-    if stage == "winter": bake_winter()
+    if stage == "winter":
+        bake_winter()
+        bake_snow(between)
+        bake_snow_conifers(between)
     if stage == trees_season or stage == "winter": return
     trees_season = stage
     if frame_at.get("beech0.crown.{stage}", -1) >= 0: return  // (baked or read earlier this run)

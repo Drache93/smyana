@@ -9,14 +9,14 @@ state and stop" (10:18 UTC, chat).
   `music/pieces/set_03_score.py`, files in `assets/audio/music/`. Journal:
   [the whole score in first draft](../journal/2026-11-11-the-whole-score-in-first-draft.md).
 - **Music in the game**: `src/smyana/music.lobster`, driven by `data/music.json`. A calm track by season and hour,
-  danger loops cut in and out with an end stroke, the homecoming at the end (D-059). Works; no Creel change.
+  danger loops cut in and out with an end stroke, the homecoming at the end (D-072). Works; no Creel change.
 - All of it is in pull request #63, open, merged up to main at 10:06 UTC, lint and `./check.sh` passing.
 
 ## What Dominic said on hearing it (10:10 UTC)
 
 Samey (autumn dusk and the fire), "the same tones across them all", the pipes and the "trumpet type instrument"
 overused or flat, the Ottomans "too synth", "basically pipe going up and down quick", and: "each song needs a clear
-design stage. Like we did for 2D before 3D" (D-060). His words are in
+design stage. Like we did for 2D before 3D" (D-073). His words are in
 [`2026-11-11-dominic-in-his-own-words.md`](2026-11-11-dominic-in-his-own-words.md).
 
 Measured afterwards, he was right: every move in every tune was a step to the next note, two thirds of the notes

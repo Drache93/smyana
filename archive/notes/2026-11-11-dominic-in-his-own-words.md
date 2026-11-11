@@ -112,6 +112,21 @@ On the target dates Claude guessed (phase 1 by 15 November):
 
 > realistically much shorter. We have done the whole env in less than a day. We will complete phase 1 today i expect
 
+## 08:04, on the two pull requests left by the old threads (chat)
+
+> 45 has conflict, 46 can be merged?
+
+## 08:37, on the riders at the wood's edge (chat)
+
+> riders at the edge shouldnt be looking away, should be facing to the right - like they're following your path - and be much closer to the trees
+
+(Claude turned them to face down the screen to the right, the way the trail runs to the ford, and stood them in under
+the first trunks: picture 44.)
+
+## 10:05, on the pull requests (chat)
+
+> both have merge conflicts
+
 (On the 07:57 message above, the music's first draft was made the same morning: [journal](../journal/2026-11-11-the-whole-score-in-first-draft.md).)
 
 ## 10:10, on hearing the first draft of the score (chat, five messages in a minute)
@@ -127,3 +142,93 @@ On the target dates Claude guessed (phase 1 by 15 November):
 > all the music though is basically pipe going up and down quick
 
 (What Claude measured, and the design stage it led to: [`docs/music-design.md`](../../docs/music-design.md).)
+
+## 10:12, on the trees' shadows on the camp's horses (chat, with a close-up of the horses)
+
+> the way the shaddows fall on the horses isnt very realistic, feels like it flat from camera perspective? but shadows dont fall like that right?
+
+> (trees shadow on the horse)
+
+(Claude: he is right. The cause and the fix being tried are in
+[the state at the pause](2026-11-11-environment-state-at-the-pause.md).)
+
+## 10:15 to 10:18, on pacing (chat)
+
+> Continue?
+
+> Go
+
+> Yes we need to pace ourselves, have them document current state and stop
+
+## 10:18, a minute later (chat)
+
+> Environment needs to be our focus
+
+(So the environment thread went on, and the music and start-up threads stopped.)
+
+## 08:35, issue #86 "Start up and QL" (GitHub)
+
+> * Camera movement too slow
+> * We need custom cursors
+> * Default camera zoom seems too close, when i zoom out, i cant zoom back to the default
+> * Trees with overlapping shadows you cant see the very base/ring shadow. Darkest point should be where anything touches the ground
+> * Overlapping tree shadows seem to be brighter. Lone trees its dark, overlapping its grey
+> * Game start is slow, we want very minimal loader. The game menu should show the village (once ready - just the men in forest for now is fine) alive in real time -> when you "start" , the menu should just fade away
+
+**08:35** (chat)
+> https://github.com/Drache93/smyana/issues/86 have an agent pick this up when youre back
+
+**10:18** (chat)
+> Yes we need to pace ourselves, have them document current state and stop
+
+**10:19** (chat)
+> Okay have 86 work be finished then if its close
+
+**about 10:20** (chat)
+> Environment needs to be our focus
+
+**about 10:22** (chat, on pull request 47)
+> 47 conflicts
+
+**10:44** (chat, pull request 47 merged)
+> Done
+
+**12:22** (chat, pull requests 88 and 89 merged)
+> ok
+
+**16:00** (chat, pull request 91 merged)
+> merged
+
+**16:09** (chat, with two screenshots of the gorge in pull request 92)
+> erm those are all hard edges on the gorge though
+
+**16:11** (chat)
+> stop the agent after that re-work. And we'll start a new opus thread focued on the remaining issues
+
+**16:32** (chat, to the new thread on the remaining environment issues; "door around" is voice typing for "worked
+around")
+> Open an issue on creel for proper cliffs. Our work so far was door around
+
+(Opened as Casaide/creel#25.)
+
+**16:33** (chat, voice typed: "clips" is cliffs, "Creole" is Creel; added to Casaide/creel#25)
+> It's important that we are able to do proper clips, because if you look at the original pictures from our very first designs, one of them is also a lot of depth in the map at some times. I don't think this will be something we do all the time, but I think there'll be some special occasions where we do it, where our units were sort of traversing along a mountain road, and below you could see the Ottomans like following them sort of at the distance, so it was clear that they were on the same path but just far away. So this is a way of that feeling that they're behind you and they're coming. So for that we'd obviously need some kind of depth and multi-leveled map, or potentially just a trick of perspective, but the point is it's not something that's easily doable in Creole. And second of all, the cliffs as we've done them now are just they're just sharp edges, and we've hidden those sharp edges now behind rocks, but it's still not real cliffs. So doing proper cliffs, proper mount cliffs over rivers with depth will require some clear work.
+
+**16:48** (chat, on pull request 94, the Roman ruins)
+> follow up issue after rest is done, the roman ruined road is quite samey
+
+**20:45** (chat, starting the Opus thread to finish the environment, with a screenshot of a summer wood: archive
+picture 97)
+> okay lets start an opus thread to finish that off. Fir have lots of brown at the bottom, and lighting seems to be a ltitle washed out on the, any idea why? Worried the green scene (summer etc) is too green, and lacking variation. the lighter coloured trees are almost invisible on the grass
+
+**21:13** (chat, on pull request 100)
+> conflict
+
+**21:14** (chat)
+> merged
+
+**21:16** (chat, with a screenshot of the men close up: archive picture 105)
+> concerned the men look a little pixelated
+
+(Asked how to fix it, he chose "Even pixels at any zoom (sharp filter)" over whole-number zoom steps or remaking the
+men at twice the detail.)

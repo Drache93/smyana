@@ -198,8 +198,110 @@ def spruce(height, girth, bole, spread, seed):
     return m
 
 
+def fir(height, girth, bole, spread, seed):
+    """Silver fir: like the spruce a spire on one straight trunk, but its boughs stand out level in clean tiers with
+    their tips turned up, not hanging, the needles in flat sprays along them; an old fir's top stops growing and
+    spreads flat (the "stork's nest"). Sizes in men, as broadleaf's."""
+    rng = random.Random(seed)
+    m = Model()
+    H = height * MAN
+    r0 = girth * MAN / 2
+    S = spread * MAN
+    cx = cy = N / 2
+    nest = height > 5.5
+    top = H * (0.9 if nest else 0.98)
+    m.capsule((cx, cy, 0), (cx, cy, r0 * 1.5), r0 * 1.45, r0, BARK)
+    m.capsule((cx, cy, 0), (cx, cy, top), r0, 0.8 * F, BARK)
+    for i in range(int(height * 1.0)):                   # dead stubs below the green
+        z = rng.uniform(0.3, 1.0) * H * bole
+        a = rng.uniform(0, 6.28)
+        l = rng.uniform(0.1, 0.3) * S
+        m.capsule((cx, cy, z), (cx + math.cos(a) * l, cy + math.sin(a) * l, z), 0.6 * F, 0.45 * F, BARK)
+    z = H * bole
+    while z < top:
+        t = (z - H * bole) / (top - H * bole)
+        # (the crown is a blunt cone: the tiers keep most of their reach till near the top; a nest's top is flat)
+        reach = S * (1 - t ** 1.6) ** 0.7 + 1.5 * F
+        if nest and t > 0.85: reach = S * 0.55
+        n = 5 if t > 0.85 else 6
+        turn = rng.uniform(0, 6.28)
+        for i in range(n):
+            a = turn + i * 6.283 / n + rng.uniform(-0.25, 0.25)
+            l = reach * rng.uniform(0.8, 1.05)
+            steps = max(2, int(l / (2.4 * F)))
+            last = np.array([cx, cy, z])
+            for k in range(steps):
+                u = (k + 1) / steps
+                lift = (u ** 3) * l * 0.12                  # level, the tip turned up
+                at = np.array([cx + math.cos(a) * l * u, cy + math.sin(a) * l * u, z + lift])
+                m.capsule(last, at, 0.6 * F, 0.45 * F, BARK)
+                for side in (-1, 1):                        # flat sprays out to each side of the bough
+                    b = a + side * 1.3
+                    sp = at + np.array([math.cos(b), math.sin(b), 0.05]) * rng.uniform(1.0, 2.4) * F
+                    dabs(m, sp, 0.35 * F, 2, False, rng)
+                last = at
+        z += (2.8 + 2.4 * t) * F * (1.25 if t < 0.5 else 1.0)
+    return m
+
+
+def black_pine(height, girth, bole, spread, boughs, seed):
+    """Black pine (Pinus nigra, the Rhodopes' own): a dark grey furrowed trunk, clean for half its height, then a few
+    heavy boughs that rise and spread into a broad flattened dome, the needles in dense dark tufts at the ends of the
+    branchlets, so the crown reads as clumps with the sky between them. Sizes in men, as broadleaf's."""
+    rng = random.Random(seed)
+    m = Model()
+    H = height * MAN
+    r0 = girth * MAN / 2
+    S = spread * MAN
+    cx = cy = N / 2
+    fork = np.array([cx + rng.uniform(-0.03, 0.03) * H, cy + rng.uniform(-0.03, 0.03) * H, H * bole])
+    m.capsule((cx, cy, 0), (cx, cy, r0 * 2.2), r0 * 1.6, r0, BARK)
+    m.capsule((cx, cy, r0), fork, r0, r0 * 0.8, BARK)
+    for i in range(int(H * bole / 6 / F)):               # the bark's deep furrows, dark
+        z = r0 * 2 + rng.random() * max(1.0, H * bole - r0 * 2.5)
+        a = rng.uniform(0, 2 * math.pi)
+        for dz in range(int(rng.uniform(3, 9) * F)):
+            x, y = int(cx + math.cos(a) * (r0 * 0.92)), int(cy + math.sin(a) * (r0 * 0.92))
+            zz = int(z + dz)
+            if zz < N and m.v[x, y, zz] == BARK: m.v[x, y, zz] = SCAR
+    for i in range(int(height * 1.2)):                   # dead stubs on the bole
+        z = rng.uniform(0.3, 0.95) * H * bole
+        a = rng.uniform(0, 6.28)
+        l = rng.uniform(0.1, 0.25) * S
+        m.capsule((cx, cy, z), (cx + math.cos(a) * l, cy + math.sin(a) * l, z + l * 0.2), 0.7 * F, 0.5 * F, BARK)
+    top = H - fork[2]
+    tufts = []
+    for i in range(boughs):
+        az = 2 * math.pi * (i + rng.uniform(-0.2, 0.2)) / boughs
+        out = S * rng.uniform(0.55, 0.85)
+        up = top * rng.uniform(0.35, 0.65)
+        start = fork - [0, 0, rng.uniform(0, 0.15) * top]
+        d = np.array([math.cos(az), math.sin(az), 0.0])
+        mid = start + d * out * 0.4 + [0, 0, up * 0.75]
+        end = start + d * out + [0, 0, up]
+        r = r0 * 0.5
+        m.capsule(start, mid, r, r * 0.7, BARK)
+        m.capsule(mid, end, r * 0.7, 0.9 * F, BARK)
+        for k in range(7):                               # branchlets out from the bough, level, ending in tufts
+            at = mid + (end - mid) * rng.uniform(0.0, 1.0)
+            a2 = az + rng.uniform(-1.5, 1.5)
+            ln = S * rng.uniform(0.15, 0.32)
+            br = at + np.array([math.cos(a2), math.sin(a2), rng.uniform(0.0, 0.35)]) * ln
+            m.capsule(at, br, 0.9 * F, 0.6 * F, BARK)
+            tufts.append(br)
+        tufts.append(end)
+    m.capsule(fork, fork + [rng.uniform(-3, 3) * F, rng.uniform(-3, 3) * F, top * 0.95], r0 * 0.5, 0.9 * F, BARK)
+    tufts.append(fork + [0, 0, top * 0.95])
+    for tip in tufts:                                    # a tuft: a dense flattened mass of needles
+        dabs(m, tip, 3.0 * F, 26, False, rng)
+        dabs(m, tip + [0, 0, 2.0 * F], 2.2 * F, 12, False, rng)
+    return m
+
+
 def make(kind, name, h, g, b, s, n, seed):
     if kind == "spruce": return spruce(h, g, b, s, seed)
+    if kind == "fir": return fir(h, g, b, s, seed)
+    if kind == "bpine": return black_pine(h, g, b, s, n, seed)
     if kind == "oak": return broadleaf(h, g, b, s, n, seed, cling=0.65, stout=1.3, fill=20)        # holds its russet leaves
     if kind == "hornbeam": return broadleaf(h, g, b, s, n, seed, cling=0.35, stout=0.9, fill=14)
     if kind == "pine": return broadleaf(h, g, b, s, n, seed, cling=0.0, stout=1.0, fill=10)        # a bare bole, a high flat crown
@@ -209,11 +311,13 @@ def make(kind, name, h, g, b, s, n, seed):
 # In men, measured from the route mock-ups (an old tree five or six men tall, its trunk a quarter to a third of a man
 # wide): height, the trunk's width, how far up the clean bole goes, the crown's half width, boughs.
 KINDS = {
-    "beech": {"sapling": (1.1, 0.06, 0.35, 0.4, 3), "young": (2.7, 0.13, 0.4, 0.9, 4), "mature": (4.5, 0.22, 0.36, 1.6, 5), "old": (5.5, 0.28, 0.36, 2.0, 6)},
+    "beech": {"sapling": (1.1, 0.06, 0.35, 0.4, 3), "young": (2.7, 0.13, 0.4, 0.9, 4), "mature": (4.5, 0.27, 0.31, 1.6, 5), "old": (5.5, 0.34, 0.3, 2.0, 6)},
     "oak": {"mature": (4.0, 0.3, 0.3, 1.6, 5), "old": (5.0, 0.4, 0.28, 1.95, 6)},
     "hornbeam": {"mature": (3.4, 0.17, 0.32, 1.1, 5), "old": (4.2, 0.22, 0.3, 1.4, 6)},
     "pine": {"mature": (5.0, 0.2, 0.62, 1.1, 4), "old": (5.6, 0.26, 0.64, 1.4, 5)},
     "spruce": {"mature": (5.0, 0.2, 0.12, 0.95, 0), "old": (6.1, 0.26, 0.16, 1.15, 0)},
+    "fir": {"mature": (5.0, 0.22, 0.14, 1.0, 0), "old": (6.2, 0.3, 0.2, 1.25, 0)},
+    "bpine": {"mature": (4.6, 0.24, 0.5, 1.6, 5), "old": (5.4, 0.32, 0.5, 2.1, 6)},
 }
 lines = []
 for kind, sizes in KINDS.items():
