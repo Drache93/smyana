@@ -353,3 +353,8 @@ Proposal.) The ruins' stone is a pale limestone cut square, so it reads as a dif
 Their walls have a band of red brick, and the road is paved with big fitted stones and has kerbs. There is a drain
 beside the road, because the drain is what the men bring home. A map places each piece (`"ruins"`); the ground under them
 stays grass so the undergrowth grows up among them and turns with the year. For #17; the ruins' own map is #53.
+
+**D-068, 2026-11-11: A felled tree leaves its stump, its lopped top and a sawn round.** (Claude; a Proposal.) Until the
+mechanics give felling stages of their own, a stump the men made always has the tree's top, boughs and a round of its
+trunk lying beside it, so a cut wood looks worked. The fir and the black pine are their own shapes; a pine among the
+beeches is half Scots, half black. For #6.

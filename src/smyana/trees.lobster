@@ -7,7 +7,7 @@
 // seen. The leaves are baked once a season (their colour), behind the letter home, and kept in bake_cache/.
 
 let TREE_K = 64.0  // voxels a tile for the load of wood (baked at twice this)
-let TREE_BAKE = "trees 47"
+let TREE_BAKE = "trees 49"
 // Voxels a tile in the trees, rocks and undergrowth: one voxel is one pixel of Creel's art (WB_PX at its art scale of
 // 3), as the men's are, so they are as crisp as the men (Dominic, 2026-11-10: "evryhting crisp and sharp").
 let VOX_K = 135.7645
@@ -32,6 +32,7 @@ var trees_season = ""   // the season whose crowns are loaded
 // kind a little differently (kind), from yellow through orange to red.
 let BROADLEAVES = [ "beech", "oak", "hornbeam" ]
 let LEAF_KINDS = 3
+let OTHER_CONIFERS = [ "fir", "bpine" ]
 
 let LATE_KEEP = 0.56     // how much of a crown still hangs after leaf-fall (of its noise field: about half its leaves)
 let BRISTLE = 0.05       // how many of a thin branch's voxels sprout a fine twig after leaf-fall
@@ -72,6 +73,18 @@ def pine_look() -> vglook:
                     [ float3 { 0.25, 0.19, 0.15 }, float3 { 0.36, 0.26, 0.19 }, float3 { 0.49, 0.33, 0.22 }, float3 { 0.62, 0.41, 0.26 } ],
                     [ float3 { 0.3, 0.3, 0.3 }, float3 { 0.5, 0.5, 0.5 } ], false, true, true }
 
+// Silver fir: dark glossy needles with a silver underside, smooth silver grey bark.
+def fir_look() -> vglook:
+    return vglook { [ float3 { 0.25, 0.40, 0.30 }, float3 { 0.15, 0.29, 0.23 }, float3 { 0.08, 0.17, 0.15 }, float3 { 0.36, 0.46, 0.40 } ],
+                    [ float3 { 0.27, 0.27, 0.27 }, float3 { 0.40, 0.40, 0.39 }, float3 { 0.53, 0.53, 0.51 }, float3 { 0.64, 0.64, 0.61 } ],
+                    [ float3 { 0.3, 0.3, 0.3 }, float3 { 0.5, 0.5, 0.5 } ], false, true, true }
+
+// Black pine: long dark needles in dense tufts, bark nearly black, deeply furrowed.
+def bpine_look() -> vglook:
+    return vglook { [ float3 { 0.26, 0.37, 0.22 }, float3 { 0.15, 0.25, 0.16 }, float3 { 0.07, 0.14, 0.10 }, float3 { 0.32, 0.40, 0.23 } ],
+                    [ float3 { 0.12, 0.11, 0.11 }, float3 { 0.20, 0.19, 0.18 }, float3 { 0.29, 0.27, 0.25 }, float3 { 0.39, 0.36, 0.33 } ],
+                    [ float3 { 0.3, 0.3, 0.3 }, float3 { 0.5, 0.5, 0.5 } ], false, true, true }
+
 def spruce_look() -> vglook:
     return vglook { [ float3 { 0.21, 0.36, 0.24 }, float3 { 0.13, 0.26, 0.19 }, float3 { 0.07, 0.15, 0.13 }, float3 { 0.27, 0.40, 0.25 } ],
                     [ float3 { 0.10, 0.08, 0.07 }, float3 { 0.17, 0.13, 0.11 }, float3 { 0.25, 0.20, 0.16 }, float3 { 0.35, 0.28, 0.23 } ],
@@ -86,8 +99,11 @@ def gneiss_look() -> vglook:
                     true, false, false }
 
 // Where a tree's crown is centred over its foot, and how far it spreads (tiles): what fades over a man.
-def crown_up(sp:string) -> float: return if sp == "beech": 1.35 elif sp == "oak": 1.2 elif sp == "hornbeam": 1.0 elif sp == "pine": 1.7 else: 1.2
-def crown_reach(sp:string) -> float: return if sp == "beech": 0.8 elif sp == "oak": 0.8 elif sp == "hornbeam": 0.55 elif sp == "pine": 0.55 else: 0.45
+def crown_up(sp:string) -> float:
+    return if sp == "beech": 1.35 elif sp == "oak": 1.2 elif sp == "hornbeam": 1.0 elif sp == "pine": 1.7 elif sp == "bpine": 1.6 elif sp == "fir": 1.3 else: 1.2
+
+def crown_reach(sp:string) -> float:
+    return if sp == "beech": 0.8 elif sp == "oak": 0.8 elif sp == "hornbeam": 0.55 elif sp == "pine": 0.55 elif sp == "bpine": 0.75 elif sp == "fir": 0.5 else: 0.45
 
 // A deep wood's spruce or fir: a bare dark trunk with dead snags, far taller than the picture shows. Its top is
 // faded out when it's baked (tree_onto's fade), so the trunks run up out of sight: the canopy is over the camera.
@@ -139,6 +155,39 @@ def tree_stump(look:vglook) -> vgrid:
     // (a young beech's stump: a third of a man high, as thick as its trunk was)
     vg_cylinder(g, float3_0, float3 { 0.0, 0.0, 0.1 }, 0.04, 0.03, VG_BARK)
     vg_cylinder(g, float3 { 0.0, 0.0, 0.1 }, float3 { 0.0, 0.0, 0.115 }, 0.03, 0.03, VG_WOOD, true)
+    return g
+
+// What is left when the men have felled a young tree and sawn it up (#6, D-068): its top and boughs, lopped and
+// lying where it fell, the leaves withering on them, and a round or two sawn off the trunk that they have not carried
+// away. Beside every stump.
+let BRASH_KINDS = 2
+def brash(look:vglook, kind:int) -> vgrid:
+    let rng = grng(1600 + kind)
+    let g = vg_new(look, float3 { -0.6, -0.6, 0.0 }, float3 { 0.6, 0.6, 0.3 }, VOX_K, 1600 + kind)
+    let a = randf_range(rng, 0.0, 360.0)
+    let d = float3 { cos(a), sin(a), 0.0 }
+    let side = float3 { -sin(a), cos(a), 0.0 }
+    // the lopped top: a thin pole with its boughs, lying
+    let base = d * -0.35 + float3 { 0.0, 0.0, 0.025 }
+    let tip = d * 0.45 + float3 { 0.0, 0.0, 0.02 }
+    vg_capsule(g, base, tip, 0.025, 0.008, VG_BARK)
+    vg_cylinder(g, base - d * 0.01, base, 0.024, 0.024, VG_WOOD, true)
+    let rough = vg_field(g, 0.1, 1601 + kind)
+    for(7) n:
+        let t = randf_range(rng, 0.15, 0.95)
+        let at = base + (tip - base) * t
+        let s = if n % 2: 1.0 else: -1.0
+        let out = at + (d * randf_range(rng, 0.05, 0.15) + side * s * randf_range(rng, 0.12, 0.24)) + float3 { 0.0, 0.0, randf_range(rng, 0.0, 0.06) }
+        vg_capsule(g, at, out, 0.009, 0.004, VG_BARK)
+        vg_blob(g, out, 0.045, 1.6, 0.6, rough, VG_LEAF, randf_range(rng, -0.5, 0.3), 0.35, nil, 0.0)
+    // rounds sawn off the trunk, one on its side
+    let r0 = base + side * 0.22 - d * 0.1
+    vg_cylinder(g, float3 { r0.x, r0.y, 0.0 }, float3 { r0.x, r0.y, 0.07 }, 0.035, 0.035, VG_BARK)
+    vg_cylinder(g, float3 { r0.x, r0.y, 0.07 }, float3 { r0.x, r0.y, 0.078 }, 0.032, 0.032, VG_WOOD, true)
+    if kind == 1:
+        let r1 = r0 + side * 0.09 + d * 0.05 + float3 { 0.0, 0.0, 0.035 }
+        vg_cylinder(g, r1 - d * 0.035, r1 + d * 0.035, 0.035, 0.035, VG_BARK)
+        vg_cylinder(g, r1 + d * 0.035, r1 + d * 0.042, 0.032, 0.032, VG_WOOD, true)
     return g
 
 // ------------------------------------------------------------------ trees made as .vox (D-035)
@@ -777,6 +826,8 @@ def bake_trees(between):
             between()
         for(YOUNG_KINDS) kind: tree_onto(vs, "young{kind}.bare", vox_tree(beech, "beech_young_{kind}", false), true)
         tree_onto(vs, "stump", tree_stump(beech), true)
+        let withered = [ float3 { 0.62, 0.42, 0.20 }, float3 { 0.48, 0.32, 0.16 }, float3 { 0.30, 0.21, 0.12 }, float3 { 0.70, 0.55, 0.30 } ]
+        for(BRASH_KINDS) kind: tree_onto(vs, "brash{kind}", brash(dead_look(withered, false), kind), true)
         for(LOG_KINDS) kind: tree_onto(vs, "log{kind}", fallen_log(under_look("summer", kind, true), kind), true)
         for(BRANCH_KINDS) kind: tree_onto(vs, "branch{kind}", fallen_branch(leaf_look("oak", "summer", 0), kind), true)
         sheet_finish(vs, vox_draw_k(), true)
@@ -793,6 +844,16 @@ def bake_trees(between):
             between()
         for(YOUNG_KINDS) kind: tree_onto(cs, "yspruce{kind}", young_spruce(spruce, kind), true)
         sheet_finish(cs, vox_draw_k(), true)
+        trees_bake_s = seconds_elapsed() - t0
+    // the Rhodopes' other conifers (#6): silver fir and black pine, each its own shape
+    let fs = sheet_new("conifers2", "{TREE_BAKE} {VOX_K} {WB_PX} {vox_tree_text()}", 4096)
+    if not sheet_load(fs, vox_draw_k()):
+        for(OTHER_CONIFERS) sp: for(LEAF_KINDS) kind:
+            let look = if sp == "fir": fir_look() else: bpine_look()
+            tree_onto(fs, "{sp}{kind}", vox_tree(look, vox_name(sp, kind), false), true)
+            tree_onto(fs, "{sp}{kind}.crown.ever", vox_tree(look, vox_name(sp, kind), true), true, if sp == "fir": 0.8 else: 0.6)
+            between()
+        sheet_finish(fs, vox_draw_k(), true)
         trees_bake_s = seconds_elapsed() - t0
     let rs = sheet_new("rocks", "{TREE_BAKE} {VOX_K} {WB_PX}", 2048)
     let ls = sheet_new("load", "{TREE_BAKE} {TREE_K} {WB_PX}", 256)
@@ -872,12 +933,23 @@ def bake_snow(between):
         tree_onto(vs, "yspruce{kind}.snow", snowed(young_spruce(spruce_look(), kind)), false)
     sheet_finish(vs, vox_draw_k(), true)
 
+// Snow on the fir's and the black pine's crowns: a sheet of their own.
+def bake_snow_conifers(between):
+    if frame_at.get("fir0.crown.ever.snow", -1) >= 0: return
+    let vs = sheet_new("snow2", "{TREE_BAKE} {VOX_K} {WB_PX} {vox_tree_text()}", 4096)
+    if sheet_load(vs, vox_draw_k()): return
+    for(OTHER_CONIFERS) sp: for(LEAF_KINDS) kind:
+        tree_onto(vs, "{sp}{kind}.crown.ever.snow", snowed(vox_tree(if sp == "fir": fir_look() else: bpine_look(), vox_name(sp, kind), true)), false)
+        between()
+    sheet_finish(vs, vox_draw_k(), true)
+
 // This season's leaves on the broadleaves, old and young, and the undergrowth's (in winter the bare wood shows, and
 // what is left of the undergrowth).
 def bake_season(stage:string, between):
     if stage == "winter":
         bake_winter()
         bake_snow(between)
+        bake_snow_conifers(between)
     if stage == trees_season or stage == "winter": return
     trees_season = stage
     if frame_at.get("beech0.crown.{stage}", -1) >= 0: return  // (baked or read earlier this run)

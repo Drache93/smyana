@@ -197,3 +197,6 @@ around")
 
 **16:33** (chat, voice typed: "clips" is cliffs, "Creole" is Creel; added to Casaide/creel#25)
 > It's important that we are able to do proper clips, because if you look at the original pictures from our very first designs, one of them is also a lot of depth in the map at some times. I don't think this will be something we do all the time, but I think there'll be some special occasions where we do it, where our units were sort of traversing along a mountain road, and below you could see the Ottomans like following them sort of at the distance, so it was clear that they were on the same path but just far away. So this is a way of that feeling that they're behind you and they're coming. So for that we'd obviously need some kind of depth and multi-leveled map, or potentially just a trick of perspective, but the point is it's not something that's easily doable in Creole. And second of all, the cliffs as we've done them now are just they're just sharp edges, and we've hidden those sharp edges now behind rocks, but it's still not real cliffs. So doing proper cliffs, proper mount cliffs over rivers with depth will require some clear work.
+
+**16:48** (chat, on pull request 94, the Roman ruins)
+> follow up issue after rest is done, the roman ruined road is quite samey
