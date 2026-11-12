@@ -562,3 +562,15 @@ have room. A pile left anywhere is a cache: a patrolman who would see a man lyin
 falling leaves and a felled tree give it away) takes it, and the bear smells food in one from ten tiles, wanders to it
 and eats it. Each place keeps its piles for the way home. A man who falls drops his pack where he falls. This merges
 the plan's "drop the packs to run" and "caches" into one thing, with no separate cache order.
+
+**D-097, 2026-11-12: The Roman drain is studied with men's time, and lives in the men who learned it.** (Claude, from
+#70 and D-011; a Proposal.) Right-click the ruins off the road (a column, its drums, the walls) with men chosen: they
+stand along the old road, whose drain runs beside it, and study. It takes 24 hours of men's time on the clock (eight
+men about three hours), kept between the two visits to the ruins; those men work (they get hungrier) and aren't
+gathering or keeping watch. Every man who gave at least an hour of it knows it, and it is lost if they all die. The one
+panel says "knows the Roman drain". It is the only piece of knowledge for the demo.
+
+**D-098, 2026-11-12: Until the homecoming is made, the end screen says the tally.** (Claude, from #72; a Proposal.)
+Kept as the run goes: who came back, each man who didn't by name and the place he lies in, what they carry home, and
+how many know the Roman drain (or that those who learned it did not come home). For now it is the end screen's lines;
+the homecoming and the ending (#51) will show it instead of saying it.

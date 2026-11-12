@@ -111,9 +111,13 @@ learned. Shown by the homecoming and the ending (the frame, #51), not a score sc
 
 ## Order of building
 
-1. **The needs, camp, fire and night** (#65, #68, the reading of #73): the beat every day turns on.
-2. **Food patches by place and season** (#66), then game with the rifle.
-3. **Packs, weight and dropping them** (#67), then **caches** (#69).
-4. **The drain at the ruins** (#70) and **the tally** (#72).
+1. **The needs, camp, fire and night** (#65, #68, the reading of #73): the beat every day turns on. Built 2026-11-12
+   (D-092 to D-094).
+2. **Food patches by place and season** (#66), then game with the rifle. Patches built 2026-11-12 (D-095); game not yet.
+3. **Packs, weight and dropping them** (#67), then **caches** (#69). Built 2026-11-12 as one thing (D-096): X drops the
+   packs in a pile, and any pile is a cache; no separate Ctrl order.
+4. **The drain at the ruins** (#70) and **the tally** (#72). Built 2026-11-12 (D-097, D-098): study by right-clicking
+   the ruins off the road (the road is the trail, so right-clicking it still walks); the tally is the end screen's
+   lines until the homecoming is made.
 
 Numbers live in `data/survival.json`, so they can be tuned after playing.

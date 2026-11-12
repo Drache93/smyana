@@ -75,10 +75,21 @@ food each, the pick-up gives it all back, and a patrol walking past a pile in th
 
 ![A pile of packs left on the trail under the beeches](../images/2026-11-12/55-a-pile-of-packs-left-on-the-trail.jpg)
 
+## The Roman drain and the tally (#70, #72)
+
+The fourth part. `src/smyana/knowledge.lobster`: right-click the ruins off the road and the chosen men spread along the
+old road and study its drain; 24 hours of men's time learns it, kept between the two visits, and every man who gave an
+hour of it knows it. The tally: the end screen now names each man who didn't come back and the place he lies in, what
+the others carry home and how many know the drain. For a look: `leg:ruins_out study fresh look:48,45 zoom:2.5`. The
+run check sends eight men to study, checks they learn it in about a minute and a half and the tally says so.
+
+![The men study the Roman road and its drain](../images/2026-11-12/56-the-men-study-the-roman-road-and-its-drain.jpg)
+
 ## Left for later
 
 - A tired man sitting down when he stops needs a sitting pose (later, with the other poses).
 - Barks for hunger and cold come with the voices (#51).
 - Game to hunt with the rifle (roe deer, chamois), after the patches.
 - The pack drawn on the man, bigger as it fills (only the wood bundle shows now).
-- Next: the Roman drain at the ruins (#70), and the tally (#72).
+- The men studying should face the road and crouch over the drain (a pose).
+- Played as a whole run, the numbers (food, hunger, cold) need tuning by Dominic after playing.

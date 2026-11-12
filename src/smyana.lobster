@@ -1750,6 +1750,12 @@ def order_tick():
         mark_t = gl.time()
         mark_at = gp(float(u_x[foe]), float(u_y[foe]))
         return
+    // (the ruins under the mouse, off the road: study the Romans' drain beside it, #70)
+    let mc0 = clamp(int(mm.y / 1000.0), 0, H - 1) * W + clamp(int(mm.x / 1000.0), 0, W - 1)
+    if at_ruin(mc0) and study_order(ids):
+        mark_at = gp(mm.x, mm.y)
+        mark_t = gl.time()
+        return
     // (a pile of packs under the mouse: pick it up)
     let pile = pile_near(int(mm.x), int(mm.y))
     if pile >= 0:
@@ -2043,6 +2049,8 @@ if has_s(args, "droppacks"):
     packs_drop(ids)
     cam = gp(float(piles[0].x), float(piles[0].y))
     for(ids) id, n: issue_cmd(0, CMD_MOVE, [ id ], piles[0].x + 3000 + (n % 4) * 700, piles[0].y + (n / 4) * 700 - 1500, 0, 0)
+// study: the men go to study the Roman drain as the place opens (#70, for a look at the ruins)
+if has_s(args, "study"): study_order(filter(u_id) id: man_of(id) != nil)
 if arg_of("look") != "":  // look:<x>,<y>: the camera on this tile
     let xy = tokenize(arg_of("look"), ",", " ")
     cam = gp(string_to_float(xy[0]) * 1000.0, string_to_float(xy[1]) * 1000.0)
@@ -2202,7 +2210,7 @@ while gl.frame():
         if phase == "letter":
             draw_lines(letter, phase_t, int(float(gl.window_size().y) / 34.0))
         elif phase == "end":
-            draw_lines([ "Home.", "{men_alive()} of {men.length} men came back." ], phase_t, int(float(gl.window_size().y) / 30.0))
+            draw_lines(tally_lines(), phase_t, int(float(gl.window_size().y) / 30.0))
         else:
             draw_world(acc / 0.05)
             draw_breaths()

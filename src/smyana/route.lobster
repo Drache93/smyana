@@ -18,9 +18,10 @@ class Man:
     fed:int = 100000      // his needs (smyana/survival.lobster, #65), thousandths of a point: 100000 fine, 0 spent
     warm:int = 100000
     rested:int = 100000
-    food:int = 0     // portions of food in his pack, one a day
-    goods:int = 0    // goods in his pack to take home: herbs, hides (smyana/forage.lobster)
-    hurt_uh:int = 0  // health owed to cold and hunger, and back to sleep, in millionths of a point
+    food:int = 0         // portions of food in his pack, one a day
+    goods:int = 0        // goods in his pack to take home: herbs, hides (smyana/forage.lobster)
+    fell_in:string = ""  // the place he died in (the tally: smyana/knowledge.lobster)
+    hurt_uh:int = 0      // health owed to cold and hunger, and back to sleep, in millionths of a point
     heal_uh:int = 0
 
 // What a place keeps while the men are away (per map id).
@@ -352,6 +353,7 @@ def run_begin():
     survival_begin()
     forage_begin()
     packs_begin()
+    knowledge_begin()
     enter_leg(gstr(route, "start", ""), gstr(route, "start_edge", "west"))
 
 // Why this place is over the size budget ("" if it isn't): checked when it's loaded.
@@ -381,6 +383,7 @@ def enter_leg(id:string, edge:string):
     survival_enter()
     forage_enter(place_now())
     packs_enter(place_now())
+    knowledge_enter()
     if run_over(): return
     // (the walk here brought the season on at least to where this leg begins)
     let span = glist(leg_now(), "year")
@@ -524,6 +527,7 @@ def route_tick() -> string:
     survival_tick()
     forage_tick()
     packs_tick()
+    knowledge_tick()
     // (the weather's pace on the men, and the water's on a man in a ford, and his needs')
     let pace = weather_pace()
     let ford = str_index(tr_names, "ford")

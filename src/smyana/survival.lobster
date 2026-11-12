@@ -112,6 +112,8 @@ def man_state(m:Man) -> string:
     if m.fed < 15000: words.push("starving") elif m.fed < 40000: words.push("hungry")
     if m.rested < 15000: words.push("worn out") elif m.rested < 40000: words.push("tired")
     if is_asleep(m.uid): words.push("asleep")
+    if studying(m.uid): words.push("studying the old road")
+    if knows_drain(m): words.push("knows the Roman drain")
     if not words.length: return "well"
     var s = words[0]
     for(words) w, k:
@@ -255,7 +257,7 @@ def survival_tick():
             if take_portion(m):
                 m.fed = if hot: NEED_FULL else: need_set(m.fed + gint(fd, "cold_meal", 50) * 1000)
                 if hot: meals_hot++ else: meals_cold++
-        let working = u_task[i] == GATHER or u_task[i] == BUILD or foraging(m.uid)
+        let working = u_task[i] == GATHER or u_task[i] == BUILD or foraging(m.uid) or studying(m.uid)
         let loaded = u_carry[i] > 0
         // hunger
         var hunger = sv_milli(fd, if sleeps: "asleep" else: "per_hour", 2.5)

@@ -605,4 +605,22 @@ for(60 * TICK_HZ):
     route_tick()
 expect(piles_lost > 0 and not piles.length, "a patrol passing finds the pile and takes it")
 year_force = -1
+// the Roman drain (#70): eight men study it at the ruins and learn it; the tally (#72) says so, and names the fallen
+needs_kept = true
+enter_leg("ruins_out", "west")
+for(40): step()
+let scholars = slice(ids_alive(), 0, 8)
+expect(study_order(scholars), "the men go to study the drain")
+var learned_after = -1
+for(150 * TICK_HZ) n:
+    step()
+    route_tick()
+    if learned_after < 0 and drain_learned(): learned_after = n / TICK_HZ
+let knowers = (filter(men) m: m.alive and knows_drain(m)).length
+print "drain: learned after {learned_after} s by {knowers} men"
+expect(learned_after > 0 and knowers == 8, "they learn it, and those eight know it")
+let said = tally_lines()
+print "tally: {said}"
+expect((find(said) l: find_string(l, "Romans") >= 0) >= 0, "the tally says what they learned")
+expect(men_alive() == men.length or (find(said) l: find_string(l, " lies in ") >= 0) >= 0, "and names the fallen")
 print (if failed: "run_check: {failed} FAILED" else: "run_check: ok")

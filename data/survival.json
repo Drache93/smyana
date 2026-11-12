@@ -213,5 +213,14 @@
   "slow": 22,
   "keep_food": 1,
   "bear_smell_tiles": 10
+ },
+ "knowledge": {
+  "_doc": "What the men learn (docs/survival.md, #70): the Roman drain at the ruins. Right-click the old road (its drain runs beside it) with men chosen and they stand at it and study; it takes 'man_hours' of men's time on the clock (four men about six hours; more men, quicker), and a man must give at least 'least_hours' of it to have learned it. Kept between the two visits to the ruins. Lost if every man who learned it dies.",
+  "drain": {
+   "name": "the Roman drain",
+   "man_hours": 24,
+   "least_hours": 1,
+   "reach_tiles": 2
+  }
  }
 }
