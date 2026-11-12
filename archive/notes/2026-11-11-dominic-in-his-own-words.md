@@ -127,6 +127,22 @@ the first trunks: picture 44.)
 
 > both have merge conflicts
 
+(On the 07:57 message above, the music's first draft was made the same morning: [journal](../journal/2026-11-11-the-whole-score-in-first-draft.md).)
+
+## 10:10, on hearing the first draft of the score (chat, five messages in a minute)
+
+> autumn dusk and the fire bit samey. I worrry the trumpet type instrument and pipes are over used or just too flat? im listening with airpods and hearing a lot of the same tones across them all
+
+> each song needs a clear design stage. Like we did for 2D before 3D
+
+> worry we're just churning out songs with not much thoughts
+
+> ottomans sounds too synth
+
+> all the music though is basically pipe going up and down quick
+
+(What Claude measured, and the design stage it led to: [`docs/music-design.md`](../../docs/music-design.md).)
+
 ## 10:12, on the trees' shadows on the camp's horses (chat, with a close-up of the horses)
 
 > the way the shaddows fall on the horses isnt very realistic, feels like it flat from camera perspective? but shadows dont fall like that right?
@@ -217,6 +233,9 @@ picture 97)
 (Asked how to fix it, he chose "Even pixels at any zoom (sharp filter)" over whole-number zoom steps or remaking the
 men at twice the detail.)
 
+**21:13** (project chat, on the phases)
+> for the music for phase 1, lets focus on just getting that music creation solid. So we make one good song for that demo. We can then start on phase 2
+
 **21:54** (chat, asked whether to rebuild the broadleaf crowns, add new species (#56) or do proper cliffs next)
 > Enough tree types for now
 
@@ -226,3 +245,9 @@ men at twice the detail.)
 (The environment thread stopped here. Left for later: crowns in clusters with sky between them, which needs the
 broadleaf .vox models rebuilt (#98); new species (#56); proper cliffs and depth (Casaide/creel#25); felling stages,
 which wait for the mechanics.)
+
+**21:55**, a minute later (project chat, as the music thread started)
+> I won't.be  available to review. So continue to next to next phase once done as we discusses
+
+(So the music thread chose the song itself, autumn dusk, made it without his sign-off on the sheet, and handed on to
+phase 2. See [the journal](../journal/2026-11-11-one-good-song-autumn-dusk.md).)

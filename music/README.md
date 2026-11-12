@@ -34,12 +34,23 @@ Needs Python 3 with numpy, and ffmpeg for the MP3 and Opus files.
 
 ## What it can't do yet
 
-- A singing voice. Synthesised singing in this style sounds wrong, so the lead here is a kaval.
-- Loops and stems for the game (drone / melody / pulse as separate files). Easy to add: each
-  part is already made separately before the mix.
-- Claude can't hear. Renders are checked by measuring them (pitches, loudness, a picture of the
-  sound), which catches wrong notes and bad levels but not "does this feel right". That
-  judgement is Dominic's.
+- A singing voice with words. It can hold a vowel and slide between notes, so sung tracks are drafted as a voice
+  without words, to be replaced by a singer (see "Singing" in the track list).
+- Claude can't hear. Renders are checked by measuring them (`python3 music/measure.py`: length, loudness, which notes
+  sound most, how much sits in the band Dominic heard as a phone alarm, the jump across a loop's seam). That catches
+  wrong notes and bad levels but not "does this feel right". That judgement is Dominic's.
+
+## The game's tracks
+
+`pieces/set_03_score.py` is the whole score in first draft (2026-11-11): 23 of the plan's 24 tracks, 33 minutes. It
+writes the files the game plays to `assets/audio/music/` (Ogg Vorbis), an MP3 of each to `music/out/`, the MIDI to
+`music/tracks/`, and each track's length to `data/music_tracks.json`. Which track plays when is
+[`data/music.json`](../data/music.json).
+
+- **Loops.** A danger track is cut to on its first sound and goes round with no seam. The notes' echo past the end is
+  laid over the start (`synth.fold`); drones and wind are faded across the join (`synth.seam`).
+- **Levels.** Each track is brought to a loudness for its kind (`LOUD` in the score), so the game plays them all at
+  one volume: calm music sits low, danger in front, the homecoming loudest.
 
 ## Pieces
 
@@ -49,5 +60,8 @@ Needs Python 3 with numpy, and ffmpeg for the MP3 and Opus files.
 | `spike_02_autumn_mist.py` | The same idea after "too Viking, needs more mist": no low drone or strings, a breathier kaval far off, men humming the answer, haze. About 1m40s. |
 | `spike_03_danger.py` | Music that follows the game: calm, hiding (heartbeat), a fight (tapan and gaida in fast 2/4), a dead stop, and the kaval alone afterwards. 80s. Lengths in the fight are written in beats (`bpm=`). |
 | `set_02_tracks.py` | Five separate tracks made to be swapped in and out: fight, hiding, morning, autumn dusk (second take), ruins. Adds tambura, gadulka, bells and open voices. Run one with `python3 music/pieces/set_02_tracks.py fight`. |
+| `set_03_score.py` | The whole score, first draft: every track of the plan but the ruins, as the files the game plays. Holds the main theme (`THEME`). Adds the zurna. `python3 music/pieces/set_03_score.py` renders all (about ten minutes), or name some: `... summer_day bandits`. |
+| `design_sketches.py` | The design stage (D-073): draws a song's shape beside the first draft's and renders its pencil sketch. Sheets for autumn dusk and the fire. |
+| `song_04_autumn_dusk.py` | **The first song made through the design stage**, the demo's song: one kaba gaida at the camp, as slow as it can go, then a far kaval. Adds `synth.kaba_chanter`. Prints how its tune moves and where its sound sits beside the first draft's. Its track replaces set 03's track 04. The steps every song now goes through are in [`docs/music-design.md`](../docs/music-design.md#making-a-song-the-checklist). |
 
 The plan for the whole score is in [`docs/music-tracks.md`](../docs/music-tracks.md).

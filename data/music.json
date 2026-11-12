@@ -1,0 +1,26 @@
+{
+ "_doc": "Which music plays when (src/smyana/music.lobster; the plan is docs/music-tracks.md). The game swaps whole tracks (D-042): a calm track for the season and the hour plays through once, then the forest is left alone for 'gap_s' seconds before the next. Danger cuts straight to its loop; when it ends one of the 'end_strokes' is played over the cut, and 'after_danger_s' later the calm music starts again. 'db' is the whole score's volume (the player's music volume is on top). 'first_wait_s': how long after a place opens the first track starts. 'leave_fade_s': the fade as the men leave a place. Tracks are assets/audio/music/<name>.ogg, made by music/pieces/set_03_score.py; a track named here that has no file is silence.",
+ "db": -3,
+ "first_wait_s": 3,
+ "gap_s": 90,
+ "after_danger_s": 6,
+ "leave_fade_s": 2.5,
+ "calm": {
+  "_doc": "by season, then by the light's mood of the hour (data/atmosphere.json's 'hours')",
+  "summer": { "dawn": "01_summer_day", "day": "01_summer_day", "dusk": "02_summer_dusk", "night": "02_summer_dusk" },
+  "autumn": { "dawn": "03_autumn_day", "day": "03_autumn_day", "dusk": "04_autumn_dusk", "night": "05_autumn_night" },
+  "winter": { "dawn": "06_winter_day", "day": "06_winter_day", "dusk": "07_winter_night", "night": "07_winter_night" },
+  "spring": { "dawn": "08_spring_morning", "day": "09_spring_day", "dusk": "09_spring_day", "night": "09_spring_day" }
+ },
+ "fire_night": { "_doc": "at night with a fire lit, the men's own song takes turns with the season's track", "track": "19_the_fire" },
+ "danger": {
+  "_doc": "each a loop, cut to at once",
+  "wary": "10_wary", "hiding": "11_hiding", "beasts": "12_beasts", "bandits": "13_bandits", "ottomans": "14_ottomans", "chase": "15_chase"
+ },
+ "end_strokes": [ "16_end_stroke_1", "16_end_stroke_2", "16_end_stroke_3", "16_end_stroke_4" ],
+ "moments": {
+  "_doc": "played once, over whatever calm track was playing; 'menu' is a loop. 'ruins' has no track yet: its music is parked.",
+  "death": "18_a_man_dies", "intro": "20_intro", "leaving": "21_leaving_the_village", "homecoming": "22_homecoming", "ending": "23_ending", "menu": "24_menu"
+ },
+ "loops": [ "24_menu" ]
+}

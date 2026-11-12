@@ -187,6 +187,38 @@ def gaida_chanter(events, total, rng):
     return amp * tone
 
 
+def kaba_chanter(events, total, rng):
+    """The kaba gaida's melody pipe, played slowly: deep and round, not bright, and never quite still.
+
+    Made for the designed autumn dusk (docs/music-design.md) after "the pipes are over used or just too flat". A piper
+    can't play louder or softer, but the bag's pressure wanders as he squeezes and breathes: the note leans a few
+    cents sharp and grows a little brighter, then sinks back. That slow movement is what keeps a held note alive. A
+    phrase starts flat and rises into tune as the bag fills, and a little air rasps in the reed.
+    """
+    f, amp, _ = curves(events, total, glide=0.018, attack=0.3, release=0.35,
+                       vib_cents=9, vib_hz=4.6, rng=rng)
+    n = len(f)
+    t = np.arange(n) / SR
+    press = wander(total, 0.35, rng)                      # the squeeze on the bag, -1..1, a few times a minute
+    # a phrase (a note after a rest of over a second) starts flat and settles
+    fill = np.zeros(n)
+    prev_end = -10.0
+    for a, d, m, _ in events:
+        if m is None:
+            continue
+        if a - prev_end > 1.0:
+            k = t >= a
+            fill[k] += -35 * np.exp(-(t[k] - a) / 0.35) * (t[k] - a < 3)
+        prev_end = a + d
+    f = f * 2 ** ((6 * press + fill) / 1200)
+    dark = eq(harmonics(f, reed_weights(30, 0.31)), bumps([(470, 220, 1.4), (1150, 350, 0.6), (2300, 600, 0.3)], 3000))
+    bright = eq(harmonics(f, reed_weights(30, 0.22)), bumps([(520, 240, 1.0), (1700, 450, 0.9), (2900, 700, 0.4)], 4600))
+    mix = 0.5 + 0.35 * press
+    tone = (1 - mix) * dark / (np.abs(dark).max() + 1e-9) + mix * bright / (np.abs(bright).max() + 1e-9)
+    rasp = noise(total, 900, 3200, rng) * (0.6 + 0.4 * wander(total, 5, rng))
+    return amp * (tone + 0.025 * rasp) * (1 + 0.03 * press)
+
+
 def gaida_drone(midi, start, stop, total, rng, shape=None, dark=2600):
     """The long low pipe. It sags flat as the bag fills, then settles.
 
@@ -374,6 +406,15 @@ def struck(hits, total, rng):
     return out
 
 
+def zurna(events, total, rng):
+    """The Ottomans' shrill reed pipe: a hard, bright buzz that cuts across a valley. Theirs only."""
+    f, amp, _ = curves(events, total, glide=0.02, attack=0.03, release=0.08,
+                       vib_cents=26, vib_hz=6.4, rng=rng)
+    tone = harmonics(f, reed_weights(40, 0.08))
+    tone = eq(tone, bumps([(1500, 400, 2.5), (2900, 700, 2.0)], 6500))
+    return amp * tone * (1 + 0.06 * wander(total, 7, rng))
+
+
 def shift(events, semitones):
     return [(s, d, None if m is None else m + semitones, v) for s, d, m, v in events]
 
@@ -427,6 +468,32 @@ def mixdown(parts, rng, echo=4.5, predelay=0.03, dark=3500, wet=1.0):
     return dry + wet * reverb(send, echo, rng, predelay, dark)
 
 
+def fold(stereo, seconds):
+    """Make a loop of things that happen (notes, drum hits): what rings on past the end is laid over the start."""
+    n = int(round(seconds * SR))
+    out, extra = stereo[:, :n].copy(), stereo[:, n:]
+    out[:, :extra.shape[1]] += extra
+    return out
+
+
+def seam(stereo, seconds, cross=4.0):
+    """Make a loop of things that never stop (a drone, the wind): the end is faded across into the start."""
+    n = int(round(seconds * SR))
+    x = min(int(cross * SR), stereo.shape[1] - n)
+    out = stereo[:, :n].copy()
+    a = np.linspace(0, np.pi / 2, x)
+    out[:, :x] = out[:, :x] * np.sin(a) + stereo[:, n:n + x] * np.cos(a)
+    return out
+
+
+def loudness(stereo):
+    """How loud a track is where it is playing, in dB: the loudest third of its 0.4 s stretches."""
+    mono = stereo.mean(axis=0)
+    w = int(0.4 * SR)
+    power = np.sort((mono[: len(mono) // w * w].reshape(-1, w) ** 2).mean(axis=1))
+    return 10 * np.log10(power[-max(1, len(power) // 3):].mean() + 1e-12)
+
+
 def finish(name, stereo, fade_in=0.5, fade_out=4.0, midi=None):
     """Write out/<name>.wav, .mp3 and .ogg (and .mid when given tracks)."""
     import pathlib
@@ -440,12 +507,23 @@ def finish(name, stereo, fade_in=0.5, fade_out=4.0, midi=None):
     print("wrote", name)
 
 
-def write_wav(path, stereo, fade_in=0.5, fade_out=4.0):
+def write_wav(path, stereo, fade_in=0.5, fade_out=4.0, loud=None):
+    """fade_in and fade_out of 0 leave the ends alone (a loop). loud: the loudness() to bring it to, in dB,
+    so tracks made apart sit at the right levels beside each other; without it the peak is brought to the top."""
     n = stereo.shape[1]
     t = np.arange(n) / SR
-    stereo = stereo * np.clip(t / fade_in, 0, 1) * np.clip((t[-1] - t) / fade_out, 0, 1)
-    stereo = np.stack([eq(ch, lambda f: 1 / (1 + (30 / np.maximum(f, 1)) ** 4)) for ch in stereo])  # no rumble
-    stereo = stereo / np.abs(stereo).max() * 10 ** (-1.5 / 20)
+    if fade_in:
+        stereo = stereo * np.clip(t / fade_in, 0, 1)
+    if fade_out:
+        stereo = stereo * np.clip((t[-1] - t) / fade_out, 0, 1)
+    if fade_in or fade_out:  # (a loop is left whole: this would put a click at its seam)
+        stereo = np.stack([eq(ch, lambda f: 1 / (1 + (30 / np.maximum(f, 1)) ** 4)) for ch in stereo])  # no rumble
+    top = 10 ** (-1.5 / 20)
+    if loud is None:
+        stereo = stereo / np.abs(stereo).max() * top
+    else:
+        stereo = stereo * 10 ** ((loud - loudness(stereo)) / 20)
+        stereo = stereo * min(1.0, top / np.abs(stereo).max())
     pcm = (stereo.T * 32767).astype("<i2")
     with wave.open(str(path), "wb") as w:
         w.setnchannels(2)

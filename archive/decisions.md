@@ -380,6 +380,31 @@ solid and only the screen pixel where two meet is a mix, so the art stays crisp 
 not changed. Rejected: zooming only in whole-number steps (fewer, bigger zoom jumps), and remaking the men at twice the
 detail (a much bigger job that changes their look).
 
+**D-072, 2026-11-11: Which calm track plays when is data, by season and the light's mood of the hour.** (Claude's
+how, to Dominic's D-036 and D-042; open to him) The nine calm tracks are shared over four seasons and four moods of
+the day (dawn, day, dusk, night) in `data/music.json`: dawn has the day's track except in spring, which has a morning
+of its own. A track plays once and the forest is then left alone for 90 seconds, a short gap so the first demo is not
+mostly silence; the plan's "a few minutes" waits for the sounds of the world. At night with a fire lit, the men's song
+takes turns with the season's night track. The main theme the frame tracks share is a first version, a proposal like
+every track of the first draft.
+
+**D-073, 2026-11-11: Each song has a design stage before it is made.** (Dominic) "each song needs a clear design
+stage. Like we did for 2D before 3D", after hearing the first draft of the score: "worry we're just churning out songs
+with not much thoughts". How (Claude's, for him to agree): a sheet in plain words with a picture of the tune's shape,
+then a "pencil" sketch of the tune alone, and only then the track (`docs/music-design.md`). The first draft's tracks
+stay in the game as placeholders until each is replaced by a designed one.
+
+(D-072 and D-073 were written as D-059 and D-060 on the music branch, pull request #63, and renumbered on
+2026-11-11 at 22:05 UTC when it was merged up to main, where those numbers had gone to the start-up thread.)
+
+**D-074, 2026-11-11: The demo's one song is autumn dusk: one kaba gaida, as slow as it can go.** (Dominic asked for
+"one good song for that demo"; the choice of song and everything in it is Claude's, made while he was away, and open
+to him.) It is the track the camp plays at dusk in autumn. Its sheet (`docs/music-design.md`) held, with one addition:
+a fourth phrase with the piece's one leap, up a fifth to the pipe's top note, answered at the end by the far kaval's
+leap down a fifth. The pipe is a new, rounder kaba gaida whose bag pressure wanders, so held notes are never still;
+the mist is the pipe's own long dark echo, not a separate haze of high notes; the drone is low in the mix and grows
+only for the leap. Every later song goes through the same written checklist, one at a time.
+
 **D-075, 2026-11-11: Cliffs are drawn off the grid, and the sim's levels stay as they are.** (Dominic asked for proper
 cliffs, Creel #25; Claude chose how.) Creel's `relief_cliffs` draws each level's drop as a curve inside the unwalkable
 tile below it, with ledges where two drops drift apart, scree at the foot, ramps as straight slopes and snow on the

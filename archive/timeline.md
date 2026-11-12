@@ -152,6 +152,12 @@ One line per moment worth remembering. Newest at the bottom.
   comes and goes, a culvert. ([journal](journal/2026-11-11-the-roman-road-varied.md))
 - **2026-11-11:** The men's pixels drawn evenly at any zoom (Creel `sprite_even`), after Dominic found them pixelated.
   ([journal](journal/2026-11-11-summer-greens.md))
+- **2026-11-11:** The whole score in first draft: 23 of the 24 planned tracks (the ruins stay parked), 33 minutes, with the main theme written. The game plays them by season, hour and danger (D-072); the camp has music.
+  ([journal](journal/2026-11-11-the-whole-score-in-first-draft.md))
+- **2026-11-11:** Dominic heard the first draft: "samey", "pipe going up and down quick", and "each song needs a clear design stage" (D-073). Measured, he was right: every move in every tune was a step. Design sheets and bare sketches for autumn dusk and the fire (pictures 63 and 64).
+  ([design](../docs/music-design.md), [journal](journal/2026-11-11-the-whole-score-in-first-draft.md#two-hours-later-samey-and-a-design-stage-for-every-song))
+- **2026-11-11:** One good song for the demo: autumn dusk, the first track made through the design stage, a slow kaba gaida at the camp (D-074, pictures 107 and 108). The steps every song goes through are written down.
+  ([journal](journal/2026-11-11-one-good-song-autumn-dusk.md), [design](../docs/music-design.md#autumn-dusk-as-made-2026-11-11-evening))
 - **2026-11-11:** Environment thread stops: "Enough tree types for now", "Music first, cliffs after" (Dominic).
 - **2026-11-11:** Proper cliffs (Creel `relief_cliffs`): each drop a curve inside the tile below, ledges, scree, snow;
   the gorge's walls laid plainly instead of hidden under rock. ([engine](engine/2026-11-11-proper-cliffs.md))
