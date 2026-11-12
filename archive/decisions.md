@@ -462,3 +462,10 @@ and never as one volley (#58). Picked by a hash of his id and the tick, so a run
 (Claude.) As the builders in old pictures carry long guns; it shows the swallow-tail butt in front of him. Aimed, the
 butt is in the shoulder and the left hand under the barrel; reloading, the rifle stands upright. Dominic's to judge
 (D-019 left the rifle's look to him).
+
+**D-084, 2026-11-12: The ridge is a view across, not down: laid on the diagonal, the valley in low fog, a patrol on
+the far road.** (Dominic asked for map, fog and camera together and agreed it is "important for the atmosphere";
+Claude chose how.) The trail and rim run across the picture, the drop is cliffs, the valley's fog lies by height so
+the ridge stays crisp, and the riders are left unmarked so the fog takes them, with a red banner as the one accent.
+The camera stays the game's 22 degrees (D-051); nothing new was needed there. Low fog is an option in Creel, off by
+default.

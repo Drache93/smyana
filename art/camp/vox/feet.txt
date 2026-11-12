@@ -10,6 +10,7 @@ rider_0_bay 30 10
 rider_1_grey 30 10
 rider_2_chestnut 30 10
 rider_3_dark 30 10
+rider_banner 30 10
 mule_0_mule_sacks 26 14
 mule_1_mule_dun_kegs 26 15
 mule_2_bay_baskets 30 19

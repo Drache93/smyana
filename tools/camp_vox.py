@@ -410,6 +410,22 @@ def rider(m, s):
     m.capsule((-0.2, -0.16, z0 + 0.1), (-0.14, 0.2, z0 + 0.85), 0.022, 0.018, lambda g: np.where(g[..., 2] > z0 + 0.4, IRON, WOOD2))
 
 
+def banner(m, s):
+    """The patrol's standard (the ridge's mock-up, D-084): the leading rider holds up a tall pole with a red swallow-tailed
+    banner streaming back from its top, a brass knob over it; the one accent of colour in the fog."""
+    z0 = 1.0 * s + 0.3
+    top = z0 + 2.1
+    m.capsule((0.3, 0.16, z0 - 0.1), (0.3, 0.16, top), 0.025, 0.025, WOOD2)
+    m.blob((0.3, 0.16, top + 0.05), (0.05, 0.05, 0.06), BRASS)
+    def cloth(g):
+        # (it streams back from the pole, its fly cut into two tails, and sags a little toward its end)
+        back = 0.3 - g[..., 0]
+        mid = top - 0.36 - back * 0.14
+        off = np.abs(g[..., 2] - mid)
+        return (off < 0.32) & ~((back > 0.75) & (off < 0.32 * np.clip((back - 0.75) * 3.0, 0, 1)))
+    m.put((-0.95, 0.13, top - 0.9), (0.27, 0.19, top - 0.02), cloth, FEZ)
+
+
 def blanket_red(g): return np.where((np.floor(g[..., 0] * M / 3) % 4) == 0, BLACK, BLANKET)
 def blanket_blue(g): return np.where((np.floor(g[..., 0] * M / 2) % 5) == 0, RED, BLANKET2)
 def blanket_felt(g): return np.where(np.abs(g[..., 2] - 1.05) < 1.0 / M, RED, FELT)
@@ -430,6 +446,11 @@ def models():
         riding_saddle(m, s, blanket)
         rider(m, s)
         out.append(("rider_%d_%s" % (i, coat), m))
+    m, s = animal("dark", False, 4.2)  # (the standard-bearer on the dark horse)
+    riding_saddle(m, s, blanket_red)
+    rider(m, s)
+    banner(m, s)
+    out.append(("rider_banner", m))
     for i, (coat, load) in enumerate(MULES):
         m, s = animal(coat, coat.startswith("mule"))
         pack_saddle(m, s, load, random.Random(i))

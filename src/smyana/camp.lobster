@@ -16,6 +16,7 @@ let CAMP_THINGS = [ "tent0", "tent_canvas", "tent1", "tent_rugs", "fireplace", "
 let CAMP_THING_TURNS = [ 0, 2, 0, 0 ]
 let CAMP_HORSES = [ "horse_0_bay", "horse_1_grey", "horse_2_chestnut", "horse_3_dark" ]
 let CAMP_RIDERS = [ "rider_0_bay", "rider_1_grey", "rider_2_chestnut", "rider_3_dark" ]  // (rider0..7: a horseman up, for a patrol)
+let CAMP_BANNER = "rider_banner"                                                         // (riderbanner0..3: the patrol's standard-bearer, facing as rider0, 4, 8 and 12 do; D-084)
 let CAMP_MULES = [ "mule_0_mule_sacks", "mule_1_mule_dun_kegs", "mule_2_bay_baskets", "mule_3_mule_poles" ]
 // (the two ways an animal faces, in quarter turns: its side to the camera, its head to the right, then to the left)
 let CAMP_TURNS = [ 3, 1 ]
@@ -122,6 +123,7 @@ def camp_vox_text() -> string:
     var t = read_file(CAMP_DIR + "/feet.txt") or ""
     for(CAMP_HORSES.length) i: t += (read_file("{CAMP_DIR}/{CAMP_HORSES[i]}.vox") or "") + (read_file("{CAMP_DIR}/{CAMP_MULES[i]}.vox") or "") + (read_file("{CAMP_DIR}/{CAMP_RIDERS[i]}.vox") or "")
     for(CAMP_THINGS.length / 2) i: t += read_file("{CAMP_DIR}/{CAMP_THINGS[i * 2 + 1]}.vox") or ""
+    t += read_file("{CAMP_DIR}/{CAMP_BANNER}.vox") or ""
     return sha256_text(t)
 
 // The camp's sheet, baked (or read back from bake_cache/). between(): so the window can draw.
@@ -139,6 +141,7 @@ def bake_camp(between):
             between()
     for(CAMP_RIDER_TURNS) turn, side:
         for(CAMP_ANIMALS) i: camp_onto(s, "rider{side * CAMP_ANIMALS + i}", CAMP_RIDERS[i], turn, 3300 + i)
+        camp_onto(s, "riderbanner{side}", CAMP_BANNER, turn, 3400)
         between()
     sheet_finish(s, vox_draw_k(), true)
     camp_bake_s = seconds_elapsed() - t0

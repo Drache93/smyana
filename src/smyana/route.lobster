@@ -204,6 +204,8 @@ def old_species(wood:string, pick:int) -> string:
     // woods of the pass and the ridge, Scots pine and spruce with a black pine or a fir now and then)
     if wood == "oak": sp = if r < 4: "oak" elif r < 6: "hornbeam" elif r < 7: "beech" else: "oak"
     if wood == "high": sp = if r < 3: "pine" elif r < 6: "spruce" elif r < 7: "bpine" else: "fir"
+    // (the ridge's valley is a spruce wood, as its mock-up has it: "spruce": 1 in the map, D-084)
+    if wood == "high" and gint(su_map, "spruce", 0) == 1: sp = if r < 6: "spruce" else: "fir"
     return sp
 
 // Whether this kind of wood is broadleaved (its ground is the beeches' leaf litter, its young trees lose their leaves).
