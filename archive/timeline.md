@@ -168,3 +168,6 @@ One line per moment worth remembering. Newest at the bottom.
   to D-083, Creel #28). ([journal](journal/2026-11-12-the-flintlock.md))
 - **2026-11-12:** The ridge made like its mock-up: laid on the diagonal, the valley in drifting low fog, a patrol with
   a red banner on the far road below (D-084, Creel low fog). ([journal](journal/2026-11-12-the-ridge-in-fog.md))
+- **2026-11-12:** Threats planned (`docs/threats.md`) and the first built: an Ottoman patrol that walks its road,
+  hears the shots, finds the men by their cover and their smoke, fires back and falls back when half are down; balls
+  miss and hit, men are wounded and fall, the music turns (D-085 to D-088). ([journal](journal/2026-11-12-the-patrol-and-the-fight.md))

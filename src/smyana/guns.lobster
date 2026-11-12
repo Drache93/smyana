@@ -21,14 +21,16 @@ def guns_ticks(key:string, a:int, b:int) -> int:
 def guns_order(ids:[int], target:int):
     issue_cmd(0, CMD_ATTACK, ids, target, 0, 0, 0)
     for(ids) id:
+        men_told_to_fire(id)
         let i = index_of(id)
         if i >= 0: u_cooldown[i] = max(u_cooldown[i], guns_ticks("aim_s", id, tick))
 
-// After each sim tick: who fired (their ids). Each of them takes a little longer or shorter over this reload.
+// After each sim tick: who fired (their ids: the men and the patrol, smyana/threats.lobster). Each of them takes a
+// little longer or shorter over this reload.
 def guns_after_step() -> [int]:
     let fired = []::int
     for(events) e:
-        if e.kind == EV_SHOT and man_of(e.a):
+        if e.kind == EV_SHOT and rifleman(e.a):
             let i = index_of(e.a)
             if i >= 0:
                 u_cooldown[i] += guns_ticks("reload_jitter_s", e.a, tick)

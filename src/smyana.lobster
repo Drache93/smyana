@@ -871,14 +871,29 @@ let SASH = float4 { 0.66, 0.19, 0.16, 1.0 }  // the sash's red (the men's 'team'
 let ART_UP = 58.8                            // art px a tile of height
 var eyes = []::float2                        // where the men are on the picture: crowns over them fade
 
+// The patrol's sash (data/threats.json), where the men wear red.
+def patrol_sash() -> float4:
+    let c = glist(patrol_cfg(), "sash")
+    return if c.length == 3: float4 { as_float(c[0]), as_float(c[1]), as_float(c[2]), 1.0 } else: SASH
+
 def collect_men(alpha:float):
     eyes = []
+    let n_looks = gstrs(men_data, "looks").length
+    // (the fallen, lying where they were hit, facing the one who shot them)
+    for(fallen) f:
+        let p = gp(float(f.x), float(f.y))
+        let d = dir_of(iso(float(f.by_x - f.x), float(f.by_y - f.y)))
+        let facing = (max(0, d) + 2) % 8
+        add_lift = lift_at(float(f.x), float(f.y)) * 1.5
+        add(frame_at.get(man_frame_name(f.look, POSE_DOWN, facing), -1), p.x, p.y, p.y - 0.4, if f.patrol: patrol_sash() else: SASH, 1.0, 4)
     for(u_x.length) i:
         let m = man_of(u_id[i])
-        if not m and u_owner[i] == 1:  // (the mark, on the range)
+        let pk = patrol_look(u_id[i])
+        if not m and pk < 0 and u_owner[i] == 1:  // (the mark, on the range)
             let p = gp(float(u_x[i]), float(u_y[i]))
             draws.push(Drawable { p.y, draws.length, -7, p.x, p.y, float4_1, 1.0, 3, 0.0, 0.0 })
-        if m:
+        if m or pk >= 0:
+            let look = if m: m.look else: n_looks + pk
             let px, py = prev_pos(i)
             let x = float(px) + float(u_x[i] - px) * alpha
             let y = float(py) + float(u_y[i] - py) * alpha
@@ -898,8 +913,8 @@ def collect_men(alpha:float):
             let facing = (d + 2) % 8
             let p = gp(x, y)
             add_lift = lift_at(x, y) * 1.5
-            add(frame_at.get(man_shadow_name(m.look, facing), -1), p.x, p.y, p.y - 0.5, float4_1, 1.0, 1)
-            add(frame_at.get(man_frame_name(m.look, if gun >= 0: gun elif moving: 1 + step else: 0, facing), -1), p.x, p.y, p.y, SASH, 1.0, 4)
+            add(frame_at.get(man_shadow_name(look, facing), -1), p.x, p.y, p.y - 0.5, float4_1, 1.0, 1)
+            add(frame_at.get(man_frame_name(look, if gun >= 0: gun elif moving: 1 + step else: 0, facing), -1), p.x, p.y, p.y, if m: SASH else: patrol_sash(), 1.0, 4)
             feet.push(float3 { p.x, p.y, 2.2 })
             if u_carry[i] > 0: add(frame_at.get("load.wood", -1), p.x + 3.0, p.y - 27.0, p.y + 0.1, float4_1, 1.0, 2)
             eyes.push(p - float2 { 0.0, 16.0 })
@@ -1509,6 +1524,20 @@ def young_tree_at(mm:float2) -> int:
         if x >= 0 and y >= 0 and x < W and y < H and (terrain[y * W + x] == young or (n == 0 and terrain[y * W + x] == heap)): return y * W + x
     return -1
 
+// The music turns with the threats (docs/threats.md): wary, then the hunting threat's own loop; when it is over, the
+// end stroke and quiet, or the lament if a man fell in it (#64).
+var danger_was = ""
+var danger_killed = 0  // men_killed when it began
+def danger_tick():
+    if music_arg != "": return
+    let d = threats_danger()
+    if d == danger_was: return
+    if danger_was == "": danger_killed = men_killed
+    if d != "": score_danger(d)
+    elif men_killed > danger_killed: score_moment("death")
+    else: score_safe()
+    danger_was = d
+
 def order_tick():
     if gl.button("mouse2") != 1: return
     let ids = filter(selected) id: index_of(id) >= 0
@@ -1665,7 +1694,9 @@ bake_trees(): waiting_frame()
 bake_camp(): waiting_frame()
 sounds_load()
 guns_load()
+threats_load()
 with_mark = arg_of("range") != ""
+with_patrol = arg_of("fight") != ""
 run_begin()
 if arg_of("leg") != "": enter_leg(arg_of("leg"), "west")
 // range:<x>,<y>: the men in a loose line on that tile, a mark five tiles east of them, and told to fire at it, for a
@@ -1679,6 +1710,37 @@ if arg_of("range") != "":
     for(u_id) id, i: issue_cmd(0, CMD_MOVE, [ id ], u_x[i], u_y[i], 0, 0)
     guns_order(copy(u_id), mark)
     p_id = []  // leg:<id>: start at this leg of the route, for a look
+// fight:<x>,<y>[,<n>]: the men in a loose block on that tile, and a patrol of n (7) on a road that comes down past them
+// from the north-east, ten tiles off at the nearest; with ambush the men open fire when the first of it is within
+// seven tiles (docs/threats.md, #62)
+let ambush = has_s(args, "ambush")
+var ambushed = false
+if arg_of("fight") != "":
+    let xy = map(tokenize(arg_of("fight"), ",", " ")) v: string_to_int(v)
+    for(u_x.length) i:
+        u_x[i] = xy[0] * TILE + 500 - (i % 4) * 900
+        u_y[i] = xy[1] * TILE + 500 + (i / 4) * 900 - 2000
+    for(u_id) id, i: issue_cmd(0, CMD_MOVE, [ id ], u_x[i], u_y[i], 0, 0)
+    let road = [ xy[0] + 24, xy[1] - 14, xy[0] + 6, xy[1], xy[0], xy[1] + 26 ]
+    patrol_spawn(map(road) v: v * TILE + TILE / 2, if xy.length > 2: xy[2] else: 7)
+    p_id = []
+// fallen: beside each man, one lying as if fallen, turned each of the eight ways, the patrol's among them (for a look)
+if has_s(args, "fallen"):
+    let n_looks = gstrs(men_data, "looks").length
+    for(men) m, k:
+        let i = index_of(m.uid)
+        if i >= 0:
+            let a = float(k) * 0.785
+            fallen.push(Fallen { 0, u_x[i] + 1500, u_y[i], if k % 3 == 2: n_looks + k % 4 else: m.look, k % 3 == 2, u_x[i] + 1500 + int(cos(a * 57.3) * 3000.0), u_y[i] + int(sin(a * 57.3) * 3000.0) })
+def ambush_tick():
+    if not ambush or ambushed or not patrols.length: return
+    for(patrol_alive(patrols[0])) pid:
+        let pi = index_of(pid)
+        for(men) m:
+            let mi = if m.alive: index_of(m.uid) else: -1
+            if not ambushed and mi >= 0 and dist2(u_x[pi], u_y[pi], u_x[mi], u_y[mi]) < 7 * TILE * 7 * TILE:
+                ambushed = true
+                guns_order(map(filter(men) n: n.alive) n: n.uid, pid)
 if has_s(args, "mended"):
     // (mended: this place's broken bridges standing again, for a look)
     for(br_id.length) k:
@@ -1825,10 +1887,18 @@ while gl.frame():
             p_x = copy(u_x)
             p_y = copy(u_y)
             step()
-            for(guns_after_step()) id:
+            let fired = guns_after_step()
+            for(fired) id:
                 let i = index_of(id)
                 let j = if i >= 0: index_of(u_foe[i]) else: -1
                 if i >= 0: gunfire_shot(id, gp(float(u_x[i]), float(u_y[i])), if j >= 0: gp(float(u_x[j]), float(u_y[j])) else: gp(float(u_x[i] + 1000), float(u_y[i])))
+            // (the patrols hear the shots and think; where each ball landed, and Creel's own misses, a shot whose
+            // target had moved off the spot)
+            threats_after_step(fired)
+            ambush_tick()
+            let snow = snow_lying() > 300
+            for(threats_landed()) l: gunfire_strike(gp(float(l.x), float(l.y)), l.hit, snow, l.by * 31 + l.to + tick)
+            for(events) e: if e.kind == EV_MISS: gunfire_strike(gp(float(e.x), float(e.y)), false, snow, e.a + tick)
             for(u_x.length) i:
                 let px, py = prev_pos(i)
                 if u_moving[i] == 1: man_walked.set(u_id[i], man_walked.get(u_id[i], 0.0) + sqrt(float(dist2(px, py, u_x[i], u_y[i]))))
@@ -1845,6 +1915,7 @@ while gl.frame():
         gunfire_tick(if paused: 0.0 else: dt, cam, float(gl.window_size().x) * 0.5 / zoom)
         mood_tick()
         if phase != "leaving": score_tick(dt, season_now(), mood_now(), fires.length > 0)
+        danger_tick()
         if debug_line: score_keys()
         ground_season_tick()
     if phase == "arriving" and phase_t >= 1.5: set_phase("play")

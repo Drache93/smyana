@@ -285,6 +285,7 @@ print "walking in all: {all_ticks / TICK_HZ / 60} min {all_ticks / TICK_HZ % 60}
 // the rifles (#58): on the range, twenty men told to fire at a mark go off in ones and twos, and none is ready again
 // for 18 s
 guns_load()
+threats_load()
 with_mark = true
 enter_leg("village_out", "west")
 with_mark = false
@@ -310,4 +311,53 @@ for(60 * TICK_HZ):
 expect(shortest >= 18 * TICK_HZ and shortest < 1 << 30, "a man fires again only after his reload (the quickest {shortest / TICK_HZ} s)")
 expect(first_shot.get_keys().length == 20, "all twenty men fired ({first_shot.get_keys().length})")
 expect(most_at_once <= 2, "never more than two rifles go off in one tick ({most_at_once})")
+
+// the patrol (#62, docs/threats.md): it walks its road past the men in the autumn beeches; they open fire when it is
+// close, it hears the shots, sees the men by their smoke and fights back; balls miss and hit, men fall on both sides,
+// and when half of them are down the rest fall back the way they came
+with_patrol = true
+enter_leg("beech_valley_out", "west")
+with_patrol = false
+for(u_x.length) i:
+    u_x[i] = 20 * TILE + 500 - (i % 3) * 900
+    u_y[i] = 39 * TILE + 500 + (i / 3) * 900
+    issue_cmd(0, CMD_MOVE, [ u_id[i] ], u_x[i], u_y[i], 0, 0)
+let pk = patrol_spawn(map([ 44, 30, 26, 44, 20, 70 ]) v: v * TILE + TILE / 2, 7)
+expect(pk >= 0, "a patrol is set on its road")
+var opened = false
+var states = ""
+var patrol_shots = 0
+var men_shots = 0
+var hits = 0
+var misses = 0
+var danger_seen = ""
+for(150 * TICK_HZ):
+    step()
+    let fired = guns_after_step()
+    threats_after_step(fired)
+    route_tick()
+    for(fired) id: if man_of(id): men_shots++ else: patrol_shots++
+    for(threats_landed()) l: if l.hit: hits++ else: misses++
+    let st = "{patrols[0].state}"
+    if not ends_with(states, st): states += st
+    let dz = threats_danger()
+    if dz != "" and find_string(danger_seen, dz) < 0: danger_seen += dz + " "
+    if not opened:
+        // (they open fire when the first of the patrol is within the rifle's reach of any of them)
+        for(patrol_alive(patrols[0])) pid:
+            let pi = index_of(pid)
+            for(ids_alive()) mid:
+                let mi = index_of(mid)
+                if not opened and mi >= 0 and dist2(u_x[pi], u_y[pi], u_x[mi], u_y[mi]) < 7 * TILE * 7 * TILE:
+                    opened = true
+                    guns_order(ids_alive(), pid)
+let patrol_fell = (filter(fallen) f: f.patrol).length
+print "fight: patrol states {states}, shots {men_shots} by the men and {patrol_shots} by the patrol, {hits} hits and {misses} misses, {men_killed} men and {patrol_fell} patrolmen fell, music {danger_seen}"
+expect(opened, "the men open fire on the patrol")
+expect(find_string(states, "02") >= 0 or find_string(states, "012") >= 0, "the patrol hears or sees them and fights ({states})")
+expect(patrol_shots > 0, "the patrol fires back ({patrol_shots})")
+expect(hits > 0 and misses > 0, "balls both hit and miss ({hits}, {misses})")
+expect(patrol_fell > 0, "patrolmen fall ({patrol_fell})")
+expect(find_string(danger_seen, "ottomans") >= 0, "the music turns to the patrol\'s")
+expect(patrols[0].state == P_FALLBACK or patrols[0].state == P_GONE, "the patrol breaks off ({patrols[0].state})")
 print (if failed: "run_check: {failed} FAILED" else: "run_check: ok")

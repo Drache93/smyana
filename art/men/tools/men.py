@@ -9,12 +9,12 @@ NAMES = ["SKIN", "HAIR", "FUR", "LINEN", "COAT", "TRIM", "SASH", "BELT", "SILVER
          "MOUSTACHE", "WOOD", "FLEECE", "FLEECE2", "WOOL", "PIPING", "EYE",
          "LAMB", "LAMB2", "FELT", "FELT2", "BROWNCOAT", "BROWNTRIM", "GOAT", "GOAT2", "HIDE", "HIDE2",
          "STRIPE_R", "STRIPE_K", "STRIPE_W", "GREY", "WALNUT", "WALNUT2", "BRASS", "IRON", "IRON2", "ASH",
-         "BLUECOAT", "STEEL"]
+         "BLUECOAT", "STEEL", "FEZ", "FEZ2", "TASSEL", "TURBAN", "TURBAN2"]
 COLOURS = [0xd9a27c, 0x3a2a20, 0x2b2420, 0xe6dfcd, 0x2e2925, 0xb03228, 0xa8302a, 0x6b4a2e, 0xc8c8c0, 0x1f1d1b,
            0xcfc6b0, 0x7a5236, 0x7a5a40, 0x5a3a22, 0xdccfb2, 0xb9aa8a, 0x4a3628, 0xd8cfb8, 0x2a1d16,
            0x8d877e, 0x6f6a62, 0x6b4f36, 0x553e2a, 0x5e4430, 0x8a3a24, 0x3b3029, 0x2a221d, 0x9a6a40, 0x7d5232,
            0xa33328, 0x2a2522, 0xe0d6be, 0xa39d92, 0x4e3220, 0x3a2416, 0xc49a48, 0x55575a, 0x3c3e41, 0xb59a74,
-           0x2c3444, 0x8c9096]
+           0x2c3444, 0x8c9096, 0xa82424, 0x7e1a1c, 0x1c1a1a, 0xe4ddca, 0xc4bca6]
 for _i, _n in enumerate(NAMES):
     globals()[_n] = _i + 1
 
@@ -57,7 +57,10 @@ def fill(vox, lo, hi, f):
 # ---- a look: what he wears -------------------------------------------------------------------------
 # hat: kalpak (black, red band: the original) | tall (black, no band, taller) | lamb (short grey lambskin,
 #      curly) | felt (brown felt cap, rolled brim) | bare (dark hair)
-# coat: black (the original) | brown (undyed wool, rust trim) | blue (dark blue, red trim)
+#      the patrol's (docs/threats.md): fez (red felt, flat-topped, a black tassel down the back) | turban (a fez
+#      with white cloth wound round its foot)
+# coat: black (the original) | brown (undyed wool, rust trim) | blue (dark blue, red trim) | patrol (the zaptiye's
+#       dark blue, brass trim)
 # cloak: none | fleece | yamurluk (the originals) | kozhuh (a sheepskin jacket, hide out, fleece at the edges,
 #        sleeves) | gunya (a shaggy goat-hair shepherd's cloak to the knee) | blanket (a striped wool rug over
 #        the left shoulder)
@@ -93,6 +96,16 @@ def head_piece(look):
             dome = in_ball(c, (0.0, -0.6, 72.0), (3.9, 4.2, 4.0)) and z > 71.6
             if dome: return FELT
             if brim: return FELT2 if not (y > 3.0 and abs(x) < 1.0) else FELT
+        elif hat == "fez" or hat == "turban":
+            top = 77.6 if hat == "fez" else 77.0
+            fez = in_taper(c, 71.6, top, (0.0, -0.5), (0.0, -0.7), (3.9, 4.2), (3.1, 3.3)) and z > 71.6 + max(0.0, y) * 0.25
+            wrap = hat == "turban" and in_taper(c, 71.2, 74.8, (0.0, -0.5), (0.0, -0.6), (5.0, 5.3), (4.6, 4.9)) and z > 71.2 + max(0.0, y) * 0.2
+            # (the tassel: from the middle of the top, down over the back)
+            tassel = (abs(x) < 0.9 and top - 0.6 < z < top + 0.8 and -1.2 < y < 0.6) or \
+                (abs(x) < 0.9 and -4.6 < y < -3.2 and top - 3.4 < z < top + 0.2)
+            if wrap: return TURBAN2 if int(math.floor(z * 1.4 + atan2d(x, y) / 40.0)) % 3 == 0 else TURBAN
+            if tassel: return TASSEL
+            if fez: return FEZ2 if z > top - 0.9 or z < 72.6 + max(0.0, y) * 0.25 else FEZ
         elif hat == "bare":  # dark hair: over the crown, longer at the back
             hair = in_ball(c, (0.0, -0.3, 69.6), (4.0, 4.5, 4.8)) and z > 71.8 - max(0.0, -y) * 0.9 - max(0.0, abs(x) - 2.5) * 0.6
             if hair: return HAIR
@@ -110,7 +123,7 @@ def head_piece(look):
 
 
 def coat_cols(look):
-    return {"black": (COAT, TRIM), "brown": (BROWNCOAT, BROWNTRIM), "blue": (BLUECOAT, TRIM)}[look["coat"]]
+    return {"black": (COAT, TRIM), "brown": (BROWNCOAT, BROWNTRIM), "blue": (BLUECOAT, TRIM), "patrol": (BLUECOAT, BRASS)}[look["coat"]]
 
 
 def chest_piece(look):

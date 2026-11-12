@@ -14,6 +14,7 @@ class Man:
     carry_kind:string = ""
     uid:int = 0  // his unit in the place that's loaded (ids start again in every place)
     alive:bool = true
+    wounded:bool = false  // a ball has hit him (smyana/threats.lobster): he walks slowly
 
 // What a place keeps while the men are away (per map id).
 class PlaceMemory:
@@ -34,6 +35,7 @@ var gate_names = []::string
 var gate_rects = []::[int]  // tiles: x0, y0, x1, y1
 var last_load_s = 0.0       // how long the last place took to set up, seconds
 var with_mark = false       // a second side, a mark to fire at, in every place (the range: src/smyana/guns.lobster)
+var with_patrol = false     // a second side with the patrol's unit in every place (the fight: bench, smyana/threats.lobster)
 let place_memory = dictionary<string, PlaceMemory>(17)
 
 def route_load():
@@ -361,6 +363,7 @@ def enter_leg(id:string, edge:string):
     gate_names = []
     gate_rects = []
     reset_world()
+    threats_clear()
     if run_over(): return
     // (the walk here brought the season on at least to where this leg begins)
     let span = glist(leg_now(), "year")
@@ -370,11 +373,14 @@ def enter_leg(id:string, edge:string):
     let side = jobj()
     set(side, "units", jarr([ unit ]))
     let sides = [ side ]
-    if with_mark:
-        let mark = shallow_copy(at(lib_data("guns.json"), "mark"))
-        set(mark, "line", jarr([ shallow_copy(mark) ]))
+    // (a second side: the mark on the range, and the patrol where this leg has one, or on the fight: bench)
+    let theirs = []::JV
+    if with_mark: theirs.push(shallow_copy(at(lib_data("guns.json"), "mark")))
+    if with_patrol or has(leg_now(), "patrol"): theirs.push(shallow_copy(at(patrol_cfg(), "unit")))
+    if theirs.length:
+        for(theirs) u: set(u, "line", jarr([ shallow_copy(u) ]))
         let other = jobj()
-        set(other, "units", jarr([ mark ]))
+        set(other, "units", jarr(theirs))
         sides.push(other)
     let place = place_now()
     setup_world(1878, place, sides, load_rules("smyana"), [])
@@ -399,6 +405,10 @@ def enter_leg(id:string, edge:string):
         let trail = str_index(tr_names, "trail")
         for(terrain) t, c: if t == trail: wear[c] = tr_max
     walk_in(edge)
+    // (a patrol on its road through this place, #62: "patrol": { "road": [ x, y, ... tiles ], "men": n })
+    if has(leg_now(), "patrol"):
+        let pl = gobj(leg_now(), "patrol")
+        patrol_spawn(map(glist(pl, "road")) v: as_int(v) * TILE + TILE / 2, gint(pl, "men", 7))
     last_load_s = seconds_elapsed() - t0
 
 def gate_index(edge:string) -> int: return find(gate_names) n: n == edge
@@ -490,7 +500,7 @@ def route_tick() -> string:
             let i = index_of(m.uid)
             if i >= 0:
                 let wading = terrain[cell_of(u_x[i], u_y[i])] == ford
-                u_speed[i] = max(1, t_speed[u_kind[i]] * pace / 100 * (if wading: wade_pace(u_carry[i] > 0) else: 100) / 100)
+                u_speed[i] = max(1, t_speed[u_kind[i]] * pace / 100 * (if wading: wade_pace(u_carry[i] > 0) else: 100) / 100 * wound_pace(i) / 100)
     let inside = map(gate_names): 0
     var alive = 0
     var in_any = 0

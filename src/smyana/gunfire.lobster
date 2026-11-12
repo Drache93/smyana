@@ -65,6 +65,7 @@ var gun_flashes = []::GunFlash
 let gun_banged = dictionary<int, float>(32)  // a man's last bang (gun_now) ...
 let gun_reload = dictionary<int, float>(32)  // ... and how long his reload is, seconds
 let gun_heard = dictionary<int, int>(32)     // the reload's sounds he has made
+var gun_dust = []::GunPuff                   // where balls land: earth or snow thrown up, splinters, a puff off a coat
 var gun_cam = float2_0                       // the middle of the view and half its width, art px (the listener)
 var gun_half = 600.0
 
@@ -116,6 +117,22 @@ def gun_bang(s:GunShot):
     for(4):  // (some rolls back round the man himself)
         gun_puffs.push(GunPuff { muzzle - float2 { s.dir.x * 8.0, 0.0 }, float2 { rnd_range(-8.0, 8.0), rnd_range(-4.0, 2.0) }, -0.05, life * rnd_range(0.5, 0.85), 3.0, rnd_range(8.0, 12.0), rnd_range(1.0, 2.5), 0.9 })
 
+// A ball has landed (smyana/threats.lobster): on a man (hit: a puff off his coat, at his chest), or in the ground by
+// him, thrown up in a little spray of earth, or of snow where snow lies. at: his feet, art px; seed: to scatter it.
+def gunfire_strike(at:float2, hit:bool, snow:bool, seed:int):
+    let h = ((seed * 2654435761) >> 7) & 0xFFFF
+    if hit:
+        let c = at - float2 { 0.0, 15.0 }
+        for(3): gun_dust.push(GunPuff { c, float2 { rnd_range(-14.0, 14.0), rnd_range(-10.0, 2.0) }, 0.0, rnd_range(0.25, 0.45), 0.8, 2.2, 2.0, 0.55 })
+        return
+    // (beside him or behind him, a little way off: the ball went past)
+    let off = float2 { float(h % 41 - 20), float(h / 41 % 15 - 4) }
+    let g = at + off
+    let n = if snow: 7 else: 5
+    for(n):
+        let up = rnd_range(28.0, 60.0)
+        gun_dust.push(GunPuff { g, float2 { rnd_range(-18.0, 18.0), -up }, -rnd_float() * 0.03, rnd_range(0.35, 0.7), 0.8, if snow: 2.6 else: 2.0, if snow: 1.0 else: 0.0, 1.0 })
+
 // Every frame the game runs: time on, bangs when they're due, the reload's sounds, the smoke on the air.
 // cam: the middle of the view, half_w: half its width, art px.
 def gunfire_tick(dt:float, cam:float2, half_w:float):
@@ -151,6 +168,14 @@ def gunfire_tick(dt:float, cam:float2, half_w:float):
             p.vel *= pow(0.02, dt)  // (most of its push gone in a second)
             p.pos += (wind * min(1.0, p.t / 3.0) + float2 { 0.0, -p.rise }) * dt
     gun_puffs = filter(gun_puffs) p: p.t < p.life
+    // (what a ball throws up falls back: gravity on it, art px a second squared; rise 1 is snow, which hangs a little)
+    for(gun_dust) p:
+        p.t += dt
+        if p.t > 0.0:
+            p.pos += p.vel * dt
+            p.vel += float2 { 0.0, if p.rise > 0.5: 90.0 else: 160.0 } * dt
+            p.vel.x *= pow(0.2, dt)
+    gun_dust = filter(gun_dust) p: p.t < p.life
 
 // The pose a man is drawn in for his rifle (men_view.lobster's POSE_*), or -1 for his own (standing or walking); and
 // where he faces then (the screen direction toward his target), if he's turned to it.
@@ -187,6 +212,14 @@ def gunfire_draw():
             else:
                 gl.color(float4 { 1.0, 0.9, 0.6, 1.0 - k }):
                     gl.translate(float(floor(f.pos))): gl.circle(2.2 * (1.0 + k), 8)
+    // what the balls threw up: grains of earth, of snow, a puff off a coat
+    for(gun_dust) p:
+        if p.t >= 0.0:
+            let k = p.t / p.life
+            let r = p.r0 + (p.r1 - p.r0) * k
+            let c = if p.thick < 0.9: float4 { 0.62, 0.6, 0.56, (1.0 - k) * 0.7 } elif p.rise > 0.5: float4 { 0.95, 0.96, 0.98, 1.0 - k } else: float4 { 0.36, 0.28, 0.2, 1.0 - k * k }
+            gl.color(c):
+                gl.translate(float(floor(p.pos))): gl.circle(max(0.7, r * 0.6), 6)
     if not gun_puffs.length: return
     gl.set_shader("textured")
     // (in three bands, as Creel draws dust: every puff in shade, then lit up and to the left of it, then a smaller
@@ -229,6 +262,7 @@ def gunfire_glow():
 def gunfire_clear():
     gun_shots = []
     gun_puffs = []
+    gun_dust = []
     gun_flashes = []
     gun_banged.clear()
     gun_reload.clear()
