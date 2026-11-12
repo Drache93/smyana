@@ -11,3 +11,7 @@ Earlier, on what matters most there (2026-11-11, from the world plan, issue #58)
 In the project chat, 10:03 UTC, after the flintlock (Smyana #106, Creel #28) was merged and he had heard it:
 
 > Those are merged. Guns sound great
+
+In the threats thread, 12:00 UTC, on the first wolves (picture 45):
+
+> wolves look pretty weird

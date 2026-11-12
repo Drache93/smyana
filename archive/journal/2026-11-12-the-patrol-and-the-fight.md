@@ -101,3 +101,13 @@ check, because night only looked at the season clock, not at an hour set by hand
 
 Left for next: the bear (#61); a fire keeping wolves off (#68); wolves seen in the fir woods' own light (they are dark
 there, against dark ground).
+
+### The wolves reshaped
+
+Dominic, 12:00 UTC: "wolves look pretty weird". They did: a thick barrel of a body on short legs, the neck rising
+to a head held high, a heavy dark saddle, and a stiff tail sticking out behind (picture 45), more hyena than wolf.
+Now the body is narrower and the chest deep with the belly tucked up, the legs longer under it, the head carried low
+and forward at the back's height with upright ears, the dark only a thin line down the back, and a bushy tail hanging
+toward the hocks, its tip dark. The coat is a little lighter.
+
+![The wolves reshaped](../images/2026-11-12/47-the-wolves-reshaped-longer-legs-head-low.jpg)
