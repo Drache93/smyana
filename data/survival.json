@@ -63,10 +63,9 @@
   "bear_smell_tiles": 16
  },
  "forage": {
-  "_doc": "What the wood gives, by its kind (the map's 'wood') and the season (docs/survival.md, #66). Each find shows on open ground as a patch ('look': how the view draws it) on 'per_mille' of the open cells, and a man gathers it in 'gather_s' seconds standing on it: 'food' portions into his pack, 'goods' to take home (herbs, honey). What is taken stays taken. A man carries at most 'most_food' portions. Right-click a patch with men chosen: each goes to the nearest one within 'reach_tiles' of it.",
+  "_doc": "What the wood gives, by its kind (the map's 'wood') and the season (docs/survival.md, #66). Each find shows on open ground as a patch ('look': how the view draws it) on 'per_mille' of the open cells, and a man gathers it in 'gather_s' seconds standing on it: 'food' portions into his pack, 'goods' to take home (herbs, honey). What is taken stays taken. A man's pack holds what packs.most allows. Right-click a patch with men chosen: each goes to the nearest one within 'reach_tiles' of it.",
   "gather_s": 6,
   "reach_tiles": 9,
-  "most_food": 12,
   "woods": {
    "beech": {
     "summer": [
@@ -206,5 +205,13 @@
     "spring": []
    }
   }
+ },
+ "packs": {
+  "_doc": "A man's pack (docs/survival.md, #67, #69): it holds 'most' of food portions and goods together; a bundle of wood on top weighs 'wood'. A full pack takes 'slow' hundredths off his pace (in proportion as it fills). X: the chosen men drop their packs where they stand, keeping 'keep_food' portions each; a pile left at the foot of an old tree is a cache. A pile is found by a patrol passing that sees it (the cover over it hides it as it hides a man: the leaves falling, the tree felled) and taken; the bear smells food in one from 'bear_smell_tiles' and eats it. Right-click a pile with men chosen and they share it out into their packs.",
+  "most": 12,
+  "wood": 2,
+  "slow": 22,
+  "keep_food": 1,
+  "bear_smell_tiles": 10
  }
 }

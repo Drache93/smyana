@@ -1422,6 +1422,10 @@ def collect_patches():
     if tick - patch_tick >= 40 or tick < patch_tick:
         patch_cells = forage_patches()
         patch_tick = tick
+    for(piles) pl:
+        let p = gp(float(pl.x), float(pl.y))
+        if p.x > view_lo.x and p.x < view_hi.x and p.y > view_lo.y and p.y < view_hi.y:
+            draws.push(Drawable { p.y + 1.0, draws.length, -8, p.x, p.y, float4 { -1.0, float(pl.food + pl.goods), 0.0, 0.0 }, 1.0, 3, 0.0, 0.0 })
     let finds = forage_finds()
     for(patch_cells) c:
         let k = patch_at(c)
@@ -1440,6 +1444,15 @@ def draw_patch(x:float, y:float, look:int, cell:int):
     def spot(n:int) -> float2: return float2 { float(cell_hash(cell * 7 + n) % 29) - 14.0, float(cell_hash(cell * 13 + n) % 13) - 6.0 }
     let leaf = float4 { 0.22, 0.36, 0.17, 1.0 }
     let shade = float4 { 0.08, 0.06, 0.04, 0.6 }
+    if look < 0:  // a pile of packs: tied sacks and a bundle, more of them the more there is (cell: how much)
+        for(clamp(cell / 6 + 1, 1, 6)) n:
+            let o = float2 { float(n % 3) * 5.0 - 5.0, float(n / 3) * -3.0 }
+            px(o.x - 2.0, o.y + 1.0, 6.0, 1.0, shade)
+            px(o.x - 2.0, o.y - 4.0, 5.0, 5.0, float4 { 0.55, 0.45, 0.32, 1.0 })
+            px(o.x - 1.0, o.y - 5.0, 3.0, 1.0, float4 { 0.64, 0.54, 0.4, 1.0 })
+            px(o.x, o.y - 6.0, 1.0, 1.0, float4 { 0.3, 0.2, 0.12, 1.0 })
+            px(o.x - 2.0, o.y - 2.0, 5.0, 1.0, float4 { 0.42, 0.33, 0.22, 1.0 })
+        return
     if look == 0:  // mushrooms: pale stems under cream and brown caps, in a ring
         for(7) n:
             let o = spot(n)
@@ -1725,6 +1738,8 @@ def order_tick():
     if gl.button("c") == 1 and selected.length:
         camp_order(filter(selected) id: man_of(id) != nil)
         selected = []
+    // X: the chosen men drop their packs where they stand, to move light; at an old tree's foot it is a cache (#67, #69)
+    if gl.button("x") == 1 and selected.length: packs_drop(filter(selected) id: man_of(id) != nil)
     if gl.button("mouse2") != 1: return
     let ids = filter(selected) id: index_of(id) >= 0
     if not ids.length: return
@@ -1734,6 +1749,13 @@ def order_tick():
         guns_order(ids, u_id[foe])
         mark_t = gl.time()
         mark_at = gp(float(u_x[foe]), float(u_y[foe]))
+        return
+    // (a pile of packs under the mouse: pick it up)
+    let pile = pile_near(int(mm.x), int(mm.y))
+    if pile >= 0:
+        packs_fetch(ids, pile)
+        mark_at = gp(float(piles[pile].x), float(piles[pile].y))
+        mark_t = gl.time()
         return
     // (a patch of what the wood gives under the mouse: gather it)
     let pc = patch_under(mm)
@@ -2014,6 +2036,13 @@ if has_s(args, "makecamp"):
     camp_order(filter(u_id) id: man_of(id) != nil)
     let fx, fy = camp_xy(0)
     cam = gp(float(fx), float(fy))
+// droppacks: the men put their packs down where they stand as the place opens and walk on a little (#67, for a look)
+if has_s(args, "droppacks"):
+    let ids = filter(u_id) id: man_of(id) != nil
+    for(men) m: if m.alive: m.goods = 2
+    packs_drop(ids)
+    cam = gp(float(piles[0].x), float(piles[0].y))
+    for(ids) id, n: issue_cmd(0, CMD_MOVE, [ id ], piles[0].x + 3000 + (n % 4) * 700, piles[0].y + (n / 4) * 700 - 1500, 0, 0)
 if arg_of("look") != "":  // look:<x>,<y>: the camera on this tile
     let xy = tokenize(arg_of("look"), ",", " ")
     cam = gp(string_to_float(xy[0]) * 1000.0, string_to_float(xy[1]) * 1000.0)

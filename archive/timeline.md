@@ -182,3 +182,5 @@ One line per moment worth remembering. Newest at the bottom.
   smelled by the bear; sleeping round it; breath in the cold (D-092 to D-094). ([journal](journal/2026-11-12-the-camp-and-the-fire.md))
 - **2026-11-12:** Gathering (#66): patches of berries, nuts, mushrooms, pears, greens and herbs on the ground by the
   wood and the season; right-click to send men to gather them into their packs (D-095). ([journal](journal/2026-11-12-the-camp-and-the-fire.md))
+- **2026-11-12:** Packs (#67, #69): a pack's weight slows a man; X drops the men's packs in a pile, which is also a
+  cache for the way home that a patrol can find and the bear can eat (D-096). ([journal](journal/2026-11-12-the-camp-and-the-fire.md))

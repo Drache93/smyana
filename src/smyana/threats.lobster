@@ -175,6 +175,7 @@ def threats_on_death(i:int, killer:int):
     let by = if k >= 0: u_y[k] else: u_y[i]
     let m = man_of(u_id[i])
     if m:
+        pack_falls(m, u_x[i], u_y[i])
         fallen.push(Fallen { u_id[i], u_x[i], u_y[i], m.look, false, bx, by })
         men_killed++
     let pk = patrol_look(u_id[i])

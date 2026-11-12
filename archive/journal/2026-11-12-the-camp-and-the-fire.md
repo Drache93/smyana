@@ -64,8 +64,21 @@ few dozen tiles was lost in the leaf litter and the undergrowth's tufts drew ove
 as many, kept off bracken, drawn in front of their own tile's tufts, spread wider, with a dark pixel of shadow under
 each thing so it stands off the litter. They are still quiet on purpose (no marker), and want a look from Dominic.
 
+## Packs and caches (#67, #69)
+
+The third part. `src/smyana/packs.lobster`: a pack holds twelve of food and goods; its weight takes up to about a
+fifth off a man's pace. X drops the chosen men's packs in one pile (each keeps a day's food); right-click the pile to
+share it back out. A pile is a cache: a patrol that would see a man lying there takes it, and the bear eats the food
+in one. Each place keeps its piles. A fallen man's pack lies where he fell. For a look: `droppacks` puts the men's
+packs down as the place opens and walks them on. The run check checks a full pack is slower, the drop keeps a day's
+food each, the pick-up gives it all back, and a patrol walking past a pile in the open takes it.
+
+![A pile of packs left on the trail under the beeches](../images/2026-11-12/55-a-pile-of-packs-left-on-the-trail.jpg)
+
 ## Left for later
 
 - A tired man sitting down when he stops needs a sitting pose (later, with the other poses).
 - Barks for hunger and cold come with the voices (#51).
-- Game to hunt with the rifle (roe deer, chamois), after the patches. Next: packs and weight, caches.
+- Game to hunt with the rifle (roe deer, chamois), after the patches.
+- The pack drawn on the man, bigger as it fills (only the wood bundle shows now).
+- Next: the Roman drain at the ruins (#70), and the tally (#72).

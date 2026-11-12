@@ -351,6 +351,7 @@ def run_begin():
     place_memory.clear()
     survival_begin()
     forage_begin()
+    packs_begin()
     enter_leg(gstr(route, "start", ""), gstr(route, "start_edge", "west"))
 
 // Why this place is over the size budget ("" if it isn't): checked when it's loaded.
@@ -379,6 +380,7 @@ def enter_leg(id:string, edge:string):
     threats_clear()
     survival_enter()
     forage_enter(place_now())
+    packs_enter(place_now())
     if run_over(): return
     // (the walk here brought the season on at least to where this leg begins)
     let span = glist(leg_now(), "year")
@@ -521,6 +523,7 @@ def route_tick() -> string:
     if tick % 10 != 0 or run_over(): return ""
     survival_tick()
     forage_tick()
+    packs_tick()
     // (the weather's pace on the men, and the water's on a man in a ford, and his needs')
     let pace = weather_pace()
     let ford = str_index(tr_names, "ford")
@@ -529,7 +532,7 @@ def route_tick() -> string:
             let i = index_of(m.uid)
             if i >= 0:
                 let wading = terrain[cell_of(u_x[i], u_y[i])] == ford
-                u_speed[i] = max(1, t_speed[u_kind[i]] * pace / 100 * (if wading: wade_pace(u_carry[i] > 0) else: 100) / 100 * wound_pace(i) / 100 * needs_pace(m) / 100)
+                u_speed[i] = max(1, t_speed[u_kind[i]] * pace / 100 * (if wading: wade_pace(u_carry[i] > 0) else: 100) / 100 * wound_pace(i) / 100 * needs_pace(m) / 100 * load_pace(m, i) / 100)
     let inside = map(gate_names): 0
     var alive = 0
     var in_any = 0
@@ -562,6 +565,7 @@ def route_leave(edge:string):
     men_read()
     let place = place_now()
     forage_leave(place)
+    packs_leave(place)
     let was = place_memory.get(place)
     place_memory.set(place, PlaceMemory { copy(terrain), copy(amount), copy(wear), if was: was.visits + 1 else: 1, copy(br_up) })
 

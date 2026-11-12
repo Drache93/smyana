@@ -564,4 +564,45 @@ forage_leave(place_now())
 forage_enter(place_now())
 expect(forage_patches().length == patches_after, "what is taken stays taken")
 year_force = -1
+// packs (#67, #69): a full pack slows a man; the men drop their packs and pick them up again; a pile in the open is
+// found by a patrol that passes
+year_force = 1000
+with_patrol = true
+enter_leg("beech_valley_out", "west")
+with_patrol = false
+for(80): step()
+let carriers = ids_alive()
+for(men) m: if m.alive: m.food = 2
+let first = man_of(carriers[0])
+if first: first.food = 12
+for(20):
+    step()
+    route_tick()
+let heavy = u_speed[index_of(carriers[0])]
+let light = u_speed[index_of(carriers[1])]
+expect(heavy < light, "a full pack slows a man ({heavy} against {light})")
+let food_pk = fold(men, 0) a, m: a + m.food
+expect(packs_drop(carriers) and piles.length == 1, "the men drop their packs")
+let left = fold(men, 0) a, m: a + m.food
+expect(left == carriers.length and piles[0].food == food_pk - left, "keeping a day\'s food each ({left})")
+packs_fetch(carriers, 0)
+for(20 * TICK_HZ):
+    step()
+    route_tick()
+expect(not piles.length and (fold(men, 0) a, m: a + m.food) == food_pk, "and pick them up again")
+// (a pile left out in the open, and a patrol down a road past it)
+packs_drop(carriers)
+let pile_x = piles[0].x / TILE
+let pile_y = piles[0].y / TILE
+for(men) m:
+    if m.alive:
+        let mi = index_of(m.uid)
+        if mi >= 0: issue_cmd(0, CMD_MOVE, [ m.uid ], 4 * TILE, u_y[mi], 0, 0)
+patrol_spawn(map([ pile_x + 14, pile_y - 12, pile_x + 1, pile_y, pile_x + 1, min(H - 3, pile_y + 20) ]) v: v * TILE + TILE / 2, 6)
+for(60 * TICK_HZ):
+    step()
+    threats_after_step(guns_after_step())
+    route_tick()
+expect(piles_lost > 0 and not piles.length, "a patrol passing finds the pile and takes it")
+year_force = -1
 print (if failed: "run_check: {failed} FAILED" else: "run_check: ok")

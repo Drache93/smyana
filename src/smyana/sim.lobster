@@ -53,4 +53,5 @@ import smyana.guns
 import smyana.threats
 import smyana.survival
 import smyana.forage
+import smyana.packs
 let SMYANA_VERSION = "0.1.0"

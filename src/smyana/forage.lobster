@@ -83,7 +83,6 @@ def foraging(uid:int) -> bool: return (find(foragers) f: f.id == uid) >= 0
 def forage_tick():
     let fc = forage_cfg()
     let need = int(as_float(at(fc, "gather_s")) * float(TICK_HZ))
-    let most = gint(fc, "most_food", 12)
     let finds = forage_finds()
     foragers = filter(foragers) f:
         let i = index_of(f.id)
@@ -98,8 +97,8 @@ def forage_tick():
             if f.work < need: true
             else:
                 let fd = finds[k]
-                m.food = min(most, m.food + gint(fd, "food", 0))
-                m.goods += gint(fd, "goods", 0)
+                m.food += min(pack_room(m), gint(fd, "food", 0))
+                m.goods += min(pack_room(m), gint(fd, "goods", 0))
                 food_gathered += gint(fd, "food", 0)
                 goods_gathered += gint(fd, "goods", 0)
                 forage_taken.set(f.cell, 1)

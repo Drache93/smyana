@@ -553,3 +553,12 @@ nearest patch within nine tiles of it and gathers it in six seconds: one or two 
 twelve), or goods to take home (herbs, mountain tea). What is taken stays taken, on the way home too. The patches are
 a few pixels of art on the ground (pale caps, husks, fruiting tufts, flowering sprigs) with no marker; a first pass
 that needs Dominic's eye.
+
+**D-096, 2026-11-12: A man's pack is food and goods together, and a pile of packs is a cache.** (Claude, from the
+survival plan; a Proposal.) A pack holds twelve, food portions and goods alike; a bundle of wood on top weighs two. A
+full pack takes about a fifth off a man's pace. X drops the chosen men's packs in one pile where they stand, each
+keeping a day's food, so they can run or fight light; right-clicking the pile shares it back out as far as their packs
+have room. A pile left anywhere is a cache: a patrolman who would see a man lying there (the same cover check, so the
+falling leaves and a felled tree give it away) takes it, and the bear smells food in one from ten tiles, wanders to it
+and eats it. Each place keeps its piles for the way home. A man who falls drops his pack where he falls. This merges
+the plan's "drop the packs to run" and "caches" into one thing, with no separate cache order.
