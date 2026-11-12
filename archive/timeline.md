@@ -197,3 +197,5 @@ One line per moment worth remembering. Newest at the bottom.
   (D-104); the men's shadows fall the trees' way (D-105). ([notes](notes/2026-11-12-dominic-forest-density-and-ferns.md))
 - **2026-11-12:** Dog roses with red hips at the woods' edges (D-106); autumn turned gold all through, the evergreens
   alone green (D-107). ([notes](notes/2026-11-12-dominic-forest-density-and-ferns.md))
+- **2026-11-12:** Evergreens placed by height and ground: none in the low broadleaf woods, groups of fir among the
+  beech in the middle belt, pines on rock (D-108).

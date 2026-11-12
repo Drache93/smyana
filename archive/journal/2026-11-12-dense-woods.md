@@ -73,3 +73,12 @@ Then Dominic: "Why would anything be green if it's autumn?" The green was ours: 
 fern. All of it turns now, and only the conifers stay green.
 
 ![the gorge in autumn](../images/2026-11-12/78-the-gorge-in-autumn-nothing-green-but-the-firs.jpg)
+
+## Where the evergreens grow (D-108)
+
+Dominic asked whether evergreens belong among the broadleaves. In the Rhodopes they do in one belt only: beech with
+silver fir, around 1000 to 1500 m. Lower down, in the oak and hornbeam woods, there are only a few pines on rock.
+Higher up, spruce and fir take over. Every beech wood had been getting a share of conifers wherever they fell. Now
+the low places have none but pines on crags, and the beech valley keeps its firs in groups.
+
+![the beech valley in autumn](../images/2026-11-12/82-the-beech-valley-in-autumn-gold-beech-with-dark-firs-in-groups.jpg)

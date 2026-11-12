@@ -155,12 +155,6 @@ let man_walked = dictionary<int, float>(64)  // milli-tiles each has walked here
 var selected = []::int
 var view_load_s = 0.0  // how long the last place took to load, the view's part included
 
-// Which trees stand in this place (the map's "wood": beech or conifer), picked per cell.
-// (deep: the high dark woods, where the trunks run up out of sight and only the understorey is a tree's whole height)
-def old_kind(wood:string, pick:int) -> string, int:
-    let sp = old_species(wood, pick)
-    return sp, pick % (if sp == "pine": PINE_KINDS else: 3)
-
 // Where the year's leaves lie thin in a broadleaf wood (x, y in mask samples): grass shows and herbs grow there.
 def open_ground(x:int, y:int) -> bool:
     return cell_hash((y / 11) * W * MASK_K + x / 11 + 6007) % 100 < 45
@@ -222,7 +216,6 @@ def build_props():
     let debris_t = str_index(tr_names, "rubble")
     props_version = map_version
     let wood = place_wood()
-    let pines = gint(su_map, "pines", 1) != 0
     let crags = gint(su_map, "crags", 1) != 0
     let trail_t = str_index(tr_names, "trail")
     let water_t = str_index(tr_names, "water")
@@ -239,9 +232,9 @@ def build_props():
         // (not dead centre: a wood isn't planted in rows)
         let off = gp(float((c % W) * 1000 + 500 + (h % 400) - 200), float((c / W) * 1000 + 500 + ((h / 400) % 400) - 200))
         if t == old:
-            let sp0, k = old_kind(wood, species_pick(c))
-            // (a place can say it has no pines among its beeches, "pines": 0: the mock-up's clearing has none)
-            let sp = if (sp0 == "pine" or sp0 == "bpine") and not pines: "beech" else: sp0
+            // (which kind by the place's rules for evergreens, D-108; a place can say it has no pines, "pines": 0)
+            let sp = old_tree_at(c)
+            let k = species_pick(c) % (if sp == "pine": PINE_KINDS else: 3)
             props.push(Prop { 0, k, "{sp}{k}", sp, off, c })
         elif t == young:
             let fir = not broadleaved(wood) and ((h / 7) % 4 != 0 or gint(su_map, "spruce", 0) == 1)

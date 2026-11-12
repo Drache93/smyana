@@ -237,10 +237,32 @@ def broadleaved(wood:string) -> bool: return wood == "beech" or wood == "oak"
 
 def leafy(sp:string) -> bool: return sp == "beech" or sp == "oak" or sp == "hornbeam"
 
-// The old tree on this cell (a place can say it has no pines among its beeches: "pines": 0).
+// Rock or a drop within two tiles: the dry, stony ground pines take to.
+def rocky_at(c:int) -> bool:
+    let rock = str_index(tr_names, "rock")
+    for(5) dy:
+        for(5) dx:
+            let x = c % W + dx - 2
+            let y = c / W + dy - 2
+            if x >= 0 and y >= 0 and x < W and y < H:
+                let n = y * W + x
+                if terrain[n] == rock or level[n] != level[c]: return true
+    return false
+
+// The old tree on this cell. Evergreens by the Rhodopes' rules (Dominic asked, 2026-11-12, D-108): the low broadleaf
+// woods have no fir or spruce ("firs": 0 in a map: the gorge and the ruins), and their few pines stand on rock; in the
+// beech-fir belt the firs and spruces stand in groups among the beeches, and the pines only on rock and crags. A place
+// can say it has no pines at all ("pines": 0).
 def old_tree_at(c:int) -> string:
-    let sp = old_species(place_wood(), species_pick(c))
-    return if (sp == "pine" or sp == "bpine") and gint(su_map, "pines", 1) == 0: "beech" else: sp
+    let wood = place_wood()
+    let pick = species_pick(c)
+    let sp = old_species(wood, pick)
+    let broad = if (pick / 3) % 3 == 0: "oak" elif (pick / 3) % 3 == 1: "hornbeam" else: "beech"
+    if sp == "pine" or sp == "bpine":
+        if gint(su_map, "pines", 1) == 0: return "beech"
+        if broadleaved(wood) and not rocky_at(c): return broad
+    if (sp == "fir" or sp == "spruce") and gint(su_map, "firs", 1) == 0: return broad
+    return sp
 
 // How many old trees stand within two tiles (0 in the open to 25 deep in the wood).
 def shade_at(c:int) -> int:

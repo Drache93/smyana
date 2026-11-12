@@ -647,3 +647,10 @@ scarlet in autumn, and they hang on the bare canes through the winter.
 it's autumn?"; Claude.) The meadow grass, the low herbs, the grass tufts, the bushes, the brambles and the male ferns
 all turn tawny gold, rust or red in autumn. This supersedes D-101's "green going gold" meadow. Summer and spring stay
 green. The firs, spruces and pines stay green, and where they grow is the next question (Dominic asked).
+
+**D-108, 2026-11-12: Evergreens by height and ground.** (Dominic asked: "Do we expect evergreens mixed in with the
+other ones? What's their general rules of placement in regards to each other?"; Claude, from the Rhodope zonation in
+docs/woods.md.) The low broadleaf woods (the gorge, the ruins and their road: `"firs": 0` in the map) have no fir or
+spruce, and their few pines stand only on rock and by drops. The beech-fir belt (the beech valley) keeps its firs and
+spruces in groups among the beeches, with pines only on rocky ground. The high and deep woods are unchanged: spruce,
+fir and pine. Not yet done: firs drawn to shaded north slopes and damp hollows, and alder and willow by the water.
