@@ -654,3 +654,17 @@ docs/woods.md.) The low broadleaf woods (the gorge, the ruins and their road: `"
 spruce, and their few pines stand only on rock and by drops. The beech-fir belt (the beech valley) keeps its firs and
 spruces in groups among the beeches, with pines only on rocky ground. The high and deep woods are unchanged: spruce,
 fir and pine. Not yet done: firs drawn to shaded north slopes and damp hollows, and alder and willow by the water.
+
+**D-109, 2026-11-12: The men walk slowly, under load.** (From Dominic: they moved "very fast and very small steps", and
+"let's really consider the weight and the effort and the age and how difficult everything is for them"; Claude.) The
+men's speed is 6 (about 0.6 tiles a second; it was 12). Their stride is longer and heavier: a slower heel and toe,
+more hip bob and sway, the chest leaning into the walk and the head forward (tools/men_bodies.py). The rifle barrel
+and stock are half as thick (data/voxel/gear.json), no longer a "hand cannon". Wolves, bears and their charge were
+slowed to match (12, 6, 14); the Ottoman patrol stays at 4, slower than the men, as before. Creel's block pace now
+rounds and never stops a slow walker (creel PR 31). Not yet done: pistols in the sash and packs on their backs.
+
+**D-110, 2026-11-12: A right click gives the order; the camera pans flat over cliffs.** (From Dominic's playtest: "I
+can select everyone, but I don't seem to have to move anyone", and the camera "starts to get all jittery" over cliffs;
+Claude.) Orders listened to SDL's middle button ("mouse2"); the right button is "mouse3", as in Creel's own controls.
+Either now gives the order. The camera's edge clamp went through a ground pick and back, so on raised ground each
+frame nudged it; it now clamps in flat map space and never moves the camera when it's inside the map.

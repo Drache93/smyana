@@ -6,8 +6,12 @@ import json, os, re
 
 RIG = {
     "skin": "#d9a27c", "pale": "#ebbf99", "size": 0.73, "fur": 0.0, "reach": 5.0,
-    "points": {"hip": {"at": [0, 0, 21.0], "bob": 0.5}, "chest": {"at": [0, 0.3, 29.6], "bob": 0.5}, "head": {"at": [0, 0.7, 37.1]}},
-    "legs": [{"hip": ["hip", 1.75, 0, 0], "foot": [1.9, 0, 1.9], "stride": 5.0, "lift": 2.2, "bones": [9.58, 9.58], "pole": [0, 1, 0],
+    # (2026-11-12, Dominic: "very fast and very small steps... it lacked any atmosphere... more like an RPG": a longer,
+    # heavier stride, the hips rolling and dropping, the chest and head leaning into the load)
+    "points": {"hip": {"at": [0, 0, 21.0], "bob": 0.9, "sway": 0.6}, "chest": {"at": [0, 0.3, 29.6], "bob": 0.9, "sway": 0.3, "lean": 0.9},
+               "head": {"at": [0, 0.7, 37.1], "lean": 1.3}},
+    "gait": {"heel": 18, "toe": 12, "toes": 1.5, "arm": 0.22, "held": 0.06, "twist": 0.5},
+    "legs": [{"hip": ["hip", 1.75, 0, 0], "foot": [1.9, 0, 1.9], "stride": 7.0, "lift": 2.6, "bones": [9.58, 9.58], "pole": [0, 1, 0],
               "r": [2.0, 1.4, 1.3, 0.85], "mats": ["skin", "skin"], "shapes": []}],
     "arms": {"shoulder": ["chest", 4.3, -0.2, 1.2], "bone": 6.7, "thick": 1.3, "sleeve": "skin", "hand": "skin"},
     "helm": {"at": ["head", 0, -0.3, 1.0], "r": 2.75},

@@ -1932,7 +1932,10 @@ def order_tick():
         selected = []
     // X: the chosen men drop their packs where they stand, to move light; at an old tree's foot it is a cache (#67, #69)
     if gl.button("x") == 1 and selected.length: packs_drop(filter(selected) id: man_of(id) != nil)
-    if gl.button("mouse2") != 1: return
+    // (the right button is SDL's third, "mouse3", as Creel's own controls have it; on the Lobster this was first built
+    // with it came as "mouse2", which is now the middle one, and a right click gave no order at all, Dominic
+    // 2026-11-12: "I can select everyone, but I don't seem to... move anyone". Either gives the order.)
+    if gl.button("mouse3") != 1 and gl.button("mouse2") != 1: return
     let ids = filter(selected) id: index_of(id) >= 0
     if not ids.length: return
     let mm = mouse_milli()
@@ -1983,9 +1986,13 @@ def order_tick():
 // The camera stays over the place, far enough in from its edge that the view never runs off the map (the place has a
 // rim of forest that deep: the map's "rim").
 def cam_keep():
+    // (on the flat: picking the ground under the camera and putting the camera back on it moved it every frame on a
+    // cliff, where the picture under it is the cliff's face, not ground, and the view shook going over one, Dominic
+    // 2026-11-12. Now it is only ever moved back in when it is past the rim)
     let rim = float(gint(su_map, "rim", 0)) * 1000.0
-    let t = pick_milli(cam)
-    cam = gp(clamp(t.x, rim, float(W * 1000) - rim), clamp(t.y, rim, float(H * 1000) - rim))
+    let t = iso_inv(cam)
+    let c = float2 { clamp(t.x, rim, float(W * 1000) - rim), clamp(t.y, rim, float(H * 1000) - rim) }
+    if c != t: cam += iso(c.x, c.y) - iso(t.x, t.y)
 
 def camera_tick():
     let ws = float(gl.window_size())

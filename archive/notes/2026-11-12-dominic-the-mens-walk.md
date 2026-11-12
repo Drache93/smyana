@@ -9,3 +9,9 @@
 
 Claude: queued after the fire light and the woods. A slower walk, a longer and heavier stride, and the weight of the
 packs and rifles should show.
+
+## 17:53 and 17:54
+
+> Yep, let's move on.
+
+> On that note as well, thinking about their gear, the men would have obviously their rifles, which by the way I think the rifle's barrel looks too fat, it looks like almost like a hand cannon, so we need to solve that, make it much thinner. But if they have the cannon, they might have a few pistols on their body, which I don't think we necessarily have now. They obviously have their gear, they might have their packs, so all these things should really add to their movement, I think. I don't think it necessarily in a dynamic way, it doesn't need to be automatic, but my point is, let's really consider the weight and the effort and the age and how difficult everything is for them.

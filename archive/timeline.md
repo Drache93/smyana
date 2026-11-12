@@ -199,3 +199,5 @@ One line per moment worth remembering. Newest at the bottom.
   alone green (D-107). ([notes](notes/2026-11-12-dominic-forest-density-and-ferns.md))
 - **2026-11-12:** Evergreens placed by height and ground: none in the low broadleaf woods, groups of fir among the
   beech in the middle belt, pines on rock (D-108).
+- **2026-11-12:** Right-click orders work again and the camera no longer jitters over cliffs (D-110). The men walk at
+  half speed with a longer, heavier stride, and the rifles are thinner (D-109).
