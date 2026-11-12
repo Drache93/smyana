@@ -636,3 +636,14 @@ Claude.) The men's (and the horses') shadows went down and right while the trees
 taken from the sun's light with its fall from the sky in it, not along the ground as the trees' baker lays it, and the
 men's ground was squashed by the old 30 degree camera's half, not by the 22 degree camera's sine. Both fixed, and the
 sheets are now keyed by the shadows' way, so they bake again when it changes.
+
+**D-106, 2026-11-12: Dog roses at the wood's edge.** (Dominic's wife's idea, through Dominic: "instead of ferns, we
+should try rose hip bushes"; "Looks great, let's try rose hip too"; Claude.) Rosa canina: long arching canes a man high
+or more, small leaves, and red hips in twos and threes at the canes' ends. They grow in the wood's mantle where a tree
+or two gives half shade, a few together, and now and then out in the meadow. The hips are orange in high summer and
+scarlet in autumn, and they hang on the bare canes through the winter.
+
+**D-107, 2026-11-12: In autumn nothing is green but the evergreens.** (From Dominic: "Why would anything be green if
+it's autumn?"; Claude.) The meadow grass, the low herbs, the grass tufts, the bushes, the brambles and the male ferns
+all turn tawny gold, rust or red in autumn. This supersedes D-101's "green going gold" meadow. Summer and spring stay
+green. The firs, spruces and pines stay green, and where they grow is the next question (Dominic asked).

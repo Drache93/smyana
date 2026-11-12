@@ -195,3 +195,5 @@ One line per moment worth remembering. Newest at the bottom.
   watercolour filter on trial (D-103, Creel PR 30). ([notes](notes/2026-11-12-dominic-forest-density-and-ferns.md))
 - **2026-11-12:** Bracken patches in the light and male fern shuttlecocks in the shade replace the palm-like fern
   (D-104); the men's shadows fall the trees' way (D-105). ([notes](notes/2026-11-12-dominic-forest-density-and-ferns.md))
+- **2026-11-12:** Dog roses with red hips at the woods' edges (D-106); autumn turned gold all through, the evergreens
+  alone green (D-107). ([notes](notes/2026-11-12-dominic-forest-density-and-ferns.md))

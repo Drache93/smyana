@@ -107,3 +107,15 @@ this is cloud clinging to and lifting off a wooded slope.
 ## 17:36, the shadows
 
 > One other thing I noticed actually looking at the pictures is the shadows aren't all going the same direction. Shadows of the trees and the shadows of the men are both going in different angles.
+
+## 17:45, after the new ferns
+
+> Looks great, let's try rose hip too
+
+## 17:46, autumn
+
+> The other thing that doesn't make sense is autumn is still a mixture. Why would anything be green if it's autumn?
+
+## 17:46, evergreens
+
+> Do we expect evergreens mixed in with the other ones? What's their general rules of placement in regards to each other?

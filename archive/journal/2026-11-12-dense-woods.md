@@ -61,3 +61,15 @@ way was worked out from the light with its downward part still in it, and squash
 
 ![before and after](../images/2026-11-12/73-shadows-before-the-men-down-right-the-tent-left-after-all-one-way.jpg)
 ![the gorge](../images/2026-11-12/75-the-gorge-in-autumn-rust-bracken-in-drifts-and-shadows-one-way.jpg)
+
+## Rose hips and a true autumn (D-106, D-107)
+
+Dominic's wife suggested rose hips. The dog rose is a mantle shrub of the Rhodope woods' edges, so it went there:
+arching canes, small leaves, hips in clusters. In winter the bare canes with their red hips are the best of it.
+
+![dog roses through the year](../images/2026-11-12/77-dog-roses-summer-autumn-late-and-winter-with-their-hips.png)
+
+Then Dominic: "Why would anything be green if it's autumn?" The green was ours: the meadow, herbs, tufts, one bush, a
+fern. All of it turns now, and only the conifers stay green.
+
+![the gorge in autumn](../images/2026-11-12/78-the-gorge-in-autumn-nothing-green-but-the-firs.jpg)

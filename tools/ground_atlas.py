@@ -148,11 +148,13 @@ def tiles(wood, season):
         fleck = ["#f2b21e", "#e8701a", "#c4341a", "#f6cf4a", "#8a3a14", "#ff9a22"]
         # (2026-11-12, a Bulgarian's eye: the open ground was "too dry". In the photos an autumn meadow is still green,
         # going gold, the colour is in the trees)
-        grass = ["#5e7432", "#687e38", "#73883e", "#7e9244"] if not conifer else grass
-        dark = ["#4a6230", "#526c34", "#5a7638", "#62803c"] if not conifer else dark
+        # (later the same day, Dominic: "Why would anything be green if it's autumn?" The meadow turned: tawny gold,
+        # rich rather than the pale straw of a dry summer; under the conifers the moss stays)
+        grass = ["#7e6c2e", "#8c7832", "#9a8436", "#a8903c"] if not conifer else grass
+        dark = ["#62542a", "#6c5c2c", "#76642e", "#806c32"] if not conifer else dark
     t = {
         0: make(1, grass, blades=0.06, height=0.55),                                                             # grass (conifer: moss)
-        1: make(2, ["#5c6a32", "#66753a", "#718040", "#7c8a48"], blades=0.05, height=0.5),                        # dry grass (2026-11-12: "too dry": a paler green, not straw)
+        1: make(2, ["#5c6a32", "#66753a", "#718040", "#7c8a48"] if not autumn else ["#86642c", "#94702f", "#a27c34", "#b08838"], blades=0.05, height=0.5),                        # dry grass (2026-11-12: "too dry": a paler green, not straw)
         2: make(3, dark, blades=0.08, height=0.6),                                                                # dark grass
         3: make(4, grass, fleck=["#3b3550", "#4a4466", "#2c4a2a"] if conifer else ["#e8e2b0", "#d9c060", "#c9a0c8"], fleck_n=700 if conifer else 500, blades=0.05, height=0.55),  # meadow (conifer: bilberry)
         4: make(5, ["#3e3123", "#4a3b2a", "#564531", "#614f38"], fine=60, grain=0.35, height=0.35),               # dirt, the trail (2026-11-12: dark earth, not "a yellow trail")
@@ -163,8 +165,8 @@ def tiles(wood, season):
         9: make(10, ["#4d3f2c", "#5a4a33", "#68563b", "#766244"], grain=0.35, height=0.4),                        # bare earth
         10: make(11, litter, fine=50, grain=0.45, fleck=fleck, fleck_n=(3000 if autumn else 2500) if conifer else (9000 if autumn else 4500), blades=0.1 if conifer else 0.0, height=0.5, leaf=autumn),  # forest floor
         11: make(12, ["#5a554c", "#6c665b", "#807868", "#948b78"], coarse=10, fine=64, grain=0.5, height=0.6, rough=0.45),  # scree: gneiss
-        12: make(13, ["#4a6a2e", "#557634", "#60823b", "#6b8e43"] if not conifer else dark, blades=0.06, height=0.55),  # olive grass
-        13: make(14, ["#56662f", "#617236", "#6c7e3d", "#788944"], blades=0.03, grain=0.3, height=0.45),          # worn grass
+        12: make(13, (["#4a6a2e", "#557634", "#60823b", "#6b8e43"] if not autumn else ["#74602a", "#7e6a2e", "#887232", "#927c36"]) if not conifer else dark, blades=0.06, height=0.55),  # olive grass
+        13: make(14, ["#56662f", "#617236", "#6c7e3d", "#788944"] if not autumn else ["#6e5c30", "#786434", "#826c38", "#8c743c"], blades=0.03, grain=0.3, height=0.45),          # worn grass
     }
     # the forest floor is leaves you can see, not a speckle: this year's fall in autumn, last year's brown the rest of
     # the year; and a wood's grass and trail have leaves and tufts and stones on them too
@@ -180,7 +182,7 @@ def tiles(wood, season):
             t[10] = strew(make(11, ["#8a5a26", "#94622a", "#9e6a2e", "#a87232"], coarse=4, fine=12, grain=0.04, height=0.45), 111, 3000, fall, lift=0.04)
             # (only a few blown leaves out on the grass: the carpet of them is under the trees)
             for k, n in ((0, 110), (1, 130), (2, 160), (3, 90), (12, 120), (13, 130)):
-                t[k] = strew(tufts(t[k], 200 + k, 500, ["#7f8f40", "#8a9846", "#75853c"]), 300 + k, n, fall)
+                t[k] = strew(tufts(t[k], 200 + k, 500, ["#a08a3c", "#b09a46", "#8e7834"]), 300 + k, n, fall)
             t[4] = strew(pebbles(make(5, ["#4a3a28", "#54432e", "#5e4b34", "#68543a"], fine=30, grain=0.08, height=0.35), 404, 160, ["#8a8476", "#7a7466"]), 304, 140, fall)
             t[9] = strew(make(10, ["#6e5a3e", "#746042", "#7a6546", "#806a4a"], grain=0.1, height=0.4), 309, 500, fall)
         elif season != "winter":
@@ -198,7 +200,7 @@ def tiles(wood, season):
         earth = ["#5e4c34", "#6a573c", "#766245", "#826d4d"] if season != "autumn" else ["#5a4630", "#655038", "#705a3f", "#7b6446"]
         bed = pebbles(make(5, earth, fine=40, grain=0.2, height=0.35), 404, 160, ["#9b9485", "#b0a896", "#857e70"])
         if not conifer and season == "autumn": bed = strew(bed, 304, 160, fall)
-        t[4] = tufts(worn(bed, t[0], 405), 406, 260, ["#6f8f3c", "#7e9a44", "#5f7a34"] if season != "autumn" else ["#8a9846", "#7f8f40", "#9aa04c"])
+        t[4] = tufts(worn(bed, t[0], 405), 406, 260, ["#6f8f3c", "#7e9a44", "#5f7a34"] if season != "autumn" else ["#a08a3c", "#8e7834", "#b09a46"])
     # bare mountain ground and scree: stones you can see, of many sizes, lying on stony earth with a tuft between them
     t[11] = tufts(strew(strew(make(12, ["#77705f", "#7b7463", "#7f7867", "#837c6b"], coarse=5, fine=16, grain=0.05, height=0.55),
                               512, 420, ["#8a8374", "#8f8879", "#857e6f", "#948d7d"], length=(6.0, 13.0), edge=0.86, drift=False),

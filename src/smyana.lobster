@@ -332,6 +332,12 @@ def build_props():
             let hb = mixed(c + 88001)
             if shading >= 1 and shading <= 4 and hb % 100 < (if thicket: 45 else: 3):
                 props.push(Prop { 5, 0, "bramble{(hb / 100) % BRAMBLE_KINDS}", "", gp(float((c % W) * 1000 + (hb / 1000) % 1000), float((c / W) * 1000 + (hb / 1000000) % 1000)), c })
+            // dog roses (D-106): in the wood's mantle, where a tree or two gives half shade, and now and then out in
+            // the meadow, a few together
+            let hr = mixed(c + 270001)
+            let roses = woods_field(c % W, c / W, 4.0, 6007) > 0.55
+            if shading <= 5 and hr % 1000 < (if roses and shading >= 1: 140 elif roses: 35 else: 6):
+                props.push(Prop { 5, 0, "rose{(hr / 1000) % ROSE_KINDS}", "", gp(float((c % W) * 1000 + (hr / 10000) % 1000), float((c / W) * 1000 + (hr / 10000000) % 1000)), c })
             if (h2 / 100) % 100 >= 90 and (h2 / 100) % 100 < 94:
                 // (a sapling of the wood's own kinds, #98)
                 let r = (h2 / 10000) % 10
