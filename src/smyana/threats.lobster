@@ -42,6 +42,29 @@ class WolfPack:
     reach:[int] = []  // the tiles they can walk to that the men can too (reach_from)
 
 // A ball landing (the view shows it): on whom, whether it hit, and where.
+let B_WANDER = 0  // about its own business, unaware of the men or calm again
+let B_REAR = 1    // a man seen close: up on its hind legs, huffing
+let B_BLUFF = 2   // a short charge that stops short of him
+let B_CHARGE = 3  // shot at: for real, at the one who fired
+let B_FLED = 4    // badly hurt: off, away from the men
+let B_DEAD = 5
+
+class Bear:
+    id:int
+    home_x:int  // where it wanders round
+    home_y:int
+    reach:[int]
+    state:int = B_WANDER
+    since:int = 0
+    foe:int = 0         // the man it reared at, bluffed or charges
+    calm_until:int = 0  // it won't bluff again before this tick
+
+// A beast's cry for the view to play: a huff, a roar.
+class Cry:
+    what:string
+    x:int
+    y:int
+
 class Landed:
     by:int
     to:int
@@ -73,8 +96,10 @@ let shot_seen = dictionary<int, int>(32)     // a rifleman's id: the tick he las
 let patrol_looks = dictionary<int, int>(32)  // a patrolman's id: his look among the patrol's
 let hurt_units = dictionary<int, int>(32)    // a patrolman's or a beast's id: 1 if a ball has hit him
 let wolf_ids = dictionary<int, int>(32)      // a wolf's id: 1
-let men_firing = dictionary<int, int>(32)    // a man told to fire (guns_order): 1 till he is told to walk somewhere
-let aim_seen = dictionary<int, int>(32)      // a rifleman's id: the tick he last saw the one he is firing at
+var bears = []::Bear
+var cries = []::Cry
+let men_firing = dictionary<int, int>(32)  // a man told to fire (guns_order): 1 till he is told to walk somewhere
+let aim_seen = dictionary<int, int>(32)    // a rifleman's id: the tick he last saw the one he is firing at
 
 def threats_load(): threats_cfg = lib_data("threats.json")
 
@@ -92,6 +117,8 @@ def threats_clear():
     hurt_units.clear()
     wolf_ids.clear()
     packs = []
+    bears = []
+    cries = []
     men_firing.clear()
     aim_seen.clear()
 
@@ -113,8 +140,8 @@ def rifleman(uid:int) -> bool: return man_of(uid) != nil or patrol_look(uid) >= 
 // hook_on_hit.
 def threats_on_hit(by:int, j:int, damage:int) -> int:
     let i = index_of(by)
-    if is_wolf(by):
-        // (a bite: it wounds a man too)
+    if is_wolf(by) or bear_of(by) >= 0:
+        // (a bite or a swipe: it wounds a man too)
         let bitten = man_of(u_id[j])
         if bitten: bitten.wounded = true
         landed.push(Landed { by, u_id[j], true, u_x[j], u_y[j] })
@@ -130,7 +157,11 @@ def threats_on_hit(by:int, j:int, damage:int) -> int:
     let p = chance * (100 - hidden * gint(h, "cover_halves", 50) / 100) / 100
     let hit = threat_hash(by, u_id[j], tick) % 100 < p
     landed.push(Landed { by, u_id[j], hit, u_x[j], u_y[j] })
+    // (a bear shot at, hit or not, charges the one who fired)
+    let bk = bear_of(u_id[j])
+    if bk >= 0: bear_provoked(bears[bk], by)
     if not hit: return 0
+    if bk >= 0: return gint(bear_cfg(), "hit_damage", 25)
     if t_hp[u_kind[j]] > 100000: return damage
     let m = man_of(u_id[j])
     if m: m.wounded = true
@@ -149,6 +180,7 @@ def threats_on_death(i:int, killer:int):
     let pk = patrol_look(u_id[i])
     if pk >= 0: fallen.push(Fallen { u_id[i], u_x[i], u_y[i], gstrs(men_data, "looks").length + pk, true, bx, by })
     if is_wolf(u_id[i]): fallen.push(Fallen { u_id[i], u_x[i], u_y[i], -1, true, bx, by, beast: "wolf" })
+    if bear_of(u_id[i]) >= 0: fallen.push(Fallen { u_id[i], u_x[i], u_y[i], -1, true, bx, by, beast: "bear" })
 
 // How fast this unit walks for its wounds, in hundredths: slowly once a ball has hit him.
 def wound_pace(i:int) -> int:
@@ -357,6 +389,7 @@ def threats_tick():
     if tick % 5 == 0:
         for(patrols) p: patrol_think(p)
         for(packs) p: pack_think(p)
+        for(bears) b: bear_think(b)
         men_fight()
 
 // A patrol that sets out on its road after so many seconds in the place (a leg's "patrol": "after_s").
@@ -516,7 +549,145 @@ def threats_danger() -> string:
     for(patrols) p:
         if p.state == P_HUNT: return "ottomans"
         if p.state == P_WARY: d = "wary"
+    for(bears) b: if b.state >= B_REAR and b.state <= B_CHARGE: return "beasts"
     for(packs) p:
         if p.state == W_HUNT: return "beasts"
         if p.state == W_FOLLOW and pack_alive(p).length: d = "wary"
     return d
+
+// ---- the bear (#61)
+
+def bear_cfg() -> JV: return gobj(threats_cfg, "bear")
+
+// The bear this unit is (an index into bears), or -1.
+def bear_of(uid:int) -> int: return find(bears) b: b.id == uid
+
+// Whether it is up on its hind legs (the view's frame).
+def bear_rearing(uid:int) -> bool:
+    let k = bear_of(uid)
+    return k >= 0 and bears[k].state == B_REAR
+
+// The beast this unit is, for the view: "wolf", "bear" or "".
+def beast_kind(uid:int) -> string: return if is_wolf(uid): "wolf" elif bear_of(uid) >= 0: "bear" else: ""
+
+// The cries since the view last took them.
+def threats_cries() -> [Cry]:
+    let c = cries
+    cries = []
+    return c
+
+// A bear set down at (x, y), milli-tiles, or the nearest place to it from which it can walk to the men.
+def bear_spawn(x0:int, y0:int) -> int:
+    let k = type_of_slot(1, "bear")
+    let here = men_here()
+    if k < 0 or not here.length: return -1
+    let reach = reach_from(k, cell_of(u_x[here[0]], u_y[here[0]]))
+    let x, y = reachable_near(reach, x0, y0)
+    let i = add_unit(1, k, x, y)
+    u_posture[i] = PASSIVE
+    grow_scratch()
+    bears.push(Bear { u_id[i], x, y, reach })
+    return bears.length - 1
+
+def bear_set(b:Bear, state:int):
+    b.state = state
+    b.since = tick
+
+def bear_away(b:Bear, i:int, tiles:int):
+    // (off, away from the men, as far as it can walk)
+    let here = men_here()
+    var cx = u_x[i]
+    var cy = u_y[i]
+    if here.length:
+        cx = 0
+        cy = 0
+        for(here) m:
+            cx += u_x[m] / here.length
+            cy += u_y[m] / here.length
+    let dx = u_x[i] - cx
+    let dy = u_y[i] - cy
+    let d = max(1, int(sqrt(float(dx * dx + dy * dy))))
+    let tx, ty = reachable_near(b.reach, clamp(u_x[i] + dx * tiles * TILE / d, TILE, (W - 1) * TILE), clamp(u_y[i] + dy * tiles * TILE / d, TILE, (H - 1) * TILE))
+    issue_cmd(1, CMD_MOVE, [ b.id ], tx, ty, 0, 0)
+
+// Shot at by `by`: it charges him for real, unless it is already running.
+def bear_provoked(b:Bear, by:int):
+    if b.state == B_FLED or b.state == B_DEAD or index_of(by) < 0: return
+    if b.state != B_CHARGE:
+        let i = index_of(b.id)
+        if i >= 0: cries.push(Cry { "bear_roar", u_x[i], u_y[i] })
+    bear_set(b, B_CHARGE)
+    b.foe = by
+    issue_cmd(1, CMD_ATTACK, [ b.id ], by, 0, 0, 0)
+
+def bear_think(b:Bear):
+    if b.state == B_DEAD: return
+    let i = index_of(b.id)
+    if i < 0:
+        bear_set(b, B_DEAD)
+        return
+    let bc = bear_cfg()
+    let charge = gint(bc, "charge_speed", 24)
+    if b.state != B_FLED and u_hp[i] <= gint(bc, "flee_hp", 30):
+        bear_set(b, B_FLED)
+        u_speed[i] = charge
+        cries.push(Cry { "bear_roar", u_x[i], u_y[i] })
+        bear_away(b, i, 30)
+        return
+    if b.state == B_FLED: return
+    let sight = gint(bc, "sight", 12) * TILE
+    if b.state == B_CHARGE:
+        u_speed[i] = charge
+        if index_of(b.foe) >= 0 and u_foe[i] == b.foe: return
+        // (he fell, or it lost him: the next man it sees, or it calms)
+        let here = men_here()
+        let next = find(here) m: sees(i, m, sight)
+        if next >= 0:
+            b.foe = u_id[here[next]]
+            issue_cmd(1, CMD_ATTACK, [ b.id ], b.foe, 0, 0, 0)
+        else:
+            bear_set(b, B_WANDER)
+            b.calm_until = tick + gint(bc, "calm_s", 40) * TICK_HZ
+        return
+    if b.state == B_REAR:
+        let rear_s = if has(bc, "rear_s"): as_float(at(bc, "rear_s")) else: 2.5
+        if tick - b.since < int(rear_s * float(TICK_HZ)): return
+        let j = index_of(b.foe)
+        if j < 0:
+            bear_set(b, B_WANDER)
+            return
+        // the bluff: straight at him, and stopping short
+        let stop = gint(bc, "bluff_stop_tiles", 2) * TILE
+        let dx = u_x[i] - u_x[j]
+        let dy = u_y[i] - u_y[j]
+        let d = max(1, int(sqrt(float(dx * dx + dy * dy))))
+        bear_set(b, B_BLUFF)
+        u_speed[i] = charge
+        cries.push(Cry { "bear_roar", u_x[i], u_y[i] })
+        issue_cmd(1, CMD_MOVE, [ b.id ], u_x[j] + dx * stop / d, u_y[j] + dy * stop / d, 0, 0)
+        return
+    if b.state == B_BLUFF:
+        if u_moving[i] == 1 and tick - b.since < 6 * TICK_HZ: return
+        // (it stopped short: it huffs once more and ambles off, and leaves them be for a while)
+        cries.push(Cry { "bear_huff", u_x[i], u_y[i] })
+        bear_set(b, B_WANDER)
+        u_speed[i] = t_speed[u_kind[i]]
+        b.calm_until = tick + gint(bc, "calm_s", 40) * TICK_HZ
+        bear_away(b, i, gint(bc, "wander_tiles", 10))
+        return
+    // wandering: a man seen close makes it rear up, unless it was just bluffing
+    u_speed[i] = t_speed[u_kind[i]]
+    if tick >= b.calm_until:
+        let near = gint(bc, "notice_tiles", 9) * TILE
+        for(men_here()) j:
+            if b.state == B_WANDER and dist2(u_x[i], u_y[i], u_x[j], u_y[j]) <= near * near and sees(i, j, sight):
+                bear_set(b, B_REAR)
+                b.foe = u_id[j]
+                cries.push(Cry { "bear_huff", u_x[i], u_y[i] })
+                issue_cmd(1, CMD_MOVE, [ b.id ], u_x[i], u_y[i], 0, 0)
+        if b.state == B_REAR: return
+    if u_moving[i] == 0 and (threat_hash(b.id, tick, 7) % 6) == 0:
+        let r = gint(bc, "wander_tiles", 10) * TILE
+        let a = float(threat_hash(b.id, tick, 3) % 360)
+        let tx, ty = reachable_near(b.reach, clamp(b.home_x + int(cos(a) * float(r)), TILE, (W - 1) * TILE), clamp(b.home_y + int(sin(a) * float(r)), TILE, (H - 1) * TILE))
+        issue_cmd(1, CMD_MOVE, [ b.id ], tx, ty, 0, 0)

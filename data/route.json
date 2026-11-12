@@ -68,6 +68,7 @@
    "exits": { "west": { "to": "beech_valley_home", "arrive": "east", "hours": 5, "letter": "last_of_the_snow" } }
   },
   "beech_valley_home": {
+   "bear": { "at": [ 62, 40 ] },
    "place": "beech_valley", "name": "The beech valley, going home", "year": [2600, 2900],
    "exits": { "west": { "to": "village_home", "arrive": "east", "hours": 3, "letter": "almost_home" } }
   },

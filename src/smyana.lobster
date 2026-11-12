@@ -892,19 +892,22 @@ def collect_men(alpha:float):
     for(u_x.length) i:
         let m = man_of(u_id[i])
         let pk = patrol_look(u_id[i])
-        if is_wolf(u_id[i]):
-            // (a wolf: trotting, or standing, facing the way it goes or what it goes for)
+        let beast = beast_kind(u_id[i])
+        if beast != "":
+            // (a wolf or the bear: walking, or standing, facing the way it goes or what it goes for; the bear up on
+            // its hind legs when it rears)
             let px, py = prev_pos(i)
             let x = float(px) + float(u_x[i] - px) * alpha
             let y = float(py) + float(u_y[i] - py) * alpha
             let moving, walking_d = unit_walk(i, man_dir.get(u_id[i], 2), px, py)
             man_dir.set(u_id[i], walking_d)
-            let step = int(man_walked.get(u_id[i], 0.0) / beast_cycle("wolf") * float(MEN_STEPS)) % MEN_STEPS
+            let step = int(man_walked.get(u_id[i], 0.0) / beast_cycle(beast) * float(MEN_STEPS)) % MEN_STEPS
             let facing = (walking_d + 2) % 8
             let p = gp(x, y)
             add_lift = lift_at(x, y) * 1.5
-            add(frame_at.get(beast_shadow_name("wolf", facing), -1), p.x, p.y, p.y - 0.5, float4_1, 1.0, 1)
-            add(frame_at.get(beast_frame_name("wolf", if moving: 1 + step else: 0, facing), -1), p.x, p.y, p.y, float4_1, 1.0, 4)
+            let pose = if bear_rearing(u_id[i]): BEAST_UP elif moving: 1 + step else: 0
+            add(frame_at.get(beast_shadow_name(beast, facing), -1), p.x, p.y, p.y - 0.5, float4_1, 1.0, 1)
+            add(frame_at.get(beast_frame_name(beast, pose, facing), -1), p.x, p.y, p.y, float4_1, 1.0, 4)
             feet.push(float3 { p.x, p.y, 2.6 })
             continue
         if not m and pk < 0 and u_owner[i] == 1:  // (the mark, on the range)
@@ -1731,6 +1734,7 @@ waiting_frame()
 let boot0 = seconds_elapsed()
 bake_men(): waiting_frame()
 bake_beast("wolf"): waiting_frame()
+bake_beast("bear"): waiting_frame()
 bake_trees(): waiting_frame()
 bake_camp(): waiting_frame()
 sounds_load()
@@ -1739,6 +1743,7 @@ threats_load()
 with_mark = arg_of("range") != ""
 with_patrol = arg_of("fight") != ""
 with_wolves = arg_of("wolves") != ""
+with_bear = arg_of("bear") != ""
 run_begin()
 if arg_of("leg") != "": enter_leg(arg_of("leg"), "west")
 // range:<x>,<y>: the men in a loose line on that tile, a mark five tiles east of them, and told to fire at it, for a
@@ -1772,6 +1777,11 @@ if arg_of("wolves") != "":
     let ws = tokenize(arg_of("wolves"), ",", " ")
     let xy = map(ws) v: string_to_int(v)
     pack_spawn(xy[0] * TILE + 500, xy[1] * TILE + 500, if ws.length > 2: xy[2] else: 5, ws.length > 3 and ws[3] == "bold")
+    p_id = []
+// bear:<x>,<y>: the bear set down on that tile, wandering (docs/threats.md, #61)
+if arg_of("bear") != "":
+    let xy = map(tokenize(arg_of("bear"), ",", " ")) v: string_to_int(v)
+    bear_spawn(xy[0] * TILE + 500, xy[1] * TILE + 500)
     p_id = []
 // fallen: beside each man, one lying as if fallen, turned each of the eight ways, the patrol's among them (for a look)
 if has_s(args, "fallen"):
@@ -1948,9 +1958,11 @@ while gl.frame():
             let snow = snow_lying() > 300
             for(threats_landed()) l:
                 if is_wolf(l.by): wolf_cry("snarl", l.x, l.y)
+                elif bear_of(l.by) >= 0: wolf_cry("bear_swipe", l.x, l.y)
                 else:
                     gunfire_strike(gp(float(l.x), float(l.y)), l.hit, snow, l.by * 31 + l.to + tick)
                     if l.hit and is_wolf(l.to): wolf_cry("yelp", l.x, l.y)
+            for(threats_cries()) c: wolf_cry(c.what, c.x, c.y)
             for(events) e: if e.kind == EV_MISS: gunfire_strike(gp(float(e.x), float(e.y)), false, snow, e.a + tick)
             for(u_x.length) i:
                 let px, py = prev_pos(i)

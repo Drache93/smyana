@@ -75,11 +75,13 @@ def bake_men(between):
 // How far a man walks in one cycle of his steps, milli-tiles.
 def man_cycle() -> float: return vx_walk_cycle(men_looks[0])
 
-// ---- the beasts (docs/threats.md): a wolf for now, its body data/voxel/bodies/<id>.json. Baked as the men are:
-// standing and eight steps of its trot, and fallen on its side, from eight sides, and its shadow.
+// ---- the beasts (docs/threats.md): the wolf and the bear, each body data/voxel/bodies/<id>.json. Baked as the men
+// are: standing and eight steps of its walk, fallen on its side, and reared up on its hind legs, from eight sides, and
+// its shadow.
 let BEAST_DOWN = MEN_STEPS + 1
-let BEAST_POSES = MEN_STEPS + 2
-let BEAST_BAKE = "beasts 1"
+let BEAST_UP = MEN_STEPS + 2
+let BEAST_POSES = MEN_STEPS + 3
+let BEAST_BAKE = "beasts 2"
 
 def beast_frame_name(id:string, pose:int, facing:int) -> string: return "{id}.{pose}.{facing}"
 def beast_shadow_name(id:string, facing:int) -> string: return "{id}.shadow.{facing}"
@@ -90,11 +92,29 @@ def vx_on_side(q:vx_prim) -> vx_prim:
     def at(v:float3) -> float3: return float3 { v.z - 12.0, v.y, -v.x }
     return vx_prim { at(q.a), at(q.b), q.ra, q.rb, q.mat, q.hard, q.disc, q.box, model: q.model, mx: turn(q.mx), mz: turn(q.mz) }
 
+// A beast's part reared up: what is ahead of its hips turned up about them, `deg` degrees (data/threats.json "rear":
+// the hips' [ y, z ], the angle, and the shoulders' [ y, z ], body units). Its hind legs and tail stay on the ground,
+// and its forelegs hang straight down from where the shoulders went.
+def vx_reared(q:vx_prim, r:[float]) -> vx_prim:
+    let mid = (q.a + q.b) * 0.5
+    if mid.y < r[0] + 2.0: return q
+    let c = cos(r[2])
+    let s = sin(r[2])
+    def up(v:float3) -> float3: return float3 { v.x, r[0] + (v.y - r[0]) * c - (v.z - r[1]) * s, r[1] + (v.y - r[0]) * s + (v.z - r[1]) * c }
+    if max(q.a.z, q.b.z) < r[4] + 1.0 and abs(mid.y - r[3]) < 5.0:
+        let shoulder = float3 { 0.0, r[3], r[4] }
+        let by = up(shoulder) - shoulder
+        return vx_prim { q.a + by, q.b + by, q.ra, q.rb, q.mat, q.hard, q.disc, q.box, model: q.model, mx: q.mx, mz: q.mz }
+    def turn(v:float3) -> float3: return float3 { v.x, v.y * c - v.z * s, v.y * s + v.z * c }
+    return vx_prim { up(q.a), up(q.b), q.ra, q.rb, q.mat, q.hard, q.disc, q.box, model: q.model, mx: turn(q.mx), mz: turn(q.mz) }
+
 let beast_defs = dictionary<string, vx_unit_def>(4)
 
 def bake_beast(id:string, between):
     vx_load([ "../data/voxel" ])
-    let key = "{BEAST_BAKE} {vx_RES} {sha256_text(vx_data_text() + (read_file("../data/voxel/bodies/{id}.json") or ""))}"
+    let rj = glist(gobj(lib_data("threats.json"), "rear"), id)
+    let rear = if rj.length == 5: map(rj) v: as_float(v) else: [ 0.0, 15.0, 60.0, 6.0, 13.0 ]
+    let key = "{BEAST_BAKE} {vx_RES} {rear} {sha256_text(vx_data_text() + (read_file("../data/voxel/bodies/{id}.json") or ""))}"
     let u = vx_unit_def { id, id, float3_0, float3_0, float3_0, [], "", false, float3_0, float3_0, float3_0, nil }
     beast_defs.set(id, u)
     let s = sheet_new(id, key, 1024)
@@ -102,9 +122,11 @@ def bake_beast(id:string, between):
     vx_set_look(u, 0)
     vx_pat_scale = vx_RES * vx_size_of(u)
     for(BEAST_POSES) pose:
-        vx_stand = pose == 0 or pose == BEAST_DOWN
-        let ph = if pose == 0 or pose == BEAST_DOWN: 0.0 else: float(pose - 1) * 360.0 / float(MEN_STEPS)
-        let parts = if pose == BEAST_DOWN: map(vx_unit_prims(u, 0.0)) q: vx_on_side(q) else: vx_unit_prims(u, ph)
+        vx_stand = pose == 0 or pose >= BEAST_DOWN
+        let ph = if pose == 0 or pose >= BEAST_DOWN: 0.0 else: float(pose - 1) * 360.0 / float(MEN_STEPS)
+        var parts = vx_unit_prims(u, ph)
+        if pose == BEAST_DOWN: parts = map(parts) q: vx_on_side(q)
+        if pose == BEAST_UP: parts = map(parts) q: vx_reared(q, rear)
         let sh = vx_fill(parts, vx_size_of(u), false)
         for(8) facing:
             sheet_add_cell(s, beast_frame_name(id, pose, facing), vx_cell(sh, facing), vx_CELL.x, vx_box, vx_ANCHOR)

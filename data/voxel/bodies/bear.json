@@ -1,0 +1,261 @@
+{
+ "_doc": "A brown bear of the Rhodopes (#61, docs/threats.md): Creel's voxel rig with two pairs of legs, walking. Body units as the men's (a man is about 40 tall here): a bear stands about 24 at the shoulder hump and about 44 from nose to rump, heavy in the forequarters, the head broad with a short muzzle and small round ears, the tail a stub. skin: its brown coat; pale: the muzzle, lighter; mark: the nose, the eyes and the claws.",
+ "skin": "#5e4634",
+ "pale": "#8b6c4e",
+ "mark": "#261c15",
+ "size": 0.9,
+ "fur": 0.45,
+ "reach": 3.5,
+ "points": {
+  "hip": {
+   "at": [
+    0,
+    -9.0,
+    16.0
+   ],
+   "bob": 0.5
+  },
+  "chest": {
+   "at": [
+    0,
+    6.0,
+    17.0
+   ],
+   "bob": 0.7
+  },
+  "head": {
+   "at": [
+    0,
+    15.0,
+    16.0
+   ],
+   "bob": 0.8
+  }
+ },
+ "legs": [
+  {
+   "hip": [
+    "hip",
+    3.6,
+    0.5,
+    -1.5
+   ],
+   "foot": [
+    3.6,
+    -9.0,
+    1.4
+   ],
+   "stride": 5.0,
+   "lift": 2.6,
+   "phase": 0,
+   "bones": [
+    6.9,
+    6.9
+   ],
+   "pole": [
+    0,
+    1,
+    0
+   ],
+   "r": [
+    4.8,
+    3.7,
+    3.3,
+    2.9
+   ],
+   "mats": [
+    "skin",
+    "skin"
+   ],
+   "shapes": []
+  },
+  {
+   "hip": [
+    "chest",
+    3.7,
+    0.0,
+    -2.5
+   ],
+   "foot": [
+    3.8,
+    7.0,
+    1.4
+   ],
+   "stride": 5.0,
+   "lift": 2.8,
+   "phase": 180,
+   "bones": [
+    6.8,
+    6.8
+   ],
+   "pole": [
+    0,
+    -1,
+    0
+   ],
+   "r": [
+    4.6,
+    3.7,
+    3.4,
+    3.0
+   ],
+   "mats": [
+    "skin",
+    "skin"
+   ],
+   "shapes": []
+  }
+ ],
+ "shapes": [
+  {
+   "cap": [
+    "hip",
+    0,
+    0,
+    0.5
+   ],
+   "to": [
+    "chest",
+    0,
+    0,
+    0
+   ],
+   "r": [
+    6.6,
+    7.0
+   ],
+   "mat": "skin"
+  },
+  {
+   "ball": [
+    "hip",
+    0,
+    -1.5,
+    0.5
+   ],
+   "r": 6.4,
+   "mat": "skin"
+  },
+  {
+   "ball": [
+    "chest",
+    0,
+    -2.0,
+    3.4
+   ],
+   "r": 5.8,
+   "mat": "skin"
+  },
+  {
+   "ball": [
+    "chest",
+    0,
+    1.0,
+    -0.8
+   ],
+   "r": 6.6,
+   "mat": "skin"
+  },
+  {
+   "cap": [
+    "chest",
+    0,
+    3.0,
+    1.0
+   ],
+   "to": [
+    "head",
+    0,
+    -2.0,
+    0.2
+   ],
+   "r": [
+    5.6,
+    4.6
+   ],
+   "mat": "skin"
+  },
+  {
+   "ball": [
+    "head",
+    0,
+    0,
+    0.4
+   ],
+   "r": 4.5,
+   "mat": "skin"
+  },
+  {
+   "ball": [
+    "head",
+    2.5,
+    -0.4,
+    -0.8
+   ],
+   "r": 2.8,
+   "mat": "skin",
+   "mirror": true
+  },
+  {
+   "cap": [
+    "head",
+    0,
+    2.8,
+    -0.8
+   ],
+   "to": [
+    "head",
+    0,
+    6.2,
+    -1.8
+   ],
+   "r": [
+    2.6,
+    1.8
+   ],
+   "mat": "pale"
+  },
+  {
+   "bead": [
+    "head",
+    0,
+    6.8,
+    -1.5
+   ],
+   "r": 0.95,
+   "mat": "mark"
+  },
+  {
+   "bead": [
+    "head",
+    1.7,
+    3.0,
+    1.5
+   ],
+   "r": 0.45,
+   "mat": "mark",
+   "mirror": true
+  },
+  {
+   "ball": [
+    "head",
+    2.9,
+    -1.2,
+    3.6
+   ],
+   "r": 1.5,
+   "mat": "skin",
+   "mirror": true
+  },
+  {
+   "ball": [
+    "hip",
+    0,
+    -6.6,
+    1.8
+   ],
+   "r": 1.6,
+   "mat": "skin"
+  }
+ ]
+}
