@@ -236,7 +236,17 @@ men at twice the detail.)
 **21:13** (project chat, on the phases)
 > for the music for phase 1, lets focus on just getting that music creation solid. So we make one good song for that demo. We can then start on phase 2
 
-**21:55** (project chat, as the music thread started)
+**21:54** (chat, asked whether to rebuild the broadleaf crowns, add new species (#56) or do proper cliffs next)
+> Enough tree types for now
+
+**21:55** (chat)
+> Music first, cliffs after
+
+(The environment thread stopped here. Left for later: crowns in clusters with sky between them, which needs the
+broadleaf .vox models rebuilt (#98); new species (#56); proper cliffs and depth (Casaide/creel#25); felling stages,
+which wait for the mechanics.)
+
+**21:55**, a minute later (project chat, as the music thread started)
 > I won't.be  available to review. So continue to next to next phase once done as we discusses
 
 (So the music thread chose the song itself, autumn dusk, made it without his sign-off on the sheet, and handed on to

@@ -327,5 +327,13 @@ for kind, sizes in KINDS.items():
             size, foot, count = make(kind, name, h, g, b, s, n, 100 + len(lines)).save("art/trees/vox/%s.vox" % tag)
             lines.append("%s %d %d" % (tag, foot[0], foot[1]))
             print("%s: %s voxels %d, foot %s" % (tag, size, count, foot))
+# saplings of the other kinds (#98): a stem, a few twigs, a tuft of leaves or needles; made after the rest so the
+# others keep their seeds
+SAPLINGS = {"oak": (1.0, 0.07, 0.3, 0.45, 3), "hornbeam": (0.9, 0.05, 0.3, 0.36, 3), "spruce": (0.95, 0.05, 0.04, 0.3, 0), "fir": (0.85, 0.05, 0.05, 0.33, 0)}
+for i, (kind, (h, g, b, s, n)) in enumerate(SAPLINGS.items()):
+    tag = "%s_sapling_0" % kind
+    size, foot, count = make(kind, "sapling", h, g, b, s, n, 900 + i).save("art/trees/vox/%s.vox" % tag)
+    lines.append("%s %d %d" % (tag, foot[0], foot[1]))
+    print("%s: %s voxels %d, foot %s" % (tag, size, count, foot))
 # (where each trunk's foot is in its model: x y, voxels from the model's corner)
 open("art/trees/vox/feet.txt", "w").write("\n".join(lines) + "\n")

@@ -21,10 +21,53 @@ def noise1(rng, n, step):
     return out
 
 
+class Land:
+    """what a place's own shape (`land`) is handed: the rows `g`, the levels `lev` ((x, y) to a level, or a ramp's
+    letter), the trail's line, the map's size, its random numbers, `put`, the zones where no tree grows, and the
+    clearings. `base` is the level of any tile it leaves unset."""
+    def __init__(self, g, lev, trail_y, w, h, rng, put, bare_zone, clearings):
+        self.g, self.lev, self.trail_y, self.w, self.h, self.rng, self.put = g, lev, trail_y, w, h, rng, put
+        self.bare_zone, self.clearings, self.base = bare_zone, clearings, 4
+
+
+WALK = ".:=b"
+
+
+def walk_check(pid, rows, heights, gates):
+    """that the men can walk from every gate to every other one, as Creel will see it: a tile is walked if its ground
+    is and no tile round it stands higher than its top (a ramp's top is a level up)"""
+    h, w = len(rows), len(rows[0])
+    def level(x, y):
+        ch = heights[y][x] if heights else "4"
+        return (ord(ch) - 97, 1) if ch.isalpha() else (int(ch), 0)
+    ok = [[False] * w for _ in range(h)]
+    for y in range(h):
+        for x in range(w):
+            if rows[y][x] not in WALK: continue
+            lv, rp = level(x, y)
+            ok[y][x] = not any(0 <= x + dx < w and 0 <= y + dy < h and level(x + dx, y + dy)[0] > lv + rp for dx in (-1, 0, 1) for dy in (-1, 0, 1))
+    names = list(gates)
+    seen = set()
+    todo = [(x, y) for x in range(gates[names[0]][0], gates[names[0]][2] + 1) for y in range(gates[names[0]][1], gates[names[0]][3] + 1) if ok[y][x]]
+    assert todo, "%s: the %s gate has no ground to stand on" % (pid, names[0])
+    seen.update(todo)
+    while todo:
+        x, y = todo.pop()
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            n = (x + dx, y + dy)
+            if 0 <= n[0] < w and 0 <= n[1] < h and ok[n[1]][n[0]] and n not in seen:
+                seen.add(n)
+                todo.append(n)
+    for e in names[1:]:
+        r = gates[e]
+        assert any((x, y) in seen for x in range(r[0], r[2] + 1) for y in range(r[1], r[3] + 1)), "%s: no way from the %s gate to the %s" % (pid, names[0], e)
+    return sum(1 for row in ok for v in row if v)
+
+
 RIM = 10  # tiles of thick forest round every place, so the view never runs off the map (the camera stays inside it)
 
 
-def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, young_clumps, clearings, rocks, slide=None, river=None, ruins=None):
+def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, young_clumps, clearings, rocks, slide=None, river=None, ruins=None, land=None, edges=("west", "east"), extra=None, north_rock=True):
     # (the numbers are given for the part you walk in: the rim is added round it)
     w, h, west_y, east_y = w + RIM * 2, h + RIM * 2, west_y + RIM, east_y + RIM
     if stream_x >= 0: stream_x += RIM
@@ -50,11 +93,22 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
         for x in range(slide[0] + RIM - slide[1] - 1, slide[0] + RIM + slide[1] + 2): trail_y[x] = trail_y[slide[0] + RIM]
     if ruins:  # (the Roman road runs straight)
         for x in range(ruins + RIM - 7, ruins + RIM + 8): trail_y[x] = trail_y[ruins + RIM]
+    # (a place with a shape of its own, #48: its levels and its ground laid by its own function, which may move the
+    # trail and say where it ends; see the places at the bottom)
+    lev = {}
+    bare_zone = []
+    trail_x = (0, w - 1)
+    base = 4
+    if land:
+        ctx = Land(g, lev, trail_y, w, h, rng, put, bare_zone, clearings)
+        trail_x = land(ctx) or trail_x
+        base = ctx.base
     # the valley's sides: rock along the north and south edges, ragged
     north = noise1(rng, w, 9)
     south = noise1(rng, w, 9)
     for x in range(w):
-        for y in range(int(2.5 + north[x] * 2.0)): put(x, RIM - 2 + y, "#")
+        if north_rock:
+            for y in range(int(2.5 + north[x] * 2.0)): put(x, RIM - 2 + y, "#")
         for y in range(int(2.5 + south[x] * 2.0)): put(x, h + 1 - RIM - y, "#")
     for (cx, cy, r) in rocks:
         for y in range(cy - r, cy + r + 1):
@@ -101,17 +155,15 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
             for x in range(w):
                 if g[y][x] == "~" and abs(y - trail_y[x]) <= 1: g[y][x] = "="
     # the trail itself, a tile wide and unbroken (not through the ford)
-    for x in range(w):
-        a, b = trail_y[x], trail_y[max(0, x - 1)]
-        for y in range(min(a, b), max(a, b) + 1): put(x, y, ":", ".#")
+    for x in range(trail_x[0], trail_x[1] + 1):
+        a, b = trail_y[x], trail_y[max(trail_x[0], x - 1)]
+        for y in range(min(a, b), max(a, b) + 1): put(x, y, ":", ".#b")
 
     # a landslide, found after it has happened (#20; Dominic: "smaller and more focused. Like on a pass above a cliff
     # face, so we only have a very tight space to go, and it's blocked"). The trail runs a ledge on a mountain's side:
     # a cliff above it (a bluff four levels up), a gorge below it (four levels down, a river in its bed), and where
     # the cliff has let go its debris lies across the trail. Bare mountain ground: no forest stands on the ledge or
     # in front of the faces. One tile of the ledge's lip is left to squeeze by until the men can clear it.
-    lev = {}
-    bare_zone = []
     if slide:
         sx, half = slide[0] + RIM, slide[1]
         ty = trail_y[sx]
@@ -154,13 +206,14 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
     if gorge:
         gx, half = gorge
         # (Dominic, 2026-11-11, on the first try, which had sheer walls four levels high: "erm those are all hard
-        # edges on the gorge though". A wall is now a broken slope of rock: it climbs its four levels over four or
-        # five tiles in ledges, each ledge's edge wandering by a noise of its own, the wall's foot bending slowly, so
-        # no face is tall and none runs straight for long. Bare stony ground and outcrops lie on the ledges.)
+        # edges on the gorge though". Then the walls were broken slopes with a rock on nearly every cell to hide the
+        # ruled faces. Now Creel draws proper cliffs (Creel #25, D-075): each level's drop is a curve through the tile
+        # below it, with ledges, a rolled rim and scree. So the wall is laid plainly, rising its four levels outward
+        # in each row: its foot bends slowly, and how many tiles it takes to climb changes along it, from one (a sheer
+        # face four levels high, over the river's bends) to five (a stair of ledges). Rock lies on some ledges and at
+        # the foot, not over everything.)
         bend = {-1: noise1(rng, h, 14), 1: noise1(rng, h, 14)}
-        wide = {-1: noise1(rng, h, 9), 1: noise1(rng, h, 9)}
-        rough = [noise1(rng, w, 3) for _ in range(h)]
-        rough2 = [noise1(rng, h, 4) for _ in range(w)]
+        wide = {-1: noise1(rng, h, 7), 1: noise1(rng, h, 7)}
         ty_at = {-1: trail_y[gx - half - 2], 1: trail_y[gx + half + 2]}
         for y in range(h):
             for x in range(w):
@@ -172,16 +225,13 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
                     continue
                 # (beside the ramp the wall stands where the ramp does, and bends away from it over a few rows)
                 ease = min(1.0, (abs(y - ty_at[side]) - 3) / 6.0)
-                dd = d - bend[side][y] * 3.0 * ease + (rough[y][x] * 0.9 + rough2[x][y] * 0.9) * (0.4 + 0.6 * ease)
-                span = 4.0 + wide[side][y] * 1.2 * ease     # how many tiles the wall takes to climb
-                k = int(math.ceil(dd * 4.0 / span))
+                foot = bend[side][y] * 2.5 * ease
+                span = 4.0 if ease < 1.0 else max(1.0, min(5.0, 2.6 + wide[side][y] * 3.2))
+                dd = d - foot                               # tiles up the wall from its foot
+                k = 0 if dd <= 0 else int(math.ceil(dd * 4.0 / span - 1e-9))
                 lev[(x, y)] = 2 + max(0, min(4, k))
-                # (the wall is rock: outcrops of gneiss stand on nearly every ledge and along the rim above, each its
-                # own shape, so what the eye meets is broken rock and not the ledges' square edges)
-                if 0 < k <= 5 and g[y][x] in ".":
-                    r = rng.random()
-                    g[y][x] = "#" if r < (0.85 if k <= 4 else 0.45) else "b"
-                elif k == 0 and dd > -1.0 and g[y][x] in "." and rng.random() < 0.3: g[y][x] = "#"   # (fallen rock at the foot)
+                if 0 < k < 4 and g[y][x] in "." and rng.random() < 0.22: g[y][x] = "#"   # (a rock on a ledge)
+                elif k == 0 and dd > -1.5 and g[y][x] in "." and rng.random() < 0.18: g[y][x] = "#"   # (fallen at the foot)
         for side in (-1, 1):
             x0, x1 = sorted((gx + side * (half - 3), gx + side * (half + 7)))
             ramp_zone.append((x0, ty_at[side] - 4, x1, ty_at[side] + 4))
@@ -254,6 +304,7 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
         olds.append((x, y))
         g[y][x] = "T"
     gates = {"west": [RIM, trail_y[RIM] - 3, RIM + 3, trail_y[RIM] + 4], "east": [w - RIM - 4, trail_y[w - RIM - 1] - 3, w - RIM - 1, trail_y[w - RIM - 1] + 4]}
+    gates = {e: gates[e] for e in edges}
     doc = {
         "schema": "aow.map/2", "id": pid, "width": w, "height": h, "legend": LEGEND,
         "starts": [[RIM + 3, trail_y[RIM + 3]]],
@@ -274,17 +325,168 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
         rows = doc.pop("rows")
         doc["bridges"] = bridges
         doc["rows"] = rows
+    if lev:
+        rows = doc.pop("rows")
+        doc["cliffs"] = 0.7   # (Creel's relief_cliffs: how far each drop wanders across the tile below it)
+        doc["rows"] = rows
+    if extra: doc.update(extra(doc))
     if lev:  # the ground's levels (Creel: 0 to 9): the place stands at 4, the gorge's bed at 0, the bluff at 8
         rows = doc.pop("rows")
-        doc["heights"] = ["".join(str(lev.get((x, y), 4)) for x in range(w)) for y in range(h)]
+        doc["heights"] = ["".join(str(lev.get((x, y), base)) for x in range(w)) for y in range(h)]
         doc["rows"] = rows
+    walked = walk_check(pid, doc["rows"], doc.get("heights"), gates)
     with open("data/maps/%s.json" % pid, "w") as f:
         f.write("{\n")
-        keys = list(doc.keys())
-        for k in keys[:-1]: f.write(' %s: %s,\n' % (json.dumps(k), json.dumps(doc[k])))
+        keys = [k for k in doc.keys() if k != "rows"]
+        for k in keys: f.write(' %s: %s,\n' % (json.dumps(k), json.dumps(doc[k])))
         f.write(' "rows": [\n' + ",\n".join('  "%s"' % r for r in doc["rows"]) + "\n ]\n}\n")
     n = lambda ch: sum(r.count(ch) for r in doc["rows"])
-    print("%s: %dx%d, %d old trees, %d young, gates %s" % (pid, w, h, n("T"), n("t"), gates))
+    print("%s: %dx%d, %d old trees, %d young, %d tiles walked, gates %s" % (pid, w, h, n("T"), n("t"), walked, gates))
+
+
+def ragged(rng, n, step, by):
+    """a line that wanders by up to `by` tiles"""
+    return [v * by for v in noise1(rng, n, step)]
+
+
+def wall_tile(c, x, y, k_of, rock_most=0.85):
+    """the ground on a broken rock wall (as the gorge's): outcrops of gneiss on nearly every ledge, bare stone between"""
+    if c.g[y][x] == ".": c.g[y][x] = "#" if c.rng.random() < rock_most else "b"
+
+
+def village_edge(c):
+    """Map 1 (#52): the last lane out of the village. The village stands as blocks at the low west end, beyond the
+    gate (a set, not walked: its houses are raised blocks with stone roofs on either side of the lane); terraced
+    fields climb north of the trail, their walls wandering, with no trees on them; the first trees, oak and hornbeam,
+    stand beyond them and along the river."""
+    w, h, rng, ty = c.w, c.h, c.rng, c.trail_y
+    # (the village: houses either side of the lane, two levels up, their roofs bare stone)
+    houses = [(1, -9, 3, 3), (5, -8, 3, 3), (2, -14, 4, 3), (7, -13, 2, 2), (1, 4, 3, 3), (6, 4, 2, 3), (2, 9, 4, 3), (7, 9, 2, 2)]
+    lane = ty[3]
+    for (hx, hy, hw, hh) in houses:
+        for y in range(lane + hy, lane + hy + hh):
+            for x in range(hx, hx + hw):
+                c.g[y][x] = "b"
+                c.lev[(x, y)] = 6
+    c.bare_zone.append((0, lane - 16, RIM + 1, lane + 14))
+    # (the terraces: three fields, each a level above the last, from the lane's side up the hill to the north)
+    edges = [ragged(rng, w, 7, 1.2), ragged(rng, w, 6, 1.4), ragged(rng, w, 8, 1.4)]
+    ends = [RIM + 46, RIM + 40, RIM + 32]
+    end_wob = ragged(rng, h, 5, 2.5)
+    for x in range(RIM + 2, w):
+        e = min(ty[max(0, x - 6):x + 7]) - 5   # (well clear of the trail, which climbs across the slope)
+        for band in range(3):
+            top = int(round(e - band * 5 + edges[band][x]))
+            for y in range(0, top + 1):
+                if x <= ends[band] + end_wob[y]: c.lev[(x, y)] = 5 + band
+        if x <= ends[0] + 3: c.bare_zone.append((x, 0, x, e + 1))
+
+
+def roman_ruins(c):
+    """Map 5 (#53): a mossy shelf above the river. The river runs east under the shelf's south edge, on a floor four
+    levels down, between a broken rock wall and the far bank (the gorge's river, come out of its cut). The Roman
+    road and its ruins stand in a clearing on the shelf (the props of #17)."""
+    w, h, rng = c.w, c.h, c.rng
+    foot = ragged(rng, w, 11, 2.0)
+    span = ragged(rng, w, 7, 1.0)
+    rough = [noise1(rng, h, 3) for _ in range(w)]
+    bed = ragged(rng, w, 13, 1.5)
+    for x in range(w):
+        e = RIM + 52 + foot[x]
+        for y in range(int(e) - 1, h):
+            k = int(math.ceil((y - e + rough[x][y] * 0.8) * 4.0 / (4.5 + span[x])))
+            if k <= 0: continue
+            c.lev[(x, y)] = max(0, 4 - k)
+            if 0 < k < 4: wall_tile(c, x, y, k)
+        mid = e + 9 + bed[x]
+        for y in range(int(e) + 4, h):
+            if abs(y - mid) <= 1.6: c.g[y][x] = "~"
+            elif abs(y - mid) <= 2.8 and c.g[y][x] == ".": c.g[y][x] = "b"
+        c.bare_zone.append((x, int(e) - 1, x, int(e) + 8))
+
+
+def the_pass(c):
+    """Map 6 (#54): a long narrow saddle at 1,900 m. The trail runs east on a shelf eight levels up, crags above it
+    to the north; to the south the shelf breaks off in one tall face (a ledge part way down here and there) to a
+    valley floor at level 1 with a path of its own. That is D-076's set piece: on the way home (leg 8) the patrol
+    walks the path far below the men. Near the east gate a ramp climbs from the valley path to the shelf, so the
+    patrol can come up behind them (phase 2). The last trees thin out on the shelf: Scots pine, spruce."""
+    w, h, rng, ty = c.w, c.h, c.rng, c.trail_y
+    c.base = 8
+    for x in range(w): ty[x] = max(RIM + 11, min(RIM + 19, ty[x]))
+    crag = ragged(rng, w, 6, 2.5)
+    e1 = ragged(rng, w, 9, 1.5)
+    ledge = noise1(rng, w, 5)
+    path = ragged(rng, w, 12, 2.0)
+    drift = [noise1(rng, w, 4) for _ in range(h)]
+    face = {}
+    for x in range(w):
+        top = int(round(RIM + 4 + crag[x]))
+        for y in range(0, top):
+            c.lev[(x, y)] = 9
+            c.g[y][x] = "#" if rng.random() < 0.55 else "b"
+        a = int(round(RIM + 25 + e1[x]))
+        b = a + 1 + max(0, int(round(ledge[x] * 2.5)))
+        face[x] = (a, b)
+        for y in range(a, h): c.lev[(x, y)] = 5 if y < b else 1
+        for y in range(a, b): c.g[y][x] = "b"
+        for y in range(top, a):
+            if c.g[y][x] == "." and drift[y][x] > 0.25: c.g[y][x] = "b"
+        c.bare_zone.append((x, b, x, b + 3))
+    # (the valley path, the whole way across, out of sight at both ends)
+    vy = [int(round(RIM + 36 + p)) for p in path]
+    for x in range(w):
+        for y in range(min(vy[x], vy[max(0, x - 1)]), max(vy[x], vy[max(0, x - 1)]) + 1): c.g[y][x] = ":"
+    # (the ramp up from it to the shelf, seven tiles of a level each, seven wide; its outer two lie under faces)
+    rx = RIM + 94
+    T = min(face[x][0] for x in range(rx - 3, rx + 4)) - 1
+    for x in range(rx - 3, rx + 4):
+        for y in range(T, h):
+            k = y - T
+            c.lev[(x, y)] = "hgfedcb"[k] if k < 7 else 1
+            if c.g[y][x] == "b" and k < 9: c.g[y][x] = "."
+        c.bare_zone.append((x, T - 2, x, T + 9))
+    for y in range(ty[rx], vy[rx] + 1): c.g[y][rx] = ":"
+
+
+def high_ridge(c):
+    """Map 7 (#55): the bare ridge at 2,050 m, the furthest point, and the turn for home: the men come in by the west
+    gate and go out by it. Gneiss slabs and grass, dwarf pines (young spruces stand in) and few trees; a rocky knoll
+    to the north. To the south the ridge breaks away in ledges of rock to the far valley eight levels below, its road
+    running across it, seen and not walked (D-076). Spruce grows down there, below the rim."""
+    w, h, rng, ty = c.w, c.h, c.rng, c.trail_y
+    c.base = 8
+    end = RIM + 74
+    crest = ragged(rng, w, 10, 2.0)
+    span = ragged(rng, w, 7, 1.5)
+    knoll = ragged(rng, w, 8, 3.0)
+    rough = [noise1(rng, h, 3) for _ in range(w)]
+    drift = [noise1(rng, w, 5) for _ in range(h)]
+    road = ragged(rng, w, 14, 2.5)
+    for x in range(w):
+        # (the trail bends south at its end, to the lookout over the valley)
+        t = max(0.0, (x - (end - 20)) / 20.0)
+        ty[x] = int(round(ty[x] * (1 - t) + (RIM + 40) * t)) if x <= end else ty[end]
+    for x in range(w):
+        top = int(round(RIM + 6 + knoll[x]))
+        for y in range(0, top):
+            c.lev[(x, y)] = 9
+            c.g[y][x] = "#" if rng.random() < 0.5 else "b"
+        e = RIM + 46 + crest[x]
+        sp = 8.0 + span[x]
+        for y in range(top, h):
+            k = int(math.ceil((y - e + rough[x][y]) * 4.0 / sp))
+            if k <= 0:
+                if c.g[y][x] == "." and drift[y][x] > -0.15: c.g[y][x] = "b"
+                continue
+            c.lev[(x, y)] = max(0, 8 - 2 * k)
+            if k < 4: wall_tile(c, x, y, k, 0.5)
+        floor = int(e + sp) + 1
+        ry = int(round(floor + 12 + road[x]))
+        for yy in range(min(ry, int(round(floor + 12 + road[max(0, x - 1)]))), max(ry, int(round(floor + 12 + road[max(0, x - 1)]))) + 1):
+            if yy < h: c.g[yy][x] = ":"
+        c.bare_zone.append((x, floor, x, floor + 3))
+    return (0, end)
 
 
 # The beech valley (the first place, and the last before home): open old beech wood, a stream, meadows.
@@ -297,6 +499,15 @@ place("fir_woods", "deep", 1879, 96, 64, west_y=28, east_y=36, stream_x=-1, old_
 # and a ford a way downstream.
 place("gorge", "beech", 1880, 96, 64, west_y=30, east_y=34, stream_x=-1, old_gap=1.6, old_fill=1.5, young_clumps=30,
       clearings=[(38, 31, 4), (58, 31, 4)], rocks=[(42, 24, 3), (55, 40, 3), (44, 52, 3), (70, 18, 4)], river=(48, 16))
-# The Roman ruins, for a look until their own map (issue 53): a small beech clearing with the old road through it.
-place("ruins", "beech", 1881, 40, 30, west_y=16, east_y=15, stream_x=-1, old_gap=1.6, old_fill=1.4, young_clumps=6,
+# The Roman road, for a look (leg:ruins_look): a small beech clearing with the old road through it.
+place("ruins_road", "beech", 1881, 40, 30, west_y=16, east_y=15, stream_x=-1, old_gap=1.6, old_fill=1.4, young_clumps=6,
       clearings=[], rocks=[(6, 4, 2)], ruins=20)
+# The four places of the world plan (#48, D-077): the village edge, the Roman ruins, the pass and the high ridge.
+place("village_edge", "oak", 1882, 76, 64, west_y=40, east_y=26, stream_x=56, old_gap=1.8, old_fill=1.2, young_clumps=18,
+      clearings=[(16, 40, 4)], rocks=[(64, 50, 2)], land=village_edge, north_rock=False)
+place("ruins", "beech", 1883, 76, 76, west_y=30, east_y=28, stream_x=-1, old_gap=1.7, old_fill=1.3, young_clumps=22,
+      clearings=[(14, 30, 3), (60, 26, 3)], rocks=[(12, 12, 3), (58, 10, 3), (68, 44, 2)], ruins=38, land=roman_ruins)
+place("pass", "high", 1884, 108, 44, west_y=16, east_y=14, stream_x=-1, old_gap=2.4, old_fill=0.5, young_clumps=14,
+      clearings=[], rocks=[(30, 8, 2), (62, 20, 2), (84, 9, 3)], land=the_pass)
+place("ridge", "high", 1885, 108, 76, west_y=26, east_y=26, stream_x=-1, old_gap=3.0, old_fill=0.35, young_clumps=10,
+      clearings=[], rocks=[(24, 18, 2), (46, 30, 2), (60, 16, 3), (78, 34, 2), (92, 22, 3)], land=high_ridge, edges=("west",))

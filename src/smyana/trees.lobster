@@ -7,7 +7,7 @@
 // seen. The leaves are baked once a season (their colour), behind the letter home, and kept in bake_cache/.
 
 let TREE_K = 64.0  // voxels a tile for the load of wood (baked at twice this)
-let TREE_BAKE = "trees 53"
+let TREE_BAKE = "trees 55"
 // Voxels a tile in the trees, rocks and undergrowth: one voxel is one pixel of Creel's art (WB_PX at its art scale of
 // 3), as the men's are, so they are as crisp as the men (Dominic, 2026-11-10: "evryhting crisp and sharp").
 let VOX_K = 135.7645
@@ -222,8 +222,8 @@ def vox_tree_text() -> string:
         for(files) f: t += sha256_text(f)
     return sha256_text(t)
 
-// leaves: the model's leaves alone, or its wood alone.
-def vox_tree(look:vglook, name:string, leaves:bool, cling:bool = false) -> vgrid:
+// leaves: the model's leaves alone, or its wood alone; whole: both (a sapling, one picture).
+def vox_tree(look:vglook, name:string, leaves:bool, cling:bool = false, whole:bool = false) -> vgrid:
     if not vox_feet.length: vox_feet = tokenize(read_file("../art/trees/vox/feet.txt") or "", " \n", "")
     let at = find(vox_feet): _ == name
     assert at >= 0
@@ -242,7 +242,8 @@ def vox_tree(look:vglook, name:string, leaves:bool, cling:bool = false) -> vgrid
             let idx = m.idx[i]
             let q = p + offs[k] - foot - g.lo
             // (13, 14: the leaves that cling after leaf-fall; cling: only those, on the bare twigs)
-            if leaves and idx >= (if cling: 13 else: 10): vg_set(g, vg_index(g, q.x, q.y, q.z), VG_LEAF, if idx == 10 or idx == 13: 0.5 elif idx == 11: 0.0 else: -0.6)
+            if whole: vg_set(g, vg_index(g, q.x, q.y, q.z), if idx < 10: VG_BARK else: VG_LEAF, if idx < 10: 0.0 elif idx == 10 or idx == 13: 0.5 elif idx == 11: 0.0 else: -0.6)
+            elif leaves and idx >= (if cling: 13 else: 10): vg_set(g, vg_index(g, q.x, q.y, q.z), VG_LEAF, if idx == 10 or idx == 13: 0.5 elif idx == 11: 0.0 else: -0.6)
             elif not leaves and idx < 10: vg_set(g, vg_index(g, q.x, q.y, q.z), VG_BARK, 0.0)
     return g
 
@@ -923,6 +924,8 @@ def bake_trees(between):
             between()
         for(YOUNG_KINDS) kind: tree_onto(vs, "young{kind}.bare", vox_tree(beech, "beech_young_{kind}", false), true)
         tree_onto(vs, "stump", tree_stump(beech), true)
+        tree_onto(vs, "sapling_spruce", vox_tree(spruce_look(), "spruce_sapling_0", true, false, true), true)
+        tree_onto(vs, "sapling_fir", vox_tree(fir_look(), "fir_sapling_0", true, false, true), true)
         let withered = [ float3 { 0.62, 0.42, 0.20 }, float3 { 0.48, 0.32, 0.16 }, float3 { 0.30, 0.21, 0.12 }, float3 { 0.70, 0.55, 0.30 } ]
         for(BRASH_KINDS) kind: tree_onto(vs, "brash{kind}", brash(dead_look(withered, false), kind), true)
         for(LOG_KINDS) kind: tree_onto(vs, "log{kind}", fallen_log(under_look("summer", kind, true), kind), true)
@@ -1106,7 +1109,7 @@ def bake_season(stage:string, between):
         else: tree_onto(vs, crown, whole, true, 1.5)
         between()
     for(YOUNG_KINDS) kind: tree_onto(vs, "young{kind}.{stage}", fallen(vox_tree(leaf_look("beech", season, kind + 1), "beech_young_{kind}", true), 0.55), true)
-    tree_onto(vs, "sapling.{stage}", vox_tree(leaf_look("beech", season, 0), "beech_sapling_0", true), true)
+    for(BROADLEAVES) sp: tree_onto(vs, "sapling_{sp}.{stage}", vox_tree(leaf_look(sp, season, 1), "{sp}_sapling_0", true, false, true), true)
     for(FERN_KINDS) kind: tree_onto(vs, "fern{kind}.{stage}", fern(under_look(season, kind, false), kind), true)
     for(BUSH_KINDS) kind: tree_onto(vs, "bush{kind}.{stage}", bush(under_look(season, kind + 1, false), kind), true)
     for(BRAMBLE_KINDS) kind: tree_onto(vs, "bramble{kind}.{stage}", bramble(bramble_look(season, kind), kind), true)
