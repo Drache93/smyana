@@ -1,3 +1,4 @@
 bake_cache/
 memory_leaks.txt
 __pycache__/
+sound/out/

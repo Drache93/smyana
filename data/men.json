@@ -1,10 +1,10 @@
 {
- "_doc": "The builders: one kind of man, twenty of them (docs/design.md). Creel calls a unit that gathers a 'worker'. speed 12 is about 1.2 tiles a second. range 6: the rifle. The looks are the twelve sample men in art/men/vox/samples, given out by turn; the names are placeholders (Proposal) until Dominic picks them.",
+ "_doc": "The builders: one kind of man, twenty of them (docs/design.md). Creel calls a unit that gathers a 'worker'. speed 12 is about 1.2 tiles a second. range 6 and reload 360 (18 s, data/guns.json adds up to 5 s more each time): the swallow-tail flintlock. The looks are the twelve sample men in art/men/vox/samples, given out by turn; the names are placeholders (Proposal) until Dominic picks them.",
  "count": 20,
  "unit": {
   "slot": "worker", "speed": 12, "radius": 180, "hp": 40, "pop": 1, "cost": {}, "train_time": 1,
   "tags": [ "worker" ], "age": 1, "attack": 9, "damage": "pierce", "bonus": {}, "armour": {}, "range": 6,
-  "reload": 120, "sight": 7, "look": {}
+  "reload": 360, "sight": 7, "look": {}
  },
  "names": [ "Stoyan", "Dimitar", "Georgi", "Ivan", "Petar", "Nikola", "Todor", "Vasil", "Hristo", "Angel",
             "Kostadin", "Atanas", "Iliya", "Mihail", "Stefan", "Yordan", "Lazar", "Marin", "Spas", "Boris" ],

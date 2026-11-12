@@ -164,7 +164,9 @@ The safest way to produce it is a real singer: one Rhodope-style singer recorded
 - Cart wheels on forest paths, loading and unloading.
 
 ### Weapons and combat
-- Flintlock rifle and pistol: cock, prime, shot (close and echoing across valleys), reload.
+- Flintlock rifle and pistol: cock, prime, shot (close and echoing across valleys), reload. First pass made 2026-11-12: `sound/flintlock.py`
+  (the lock and pan, the bang in four kinds of place, the far shot, the reload's sounds), played by
+  `src/smyana/gunfire.lobster`.
 - Hammers and axes as weapons, knife.
 - Ottoman soldiers: horses, distant voices in Turkish, their gunfire, a horn or drum signal.
 

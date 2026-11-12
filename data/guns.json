@@ -1,0 +1,22 @@
+{
+ "_doc": "The men's swallow-tail flintlocks (#58): read by src/smyana/guns.lobster (the sim: aim and reload times) and src/smyana/gunfire.lobster (what is seen and heard). Times in seconds. The rifle's own numbers (range, damage, the reload of 18 s) are in men.json; reload_jitter_s is added to each reload, so a full reload is 18 to 23 s. aim_s: from being told to fire to the first shot, each man his own. hang_s: from the lock falling to the charge going off (the flash in the pan, then the bang); hang_fire: one shot in so many hangs much longer. far_tiles: a shot this far from the middle of the view is heard as a far one. places: what kind of place each map is for the echo (sound/flintlock.py's wood, valley, gorge, open). air: how long the smoke hangs there and how fast it drifts, tiles a second (the wood is still, the ridge windy). reload: when in it each sound comes (a share of the reload), and ram: the share of it he spends ramming (the rod up and down).",
+ "aim_s": [ 1.0, 4.5 ],
+ "reload_jitter_s": [ 0.0, 5.0 ],
+ "hang_s": [ 0.06, 0.18 ],
+ "hang_fire": { "one_in": 12, "s": [ 0.4, 0.9 ] },
+ "far_tiles": 16,
+ "places": { "village_edge": "valley", "beech_valley": "wood", "fir_woods": "wood", "camp_clearing": "wood", "gorge": "gorge",
+             "ruins": "valley", "ruins_road": "valley", "pass": "valley", "ridge": "open" },
+ "air": {
+  "wood": { "smoke_s": 26, "drift": 0.03 },
+  "valley": { "smoke_s": 18, "drift": 0.1 },
+  "gorge": { "smoke_s": 20, "drift": 0.06 },
+  "open": { "smoke_s": 10, "drift": 0.45 }
+ },
+ "reload": [ [ 0.04, "cock" ], [ 0.14, "pour" ], [ 0.3, "pour" ], [ 0.42, "rod" ], [ 0.5, "ram" ], [ 0.62, "ram" ], [ 0.76, "rod" ], [ 0.93, "cock" ] ],
+ "ram": [ 0.46, 0.72 ],
+ "mark": {
+  "slot": "mark", "speed": 0, "radius": 250, "hp": 1000000, "pop": 0, "cost": {}, "train_time": 1, "tags": [], "age": 1,
+  "attack": 0, "damage": "pierce", "bonus": {}, "armour": {}, "range": 0, "reload": 100, "sight": 1, "look": {}
+ }
+}

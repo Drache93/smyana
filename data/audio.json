@@ -1,0 +1,19 @@
+{
+ "_doc": "The game's sounds (Creel's game/audio: sounds_load). Each is assets/audio/sfx/<name>_<take>.wav, takes played in turn; gap: seconds it won't play again within; bus: a volume in dB over it (buses). Made by sound/flintlock.py. The music is apart: data/music.json.",
+ "buses": { "Guns": 0.0, "Reload": -4.0 },
+ "sounds": {
+  "pan": { "takes": 3, "bus": "Guns" },
+  "boom_wood": { "takes": 3, "bus": "Guns" },
+  "boom_valley": { "takes": 3, "bus": "Guns" },
+  "boom_gorge": { "takes": 3, "bus": "Guns" },
+  "boom_open": { "takes": 3, "bus": "Guns" },
+  "far_wood": { "takes": 3, "bus": "Guns" },
+  "far_valley": { "takes": 3, "bus": "Guns" },
+  "far_gorge": { "takes": 3, "bus": "Guns" },
+  "far_open": { "takes": 3, "bus": "Guns" },
+  "cock": { "takes": 3, "bus": "Reload" },
+  "pour": { "takes": 3, "bus": "Reload" },
+  "rod": { "takes": 3, "bus": "Reload" },
+  "ram": { "takes": 3, "bus": "Reload" }
+ }
+}
