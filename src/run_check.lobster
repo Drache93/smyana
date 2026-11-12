@@ -136,7 +136,7 @@ let clock_before = clock_uh
 let year_before = year_m
 go_on(walk_to_gate("east"), "all the men reached the east gate")
 expect(place_now() == "fir_woods" and arrived_by == "west", "the fir woods are loaded, the men at its west edge")
-expect(u_x.length == 20, "all twenty arrived")
+expect((filter(u_owner) o: o == 0).length == 20, "all twenty arrived")
 let i1 = index_of(cutter.uid)
 expect(i1 >= 0 and u_carry[i1] == r_carry and resource_names[u_carry_kind[i1] - 1] == "wood", "the load of wood came with its man")
 expect(u_hp[index_of(men[1].uid)] == 17, "the hurt man is still hurt")
@@ -285,6 +285,7 @@ print "walking in all: {all_ticks / TICK_HZ / 60} min {all_ticks / TICK_HZ % 60}
 // the rifles (#58): on the range, twenty men told to fire at a mark go off in ones and twos, and none is ready again
 // for 18 s
 guns_load()
+threats_load()
 with_mark = true
 enter_leg("village_out", "west")
 with_mark = false
@@ -310,4 +311,119 @@ for(60 * TICK_HZ):
 expect(shortest >= 18 * TICK_HZ and shortest < 1 << 30, "a man fires again only after his reload (the quickest {shortest / TICK_HZ} s)")
 expect(first_shot.get_keys().length == 20, "all twenty men fired ({first_shot.get_keys().length})")
 expect(most_at_once <= 2, "never more than two rifles go off in one tick ({most_at_once})")
+
+// the patrol (#62, docs/threats.md): it walks its road past the men in the autumn beeches; they open fire when it is
+// close, it hears the shots, sees the men by their smoke and fights back; balls miss and hit, men fall on both sides,
+// and when half of them are down the rest fall back the way they came
+with_patrol = true
+enter_leg("beech_valley_out", "west")
+with_patrol = false
+for(u_x.length) i:
+    u_x[i] = 20 * TILE + 500 - (i % 3) * 900
+    u_y[i] = 39 * TILE + 500 + (i / 3) * 900
+    issue_cmd(0, CMD_MOVE, [ u_id[i] ], u_x[i], u_y[i], 0, 0)
+let pk = patrol_spawn(map([ 44, 30, 26, 44, 20, 70 ]) v: v * TILE + TILE / 2, 7)
+expect(pk >= 0, "a patrol is set on its road")
+var opened = false
+var states = ""
+var patrol_shots = 0
+var men_shots = 0
+var hits = 0
+var misses = 0
+var danger_seen = ""
+for(150 * TICK_HZ):
+    step()
+    let fired = guns_after_step()
+    threats_after_step(fired)
+    route_tick()
+    for(fired) id: if man_of(id): men_shots++ else: patrol_shots++
+    for(threats_landed()) l: if l.hit: hits++ else: misses++
+    let st = "{patrols[0].state}"
+    if not ends_with(states, st): states += st
+    let dz = threats_danger()
+    if dz != "" and find_string(danger_seen, dz) < 0: danger_seen += dz + " "
+    if not opened:
+        // (they open fire when the first of the patrol is within the rifle's reach of any of them)
+        for(patrol_alive(patrols[0])) pid:
+            let pi = index_of(pid)
+            for(ids_alive()) mid:
+                let mi = index_of(mid)
+                if not opened and mi >= 0 and dist2(u_x[pi], u_y[pi], u_x[mi], u_y[mi]) < 7 * TILE * 7 * TILE:
+                    opened = true
+                    guns_order(ids_alive(), pid)
+let patrol_fell = (filter(fallen) f: f.patrol).length
+print "fight: patrol states {states}, shots {men_shots} by the men and {patrol_shots} by the patrol, {hits} hits and {misses} misses, {men_killed} men and {patrol_fell} patrolmen fell, music {danger_seen}"
+expect(opened, "the men open fire on the patrol")
+expect(find_string(states, "02") >= 0 or find_string(states, "012") >= 0, "the patrol hears or sees them and fights ({states})")
+expect(patrol_shots > 0, "the patrol fires back ({patrol_shots})")
+expect(hits > 0 and misses > 0, "balls both hit and miss ({hits}, {misses})")
+expect(patrol_fell > 0, "patrolmen fall ({patrol_fell})")
+expect(find_string(danger_seen, "ottomans") >= 0, "the music turns to the patrol\'s")
+expect(patrols[0].state == P_FALLBACK or patrols[0].state == P_GONE, "the patrol breaks off ({patrols[0].state})")
+
+// the set piece in the pass (leg 8, D-076, D-077): the patrol sets out on the valley path far below the shelf, is not
+// seen from it nor sees the men up there, comes up the ramp near the east gate, and finds men who have waited on the
+// trail
+enter_leg("pass_home", "east")
+expect(not patrols.length, "no patrol in the pass when the men come in")
+for(u_x.length) i: issue_cmd(0, CMD_MOVE, [ u_id[i] ], (86 + i % 5) * TILE + 500, (22 + i / 5) * TILE + 500, 0, 0)
+var below_saw = false
+var came_up = false
+var hunted_on_shelf = false
+for(150 * TICK_HZ):
+    step()
+    threats_after_step(guns_after_step())
+    route_tick()
+    if patrols.length:
+        let lead = patrol_alive(patrols[0])
+        if lead.length:
+            let ly = u_y[index_of(lead[0])] / TILE
+            if ly > 40 and patrols[0].state == P_HUNT: below_saw = true
+            if ly < 30: came_up = true
+            if ly < 30 and patrols[0].state == P_HUNT: hunted_on_shelf = true
+expect(patrols.length == 1, "the patrol sets out after the men")
+expect(not below_saw, "from the valley path it does not see the men on the shelf")
+expect(came_up, "it comes up the ramp onto the shelf")
+expect(hunted_on_shelf, "and finds the men who waited on the trail")
+
+// the wolves (#60): in early autumn they follow the men at a distance, never close in, and a shot scatters them
+enter_leg("fir_woods_out", "west")
+expect(packs.length == 1 and pack_alive(packs[0]).length == 5, "five wolves in the fir woods")
+var closest = 1 << 30
+var bit = false
+for(90 * TICK_HZ):
+    step()
+    route_tick()
+    for(threats_landed()) l: if is_wolf(l.by): bit = true
+    for(pack_alive(packs[0])) wid: for(men_here()) mi: closest = min(closest, int(sqrt(float(dist2(u_x[index_of(wid)], u_y[index_of(wid)], u_x[mi], u_y[mi])))) / TILE)
+expect(not bit and closest >= 6, "they follow and never close in ({closest} tiles at the closest)")
+expect(threats_danger() == "wary", "the music is wary while they follow")
+let shooter = men_here()[0]
+threats_after_step([ u_id[shooter] ])
+expect(packs[0].state == W_SCATTER, "a shot scatters them")
+// in deep winter, at night, they go for a man on his own; the men fire, and when two are down the pack runs
+hour_force = 23.0
+enter_leg("fir_woods_home", "east")
+let lone = men_here()[0]
+for(men_here()) mi: if mi != lone: issue_cmd(0, CMD_MOVE, [ u_id[mi] ], u_x[mi], u_y[mi], 0, 0)
+issue_cmd(0, CMD_MOVE, [ u_id[lone] ], 70 * TILE, 62 * TILE, 0, 0)
+var hunted = false
+var wolves_bit = 0
+var fired_on = false
+for(120 * TICK_HZ):
+    step()
+    let fired = guns_after_step()
+    threats_after_step(fired)
+    route_tick()
+    for(threats_landed()) l: if is_wolf(l.by): wolves_bit++
+    if packs[0].state == W_HUNT: hunted = true
+    if hunted and not fired_on:
+        fired_on = true
+        guns_order(map(filter(men_here()) mi: mi != index_of(packs[0].prey)) mi: u_id[mi], pack_alive(packs[0])[0])
+hour_force = -1.0
+let wolves_down = (filter(fallen) f: f.beast == "wolf").length
+print "wolves: winter pack hunted {hunted}, {wolves_bit} bites, {wolves_down} wolves down, state {packs[0].state}"
+expect(hunted, "at night the winter wolves go for a man on his own")
+expect(wolves_bit > 0, "they bite him ({wolves_bit})")
+expect(packs[0].state == W_FLED or packs[0].state == W_SCATTER, "shot at, they scatter or run ({packs[0].state})")
 print (if failed: "run_check: {failed} FAILED" else: "run_check: ok")

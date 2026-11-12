@@ -21,4 +21,10 @@ for xs in (crowd.HATS, crowd.COATS, crowd.CLOAKS): rng.shuffle(xs)
 for i in range(12):
     lk, g = crowd.random_man(rng, i)
     men.write_vox(OUT + "samples/man_%02d_%s_%s_%s.vox" % (i + 1, lk["hat"], lk["coat"], lk["cloak"]), men.pieces(lk), men.POINTS)
+# the patrol (docs/threats.md): the same rig, the zaptiye's fez or turban and dark blue coat
+PATROL = [dict(hat="fez", coat="patrol", cloak="none", face="droop"), dict(hat="turban", coat="patrol", cloak="none", face="grey"),
+          dict(hat="fez", coat="patrol", cloak="none", face="grey"), dict(hat="turban", coat="blue", cloak="none", face="droop")]
+os.makedirs(OUT + "patrol", exist_ok=True)
+for i, lk in enumerate(PATROL):
+    men.write_vox(OUT + "patrol/patrol_%02d_%s_%s.vox" % (i + 1, lk["hat"], lk["face"]), men.pieces(lk), men.POINTS)
 print("ok")

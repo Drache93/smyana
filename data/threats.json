@@ -1,0 +1,39 @@
+{
+ "_doc": "What hunts the men, and how a shot lands (docs/threats.md; src/smyana/threats.lobster). Times in seconds, distances in tiles. hit: a ball hits 'near' in a hundred at 'near_tiles' or closer, falling to 'far' at the rifle's full range; the target's cover (0..100) takes off up to 'cover_halves' hundredths of that. A hit takes 'wound' hp (a man has 40: the first hit wounds him, the second kills him), or all of it at 'kill_tiles' or closer. 'wounded_pace': how fast a wounded man walks, in hundredths. hearing: how far a shot is heard, by the kind of place (data/guns.json's places). seen_after_shot_s: a man who fired is seen through his cover this long after (the smoke hangs over him). keep_s: a rifleman keeps on the one he is firing at this long after losing sight of him. men_sight: how far the men see, as the patrol's sight.",
+ "hit": { "near_tiles": 2, "near": 90, "far": 25, "cover_halves": 50, "wound": 25, "kill_tiles": 1 },
+ "wounded_pace": 55,
+ "hearing": { "wood": 22, "valley": 32, "gorge": 30, "open": 40 },
+ "seen_after_shot_s": 12,
+ "keep_s": 6,
+ "men_sight": 10,
+ "patrol": {
+  "_doc": "The Ottoman patrol (#62): zaptiye in fezzes and turbans with long flintlocks. sight: tiles on a clear day in the open (cover, night and weather cut it: route.lobster's spots). lose_s: no man seen this long, and they search the last place for search_s, then go back to their road. break_share: when fewer than this share (in a hundred) are left, they fall back the way they came. heard_spread: how far off a shot's place they guess it, tiles. The unit is the men's rifle with another slot; looks are data/voxel/bodies/patrol_NN.json; sash: their colour where the men wear red.",
+  "sight": 10,
+  "lose_s": 40,
+  "search_s": 25,
+  "break_share": 50,
+  "heard_spread": 3,
+  "sash": [ 0.2, 0.36, 0.22 ],
+  "looks": [ "patrol_01", "patrol_02", "patrol_03", "patrol_04" ],
+  "unit": {
+   "slot": "patrol", "speed": 11, "radius": 180, "hp": 40, "pop": 0, "cost": {}, "train_time": 1, "tags": [], "age": 1,
+   "attack": 9, "damage": "pierce", "bonus": {}, "armour": {}, "range": 6, "reload": 360, "sight": 10, "look": {}
+  }
+ },
+ "wolves": {
+  "_doc": "The wolves of the deep fir woods (#60). They follow the men at follow_tiles (winter's, bold, closer at follow_bold_tiles), are heard more than seen, and scatter scatter_tiles away from any shot they hear for scatter_s. At night winter's wolves rush a man who is more than alone_tiles from the next man, if one of them is within sight tiles of him (by smell: cover doesn't hide him), and draw off if he gets back within rejoined_tiles of the others. flee_after: this many down and the pack is gone. howl_s: how often one howls while they follow, at least and at most. The unit bites (melee): 10 a bite, a bite a second and a half.",
+  "follow_tiles": 15,
+  "follow_bold_tiles": 9,
+  "scatter_tiles": 14,
+  "scatter_s": 60,
+  "alone_tiles": 4,
+  "rejoined_tiles": 3,
+  "sight": 16,
+  "flee_after": 2,
+  "howl_s": [ 25, 60 ],
+  "unit": {
+   "slot": "wolf", "speed": 20, "radius": 170, "hp": 30, "pop": 0, "cost": {}, "train_time": 1, "tags": [], "age": 1,
+   "attack": 10, "damage": "melee", "bonus": {}, "armour": {}, "range": 0, "reload": 30, "sight": 12, "look": {}
+  }
+ }
+}

@@ -1,10 +1,12 @@
 // ------------------------------------------------------------------ the men, drawn
 // Each look in data/men.json is a voxel body (data/voxel/bodies/man_NN.json over its .vox in art/men/vox/samples),
 // baked by Creel's voxel module into sprites: standing and eight steps of the walk, from eight sides, and his shadow.
+// The patrol's men (data/threats.json patrol.looks, data/voxel/bodies/patrol_NN.json) are the same rig, baked after
+// the men's looks.
 
 let MEN_STEPS = 8
 let MEN_DRAW_K = 1.1 / vx_RES  // art px a baked px
-let MEN_BAKE = "men 2"         // (raise the number when the bake changes: the saved sheets are made again)
+let MEN_BAKE = "men 3"         // (raise the number when the bake changes: the saved sheets are made again)
 
 // The poses past the walk (data/voxel/gear.json has the holds): the rifle brought up and fired (its kick), held aimed,
 // and the reload's two, the rifle stood upright and the rod up, then down the barrel.
@@ -12,7 +14,8 @@ let POSE_FIRE = MEN_STEPS + 1
 let POSE_AIM = MEN_STEPS + 2
 let POSE_RAM_UP = MEN_STEPS + 3
 let POSE_RAM_DOWN = MEN_STEPS + 4
-let MEN_POSES = MEN_STEPS + 5
+let POSE_DOWN = MEN_STEPS + 5  // fallen: lying on his back where he was hit (smyana/threats.lobster)
+let MEN_POSES = MEN_STEPS + 6
 let men_looks = []::vx_unit_def
 var men_bake_s = 0.0  // how long the bake took (0: read from bake_cache/)
 
@@ -33,7 +36,7 @@ def bake_look(look:int, key:string, between):
         vx_act = if pose == POSE_FIRE or pose == POSE_AIM: "attack" else: ""
         u.gear = if pose == POSE_RAM_UP: [ "rifle_up", "ram_high" ] elif pose == POSE_RAM_DOWN: [ "rifle_up", "ram_low" ] else: [ "rifle" ]
         let ph = if pose == POSE_FIRE: 0.0 elif pose == POSE_AIM: 0.6 * 360.0 elif pose == 0 or pose > MEN_STEPS: 0.0 else: float(pose - 1) * 360.0 / float(MEN_STEPS)
-        let parts = vx_unit_prims(u, ph)
+        let parts = if pose == POSE_DOWN: map(vx_unit_prims(u, 0.0)) q: vx_lying(q) else: vx_unit_prims(u, ph)
         let sh = vx_fill(parts, vx_size_of(u), false)
         for(8) facing:
             let cell = vx_cell(sh, facing)
@@ -47,20 +50,68 @@ def bake_look(look:int, key:string, between):
     sheet_finish(s, MEN_DRAW_K, true)
     men_bake_s += seconds_elapsed() - t0
 
+// A part of him laid down on his back: turned a quarter about the across axis, his feet where he stood and his head
+// back along it (the bake puts the ground under his lowest part).
+def vx_lying(q:vx_prim) -> vx_prim:
+    def turn(v:float3) -> float3: return float3 { v.x, -v.z, v.y }
+    def at(v:float3) -> float3: return float3 { v.x, 18.0 - v.z, v.y }
+    return vx_prim { at(q.a), at(q.b), q.ra, q.rb, q.mat, q.hard, q.disc, q.box, model: q.model, mx: turn(q.mx), mz: turn(q.mz) }
+
 // The men's .vox files, as text: part of the bake's key, so a changed man is baked again.
 def men_vox_text() -> string:
-    let dir = "../art/men/vox/samples"
     var t = ""
-    let names = scan_folder(dir, false)
-    if names: for(sorted_strs(names)) n: t += n + (read_file(dir + "/" + n) or "")
+    for([ "../art/men/vox/samples", "../art/men/vox/patrol" ]) dir:
+        let names = scan_folder(dir, false)
+        if names: for(sorted_strs(names)) n: t += n + (read_file(dir + "/" + n) or "")
     return t
 
 def bake_men(between):
     vx_load([ "../data/voxel" ])
     let key = "{MEN_BAKE} {vx_RES} {sha256_text(vx_data_text() + men_vox_text())}"
-    for(gstrs(men_data, "looks")) id, look:
+    for(append(gstrs(men_data, "looks"), gstrs(gobj(lib_data("threats.json"), "patrol"), "looks"))) id, look:
         men_looks.push(vx_unit_def { id, id, float3_0, float3_0, float3_0, [], "", false, float3_0, float3_0, float3_0, nil })
         bake_look(look, key, between)
 
 // How far a man walks in one cycle of his steps, milli-tiles.
 def man_cycle() -> float: return vx_walk_cycle(men_looks[0])
+
+// ---- the beasts (docs/threats.md): a wolf for now, its body data/voxel/bodies/<id>.json. Baked as the men are:
+// standing and eight steps of its trot, and fallen on its side, from eight sides, and its shadow.
+let BEAST_DOWN = MEN_STEPS + 1
+let BEAST_POSES = MEN_STEPS + 2
+let BEAST_BAKE = "beasts 1"
+
+def beast_frame_name(id:string, pose:int, facing:int) -> string: return "{id}.{pose}.{facing}"
+def beast_shadow_name(id:string, facing:int) -> string: return "{id}.shadow.{facing}"
+
+// A beast's part laid on its right side (turned a quarter about its length).
+def vx_on_side(q:vx_prim) -> vx_prim:
+    def turn(v:float3) -> float3: return float3 { v.z, v.y, -v.x }
+    def at(v:float3) -> float3: return float3 { v.z - 12.0, v.y, -v.x }
+    return vx_prim { at(q.a), at(q.b), q.ra, q.rb, q.mat, q.hard, q.disc, q.box, model: q.model, mx: turn(q.mx), mz: turn(q.mz) }
+
+let beast_defs = dictionary<string, vx_unit_def>(4)
+
+def bake_beast(id:string, between):
+    vx_load([ "../data/voxel" ])
+    let key = "{BEAST_BAKE} {vx_RES} {sha256_text(vx_data_text() + (read_file("../data/voxel/bodies/{id}.json") or ""))}"
+    let u = vx_unit_def { id, id, float3_0, float3_0, float3_0, [], "", false, float3_0, float3_0, float3_0, nil }
+    beast_defs.set(id, u)
+    let s = sheet_new(id, key, 1024)
+    if sheet_load(s, MEN_DRAW_K): return
+    vx_set_look(u, 0)
+    vx_pat_scale = vx_RES * vx_size_of(u)
+    for(BEAST_POSES) pose:
+        vx_stand = pose == 0 or pose == BEAST_DOWN
+        let ph = if pose == 0 or pose == BEAST_DOWN: 0.0 else: float(pose - 1) * 360.0 / float(MEN_STEPS)
+        let parts = if pose == BEAST_DOWN: map(vx_unit_prims(u, 0.0)) q: vx_on_side(q) else: vx_unit_prims(u, ph)
+        let sh = vx_fill(parts, vx_size_of(u), false)
+        for(8) facing:
+            sheet_add_cell(s, beast_frame_name(id, pose, facing), vx_cell(sh, facing), vx_CELL.x, vx_box, vx_ANCHOR)
+            if pose == 0: sheet_add_cell(s, beast_shadow_name(id, facing), vx_ground_shadow(sh, facing), vx_SCELL.x, vx_sbox, vx_SANCHOR)
+        between()
+    vx_stand = false
+    sheet_finish(s, MEN_DRAW_K, true)
+
+// How far a beast walks in one cycle of its steps, milli-tiles.
+def beast_cycle(id:string) -> float: return vx_walk_cycle(beast_defs.get(id, men_looks[0]))

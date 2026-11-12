@@ -14,6 +14,7 @@ class Man:
     carry_kind:string = ""
     uid:int = 0  // his unit in the place that's loaded (ids start again in every place)
     alive:bool = true
+    wounded:bool = false  // a ball has hit him (smyana/threats.lobster): he walks slowly
 
 // What a place keeps while the men are away (per map id).
 class PlaceMemory:
@@ -34,11 +35,14 @@ var gate_names = []::string
 var gate_rects = []::[int]  // tiles: x0, y0, x1, y1
 var last_load_s = 0.0       // how long the last place took to set up, seconds
 var with_mark = false       // a second side, a mark to fire at, in every place (the range: src/smyana/guns.lobster)
+var with_patrol = false     // a second side with the patrol's unit in every place (the fight: bench, smyana/threats.lobster)
+var with_wolves = false     // and with the wolf (the wolves: bench)
 let place_memory = dictionary<string, PlaceMemory>(17)
 
 def route_load():
     route = lib_data("route.json")
     men_data = lib_data("men.json")
+    threats_load()
 
 def leg_of(id:string) -> JV: return at(at(route, "legs"), id)
 def leg_now() -> JV: return leg_of(leg_id)
@@ -158,7 +162,7 @@ def is_night() -> bool:
     let n = gobj(route, "night")
     let falls = gint(n, "from", 21)
     let ends = gint(n, "to", 5)
-    let h = (gint(route, "start_hour", 7) + clock_uh / 1000000) % 24
+    let h = if hour_force >= 0.0: int(hour_force) else: (gint(route, "start_hour", 7) + clock_uh / 1000000) % 24
     return if falls > ends: h >= falls or h < ends else: h >= falls and h < ends
 
 def clock_tick():
@@ -361,6 +365,7 @@ def enter_leg(id:string, edge:string):
     gate_names = []
     gate_rects = []
     reset_world()
+    threats_clear()
     if run_over(): return
     // (the walk here brought the season on at least to where this leg begins)
     let span = glist(leg_now(), "year")
@@ -370,11 +375,15 @@ def enter_leg(id:string, edge:string):
     let side = jobj()
     set(side, "units", jarr([ unit ]))
     let sides = [ side ]
-    if with_mark:
-        let mark = shallow_copy(at(lib_data("guns.json"), "mark"))
-        set(mark, "line", jarr([ shallow_copy(mark) ]))
+    // (a second side: the mark on the range, and the patrol where this leg has one, or on the fight: bench)
+    let theirs = []::JV
+    if with_mark: theirs.push(shallow_copy(at(lib_data("guns.json"), "mark")))
+    if with_patrol or has(leg_now(), "patrol"): theirs.push(shallow_copy(at(patrol_cfg(), "unit")))
+    if with_wolves or has(leg_now(), "wolves"): theirs.push(shallow_copy(at(wolf_cfg(), "unit")))
+    if theirs.length:
+        for(theirs) u: set(u, "line", jarr([ shallow_copy(u) ]))
         let other = jobj()
-        set(other, "units", jarr([ mark ]))
+        set(other, "units", jarr(theirs))
         sides.push(other)
     let place = place_now()
     setup_world(1878, place, sides, load_rules("smyana"), [])
@@ -399,6 +408,15 @@ def enter_leg(id:string, edge:string):
         let trail = str_index(tr_names, "trail")
         for(terrain) t, c: if t == trail: wear[c] = tr_max
     walk_in(edge)
+    // (a patrol on its road through this place, #62: "patrol": { "road": [ x, y, ... tiles ], "men": n, "after_s": s })
+    if has(leg_now(), "patrol"):
+        let pl = gobj(leg_now(), "patrol")
+        patrol_later(map(glist(pl, "road")) v: as_int(v) * TILE + TILE / 2, gint(pl, "men", 7), gint(pl, "after_s", 0))
+    // (a pack of wolves, #60: "wolves": { "at": [ x, y tiles ], "n": n, "bold": winter's })
+    if has(leg_now(), "wolves"):
+        let wl = gobj(leg_now(), "wolves")
+        let at_ = map(glist(wl, "at")) v: as_int(v) * TILE + TILE / 2
+        pack_spawn(at_[0], at_[1], gint(wl, "n", 5), gbool(wl, "bold", false))
     last_load_s = seconds_elapsed() - t0
 
 def gate_index(edge:string) -> int: return find(gate_names) n: n == edge
@@ -476,6 +494,7 @@ def mend_bridge(ids:[int], k:int) -> bool:
 def route_tick() -> string:
     run_ticks++
     clock_tick()
+    threats_tick()
     // (clearing a landslide (#20): what a man digs out he throws aside, down the slope, so he is never loaded with
     // it and digs on till the heap is gone)
     let spoil = str_index(resource_names, "spoil") + 1
@@ -490,7 +509,7 @@ def route_tick() -> string:
             let i = index_of(m.uid)
             if i >= 0:
                 let wading = terrain[cell_of(u_x[i], u_y[i])] == ford
-                u_speed[i] = max(1, t_speed[u_kind[i]] * pace / 100 * (if wading: wade_pace(u_carry[i] > 0) else: 100) / 100)
+                u_speed[i] = max(1, t_speed[u_kind[i]] * pace / 100 * (if wading: wade_pace(u_carry[i] > 0) else: 100) / 100 * wound_pace(i) / 100)
     let inside = map(gate_names): 0
     var alive = 0
     var in_any = 0

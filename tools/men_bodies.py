@@ -21,15 +21,17 @@ RIG = {
 SAMPLES = "art/men/vox/samples"
 OUT = "data/voxel/bodies"
 os.makedirs(OUT, exist_ok=True)
-for name in sorted(os.listdir(SAMPLES)):
-    m = re.match(r"(man_\d\d)_(.*)\.vox$", name)
-    if not m: continue
-    body = dict(RIG)
-    body = {"_doc": "A Smyana man (%s): written by tools/men_bodies.py, don't edit by hand." % m.group(2).replace("_", ", "), **body}
-    # Creel reads a body's model from <data>/voxel/models/: this path walks from there to the art folder, so the
-    # .vox files live in one place.
-    body["vox"] = "../../../" + SAMPLES + "/" + name
-    with open("%s/%s.json" % (OUT, m.group(1)), "w") as f:
-        json.dump(body, f, indent=1)
-        f.write("\n")
+# (the patrol's men, docs/threats.md, are the same rig in art/men/vox/patrol)
+for folder, pattern in [(SAMPLES, r"(man_\d\d)_(.*)\.vox$"), ("art/men/vox/patrol", r"(patrol_\d\d)_(.*)\.vox$")]:
+    for name in sorted(os.listdir(folder)):
+        m = re.match(pattern, name)
+        if not m: continue
+        body = dict(RIG)
+        body = {"_doc": "A Smyana %s (%s): written by tools/men_bodies.py, don't edit by hand." % ("man" if folder == SAMPLES else "patrolman", m.group(2).replace("_", ", ")), **body}
+        # Creel reads a body's model from <data>/voxel/models/: this path walks from there to the art folder, so the
+        # .vox files live in one place.
+        body["vox"] = "../../../" + folder + "/" + name
+        with open("%s/%s.json" % (OUT, m.group(1)), "w") as f:
+            json.dump(body, f, indent=1)
+            f.write("\n")
 print("ok")

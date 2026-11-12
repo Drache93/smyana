@@ -469,3 +469,43 @@ Claude chose how.) The trail and rim run across the picture, the drop is cliffs,
 the ridge stays crisp, and the riders are left unmarked so the fog takes them, with a red banner as the one accent.
 The camera stays the game's 22 degrees (D-051); nothing new was needed there. Low fog is an option in Creel, off by
 default.
+
+**D-085, 2026-11-12: Threats find the men only by their cover, and a shot gives the shooter away.** (Claude; a
+Proposal, `docs/threats.md`.) Every threat looks with the cover check (D-064). A shot is heard across the place (22
+tiles in a wood, up to 40 on the open ridge), and a man who has fired is seen through his cover for 12 seconds, while
+his smoke hangs over him. So to hide is to hold fire. Each threat has a small mind: on its way, wary (it heard
+something and comes to look), hunting (it has seen a man), gone. The music follows that state, never a timer.
+
+**D-086, 2026-11-12: A flintlock misses a lot; the first ball wounds and the second kills.** (Claude; a Proposal.) A
+ball hits nine times in ten at two tiles or closer, falling to one in four at the rifle's full range, and good cover
+halves that. A hit takes 25 of a man's 40: he is wounded and walks at 55 in a hundred; the second hit kills him, and
+one fired from a tile away kills outright. What the player sees: the ball's spray of earth (or snow) by a man it
+missed, a puff off the coat of one it hit, and the dead lying where they fell, on their backs, away from who shot
+them. No health is shown. In the first test fight about one ball in four hit.
+
+**D-087, 2026-11-12: The first threat built is the Ottoman patrol, on foot.** (Claude, following Dominic's "All that
+matters is some fighting vs people that also have guns", 2026-11-11.) Zaptiye in red fezzes, some with a turban's
+white cloth wound round it, dark blue coats with brass, a green sash where the men wear red: the men's own voxel rig
+with new looks. They walk a road, come to look at a shot they hear, fire at the men they see in their own time and
+reload as slowly, close in on the last man seen, and fall back the way they came when half are down. They only kill:
+prisoners stay open (#62). The ridge's far-off patrol is mounted (D-084); whether some of the patrol ride is open.
+
+**D-088, 2026-11-12: The men fire only when told, then keep at it.** (Claude; a Proposal.) Men told to fire go on
+firing, each at the nearest enemy he can see, until they are told to walk somewhere; a man shot at does not fire back
+by himself, so hiding is always the player's choice. When the danger ends, the end stroke plays as before (D-042),
+or, if a man fell in the fight, the short lament (track 18) in its place, once.
+
+**D-089, 2026-11-12: In the pass the patrol follows the men, and only catches men who stop.** (Claude, building D-076
+and D-077.) On leg 8, eight patrolmen set out on the valley path 30 seconds after the men come in, climb the ramp by
+the east gate and walk the trail behind them, a little slower than the men walk. So the pressure is behind you: keep
+going and they never close, stop to rest, to fell or to fight and they are on you. Fighting them from the rocks or
+the last trees is the player's choice.
+
+**D-090, 2026-11-12: The wolves are heard more than seen, and only winter's go for a man.** (Claude, from the threats
+plan, docs/threats.md; a Proposal.) A pack of five or six, a voxel wolf on Creel's rig with two pairs of legs. In
+autumn on the way out (leg 3) they follow the men at about fifteen tiles, never closing, and a shot within fourteen
+tiles scatters them for a minute; the music stays "wary" while they follow. In winter on the way home (leg 11) they
+follow closer, and at night they rush a man more than four tiles from any other, all at once, and draw off if he gets
+back to the others. Two wolves down and the pack runs. A bite wounds a man like a ball. While they follow one howls
+now and then and the others join in (every 25 to 60 seconds); a bite snarls, a ball yelps. The sounds are made from
+sine waves and noise like the flintlock's (sound/wolves.py). A lit fire keeping them off comes with the fire (#68).

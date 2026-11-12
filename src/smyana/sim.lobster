@@ -50,4 +50,5 @@ import gen.start
 import gen.reset
 import smyana.route
 import smyana.guns
+import smyana.threats
 let SMYANA_VERSION = "0.1.0"

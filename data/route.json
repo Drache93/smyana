@@ -26,6 +26,7 @@
    "exits": { "east": { "to": "fir_woods_out", "arrive": "west", "hours": 5, "letter": "first_night" } }
   },
   "fir_woods_out": {
+   "wolves": { "at": [ 60, 20 ], "n": 5 },
    "place": "fir_woods", "name": "The deep fir woods", "year": [800, 1150], "altitude": 150,
    "exits": { "east": { "to": "gorge_out", "arrive": "west", "hours": 6, "letter": "into_the_gorge" } }
   },
@@ -48,8 +49,9 @@
    "exits": { "west": { "to": "pass_home", "arrive": "east", "hours": 4, "letter": "turning_home" } }
   },
   "pass_home": {
-   "_doc": "Leg 8: the set piece (phase 2): the patrol follows the men, on the valley path far below the shelf (D-076).",
+   "_doc": "Leg 8: the set piece (phase 2): the patrol follows the men, on the valley path far below the shelf (D-076), then up the ramp near the east gate and along the trail behind them (D-077, docs/threats.md). 'patrol': its road in tiles, how many, and how long after the men come in it sets out.",
    "place": "pass", "name": "The pass, going home", "year": [1700, 1850], "altitude": 100,
+   "patrol": { "road": [ 118, 46, 104, 46, 104, 23, 80, 21, 60, 29, 40, 24, 20, 29, 11, 26 ], "men": 8, "after_s": 30 },
    "exits": { "west": { "to": "ruins_home", "arrive": "east", "hours": 5, "letter": "shelter_in_the_stones" } }
   },
   "ruins_home": {
@@ -61,6 +63,7 @@
    "exits": { "west": { "to": "fir_woods_home", "arrive": "east", "hours": 6, "letter": "through_the_snow" } }
   },
   "fir_woods_home": {
+   "wolves": { "at": [ 56, 64 ], "n": 6, "bold": true },
    "place": "fir_woods", "name": "The deep fir woods, going home", "year": [2200, 2550], "altitude": 150,
    "exits": { "west": { "to": "beech_valley_home", "arrive": "east", "hours": 5, "letter": "last_of_the_snow" } }
   },
