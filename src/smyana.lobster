@@ -155,12 +155,6 @@ let man_walked = dictionary<int, float>(64)  // milli-tiles each has walked here
 var selected = []::int
 var view_load_s = 0.0  // how long the last place took to load, the view's part included
 
-// Which trees stand in this place (the map's "wood": beech or conifer), picked per cell.
-// (deep: the high dark woods, where the trunks run up out of sight and only the understorey is a tree's whole height)
-def old_kind(wood:string, pick:int) -> string, int:
-    let sp = old_species(wood, pick)
-    return sp, pick % (if sp == "pine": PINE_KINDS else: 3)
-
 // Where the year's leaves lie thin in a broadleaf wood (x, y in mask samples): grass shows and herbs grow there.
 def open_ground(x:int, y:int) -> bool:
     return cell_hash((y / 11) * W * MASK_K + x / 11 + 6007) % 100 < 45
@@ -183,6 +177,18 @@ def build_canopy():
 // Where the soft grass grows, 0 (none) to 1 (thick), x and y in tiles: smooth drifts a few tiles across, and thin
 // single tufts between them.
 // A whole number stirred well (cell_hash's low bits march in step for numbers in a row).
+// Damp ground: water, a ford or a rock face within a tile (where the male fern grows, out of the wood too).
+def near_wet(c:int) -> bool:
+    let wet = [ str_index(tr_names, "water"), str_index(tr_names, "ford"), str_index(tr_names, "rock") ]
+    for(3) dy:
+        for(3) dx:
+            let x = c % W + dx - 1
+            let y = c / W + dy - 1
+            if x >= 0 and y >= 0 and x < W and y < H:
+                let t = terrain[y * W + x]
+                if t == wet[0] or t == wet[1] or t == wet[2]: return true
+    return false
+
 def mixed(n:int) -> int:
     var v = (n + 0x9E3779B9) & 0xFFFFFFFF
     v = ((v ^ (v >> 16)) * 0x45D9F3B) & 0xFFFFFFFF
@@ -210,7 +216,6 @@ def build_props():
     let debris_t = str_index(tr_names, "rubble")
     props_version = map_version
     let wood = place_wood()
-    let pines = gint(su_map, "pines", 1) != 0
     let crags = gint(su_map, "crags", 1) != 0
     let trail_t = str_index(tr_names, "trail")
     let water_t = str_index(tr_names, "water")
@@ -227,9 +232,9 @@ def build_props():
         // (not dead centre: a wood isn't planted in rows)
         let off = gp(float((c % W) * 1000 + 500 + (h % 400) - 200), float((c / W) * 1000 + 500 + ((h / 400) % 400) - 200))
         if t == old:
-            let sp0, k = old_kind(wood, h / 7)
-            // (a place can say it has no pines among its beeches, "pines": 0: the mock-up's clearing has none)
-            let sp = if (sp0 == "pine" or sp0 == "bpine") and not pines: "beech" else: sp0
+            // (which kind by the place's rules for evergreens, D-108; a place can say it has no pines, "pines": 0)
+            let sp = old_tree_at(c)
+            let k = species_pick(c) % (if sp == "pine": PINE_KINDS else: 3)
             props.push(Prop { 0, k, "{sp}{k}", sp, off, c })
         elif t == young:
             let fir = not broadleaved(wood) and ((h / 7) % 4 != 0 or gint(su_map, "spruce", 0) == 1)
@@ -278,11 +283,15 @@ def build_props():
             if by_rock and y >= 0: props.push(Prop { 4, 0, "slabs{(h / 7) % SLAB_KINDS}", "", off, c })
         if t == grass:
             // the undergrowth (#8): bracken in drifts, a bush here and there, now and then a fallen trunk
-            let drift = bracken_drift(c)
             let h2 = cell_hash(c + 40507)
-            if bracken_at(c): props.push(Prop { 5, 0, "fern{h2 % FERN_KINDS}", "", off, c })
-            if drift and h2 % 7 < 3:
-                props.push(Prop { 5, 0, "fern{(h2 / 3) % FERN_KINDS}", "", centre + iso(float((h2 / 11) % 700) - 350.0, float((h2 / 17) % 700) - 350.0), c })
+            // (bracken: a patch of it covers the tile, in drifts out in the light)
+            if bracken_at(c): props.push(Prop { 5, 0, "fern{h2 % FERN_KINDS}", "", centre + iso(float((h2 / 11) % 300) - 150.0, float((h2 / 17) % 300) - 150.0), c })
+            // (male ferns: in groups of a few, only in the shade and the damp, under the wood, by water, at a rock's foot)
+            let damp = near_wet(c)
+            if (shade_at(c) >= 9 or damp) and woods_field(c % W, c / W, 3.0, 5113) > (if damp: 0.45 else: 0.6):
+                for(1 + h2 % 3) k:
+                    let hk = mixed(c * 7 + k + 31)
+                    props.push(Prop { 5, 0, "malefern{(hk / 5) % MALE_FERN_KINDS}", "", centre + iso(float((hk / 11) % 800) - 400.0, float((hk / 13) % 800) - 400.0), c })
             // (soft grass: pale tufts standing out of the leaves in drifts a few tiles across, thick at a drift's
             // middle and thinning to single tufts at its edge; a low herb here and there among them)
             var shading = 0
@@ -316,6 +325,12 @@ def build_props():
             let hb = mixed(c + 88001)
             if shading >= 1 and shading <= 4 and hb % 100 < (if thicket: 45 else: 3):
                 props.push(Prop { 5, 0, "bramble{(hb / 100) % BRAMBLE_KINDS}", "", gp(float((c % W) * 1000 + (hb / 1000) % 1000), float((c / W) * 1000 + (hb / 1000000) % 1000)), c })
+            // dog roses (D-106): in the wood's mantle, where a tree or two gives half shade, and now and then out in
+            // the meadow, a few together
+            let hr = mixed(c + 270001)
+            let roses = woods_field(c % W, c / W, 4.0, 6007) > 0.55
+            if shading <= 5 and hr % 1000 < (if roses and shading >= 1: 140 elif roses: 35 else: 6):
+                props.push(Prop { 5, 0, "rose{(hr / 1000) % ROSE_KINDS}", "", gp(float((c % W) * 1000 + (hr / 10000) % 1000), float((c / W) * 1000 + (hr / 10000000) % 1000)), c })
             if (h2 / 100) % 100 >= 90 and (h2 / 100) % 100 < 94:
                 // (a sapling of the wood's own kinds, #98)
                 let r = (h2 / 10000) % 10
@@ -665,10 +680,14 @@ def sun_from_data():
     let elev = gfloat(sun, "elevation", 48.0)
     VM_SUN = float3 { -elev, VM_SUN.y, 0.0 }
     let view = euler(VM_VIEW)
-    let d = light_along(VM_SUN)  // where the light goes; on the screen, the way the shadows fall
-    let fall = normalize(float2 { dot(d, view.x), -dot(d, view.y) })
-    // the men's shadows the same way (their baker's ground is x right, y away, seen at 30 degrees: half as deep)
-    let toward = normalize(float2 { -fall.x, 2.0 * fall.y })
+    let d = light_along(VM_SUN)  // where the light goes
+    // (on the screen, the way the shadows fall: the light's way along the ground, as the trees' baker lays them; the
+    // light's own way, with its fall from the sky in it, pointed elsewhere, and the men's shadows went another way from
+    // the trees', Dominic 2026-11-12)
+    let fall = normalize(float2 { dot(float3 { d.x, 0.0, d.z }, view.x), -dot(float3 { d.x, 0.0, d.z }, view.y) })
+    // the men's shadows the same way (their baker's ground is x right, y away, seen at the camera's elevation: its
+    // depth shrunk by the sine of it, not the half of the old 30 degrees)
+    let toward = normalize(float2 { -fall.x, fall.y / sin(vx_ELEV) })
     vx_SUN = normalize(float3 { toward.x, toward.y, tan(elev) })
     atmo_sun_dir = normalize(float2 { -fall.x, fall.y })  // (towards the sun, y up)
     // crisp art (Dominic: "evryhting crisp and sharp" in the mock-ups): little jitter in the voxels' light, and a leaf's
@@ -678,7 +697,7 @@ def sun_from_data():
     // (a model's own shadow, exact to a voxel: a crown shades its boughs and trunk; and how deep that shade is)
     vg_sun_shadow = gint(sun, "self_shadow", 1) != 0
     vg_shade = gfloat(sun, "self_shade", 0.4)
-    bake_light = "sun {elev} {vg_dither} {vg_leaf_tones} {vg_sun_shadow} {vg_shade}"
+    bake_light = "sun {elev} {vg_dither} {vg_leaf_tones} {vg_sun_shadow} {vg_shade} fall {int(fall.x * 1000.0)} {int(fall.y * 1000.0)}"
     // (Dominic, 2026-11-11: "concerned the men look a little pixelated". At a zoom between whole numbers every art px
     // drawn the same size, crisp, not two screen px and then three; look option even:0 shows it without)
     sprite_even = arg_of("even") != "0"
@@ -768,6 +787,11 @@ def mood_tick():
     weather_light(wkind, float(wstep) / 24.0)
     // (and the place's own air, the map's "light", the same way: the high ridge looks out over a valley full of air, D-084)
     light_add(gobj(su_map, "light"), 1.0)
+    // (the painter's softening over the whole picture, whatever the hour: atmosphere.json's "paint", or paint:<0..1>
+    // for a look at it; Dominic, 2026-11-12: "Try making this a bit more watercolour")
+    if atmo_on:
+        let pi = find(ATMO_OPT) n: n == "paint"
+        if pi >= 0: atmo_opt[pi] = if arg_of("paint") != "": string_to_float(arg_of("paint")) else: gfloat(atmo_data, "paint", 0.0)
 
 // What the weather does to the light (#15: "weather changes the mood"): atmosphere.json's "weather" gives, for mist,
 // rain and snow, how much each of a mood's numbers moves at the weather's full strength (added to whatever the hour
@@ -801,6 +825,28 @@ class Drawable:
 
 var draws = []::Drawable
 var fires = []::float2  // the camp's fires, art px: where each one's foot is (draw_fire)
+var fires_look = false  // (the camp option's fire, for a look: kept, not the camps')
+// The fire's light on what stands round it (Dominic, 2026-11-12: "should be over the men, creating shadow and light on
+// them"): each man near a lit fire is lit on his side toward it, and casts a shadow on the ground away from it.
+class FireLit:
+    f:int        // his frame
+    p:float2     // his foot, art px
+    to:float2    // toward the fire on the picture (unit)
+    away:float2  // away from it on the ground (unit, the map's milli)
+    tiles:float  // how far from it on the ground
+    k:float      // how much of its light reaches him
+    up:bool      // standing (his shadow falls away from it); lying, none
+    upto:float   // art px above its foot the light reaches (a tree's trunk, not its crown)
+var fire_lits = []::FireLit
+let FIRE_LIGHT_TILES = 5.5  // how far the fire's light reaches a man
+class Breath:
+    p:float2     // his head, art px
+    phase:float  // his own breathing, seconds
+    every:float  // a breath every so many seconds: the colder the more often it shows
+var breaths = []::Breath
+let PATCH_LOOKS = [ "mushrooms", "nuts", "berries_blue", "berries_red", "herbs", "greens", "pears" ]
+var patch_cells = []::int  // the patches of what the wood gives (smyana/forage.lobster), looked for again now and then
+var patch_tick = -1000
 var view_lo = float2_0
 var view_hi = float2_0
 
@@ -923,6 +969,13 @@ def collect_men(alpha:float):
             if not moving and u_task[i] == GATHER and u_target[i] >= 0:
                 let nd = dir_of(iso(float((u_target[i] % W) * 1000 + 500) - x, float((u_target[i] / W) * 1000 + 500) - y))
                 if nd >= 0: d = nd
+            // (standing in a camp, he faces its fire)
+            if m and not moving:
+                let k = camp_of(i)
+                if k >= 0:
+                    let fx, fy = camp_xy(k)
+                    let fd = dir_of(iso(float(fx) - x, float(fy) - y))
+                    if fd >= 0: d = fd
             // (his rifle: aimed at what he was told to fire at, fired, or being loaded again)
             let foe = if u_foe[i] != 0: index_of(u_foe[i]) else: -1
             let gun = gun_pose(u_id[i], moving, foe >= 0)
@@ -932,10 +985,28 @@ def collect_men(alpha:float):
             man_dir.set(u_id[i], d)
             let step = int(man_walked.get(u_id[i], 0.0) / man_cycle() * float(MEN_STEPS)) % MEN_STEPS
             let facing = (d + 2) % 8
-            let p = gp(x, y)
+            var p = gp(x, y)
             add_lift = lift_at(x, y) * 1.5
-            add(frame_at.get(man_shadow_name(look, facing), -1), p.x, p.y, p.y - 0.5, float4_1, 1.0, 1)
-            add(frame_at.get(man_frame_name(look, if gun >= 0: gun elif moving: 1 + step else: 0, facing), -1), p.x, p.y, p.y, if m: SASH else: patrol_sash(), 1.0, 4)
+            // (his needs, read off him (docs/survival.md, #73): asleep he lies with his feet to the fire, cold he
+            // shivers when he stands, and his breath shows in the cold, the colder the more often)
+            if m and is_asleep(m.uid):
+                var fire = gp(x + 1000.0, y)
+                for(fires) f: if magnitude(f - p) < magnitude(fire - p): fire = f
+                let fd = dir_of(fire - p)
+                let lf = frame_at.get(man_frame_name(look, POSE_DOWN, (max(0, fd) + 2) % 8), -1)
+                add(lf, p.x, p.y, p.y - 0.4, SASH, 1.0, 4)
+                fire_light_man(lf, p, p.y - 0.39, false)
+                eyes.push(p - float2 { 0.0, 6.0 })
+                continue
+            if m and not moving and m.warm < 30000 and (int(gl.time() * 14.0) + u_id[i]) % 3 == 0: p.x += if (int(gl.time() * 14.0) / 3 + u_id[i]) % 2 == 0: 1.0 else: -1.0
+            if m:
+                let chill = max(35 - air_warmth(), (40000 - m.warm) / 1000)
+                if chill > 0: breaths.push(Breath { p - float2 { 0.0, 19.0 }, float(u_id[i] % 13) * 0.37, max(1.8, 4.2 - float(chill) * 0.06) })
+            // (by the fire at dark, his shadow is the fire's, thrown behind him: not the sky's)
+            if not (fire_dark() > 0.4 and fire_reach_k(p) > 0.05): add(frame_at.get(man_shadow_name(look, facing), -1), p.x, p.y, p.y - 0.5, float4_1, 1.0, 1)
+            let mf = frame_at.get(man_frame_name(look, if gun >= 0: gun elif moving: 1 + step else: 0, facing), -1)
+            add(mf, p.x, p.y, p.y, if m: SASH else: patrol_sash(), 1.0, 4)
+            fire_light_man(mf, p, p.y + 0.01, true)
             feet.push(float3 { p.x, p.y, 2.2 })
             if u_carry[i] > 0: add(frame_at.get("load.wood", -1), p.x + 3.0, p.y - 27.0, p.y + 0.1, float4_1, 1.0, 2)
             eyes.push(p - float2 { 0.0, 16.0 })
@@ -1068,10 +1139,28 @@ def draw_world(alpha:float):
     view_hi = from_screen(ws) + float2_1
     draws = []
     feet = []
+    breaths = []
+    fire_lits = []
+    if not fires_look: fires = map(fires_lit()) cp: gp(float(cp.x), float(cp.y))
     collect_men(alpha)
     collect_props()
+    collect_patches()
     draws.push(Drawable { -39990.0, draws.length, -6, 0.0, 0.0, float4_1, 1.0, 3, 0.0, 0.0 })  // the feet: on the ground, over its shadows
     draws.push(Drawable { -30000.0, draws.length, -4, 0.0, 0.0, float4_1, 1.0, 3, 0.0, 0.0 })  // the rings: on the ground, over the shadows
+    // (what stands near a fire, the trunks, tents and beasts: lit on its side toward it, up to a man's height or two)
+    if fires.length and atmo_on:
+        let n0 = draws.length
+        for(n0) n:
+            let d = draws[n]
+            if d.f >= 0 and (d.kind == 0 or d.kind == 2) and d.fade >= 1.0 and d.lean == 0.0:
+                var near = false
+                for(fires) fp: if magnitude(iso_inv(float2 { d.x, d.ay } - fp)) > 300.0: near = true
+                if near:
+                    add_lift = d.lift
+                    fire_light_man(d.f, float2 { d.x, d.ay }, d.y - d.lift + 0.01, false, 70.0)
+        add_lift = 0.0
+    if fires.length and atmo_on: draws.push(Drawable { -39996.0, draws.length, -11, 0.0, 0.0, float4_1, 1.0, 3, 0.0, 0.0 })  // the fire's light on the ground
+    if fire_lits.length: draws.push(Drawable { -39995.0, draws.length, -10, 0.0, 0.0, float4_1, 1.0, 3, 0.0, 0.0 })          // the fire's shadows
     for(fires) p, i:
         // (the fireplace: its ring of stones, its logs and the tripod with the cauldron; the flames are the game's own)
         add(frame_at.get("fireplace.shadow", -1), p.x, p.y, -39997.0, float4_1)
@@ -1228,6 +1317,22 @@ def draw_world(alpha:float):
                         flush_sprites()
                         draw_mark(d.x, d.ay)
                         b_sheet = -1
+                    elif d.f == -8:
+                        flush_sprites()
+                        draw_patch(d.x, d.ay, int(d.col.x), int(d.col.y))
+                        b_sheet = -1
+                    elif d.f == -9:
+                        flush_sprites()
+                        draw_fire_lit(int(d.x))
+                        b_sheet = -1
+                    elif d.f == -11:
+                        flush_sprites()
+                        draw_fire_pools()
+                        b_sheet = -1
+                    elif d.f == -10:
+                        flush_sprites()
+                        draw_fire_shadows()
+                        b_sheet = -1
                     elif shading and d.kind == 1: pass()
                     elif d.fade < 1.0: sprite_faded(d.f, d.x, d.ay, d.col, d.fade)
                     elif d.lean != 0.0: sprite_leaning(d.f, d.x, d.ay, d.col, d.lean)
@@ -1363,6 +1468,97 @@ def draw_weather():
 // The camp's fires (for now only for a look: the camp option lights one among the men at dusk): the fireplace's model,
 // flames drawn unlit, a glow each in the light (atmosphere.json's "glows": "building_fire"), and a thread of smoke.
 
+// A man's breath in the cold air (docs/survival.md): a little pale cloud at his mouth now and then, rising and gone.
+// Drawn over the lit world, in the art's pixels, a cool grey that shows on a dark coat and on the night.
+def draw_breaths():
+    if not breaths.length: return
+    gl.set_shader("color")
+    let t = gl.time()
+    for(breaths) b:
+        let u = ((t + b.phase) % b.every) / 1.6
+        if u < 1.0:
+            let a = 0.7 * (1.0 - u) * min(1.0, u * 5.0)
+            let w = floor(3.0 + u * 4.0)
+            let at = to_screen(float2 { floor(b.p.x + 2.0 + u * 4.0), floor(b.p.y - u * 5.0) })
+            gl.color(float4 { 0.78, 0.8, 0.86, a }):
+                gl.translate(floor(at)): gl.rect(float2 { w, max(1.0, w - 2.0) } * zoom)
+                gl.translate(floor(at + float2 { zoom, -zoom })): gl.rect(float2 { max(1.0, w - 2.0), 1.0 } * zoom)
+                gl.translate(floor(at + float2 { zoom, (w - 2.0) * zoom })): gl.rect(float2 { max(1.0, w - 2.0), 1.0 } * zoom)
+
+// The patches the wood gives (docs/survival.md, #66): drawn on the ground among everything else, so the light and the
+// season's dark fall on them too.
+def collect_patches():
+    if tick - patch_tick >= 40 or tick < patch_tick:
+        patch_cells = forage_patches()
+        patch_tick = tick
+    for(piles) pl:
+        let p = gp(float(pl.x), float(pl.y))
+        if p.x > view_lo.x and p.x < view_hi.x and p.y > view_lo.y and p.y < view_hi.y:
+            draws.push(Drawable { p.y + 1.0, draws.length, -8, p.x, p.y, float4 { -1.0, float(pl.food + pl.goods), 0.0, 0.0 }, 1.0, 3, 0.0, 0.0 })
+    let finds = forage_finds()
+    for(patch_cells) c:
+        let k = patch_at(c)
+        if k >= 0:
+            let p = gp(float((c % W) * 1000 + 500), float((c / W) * 1000 + 500))
+            if p.x > view_lo.x and p.x < view_hi.x and p.y > view_lo.y and p.y < view_hi.y:
+                let look = find(PATCH_LOOKS) l: l == gstr(finds[k], "look", "")
+                draws.push(Drawable { p.y + 6.0, draws.length, -8, p.x, p.y, float4 { float(look), float(c), 0.0, 0.0 }, 1.0, 3, 0.0, 0.0 })
+
+// One patch, a few pixels of the art about its foot (x, y art px): pale mushroom caps, fallen nuts and husks, a
+// fruiting tuft, flowering sprigs. Spread over a stretch of ground and pale against the litter, so it can be found.
+def draw_patch(x:float, y:float, look:int, cell:int):
+    gl.set_shader("color")
+    def px(dx:float, dy:float, w:float, h:float, c:float4):
+        gl.color(c): gl.translate(float2 { floor(x) + dx, floor(y) + dy }): gl.rect(float2 { w, h })
+    def spot(n:int) -> float2: return float2 { float(cell_hash(cell * 7 + n) % 29) - 14.0, float(cell_hash(cell * 13 + n) % 13) - 6.0 }
+    let leaf = float4 { 0.22, 0.36, 0.17, 1.0 }
+    let shade = float4 { 0.08, 0.06, 0.04, 0.6 }
+    if look < 0:  // a pile of packs: tied sacks and a bundle, more of them the more there is (cell: how much)
+        for(clamp(cell / 6 + 1, 1, 6)) n:
+            let o = float2 { float(n % 3) * 5.0 - 5.0, float(n / 3) * -3.0 }
+            px(o.x - 2.0, o.y + 1.0, 6.0, 1.0, shade)
+            px(o.x - 2.0, o.y - 4.0, 5.0, 5.0, float4 { 0.55, 0.45, 0.32, 1.0 })
+            px(o.x - 1.0, o.y - 5.0, 3.0, 1.0, float4 { 0.64, 0.54, 0.4, 1.0 })
+            px(o.x, o.y - 6.0, 1.0, 1.0, float4 { 0.3, 0.2, 0.12, 1.0 })
+            px(o.x - 2.0, o.y - 2.0, 5.0, 1.0, float4 { 0.42, 0.33, 0.22, 1.0 })
+        return
+    if look == 0:  // mushrooms: pale stems under cream and brown caps, in a ring
+        for(7) n:
+            let o = spot(n)
+            px(o.x - 1.0, o.y, 4.0, 1.0, shade)
+            px(o.x, o.y - 2.0, 2.0, 2.0, float4 { 0.94, 0.91, 0.82, 1.0 })
+            px(o.x - 1.0, o.y - 4.0, 4.0, 2.0, if n % 3 == 0: float4 { 0.62, 0.4, 0.22, 1.0 } else: float4 { 0.9, 0.84, 0.68, 1.0 })
+            px(o.x, o.y - 5.0, 2.0, 1.0, float4 { 0.7, 0.5, 0.3, 1.0 })
+    elif look == 1:  // nuts: split pale husks and dark nuts scattered on the litter
+        for(12) n:
+            let o = spot(n)
+            px(o.x, o.y + 1.0, 3.0, 1.0, shade)
+            px(o.x, o.y - 1.0, 3.0, 2.0, float4 { 0.86, 0.76, 0.55, 1.0 })
+            px(o.x + 1.0, o.y - 1.0, 1.0, 1.0, float4 { 0.3, 0.18, 0.09, 1.0 })
+    elif look == 2 or look == 3:  // a fruiting tuft: low leaves, dark blue or red berries
+        let berry = if look == 2: float4 { 0.24, 0.26, 0.56, 1.0 } else: float4 { 0.85, 0.14, 0.1, 1.0 }
+        for(3) t:
+            let o = spot(t + 20)
+            px(o.x - 5.0, o.y + 1.0, 11.0, 1.0, shade)
+            px(o.x - 5.0, o.y - 2.0, 11.0, 3.0, leaf)
+            px(o.x - 3.0, o.y - 4.0, 7.0, 2.0, leaf)
+            for(5) n: px(o.x + float(cell_hash(cell + n + t * 9) % 10) - 5.0, o.y + float(cell_hash(cell * 3 + n + t) % 4) - 4.0, 1.0, 1.0, berry)
+    elif look == 4:  // herbs: green sprigs with white flower heads
+        for(9) n:
+            let o = spot(n)
+            px(o.x, o.y - 4.0, 1.0, 4.0, float4 { 0.36, 0.52, 0.24, 1.0 })
+            px(o.x - 1.0, o.y - 6.0, 3.0, 2.0, float4 { 0.95, 0.93, 0.84, 1.0 })
+    elif look == 5:  // greens: low bright tufts
+        for(4) n:
+            let o = spot(n)
+            px(o.x - 4.0, o.y - 2.0, 9.0, 2.0, float4 { 0.4, 0.62, 0.22, 1.0 })
+            px(o.x - 2.0, o.y - 4.0, 5.0, 2.0, float4 { 0.5, 0.72, 0.3, 1.0 })
+    elif look == 6:  // pears: small yellow fruit fallen under the tree
+        for(6) n:
+            let o = spot(n)
+            px(o.x, o.y - 2.0, 3.0, 2.0, float4 { 0.84, 0.76, 0.28, 1.0 })
+            px(o.x + 1.0, o.y - 3.0, 1.0, 1.0, float4 { 0.36, 0.24, 0.12, 1.0 })
+
 // The mark on the range: a pale board with a dark ring, nailed to a post (art px, its foot at x, y).
 def draw_mark(x:float, y:float):
     gl.set_shader("color")
@@ -1392,6 +1588,129 @@ def draw_fire(i:int):
             let u = (t * 0.35 + float(k) / 6.0) % 1.0
             gl.color(float4 { 0.62, 0.6, 0.58, 0.28 * (1.0 - u) }):
                 gl.translate(float2 { sin(u * 200.0 + float(i) * 40.0) * 3.0 + u * 10.0 - 2.0, -12.0 - u * 46.0 }): gl.rect(float2 { 3.0 + u * 7.0, 3.0 + u * 5.0 })
+
+// How dark it is for the fire's light (0 by day .. 1 at night), from the mood's glow.
+def fire_dark() -> float: return clamp((atmo_num("glow") - 1.1) / 1.1, 0.0, 1.0)
+
+// How much of the nearest fire's light reaches p (art px): 1 at it, 0 at FIRE_LIGHT_TILES.
+def fire_reach_k(p:float2) -> float:
+    var best = 0.0
+    for(fires) fp: best = max(best, clamp(1.0 - magnitude(iso_inv(p - fp)) / 1000.0 / FIRE_LIGHT_TILES, 0.0, 1.0))
+    return best
+
+// A man at p (art px) drawn with frame f, sorted at sort_y: lit by the nearest fire if he is in its reach.
+def fire_light_man(f:int, p:float2, sort_y:float, up:bool, upto:float = 1000.0):
+    if not atmo_on or f < 0 or not fires.length: return
+    var best = 0.0
+    var at = float2_0
+    var g = float2_0
+    for(fires) fp:
+        let w = iso_inv(p - fp)
+        let k = clamp(1.0 - magnitude(w) / 1000.0 / FIRE_LIGHT_TILES, 0.0, 1.0)
+        if k > best:
+            best = k
+            at = fp
+            g = w
+    if best <= 0.0: return
+    let night = 0.2 + 0.5 * fire_dark()                             // (by day the sun drowns it; at night it's all there is)
+    let to = at - float2 { 0.0, 6.0 } - (p - float2 { 0.0, 12.0 })  // (flame to chest)
+    let tiles = magnitude(g) / 1000.0
+    fire_lits.push(FireLit { f, p, if magnitude(to) > 0.01: normalize(to) else: float2 { 0.0, 1.0 },
+                             if tiles > 0.01: normalize(g) else: float2 { 1.0, 1.0 } / sqrt(2.0), tiles, pow(best, 1.4) * night, up, upto })
+    draws.push(Drawable { sort_y + add_lift, draws.length, -9, float(fire_lits.length - 1), 0.0, float4_1, 1.0, 3, 0.0, add_lift })
+
+// A frame placed as sprite() places it, each corner's colour its place in the frame (0..1 across, 0..1 down).
+def fire_quad(f:int, x:float, y:float):
+    let fr = frames[f]
+    let at = sprite_sheet(fr)
+    let x0 = floor(x * sprite_snap) / sprite_snap - float(fr.ox) * fr.k
+    let y0 = floor(y * sprite_snap) / sprite_snap - float(fr.oy) * fr.k
+    let s = sheet_dims[b_sheet]
+    let n = b_pos.length
+    for([ float2 { 0.0, 0.0 }, float2 { 1.0, 0.0 }, float2 { 1.0, 1.0 }, float2 { 0.0, 1.0 } ]) c:
+        b_pos.push(float3 { x0 + c.x * float(fr.w) * fr.k, y0 + c.y * float(fr.h) * fr.k, 0.0 })
+        b_tc.push((at + c * float2 { float(fr.w), float(fr.h) }) / s)
+        b_col.push(float4 { c.x, c.y, 0.0, 1.0 })
+    for([ n, n + 2, n + 1, n, n + 3, n + 2 ]) k: b_idx.push(k)
+
+// The fire's light on a man: his frame again, added over him, warm on the side toward the fire, brightest on the edge
+// facing it, and on his front when the fire is before him; his back is left dark when it's behind him.
+def draw_fire_lit(n:int):
+    let fl = fire_lits[n]
+    let fr = frames[fl.f]
+    gl.blend(blend_add)
+    sprite_shader = "smyana_fire_lit"
+    gl.set_shader(sprite_shader)
+    gl.set_uniform("to", fl.to)
+    gl.set_uniform("k", fl.k)
+    gl.set_uniform("mid", float(fr.ox) / float(max(1, fr.w)))
+    gl.set_uniform("team", float3 { SASH.x, SASH.y, SASH.z })
+    gl.set_uniform("up", if fl.up or fl.upto < 1000.0: 1.0 else: 0.0)
+    // (texels of the frame from its top down to where the light stops, and to its foot)
+    gl.set_uniform("upto", float2 { (float(fr.oy) - fl.upto / fr.k) / float(max(1, fr.h)), float(fr.oy) / float(max(1, fr.h)) })
+    fire_quad(fl.f, fl.p.x, fl.p.y)
+    flush_sprites()
+    sprite_shader = "sprite"
+    gl.blend(blend_alpha)
+
+// The fire's light on the ground round it, out to FIRE_LIGHT_TILES: brightest at the stones, falling off as the
+// square of the way out, flickering with the flames. Drawn under what stands, so a man's shadow from it (and the man
+// himself) is laid over it, as light on the ground should be.
+def draw_fire_pools():
+    let night = 0.15 + 0.45 * fire_dark()
+    let t = gl.time()
+    let rings = 7
+    let sides = 40
+    var pos = []::float3
+    var col = []::float4
+    var idx = []::int
+    for(fires) fp, i:
+        let flick = 0.9 + 0.06 * sin((t * 9.0 + float(i) * 3.1) * 57.29578) + 0.04 * sin((t * 23.0 + float(i)) * 57.29578)
+        let c0 = pos.length
+        pos.push(float3 { fp.x, fp.y - 1.0, 0.0 })
+        col.push(float4 { 0.8, 0.38, 0.12, 1.0 } * (night * flick))
+        for(rings) r:
+            let u = float(r + 1) / float(rings)
+            let k = pow(1.0 - u, 1.6)
+            for(sides) a:
+                let ang = float(a) * 360.0 / float(sides)
+                let w = iso(cos(ang), sin(ang)) * (u * FIRE_LIGHT_TILES * 1000.0 * flick)
+                pos.push(float3 { fp.x + w.x, fp.y - 1.0 + w.y, 0.0 })
+                col.push(float4 { 0.8 * k, 0.38 * k, 0.12 * k, 1.0 } * (night * flick))
+        for(sides) a:
+            let b = (a + 1) % sides
+            idx.push(c0)
+            idx.push(c0 + 1 + a)
+            idx.push(c0 + 1 + b)
+            for(rings - 1) r:
+                let i0 = c0 + 1 + r * sides
+                let i1 = i0 + sides
+                for([ i0 + a, i1 + a, i1 + b, i0 + a, i1 + b, i0 + b ]) q: idx.push(q)
+    gl.blend(blend_add)
+    gl.set_shader("color_attr")
+    gl.draw_mesh("PC", pos, col, []::float3, []::float2, []::float2, idx)
+    gl.blend(blend_alpha)
+
+// Each standing man's shadow from the fire, on the ground away from it: his frame laid down from his feet, longer the
+// further he stands from the low flames, fading with the light.
+def draw_fire_shadows():
+    sprite_shader = "smyana_fire_shadow"
+    for(fire_lits) fl:
+        if fl.up:
+            let fr = frames[fl.f]
+            let along = iso(fl.away.x, fl.away.y) * 1000.0    // (a tile along the ground, away from the fire, art px)
+            let side = iso(-fl.away.y, fl.away.x) * 1000.0    // (a tile across it)
+            let len = clamp(0.5 + fl.tiles * 0.45, 0.6, 2.4)  // (tiles his shadow reaches at its head)
+            let wide = fr.k / 40.0                            // (tiles across a texel of him)
+            let h = float(max(1, fr.oy))
+            let a = side.x * wide
+            let b = side.y * wide
+            let c = -along.x * len / h
+            let d = -along.y * len / h
+            sprite_xf(fl.f, [ a, b, c, d, fl.p.x - float(fr.ox) * a - float(fr.oy) * c, fl.p.y - float(fr.ox) * b - float(fr.oy) * d ],
+                      float4 { 0.0, 0.0, 0.0, min(1.0, fl.k * 3.0) })
+    flush_sprites()
+    sprite_shader = "sprite"
 
 def fires_glow():
     if not atmo_on or not fires.length: return
@@ -1424,6 +1743,23 @@ def draw_lines(texts:[string], t:float, size:int):
             gl.color(float4 { 0.93, 0.89, 0.78, a }):
                 gl.translate(float2 { floor(ws.x / 2.0 - min(w, ws.x * 0.7) / 2.0), floor(y) }): gl.text(l)
         y += gap
+
+// The one panel left (docs/survival.md, #73): with one man chosen, his name and, under it, how he is in a few plain
+// words. Nothing for a group.
+def draw_one_man():
+    if selected.length != 1: return
+    let m = man_of(selected[0])
+    if not m: return
+    let ws = float(gl.window_size())
+    let size = int(ws.y / 40.0)
+    gl.set_shader("color")
+    gl.set_font_name("../data/fonts/OldStandard/OldStandard-Regular.ttf")
+    gl.set_font_size(size)
+    gl.color(float4 { 0.93, 0.89, 0.78, 0.9 }):
+        gl.translate(float2 { floor(ws.y * 0.03), floor(ws.y - float(size) * 3.4) }): gl.text(m.name)
+    gl.set_font_size(int(float(size) * 0.72))
+    gl.color(float4 { 0.85, 0.81, 0.7, 0.75 }):
+        gl.translate(float2 { floor(ws.y * 0.03), floor(ws.y - float(size) * 1.9) }): gl.text(man_state(m))
 
 // ------------------------------------------------------------------ the menu (#86)
 // Dominic: "Game start is slow, we want very minimal loader. The game menu should show the village (once ready - just
@@ -1545,6 +1881,14 @@ def young_tree_at(mm:float2) -> int:
         if x >= 0 and y >= 0 and x < W and y < H and (terrain[y * W + x] == young or (n == 0 and terrain[y * W + x] == heap)): return y * W + x
     return -1
 
+// The patch the mouse is on, or the one just below it (a patch is drawn a little up from its foot), or -1.
+def patch_under(mm:float2) -> int:
+    for(2) n:
+        let x = int(mm.x / 1000.0) + n
+        let y = int(mm.y / 1000.0) + n
+        if x >= 0 and y >= 0 and x < W and y < H and patch_at(y * W + x) >= 0: return y * W + x
+    return -1
+
 // The music turns with the threats (docs/threats.md): wary, then the hunting threat's own loop; when it is over, the
 // end stroke and quiet, or the lament if a man fell in it (#64).
 var danger_was = ""
@@ -1582,6 +1926,12 @@ def howl_tick(dt:float):
         else: play_sound_at("far_howl", -2.0 - (far - 12.0) * 0.25, pan * 0.6)
 
 def order_tick():
+    // C: make camp where the chosen men stand, or put its fire out, or light it again (docs/survival.md, #68)
+    if gl.button("c") == 1 and selected.length:
+        camp_order(filter(selected) id: man_of(id) != nil)
+        selected = []
+    // X: the chosen men drop their packs where they stand, to move light; at an old tree's foot it is a cache (#67, #69)
+    if gl.button("x") == 1 and selected.length: packs_drop(filter(selected) id: man_of(id) != nil)
     if gl.button("mouse2") != 1: return
     let ids = filter(selected) id: index_of(id) >= 0
     if not ids.length: return
@@ -1591,6 +1941,25 @@ def order_tick():
         guns_order(ids, u_id[foe])
         mark_t = gl.time()
         mark_at = gp(float(u_x[foe]), float(u_y[foe]))
+        return
+    // (the ruins under the mouse, off the road: study the Romans' drain beside it, #70)
+    let mc0 = clamp(int(mm.y / 1000.0), 0, H - 1) * W + clamp(int(mm.x / 1000.0), 0, W - 1)
+    if at_ruin(mc0) and study_order(ids):
+        mark_at = gp(mm.x, mm.y)
+        mark_t = gl.time()
+        return
+    // (a pile of packs under the mouse: pick it up)
+    let pile = pile_near(int(mm.x), int(mm.y))
+    if pile >= 0:
+        packs_fetch(ids, pile)
+        mark_at = gp(float(piles[pile].x), float(piles[pile].y))
+        mark_t = gl.time()
+        return
+    // (a patch of what the wood gives under the mouse: gather it)
+    let pc = patch_under(mm)
+    if pc >= 0 and forage_order(ids, pc):
+        mark_at = gp(float((pc % W) * 1000 + 500), float((pc / W) * 1000 + 500))
+        mark_t = gl.time()
         return
     let tree = young_tree_at(mm)
     // (a broken bridge under the mouse: mend it, if the chosen men carry the wood for it)
@@ -1701,6 +2070,60 @@ SHADER smyana_shade_restore
         frag_color = texelFetch(tex0, ivec2(gl_FragCoord.xy), 0);
 """, true))
 fatal(gl.load_materials(GUNFIRE_SHADERS, true))
+// (the fire's light on a man, added over him, and his shadow from it: draw_fire_lit, draw_fire_shadows)
+fatal(gl.load_materials("""
+SHADER smyana_fire_lit
+    VERTEX
+        INPUTS apos:4 atc:2 acolor:4
+        UNIFORMS mvp
+        gl_Position = mvp * apos;
+        itc = atc;
+        icolor = acolor;
+    PIXEL
+        INPUTS itc:2 icolor:4
+        UNIFORMS tex0
+        UNIFORM vec2 to
+        UNIFORM float k
+        UNIFORM float mid
+        UNIFORM float up
+        UNIFORM vec2 upto
+        UNIFORM vec3 team
+        ivec2 sz = textureSize(tex0, 0);
+        ivec2 a = ivec2(floor(itc * vec2(sz)));
+        vec4 t = texelFetch(tex0, a, 0);
+        if (t.a < 0.5) discard;
+        vec3 rgb = t.rgb;
+        if (min(t.r, t.b) - t.g > 0.22 && abs(t.r - t.b) < 0.3) rgb = team * max(t.r, t.b) * 1.08;
+        // (his edge toward the fire: here he is, a texel or two toward it he isn't)
+        ivec2 o = ivec2(round(to * 1.4));
+        float rim = (1.0 - texelFetch(tex0, a + o, 0).a) * 0.7 + (1.0 - texelFetch(tex0, a + o * 2, 0).a) * 0.3;
+        // (his side toward it, across him; all his front when it's before him, little of his back when it's behind)
+        float lat = clamp(0.5 + (icolor.r - mid) * to.x * 2.5, 0.0, 1.0);
+        float front = clamp(to.y, 0.0, 1.0);
+        float fill = mix(lat * 0.7, 1.0, front) * mix(0.25, 1.0, front * 0.5 + 0.5 * abs(to.x));
+        fill *= 0.65 + 0.35 * icolor.g;  // (his legs nearer the flames than his head)
+        if (up < 0.5) { fill = 0.4; rim *= 0.25; }  // (lying: lit all over, softly)
+        // (a tree: its trunk lit up to where the light stops, fading, and its crown above left dark)
+        float reach = smoothstep(upto.x - 0.06, upto.x + 0.06, icolor.g);
+        fill *= reach;
+        rim *= reach;
+        vec3 warm = vec3(1.0, 0.55, 0.22);
+        frag_color = vec4((rgb * 1.6 + vec3(0.05)) * warm * k * (fill * 1.1 + rim * 1.4), 0.0);
+SHADER smyana_fire_shadow
+    VERTEX
+        INPUTS apos:4 atc:2 acolor:4
+        UNIFORMS mvp
+        gl_Position = mvp * apos;
+        itc = atc;
+        icolor = acolor;
+    PIXEL
+        INPUTS itc:2 icolor:4
+        UNIFORMS tex0
+        ivec2 sz = textureSize(tex0, 0);
+        float a = texelFetch(tex0, ivec2(floor(itc * vec2(sz))), 0).a;
+        if (a < 0.5) discard;
+        frag_color = vec4(0.02, 0.01, 0.02, clamp(icolor.a * 2.8021978 * 0.55, 0.0, 0.7));
+""", true))
 pace_background = not capture
 pace(PACE_MATCH)
 lib_load("../data")
@@ -1744,6 +2167,7 @@ with_mark = arg_of("range") != ""
 with_patrol = arg_of("fight") != ""
 with_wolves = arg_of("wolves") != ""
 with_bear = arg_of("bear") != ""
+needs_kept = has_s(args, "fresh")  // fresh: the men never get hungry, cold or tired (for a look)
 run_begin()
 if arg_of("leg") != "": enter_leg(arg_of("leg"), "west")
 // range:<x>,<y>: the men in a loose line on that tile, a mark five tiles east of them, and told to fire at it, for a
@@ -1848,12 +2272,31 @@ if has_s(args, "camp") or arg_of("camp") != "":
         fires = [ cam ]
     else:
         fires = [ men_centre() + float2 { 0.0, 6.0 } ]
+    fires_look = true
 view_enter(): waiting_frame()
 // (round a camp's fire the men face it)
 for(fires) f:
     for(u_x.length) i:
         let to_fire = f - gp(float(u_x[i]), float(u_y[i]))
         if magnitude(to_fire) < 75.0 and dir_of(to_fire) >= 0: man_dir.set(u_id[i], dir_of(to_fire))
+// makecamp: the men make camp where they stand as the place opens, two of them with wood for the fire (#68, for a look)
+if has_s(args, "makecamp"):
+    let wood = str_index(resource_names, "wood") + 1
+    for(min(2, u_x.length)) n:
+        u_carry[n] = r_carry
+        u_carry_kind[n] = wood
+    camp_order(filter(u_id) id: man_of(id) != nil)
+    let fx, fy = camp_xy(0)
+    cam = gp(float(fx), float(fy))
+// droppacks: the men put their packs down where they stand as the place opens and walk on a little (#67, for a look)
+if has_s(args, "droppacks"):
+    let ids = filter(u_id) id: man_of(id) != nil
+    for(men) m: if m.alive: m.goods = 2
+    packs_drop(ids)
+    cam = gp(float(piles[0].x), float(piles[0].y))
+    for(ids) id, n: issue_cmd(0, CMD_MOVE, [ id ], piles[0].x + 3000 + (n % 4) * 700, piles[0].y + (n / 4) * 700 - 1500, 0, 0)
+// study: the men go to study the Roman drain as the place opens (#70, for a look at the ruins)
+if has_s(args, "study"): study_order(filter(u_id) id: man_of(id) != nil)
 if arg_of("look") != "":  // look:<x>,<y>: the camera on this tile
     let xy = tokenize(arg_of("look"), ",", " ")
     cam = gp(string_to_float(xy[0]) * 1000.0, string_to_float(xy[1]) * 1000.0)
@@ -2013,9 +2456,10 @@ while gl.frame():
         if phase == "letter":
             draw_lines(letter, phase_t, int(float(gl.window_size().y) / 34.0))
         elif phase == "end":
-            draw_lines([ "Home.", "{men_alive()} of {men.length} men came back." ], phase_t, int(float(gl.window_size().y) / 30.0))
+            draw_lines(tally_lines(), phase_t, int(float(gl.window_size().y) / 30.0))
         else:
             draw_world(acc / 0.05)
+            draw_breaths()
             if dragging and magnitude(mouse_px() - drag_from) > 6.0:
                 let a = drag_from
                 let b = mouse_px()
@@ -2024,6 +2468,7 @@ while gl.frame():
             veil(if phase == "arriving" or phase == "menu": 1.0 - phase_t / 1.5 elif phase == "leaving": phase_t / 1.5 else: 0.0)
             if phase != "menu": menu_alpha = max(0.0, menu_alpha - dt / 1.2)
             menu_hover = draw_title(menu_alpha, if phase == "menu": clamp((phase_t - 1.0) / 1.0, 0.0, 1.0) else: menu_alpha)
+        if phase == "play": draw_one_man()
         if debug_line:
             gl.set_shader("color")
             gl.set_font_name(FONT)

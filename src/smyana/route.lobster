@@ -15,6 +15,14 @@ class Man:
     uid:int = 0  // his unit in the place that's loaded (ids start again in every place)
     alive:bool = true
     wounded:bool = false  // a ball has hit him (smyana/threats.lobster): he walks slowly
+    fed:int = 100000      // his needs (smyana/survival.lobster, #65), thousandths of a point: 100000 fine, 0 spent
+    warm:int = 100000
+    rested:int = 100000
+    food:int = 0         // portions of food in his pack, one a day
+    goods:int = 0        // goods in his pack to take home: herbs, hides (smyana/forage.lobster)
+    fell_in:string = ""  // the place he died in (the tally: smyana/knowledge.lobster)
+    hurt_uh:int = 0      // health owed to cold and hunger, and back to sleep, in millionths of a point
+    heal_uh:int = 0
 
 // What a place keeps while the men are away (per map id).
 class PlaceMemory:
@@ -44,6 +52,7 @@ def route_load():
     route = lib_data("route.json")
     men_data = lib_data("men.json")
     threats_load()
+    survival_load()
 
 def leg_of(id:string) -> JV: return at(at(route, "legs"), id)
 def leg_now() -> JV: return leg_of(leg_id)
@@ -195,6 +204,15 @@ def ford_cold() -> int: return clamp(winter_depth() / 8 + high_water() / 40, 0, 
 // What grows on a cell is worked out from the cell's number, here in the sim, and the view draws the same thing.
 def cell_hash(c:int) -> int: return ((c * 2654435761) >> 7) & 0xFFFF
 
+// The pick of which old tree stands on cell c (old_species): its kind by a smooth field over the wood, so the trees of
+// a kind stand together in stands and families (a clump of fir among the beeches, an oak wood's hornbeams in a patch)
+// as they grow, not one of each by turns (docs/woods.md, D-102); which of its models by the cell's own hash.
+def species_pick(c:int) -> int:
+    let h = cell_hash(c) / 7
+    let f = woods_field(c % W, c / W, 5.0, 4111) * 0.85 + float(cell_hash(c + 77) % 100) / 100.0 * 0.15
+    let r = clamp(int(f * 9.0) - 1, 0, 7)  // (the field is rarely at its ends: stretched to reach every kind)
+    return h % 3 + 3 * r + 24 * ((h / 24) % 2)
+
 // Which old tree stands in a wood of this kind (the map's "wood": beech, conifer or deep, the high dark woods where
 // the trunks run up out of sight).
 def old_species(wood:string, pick:int) -> string:
@@ -202,7 +220,8 @@ def old_species(wood:string, pick:int) -> string:
     // (a pine among the beeches is a Scots pine or a black pine, half and half; the conifer woods mix spruce, silver
     // fir, Scots and black pine; in the deep woods a fir stands among the spruces' tall trunks now and then)
     let other = (pick / 24) % 2 == 1
-    var sp = if r < 4: "beech" elif r < 6: "oak" elif r < 7: "hornbeam" elif other: "bpine" else: "pine"
+    // (the beech woods of the western Rhodopes are mixed with silver fir and spruce, D-102)
+    var sp = if r < 4: "beech" elif r < 5: "oak" elif r < 6: "hornbeam" elif r < 7: (if other: "fir" else: "spruce") elif other: "bpine" else: "pine"
     if wood == "deep": sp = if r < 6: "tall" elif r < 7: (if other: "fir" else: "spruce") else: "beech"
     if wood == "conifer": sp = if r < 3: "spruce" elif r < 5: "fir" elif r < 6: "pine" elif r < 7: "bpine" else: "beech"
     // (#48, D-077: the village edge's oaks and hornbeams, a beech standing in for the lime and the wild pear; the high
@@ -218,14 +237,50 @@ def broadleaved(wood:string) -> bool: return wood == "beech" or wood == "oak"
 
 def leafy(sp:string) -> bool: return sp == "beech" or sp == "oak" or sp == "hornbeam"
 
-// The old tree on this cell (a place can say it has no pines among its beeches: "pines": 0).
-def old_tree_at(c:int) -> string:
-    let sp = old_species(place_wood(), cell_hash(c) / 7)
-    return if (sp == "pine" or sp == "bpine") and gint(su_map, "pines", 1) == 0: "beech" else: sp
+// Rock or a drop within two tiles: the dry, stony ground pines take to.
+def rocky_at(c:int) -> bool:
+    let rock = str_index(tr_names, "rock")
+    for(5) dy:
+        for(5) dx:
+            let x = c % W + dx - 2
+            let y = c / W + dy - 2
+            if x >= 0 and y >= 0 and x < W and y < H:
+                let n = y * W + x
+                if terrain[n] == rock or level[n] != level[c]: return true
+    return false
 
-// Bracken grows in drifts a few tiles across, and a little between them.
-def bracken_drift(c:int) -> bool: return cell_hash((c / W / 4) * W + (c % W) / 4 + 9001) % 8 < 3
-def bracken_at(c:int) -> bool: return cell_hash(c + 40507) % 100 < (if bracken_drift(c): 62 else: 7)
+// The old tree on this cell. Evergreens by the Rhodopes' rules (Dominic asked, 2026-11-12, D-108): the low broadleaf
+// woods have no fir or spruce ("firs": 0 in a map: the gorge and the ruins), and their few pines stand on rock; in the
+// beech-fir belt the firs and spruces stand in groups among the beeches, and the pines only on rock and crags. A place
+// can say it has no pines at all ("pines": 0).
+def old_tree_at(c:int) -> string:
+    let wood = place_wood()
+    let pick = species_pick(c)
+    let sp = old_species(wood, pick)
+    let broad = if (pick / 3) % 3 == 0: "oak" elif (pick / 3) % 3 == 1: "hornbeam" else: "beech"
+    if sp == "pine" or sp == "bpine":
+        if gint(su_map, "pines", 1) == 0: return "beech"
+        if broadleaved(wood) and not rocky_at(c): return broad
+    if (sp == "fir" or sp == "spruce") and gint(su_map, "firs", 1) == 0: return broad
+    return sp
+
+// How many old trees stand within two tiles (0 in the open to 25 deep in the wood).
+def shade_at(c:int) -> int:
+    let old = str_index(tr_names, "tree")
+    var n = 0
+    for(5) dy:
+        for(5) dx:
+            let x = c % W + dx - 2
+            let y = c / W + dy - 2
+            if x >= 0 and y >= 0 and x < W and y < H and terrain[y * W + x] == old: n++
+    return n
+
+// Bracken grows in the light, a sea of it over clearings and the wood's edges in drifts a few tiles across, and
+// little between them (docs/woods.md: never deep in the shade, where the male fern grows instead).
+def bracken_drift(c:int) -> bool: return woods_field(c % W, c / W, 4.0, 4447) > 0.58
+def bracken_at(c:int) -> bool:
+    if cell_hash(c + 40507) % 100 >= (if bracken_drift(c): 80 else: 4): return false
+    return shade_at(c) < 6
 
 // How well a man standing on this cell is hidden, 0 (in plain sight) to 100 (route.json's "cover" has the numbers).
 // The canopy is most of it: each old tree within two tiles gives some, a broadleaf by the leaves it still wears
@@ -341,6 +396,10 @@ def run_begin():
     clock_uh = 0
     year_m = gint(gobj(route, "season"), "start", 0)
     place_memory.clear()
+    survival_begin()
+    forage_begin()
+    packs_begin()
+    knowledge_begin()
     enter_leg(gstr(route, "start", ""), gstr(route, "start_edge", "west"))
 
 // Why this place is over the size budget ("" if it isn't): checked when it's loaded.
@@ -367,6 +426,10 @@ def enter_leg(id:string, edge:string):
     gate_rects = []
     reset_world()
     threats_clear()
+    survival_enter()
+    forage_enter(place_now())
+    packs_enter(place_now())
+    knowledge_enter()
     if run_over(): return
     // (the walk here brought the season on at least to where this leg begins)
     let span = glist(leg_now(), "year")
@@ -394,6 +457,7 @@ def enter_leg(id:string, edge:string):
     for(gs.keys) name, k:
         gate_names.push(name)
         gate_rects.push(map(gs.a[k].a) v: as_int(v))
+    woods_grow()  // (the wood grown out from the map's trees: smyana/woods.lobster)
     let why = over_budget()
     if why != "": print "over budget: {why}"
     let mem = place_memory.get(place)
@@ -507,7 +571,11 @@ def route_tick() -> string:
     for(u_carry) n, i:
         if n > 0 and u_carry_kind[i] == spoil: u_carry[i] = 0
     if tick % 10 != 0 or run_over(): return ""
-    // (the weather's pace on the men, and the water's on a man in a ford)
+    survival_tick()
+    forage_tick()
+    packs_tick()
+    knowledge_tick()
+    // (the weather's pace on the men, and the water's on a man in a ford, and his needs')
     let pace = weather_pace()
     let ford = str_index(tr_names, "ford")
     for(men) m:
@@ -515,7 +583,7 @@ def route_tick() -> string:
             let i = index_of(m.uid)
             if i >= 0:
                 let wading = terrain[cell_of(u_x[i], u_y[i])] == ford
-                u_speed[i] = max(1, t_speed[u_kind[i]] * pace / 100 * (if wading: wade_pace(u_carry[i] > 0) else: 100) / 100 * wound_pace(i) / 100)
+                u_speed[i] = max(1, t_speed[u_kind[i]] * pace / 100 * (if wading: wade_pace(u_carry[i] > 0) else: 100) / 100 * wound_pace(i) / 100 * needs_pace(m) / 100 * load_pace(m, i) / 100)
     let inside = map(gate_names): 0
     var alive = 0
     var in_any = 0
@@ -547,6 +615,8 @@ def exit_by(edge:string) -> JV: return at(at(leg_now(), "exits"), edge)
 def route_leave(edge:string):
     men_read()
     let place = place_now()
+    forage_leave(place)
+    packs_leave(place)
     let was = place_memory.get(place)
     place_memory.set(place, PlaceMemory { copy(terrain), copy(amount), copy(wear), if was: was.visits + 1 else: 1, copy(br_up) })
 
@@ -555,4 +625,5 @@ def route_arrive(edge:string):
     let ex = exit_by(edge)
     run_ticks += gint(ex, "hours", 0) * ticks_per_hour()
     clock_uh += gint(ex, "hours", 0) * 1000000
+    survival_walk(gint(ex, "hours", 0))
     enter_leg(rstr(ex, "to"), gstr(ex, "arrive", ""))

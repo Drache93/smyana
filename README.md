@@ -27,7 +27,9 @@ src/lint.sh --fix             # lobsterfmt's layout for every file of ours (lint
 It needs [Lobster](https://github.com/Drache93/lobster) (`LOBSTER=/path/to/bin/lobster`, by
 default `~/Dev/lobster/bin/lobster`), with `lobsterfmt` built beside it (`cmake --build build --target
 lobster lobsterfmt` in its `dev/`). Left click or drag to select men, double-click for all of
-them, right click to send them or to fell a young tree. Arrows or WASD move the camera. Walk
+them, right click to send them or to fell a young tree, C to make camp (C again puts the fire out), X to drop
+their packs (right click the pile to pick it up).
+Arrows or WASD move the camera. Walk
 every man into the far edge of a place to move on.
 
 ## What's here

@@ -7,7 +7,7 @@
 // seen. The leaves are baked once a season (their colour), behind the letter home, and kept in bake_cache/.
 
 let TREE_K = 64.0  // voxels a tile for the load of wood (baked at twice this)
-let TREE_BAKE = "trees 55"
+let TREE_BAKE = "trees 62"
 // Voxels a tile in the trees, rocks and undergrowth: one voxel is one pixel of Creel's art (WB_PX at its art scale of
 // 3), as the men's are, so they are as crisp as the men (Dominic, 2026-11-10: "evryhting crisp and sharp").
 let VOX_K = 135.7645
@@ -263,31 +263,68 @@ def leaf_dab(g:vgrid, c:float3, r:float, tone:float):
 def twig(g:vgrid, a:float3, b:float3, r:float, m:int, tone:float):
     vg_capsule(g, a, b, r, r * 0.8, m, false, tone)
 
-// A fern (bracken): fronds arching out from one foot and drooping at their tips, each a rib with leaflets down both
-// sides, shorter toward the tip.
+// Bracken (Pteridium, docs/woods.md): not a plant but a patch of it, a sea of fronds over the whole tile at knee to
+// waist height, overlapping. Each frond rises on its own stalk out of the ground, arching, and its blade (the upper
+// part of the arch) is a broad triangle: leaflets down both sides of the rib, longest at the blade's foot and shorter
+// to its tip, with gaps between them, so the patch reads as lace leaning every way and not as caps on sticks.
 def fern(look:vglook, kind:int) -> vgrid:
     let rng = grng(1300 + kind)
-    let g = fine_grid(look, 0.42, 0.34, 1300 + kind)
-    let n = 6 + kind
+    let g = fine_grid(look, 0.62, 0.26, 1300 + kind)
+    for(18 + kind * 4):
+        let foot = float3 { randf_range(rng, -0.38, 0.38), randf_range(rng, -0.38, 0.38), 0.0 }
+        let a = randf_range(rng, 0.0, 360.0)
+        let d = float3 { cos(a), sin(a), 0.0 }
+        let side = float3 { -sin(a), cos(a), 0.0 }
+        let reach = randf_range(rng, 0.2, 0.32)
+        let rise = randf_range(rng, 0.1, 0.19)
+        let tone = randf_range(rng, -0.5, 0.6)
+        var last = foot
+        let steps = 14
+        for(steps) k:
+            let t = float(k + 1) / float(steps)
+            // (up out of the ground, then leaning over and down at the tip)
+            let at = foot + d * (reach * t * t) + float3 { 0.0, 0.0, rise * sin(t * 150.0) / sin(90.0) }
+            twig(g, last, at, 0.006, VG_LEAF, tone - 0.5)
+            // (the blade begins a third of the way along: broadest there, narrowing to the tip)
+            let b = (t - 0.35) / 0.65
+            if b > 0.0 and k % 2 == 1:
+                let w = reach * 0.42 * (1.0 - b * 0.85)
+                for(2) sd:
+                    let out = side * (if sd == 0: w else: -w) + d * (w * 0.35)
+                    twig(g, at, at + out + float3 { 0.0, 0.0, -w * 0.25 }, 0.008, VG_LEAF, tone + (if sd == 0: 0.25 else: -0.05))
+            last = at
+    return g
+
+// The male fern (Dryopteris filix-mas, docs/woods.md): a shuttlecock, a ring of fronds rising steeply from one crown
+// at the ground and arching outward, each a long narrow blade tapering at both ends with leaflets down both sides.
+// No stem: the crown sits on the ground. It grows in the shade and the damp, in groups.
+let MALE_FERN_KINDS = 3
+def male_fern(look:vglook, kind:int) -> vgrid:
+    let rng = grng(1350 + kind)
+    let g = fine_grid(look, 0.4, 0.3, 1350 + kind)
+    let n = 8 + kind * 3
     for(n) i:
-        let a = float(i) * 360.0 / float(n) + randf_range(rng, -20.0, 20.0)
-        let reach = randf_range(rng, 0.22, 0.34)
-        let rise = randf_range(rng, 0.13, 0.2)
+        let a = float(i) * 360.0 / float(n) + randf_range(rng, -18.0, 18.0)
+        // (the inner fronds stand nearly upright, the outer ones lean out further)
+        let inner = (i % 3) == 0
+        let reach = if inner: randf_range(rng, 0.1, 0.16) else: randf_range(rng, 0.2, 0.32)
+        let rise = if inner: randf_range(rng, 0.2, 0.27) else: randf_range(rng, 0.14, 0.22)
         let d = float3 { cos(a), sin(a), 0.0 }
         let side = float3 { -sin(a), cos(a), 0.0 }
         let tone = randf_range(rng, -0.5, 0.6)
-        var last = float3_0
-        let steps = 9
+        var last = d * 0.015
+        let steps = 16
         for(steps) k:
             let t = float(k + 1) / float(steps)
-            // (up fast, then over and down a little at the tip)
-            let at = d * (reach * t) + float3 { 0.0, 0.0, rise * sin(t * 125.0) + 0.02 }
-            twig(g, last, at, 0.008, VG_LEAF, tone - 0.3)
-            let w = 0.075 * (1.0 - t * 0.85) * (if t < 0.25: t * 4.0 else: 1.0)
-            if w > 0.012:
+            // (up steeply out of the crown, then over and down a little toward the tip)
+            let at = d * (0.015 + reach * t * t) + float3 { 0.0, 0.0, rise * sin(t * 140.0) / sin(90.0) * 0.95 + 0.01 }
+            twig(g, last, at, 0.008, VG_LEAF, tone - 0.35)
+            // (narrow at the foot, broadest a third of the way up, tapering to a point)
+            let w = 0.045 * pow(sin(min(t * 1.25, 1.0) * 180.0), 0.7) * (1.0 - t * 0.35)
+            if w > 0.01 and k % 2 == 1:
                 for(2) sd:
-                    let out = side * (if sd == 0: w else: -w)
-                    twig(g, at, at + out + float3 { 0.0, 0.0, -w * 0.25 }, 0.011, VG_LEAF, tone + (if sd == 0: 0.2 else: -0.1))
+                    let out = side * (if sd == 0: w else: -w) + d * (w * 0.35)
+                    twig(g, at, at + out + float3 { 0.0, 0.0, -w * 0.3 }, 0.008, VG_LEAF, tone + (if sd == 0: 0.2 else: -0.1))
             last = at
     return g
 
@@ -343,9 +380,60 @@ def bramble(look:vglook, kind:int) -> vgrid:
 def bramble_look(season:string, kind:int) -> vglook:
     var leaf = [ float3 { 0.34, 0.50, 0.20 }, float3 { 0.22, 0.38, 0.16 }, float3 { 0.13, 0.24, 0.12 }, float3 { 0.46, 0.58, 0.24 } ]
     if season == "autumn" and kind == 1: leaf = [ float3 { 0.62, 0.24, 0.16 }, float3 { 0.44, 0.30, 0.15 }, float3 { 0.24, 0.26, 0.12 }, float3 { 0.74, 0.40, 0.18 } ]
-    if season == "autumn" and kind == 0: leaf = [ float3 { 0.42, 0.46, 0.18 }, float3 { 0.28, 0.36, 0.15 }, float3 { 0.36, 0.18, 0.12 }, float3 { 0.60, 0.52, 0.22 } ]
+    if season == "autumn" and kind == 0: leaf = [ float3 { 0.66, 0.42, 0.18 }, float3 { 0.48, 0.30, 0.14 }, float3 { 0.36, 0.18, 0.12 }, float3 { 0.78, 0.56, 0.24 } ]
     return vglook { leaf, [ float3 { 0.22, 0.11, 0.13 }, float3 { 0.31, 0.15, 0.17 }, float3 { 0.40, 0.20, 0.21 }, float3 { 0.50, 0.27, 0.26 } ],
                     [ float3 { 0.3, 0.3, 0.3 }, float3 { 0.5, 0.5, 0.5 } ], false, false, false }
+
+// A dog rose (Rosa canina, docs/woods.md; Dominic's wife's idea, 2026-11-12): a shrub at the wood's edge and out in
+// the meadows, a man high or more, its long thorny canes arching up out of the ground and over, small leaves along
+// them, and its hips: bright red ovals in twos and threes at the canes' ends, red from autumn and hanging on through
+// the winter after the leaves are gone. `leaves`: how many of its leaves are still on (0 to 1); `hips`: none in spring.
+let ROSE_KINDS = 3
+def rose(look:vglook, kind:int, leaves:float, hips:bool) -> vgrid:
+    let rng = grng(1520 + kind)
+    let g = fine_grid(look, 0.62, 0.62, 1520 + kind)
+    for(8 + kind * 3):
+        let a = randf_range(rng, 0.0, 360.0)
+        let foot = float3 { randf_range(rng, -0.08, 0.08), randf_range(rng, -0.08, 0.08), 0.0 }
+        let reach = randf_range(rng, 0.18, 0.46)
+        let rise = randf_range(rng, 0.28, 0.5)
+        let d = float3 { cos(a), sin(a), 0.0 }
+        let tone = randf_range(rng, -0.5, 0.6)
+        var last = foot
+        let steps = 12
+        for(steps) k:
+            let t = float(k + 1) / float(steps)
+            // (up and out, then arching over: its tip hangs lower than its top)
+            let at = foot + d * (reach * t) + float3 { 0.0, 0.0, rise * sin(t * 125.0) / sin(90.0) }
+            twig(g, last, at, 0.008 * (1.0 - t * 0.5), VG_BARK, -0.2)
+            // (leaves along its upper part, in small sprays; a few side shoots)
+            if t > 0.3 and randf_range(rng, 0.0, 1.0) < leaves:
+                for(2):
+                    let p = at + float3 { randf_range(rng, -0.04, 0.04), randf_range(rng, -0.04, 0.04), randf_range(rng, -0.025, 0.02) }
+                    leaf_dab(g, p, randf_range(rng, 0.012, 0.018), tone + randf_range(rng, -0.3, 0.3))
+            if k > 4 and k % 3 == 0:
+                let sh = at + float3 { randf_range(rng, -0.07, 0.07), randf_range(rng, -0.07, 0.07), randf_range(rng, -0.05, 0.04) }
+                twig(g, at, sh, 0.005, VG_BARK, -0.2)
+                if hips:
+                    for(2 + kind % 2):
+                        let q = sh + float3 { randf_range(rng, -0.018, 0.018), randf_range(rng, -0.018, 0.018), randf_range(rng, -0.025, 0.0) }
+                        vg_capsule(g, q, q + float3 { 0.0, 0.0, -0.012 }, 0.011, 0.009, VG_ROCK, false, randf_range(rng, -0.4, 0.5))
+            last = at
+        if hips:
+            for(2 + kind % 2):
+                let q = last + float3 { randf_range(rng, -0.02, 0.02), randf_range(rng, -0.02, 0.02), randf_range(rng, -0.03, 0.0) }
+                vg_capsule(g, q, q + float3 { 0.0, 0.0, -0.012 }, 0.011, 0.009, VG_ROCK, false, randf_range(rng, -0.4, 0.5))
+    return g
+
+// The dog rose's look by season: green leaves going yellow and orange-red in autumn; the hips (its "rock" colours)
+// orange going red in high summer, scarlet from autumn, darkening through the winter.
+def rose_look(season:string, kind:int) -> vglook:
+    var leaf = [ float3 { 0.40, 0.58, 0.24 }, float3 { 0.26, 0.42, 0.18 }, float3 { 0.13, 0.26, 0.12 }, float3 { 0.54, 0.66, 0.30 } ]
+    if season == "spring": leaf = [ float3 { 0.52, 0.72, 0.30 }, float3 { 0.36, 0.56, 0.22 }, float3 { 0.20, 0.34, 0.14 }, float3 { 0.66, 0.80, 0.40 } ]
+    if season == "autumn":
+        leaf = if kind % 2 == 0: [ float3 { 0.86, 0.60, 0.22 }, float3 { 0.68, 0.44, 0.16 }, float3 { 0.40, 0.26, 0.10 }, float3 { 0.94, 0.72, 0.32 } ] else: [ float3 { 0.76, 0.34, 0.18 }, float3 { 0.58, 0.26, 0.14 }, float3 { 0.34, 0.16, 0.10 }, float3 { 0.86, 0.46, 0.24 } ]
+    let hips = if season == "summer": [ float3 { 0.56, 0.16, 0.06 }, float3 { 0.92, 0.42, 0.12 } ] elif season == "winter": [ float3 { 0.42, 0.06, 0.06 }, float3 { 0.74, 0.14, 0.10 } ] else: [ float3 { 0.55, 0.05, 0.04 }, float3 { 0.95, 0.20, 0.10 } ]
+    return vglook { leaf, [ float3 { 0.20, 0.13, 0.11 }, float3 { 0.30, 0.19, 0.15 }, float3 { 0.40, 0.26, 0.20 }, float3 { 0.50, 0.34, 0.26 } ], hips, false, false, false }
 
 // A patch of low herbs: many small pale leaves on short stems, ragged at its edge (the pale drifts of the target
 // picture's clearing).
@@ -404,12 +492,15 @@ def grass_tuft(look:vglook, kind:int) -> vgrid:
 // The soft grass' colours: straw yellow tips over olive in autumn, fresh green in spring and summer.
 def tuft_look(season:string, kind:int) -> vglook:
     // (late summer: one fresh, one deep green, one gone straw; warmer than the crowns over them)
-    var leaf = [ [ float3 { 0.54, 0.64, 0.28 }, float3 { 0.36, 0.48, 0.20 }, float3 { 0.19, 0.29, 0.13 }, float3 { 0.70, 0.76, 0.40 } ],
-                 [ float3 { 0.46, 0.60, 0.30 }, float3 { 0.30, 0.44, 0.21 }, float3 { 0.16, 0.27, 0.13 }, float3 { 0.60, 0.70, 0.40 } ],
-                 [ float3 { 0.72, 0.70, 0.40 }, float3 { 0.52, 0.52, 0.27 }, float3 { 0.26, 0.28, 0.14 }, float3 { 0.84, 0.80, 0.54 } ] ][kind % 3]
-    if season == "spring": leaf = [ float3 { 0.56, 0.70, 0.30 }, float3 { 0.38, 0.54, 0.22 }, float3 { 0.20, 0.32, 0.14 }, float3 { 0.74, 0.82, 0.42 } ]
-    if season == "autumn": leaf = [ float3 { 0.86, 0.82, 0.42 }, float3 { 0.64, 0.62, 0.27 }, float3 { 0.32, 0.33, 0.14 }, float3 { 0.97, 0.94, 0.64 } ]
-    if season == "autumn" and kind % 3 == 2: leaf = [ float3 { 0.70, 0.72, 0.34 }, float3 { 0.48, 0.54, 0.24 }, float3 { 0.25, 0.31, 0.14 }, float3 { 0.86, 0.86, 0.50 } ]
+    // (2026-11-12, a Bulgarian's eye: "too dry". Green with lighter green tips, not straw, in summer and spring; in
+    // autumn green going gold)
+    var leaf = [ [ float3 { 0.42, 0.62, 0.24 }, float3 { 0.28, 0.46, 0.17 }, float3 { 0.15, 0.28, 0.11 }, float3 { 0.56, 0.74, 0.32 } ],
+                 [ float3 { 0.36, 0.58, 0.26 }, float3 { 0.24, 0.42, 0.18 }, float3 { 0.13, 0.26, 0.12 }, float3 { 0.50, 0.70, 0.36 } ],
+                 [ float3 { 0.50, 0.62, 0.28 }, float3 { 0.34, 0.46, 0.19 }, float3 { 0.18, 0.28, 0.12 }, float3 { 0.66, 0.74, 0.38 } ] ][kind % 3]
+    if season == "spring": leaf = [ float3 { 0.48, 0.70, 0.28 }, float3 { 0.32, 0.54, 0.20 }, float3 { 0.17, 0.32, 0.13 }, float3 { 0.64, 0.82, 0.40 } ]
+    // (autumn, Dominic: "Why would anything be green if it's autumn?": gold and tawny, one a little redder)
+    if season == "autumn": leaf = [ float3 { 0.80, 0.66, 0.30 }, float3 { 0.60, 0.48, 0.20 }, float3 { 0.32, 0.25, 0.11 }, float3 { 0.90, 0.78, 0.42 } ]
+    if season == "autumn" and kind % 3 == 2: leaf = [ float3 { 0.76, 0.52, 0.24 }, float3 { 0.56, 0.38, 0.17 }, float3 { 0.30, 0.20, 0.10 }, float3 { 0.86, 0.64, 0.34 } ]
     return vglook { leaf, [ float3 { 0.20, 0.17, 0.14 }, float3 { 0.28, 0.24, 0.20 }, float3 { 0.37, 0.32, 0.26 }, float3 { 0.46, 0.40, 0.33 } ],
                     [ float3 { 0.3, 0.3, 0.3 }, float3 { 0.5, 0.5, 0.5 } ], false, false, false }
 
@@ -470,11 +561,34 @@ def under_look(season:string, kind:int, moss:bool) -> vglook:
                  [ float3 { 0.30, 0.48, 0.24 }, float3 { 0.18, 0.35, 0.18 }, float3 { 0.09, 0.21, 0.12 }, float3 { 0.42, 0.54, 0.28 } ],
                  [ float3 { 0.48, 0.60, 0.24 }, float3 { 0.32, 0.46, 0.18 }, float3 { 0.17, 0.29, 0.13 }, float3 { 0.62, 0.68, 0.30 } ] ][kind % 3]
     if season == "spring": leaf = [ float3 { 0.56, 0.74, 0.30 }, float3 { 0.40, 0.60, 0.24 }, float3 { 0.22, 0.38, 0.16 }, float3 { 0.70, 0.80, 0.40 } ]
-    // (autumn: one bracken bronze, one still green, one gone pale yellow)
+    // (autumn: one bush bronze, one red, one gone pale yellow; nothing still green)
     if season == "autumn" and not moss and kind % 3 == 0: leaf = autumn_leaf("oak", 0)
+    if season == "autumn" and not moss and kind % 3 == 1: leaf = [ float3 { 0.78, 0.30, 0.16 }, float3 { 0.58, 0.22, 0.12 }, float3 { 0.32, 0.13, 0.08 }, float3 { 0.88, 0.44, 0.22 } ]
     if season == "autumn" and not moss and kind % 3 == 2: leaf = [ float3 { 0.93, 0.86, 0.38 }, float3 { 0.74, 0.68, 0.26 }, float3 { 0.42, 0.40, 0.14 }, float3 { 0.98, 0.94, 0.56 } ]
-    if moss: leaf = [ float3 { 0.36, 0.50, 0.20 }, float3 { 0.26, 0.38, 0.16 }, float3 { 0.16, 0.25, 0.12 }, float3 { 0.44, 0.52, 0.22 } ]
-    return vglook { leaf, [ float3 { 0.20, 0.17, 0.14 }, float3 { 0.28, 0.24, 0.20 }, float3 { 0.37, 0.32, 0.26 }, float3 { 0.46, 0.40, 0.33 } ],
+    return under_leaves(leaf, moss)
+
+// Bracken's own look: green in summer, and in autumn it turns orange-brown, a strong autumn colour (docs/woods.md).
+def bracken_look(season:string, kind:int) -> vglook:
+    if season == "autumn":
+        let rusts = [ [ float3 { 0.78, 0.44, 0.17 }, float3 { 0.60, 0.32, 0.13 }, float3 { 0.36, 0.20, 0.10 }, float3 { 0.90, 0.58, 0.26 } ],
+                      [ float3 { 0.70, 0.48, 0.20 }, float3 { 0.54, 0.35, 0.14 }, float3 { 0.32, 0.21, 0.10 }, float3 { 0.84, 0.64, 0.30 } ],
+                      [ float3 { 0.66, 0.36, 0.16 }, float3 { 0.50, 0.26, 0.12 }, float3 { 0.30, 0.16, 0.09 }, float3 { 0.80, 0.48, 0.24 } ] ]
+        return under_leaves(rusts[kind % 3], false)
+    return under_look(season, kind, false)
+
+// The male fern's look: a deep, cool green in the shade, yellowing in autumn and lying half green through the winter.
+def fern_look(season:string, kind:int) -> vglook:
+    var leaf = [ [ float3 { 0.30, 0.52, 0.22 }, float3 { 0.18, 0.37, 0.16 }, float3 { 0.09, 0.22, 0.10 }, float3 { 0.44, 0.64, 0.30 } ],
+                 [ float3 { 0.34, 0.56, 0.24 }, float3 { 0.21, 0.40, 0.17 }, float3 { 0.10, 0.24, 0.11 }, float3 { 0.48, 0.68, 0.32 } ],
+                 [ float3 { 0.26, 0.48, 0.22 }, float3 { 0.16, 0.34, 0.16 }, float3 { 0.08, 0.20, 0.10 }, float3 { 0.40, 0.60, 0.30 } ] ][kind % 3]
+    if season == "spring": leaf = [ float3 { 0.50, 0.72, 0.30 }, float3 { 0.34, 0.56, 0.22 }, float3 { 0.18, 0.34, 0.14 }, float3 { 0.64, 0.80, 0.40 } ]
+    if season == "autumn": leaf = [ float3 { 0.62, 0.62, 0.26 }, float3 { 0.46, 0.48, 0.20 }, float3 { 0.26, 0.28, 0.12 }, float3 { 0.76, 0.74, 0.36 } ]
+    if season == "winter": leaf = [ float3 { 0.36, 0.40, 0.20 }, float3 { 0.27, 0.30, 0.15 }, float3 { 0.16, 0.18, 0.10 }, float3 { 0.48, 0.46, 0.26 } ]
+    return under_leaves(leaf, false)
+
+def under_leaves(leaf:[float3], moss:bool) -> vglook:
+    let mossy = [ float3 { 0.36, 0.50, 0.20 }, float3 { 0.26, 0.38, 0.16 }, float3 { 0.16, 0.25, 0.12 }, float3 { 0.44, 0.52, 0.22 } ]
+    return vglook { if moss: mossy else: leaf, [ float3 { 0.20, 0.17, 0.14 }, float3 { 0.28, 0.24, 0.20 }, float3 { 0.37, 0.32, 0.26 }, float3 { 0.46, 0.40, 0.33 } ],
                     [ float3 { 0.3, 0.3, 0.3 }, float3 { 0.5, 0.5, 0.5 } ], false, false, false }
 
 // The low herbs: pale yellow green, paler still in autumn.
@@ -483,8 +597,8 @@ def herb_look(season:string, kind:int) -> vglook:
     // (summer: one patch pale and silvery, one warm, one the herbs' own green)
     if season == "summer" and kind == 0: leaf = [ float3 { 0.62, 0.70, 0.50 }, float3 { 0.44, 0.52, 0.36 }, float3 { 0.22, 0.30, 0.20 }, float3 { 0.76, 0.80, 0.60 } ]
     if season == "summer" and kind == 1: leaf = [ float3 { 0.66, 0.70, 0.38 }, float3 { 0.48, 0.54, 0.27 }, float3 { 0.25, 0.31, 0.15 }, float3 { 0.80, 0.80, 0.50 } ]
-    if season == "autumn": leaf = [ float3 { 0.80, 0.79, 0.30 }, float3 { 0.60, 0.65, 0.25 }, float3 { 0.31, 0.38, 0.15 }, float3 { 0.91, 0.87, 0.42 } ]
-    if season == "autumn" and kind == 2: leaf = [ float3 { 0.74, 0.78, 0.36 }, float3 { 0.52, 0.60, 0.26 }, float3 { 0.28, 0.36, 0.15 }, float3 { 0.86, 0.86, 0.46 } ]
+    if season == "autumn": leaf = [ float3 { 0.86, 0.74, 0.32 }, float3 { 0.66, 0.54, 0.22 }, float3 { 0.36, 0.28, 0.12 }, float3 { 0.94, 0.84, 0.44 } ]
+    if season == "autumn" and kind == 2: leaf = [ float3 { 0.82, 0.60, 0.28 }, float3 { 0.62, 0.44, 0.19 }, float3 { 0.34, 0.23, 0.11 }, float3 { 0.90, 0.72, 0.38 } ]
     return vglook { leaf, [ float3 { 0.20, 0.17, 0.14 }, float3 { 0.28, 0.24, 0.20 }, float3 { 0.37, 0.32, 0.26 }, float3 { 0.46, 0.40, 0.33 } ],
                     [ float3 { 0.3, 0.3, 0.3 }, float3 { 0.5, 0.5, 0.5 } ], false, false, false }
 
@@ -993,7 +1107,9 @@ def bake_winter():
     let straw = [ float3 { 0.80, 0.72, 0.48 }, float3 { 0.63, 0.55, 0.35 }, float3 { 0.42, 0.36, 0.22 }, float3 { 0.90, 0.84, 0.62 } ]
     let wine = [ float3 { 0.40, 0.20, 0.17 }, float3 { 0.30, 0.17, 0.15 }, float3 { 0.20, 0.13, 0.12 }, float3 { 0.48, 0.27, 0.20 } ]
     for(FERN_KINDS) kind: tree_onto(vs, "fern{kind}.winter", fern(dead_look(rust, false), kind), true)
+    for(MALE_FERN_KINDS) kind: tree_onto(vs, "malefern{kind}.winter", male_fern(fern_look("winter", kind), kind), true)
     for(BRAMBLE_KINDS) kind: tree_onto(vs, "bramble{kind}.winter", bramble(dead_look(wine, true), kind), true)
+    for(ROSE_KINDS) kind: tree_onto(vs, "rose{kind}.winter", rose(rose_look("winter", kind), kind, 0.0, true), true)
     for(TUFT_KINDS) kind: tree_onto(vs, "tuft{kind}.winter", grass_tuft(dead_look(straw, false), kind), true)
     sheet_finish(vs, vox_draw_k(), true)
 
@@ -1110,9 +1226,11 @@ def bake_season(stage:string, between):
         between()
     for(YOUNG_KINDS) kind: tree_onto(vs, "young{kind}.{stage}", fallen(vox_tree(leaf_look("beech", season, kind + 1), "beech_young_{kind}", true), 0.55), true)
     for(BROADLEAVES) sp: tree_onto(vs, "sapling_{sp}.{stage}", vox_tree(leaf_look(sp, season, 1), "{sp}_sapling_0", true, false, true), true)
-    for(FERN_KINDS) kind: tree_onto(vs, "fern{kind}.{stage}", fern(under_look(season, kind, false), kind), true)
+    for(FERN_KINDS) kind: tree_onto(vs, "fern{kind}.{stage}", fern(bracken_look(season, kind), kind), true)
+    for(MALE_FERN_KINDS) kind: tree_onto(vs, "malefern{kind}.{stage}", male_fern(fern_look(season, kind), kind), true)
     for(BUSH_KINDS) kind: tree_onto(vs, "bush{kind}.{stage}", bush(under_look(season, kind + 1, false), kind), true)
     for(BRAMBLE_KINDS) kind: tree_onto(vs, "bramble{kind}.{stage}", bramble(bramble_look(season, kind), kind), true)
+    for(ROSE_KINDS) kind: tree_onto(vs, "rose{kind}.{stage}", rose(rose_look(season, kind), kind, if late: 0.15 else: 0.85, season != "spring"), true)
     for(HERB_KINDS) kind: tree_onto(vs, "herb{kind}.{stage}", herbs(herb_look(season, kind), kind), true)
     for(TUFT_KINDS) kind: tree_onto(vs, "tuft{kind}.{stage}", grass_tuft(tuft_look(season, kind), kind), true)
     sheet_finish(vs, vox_draw_k(), true)

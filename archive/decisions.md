@@ -519,3 +519,138 @@ like a ball does. A ball does it a fixed wound (no one-shot kill close up), so i
 a fifth kills it. The music is the beasts' loop while it rears, bluffs or charges. So the right answer to a bear is to
 hold fire and back off; to shoot is to fight it. Signs of it on the way out (a scratched trunk, tracks by the stream)
 are left for later.
+
+**D-092, 2026-11-12: Each man is fed, warm and rested, and a need run out costs his health.** (Claude, from the
+survival plan, docs/survival.md; a Proposal.) Three needs per man, 100 to 0, kept on him between places: hunger falls
+about 60 a day (faster working or loaded), warmth goes toward the air's (season, height of the place, night, wind,
+rain, snow, a ford's water) and climbs fast by a lit fire, rest falls about 5 an hour awake and comes back asleep in a
+camp. Below 30 each need takes up to a ninth of his pace; at 0 cold takes 3 health an hour and hunger 1.5, so a
+winter night in the open without a fire can kill a man. Fed, warm and asleep he heals slowly. The walks between places
+cost food and rest (no meal, no sleep on the way). Numbers in data/survival.json.
+
+**D-093, 2026-11-12: Camp is one key, and the fire is the night's choice.** (Claude, building D-009; a Proposal.) With
+men chosen, C makes camp: they pick the most open ground near them, stand round its far side and flanks (never
+between the fire and the camera) and lay a fire, which costs two bundles of wood off their backs, or nearly a minute
+of finding dead wood if nobody carries any. C again puts it out, or lights it again. At night men in a camp sleep, lying
+feet to the fire, and wake at first light or at a shot. The day's meal is eaten at the first camp after five in the
+evening, one portion each from what they carry (shared out if a man has none): hot at a lit fire, half as good cold.
+They leave the village with four days' food each. A lit fire warms everyone within four tiles; wolves will not come
+within seven tiles of it; a patrol sees it at night from 34 tiles through any cover (its smoke by day from 18) and
+comes to look as for a shot; the bear smells a camp with food in it from 16 tiles and wanders round it.
+
+**D-094, 2026-11-12: A man's state is read off him, with one line of words for one man.** (Claude, from #73 and
+D-021; a Proposal.) Cold air shows the men's breath, a little pale cloud now and then, the colder the more often; a
+cold man shivers when he stands; men in camp face the fire; a hungry or tired man is slower, so he falls behind. The
+only words: with one man chosen, his name and under it how he is ("cold and hungry", "worn out", "well"). Nothing for
+a group, no meters.
+
+**D-095, 2026-11-12: The wood's food lies in patches you send men to, by the wood and the season.** (Claude, from the
+survival plan; a Proposal.) Open ground off the bracken has patches of what its kind of wood gives in the season
+(data/survival.json "forage"): bilberries and herbs in summer, beechnuts, mushrooms, wild pears and lingonberries in
+autumn, nearly nothing in winter, nettles and wild garlic in spring; none on the fir woods' floor in winter or spring.
+Each is worked out from the cell's number, as the bracken is. Right-click one with men chosen and each goes to the
+nearest patch within nine tiles of it and gathers it in six seconds: one or two portions into his pack (at most
+twelve), or goods to take home (herbs, mountain tea). What is taken stays taken, on the way home too. The patches are
+a few pixels of art on the ground (pale caps, husks, fruiting tufts, flowering sprigs) with no marker; a first pass
+that needs Dominic's eye.
+
+**D-096, 2026-11-12: A man's pack is food and goods together, and a pile of packs is a cache.** (Claude, from the
+survival plan; a Proposal.) A pack holds twelve, food portions and goods alike; a bundle of wood on top weighs two. A
+full pack takes about a fifth off a man's pace. X drops the chosen men's packs in one pile where they stand, each
+keeping a day's food, so they can run or fight light; right-clicking the pile shares it back out as far as their packs
+have room. A pile left anywhere is a cache: a patrolman who would see a man lying there (the same cover check, so the
+falling leaves and a felled tree give it away) takes it, and the bear smells food in one from ten tiles, wanders to it
+and eats it. Each place keeps its piles for the way home. A man who falls drops his pack where he falls. This merges
+the plan's "drop the packs to run" and "caches" into one thing, with no separate cache order.
+
+**D-097, 2026-11-12: The Roman drain is studied with men's time, and lives in the men who learned it.** (Claude, from
+#70 and D-011; a Proposal.) Right-click the ruins off the road (a column, its drums, the walls) with men chosen: they
+stand along the old road, whose drain runs beside it, and study. It takes 24 hours of men's time on the clock (eight
+men about three hours), kept between the two visits to the ruins; those men work (they get hungrier) and aren't
+gathering or keeping watch. Every man who gave at least an hour of it knows it, and it is lost if they all die. The one
+panel says "knows the Roman drain". It is the only piece of knowledge for the demo.
+
+**D-098, 2026-11-12: Until the homecoming is made, the end screen says the tally.** (Claude, from #72; a Proposal.)
+Kept as the run goes: who came back, each man who didn't by name and the place he lies in, what they carry home, and
+how many know the Roman drain (or that those who learned it did not come home). For now it is the end screen's lines;
+the homecoming and the ending (#51) will show it instead of saying it.
+
+**D-099, 2026-11-12: The fire is a light in the world, not a glow on the picture.** (Dominic, "should be over the men,
+creating shadow and light on them"; built by Claude.) A lit fire lights the ground round it, out to 5.5 tiles. It
+lights each man and the foot of each trunk, tent or beast near it on their side toward it, and each standing man casts
+a shadow on the ground away from it, longer the further he stands. Its strength follows the mood's glow, so it rules
+the night and is faint by day. Creel's screen glow stays, smaller, as the lit air round the flames. All of it is in
+Smyana, and Creel is unchanged.
+
+**D-100, 2026-11-12: The woods are grown from the maps' trees by rules, not dotted by hand.** (Dominic, "It should feel
+dense and rich and alive"; Claude's plan `docs/woods.md`, a Proposal.) When a place loads, its drawn trees say where
+the wood is. The wood is grown out from them (`src/smyana/woods.lobster`, numbers in `data/woods.json`):
+- About half the tiles of a wood hold an old tree, in clumps from a smooth field, thinner in some places and with
+  gaps in others, and a tenth hold young trees.
+- A mantle of young trees grows at the edge toward the open, and small groups of trees stand out in the meadows.
+- The rim beyond play is wooded.
+- The trail, a ford, the gates, a patrol's road, the camp, the ruins, a bridge, the start and a cliff's edge are left
+  clear.
+- No pocket of open ground is closed off from the gates.
+The same place grows the same wood every time. The camp clearing (already dense, the mock-up) is left as drawn. The
+size budget is now 6400 old trees a place, and the frame rate is to be watched.
+
+**D-101, 2026-11-12: Open ground is green and the trail is dark earth.** (From Dominic and a Bulgarian's eye: "the
+dried out part is too dry looking", "a yellow trail, which just isn't something that would make sense"; Claude,
+`tools/ground_atlas.py`, the soft grass in `src/smyana/trees.lobster`.)
+- The summer grass is a fresh green, not olive and straw. The soft grass tufts are green with lighter tips, not straw
+  (this supersedes their straw-tipped look from 2026-11-11).
+- In autumn the meadow is green going gold, with only a few blown leaves on it. The carpet of leaves lies under the
+  trees, on a browner bed.
+- The trail is dark brown earth with stones in every season, not a pale sand stripe.
+
+**D-102, 2026-11-12: Crowns are full domes, and the trees grow in stands of one kind.** (From Dominic: "the trees
+right now, they look really good and the density's better. I'm just wondering if they look like the right kind of
+tree or not"; Claude, `tools/tree_vox.py`, `species_pick` in `src/smyana/route.lobster`.)
+- Beech, oak and hornbeam crowns get a full leafy shell round their branch tips, so they read as domes and not as
+  flat umbrellas (the acacia outline).
+- Which tree grows where follows a smooth field over the map, so trees of one kind stand together, as they do in the
+  western Rhodopes: beech mostly, with patches of oak and hornbeam, and stands of silver fir and spruce, and pine on
+  the far side. Before, each tile picked its kind at random.
+- The trail (supersedes D-101's dark trail, which Dominic found "much too hard"): lighter worn earth broken up by
+  patches of grass, pebbles and tufts, "more of a gap in all the growth" than a solid stripe.
+
+**D-103, 2026-11-12: A soft watercolour filter over the picture, on trial.** (From Dominic: "Try making this a bit
+more watercolour… a filter over the top to make things smoother, less pixelated"; Claude, Creel PR 30.)
+Creel's atmosphere pass gains a `paint` setting: a Kuwahara filter that flattens busy areas into patches of colour and
+keeps edges, leaving the men sharp. Smyana sets it to 0.5 in `data/atmosphere.json`; `paint:<v>` on the command line
+tries another strength (0 off, 1 is blotchy). Dominic to say whether it stays.
+
+**D-104, 2026-11-12: The palm-like fern is retired: bracken in the light, male ferns in the shade.** (From Dominic and
+a Bulgarian's eye: the ferns "read as small palm trees", "all these little ferns everywhere that just look really out
+of place"; Claude, from docs/woods.md.)
+- Bracken is a patch over a whole tile, many fronds arching up out of the ground with broad triangular blades, in
+  drifts out in the light (clearings and the wood's edges, never under closed wood). It turns orange-brown in autumn.
+- The male fern is a shuttlecock with no stem, in groups of a few, only in the shade under the wood or in the damp by
+  water and at a rock's foot.
+- Dominic, 17:32: his wife suggests rose hip bushes in place of ferns. He wants to see the new ferns first; rose hips
+  come next.
+
+**D-105, 2026-11-12: Every shadow falls one way.** (From Dominic: "the shadows aren't all going the same direction";
+Claude.) The men's (and the horses') shadows went down and right while the trees' went left. Two mistakes: the way was
+taken from the sun's light with its fall from the sky in it, not along the ground as the trees' baker lays it, and the
+men's ground was squashed by the old 30 degree camera's half, not by the 22 degree camera's sine. Both fixed, and the
+sheets are now keyed by the shadows' way, so they bake again when it changes.
+
+**D-106, 2026-11-12: Dog roses at the wood's edge.** (Dominic's wife's idea, through Dominic: "instead of ferns, we
+should try rose hip bushes"; "Looks great, let's try rose hip too"; Claude.) Rosa canina: long arching canes a man high
+or more, small leaves, and red hips in twos and threes at the canes' ends. They grow in the wood's mantle where a tree
+or two gives half shade, a few together, and now and then out in the meadow. The hips are orange in high summer and
+scarlet in autumn, and they hang on the bare canes through the winter.
+
+**D-107, 2026-11-12: In autumn nothing is green but the evergreens.** (From Dominic: "Why would anything be green if
+it's autumn?"; Claude.) The meadow grass, the low herbs, the grass tufts, the bushes, the brambles and the male ferns
+all turn tawny gold, rust or red in autumn. This supersedes D-101's "green going gold" meadow. Summer and spring stay
+green. The firs, spruces and pines stay green, and where they grow is the next question (Dominic asked).
+
+**D-108, 2026-11-12: Evergreens by height and ground.** (Dominic asked: "Do we expect evergreens mixed in with the
+other ones? What's their general rules of placement in regards to each other?"; Claude, from the Rhodope zonation in
+docs/woods.md.) The low broadleaf woods (the gorge, the ruins and their road: `"firs": 0` in the map) have no fir or
+spruce, and their few pines stand only on rock and by drops. The beech-fir belt (the beech valley) keeps its firs and
+spruces in groups among the beeches, with pines only on rocky ground. The high and deep woods are unchanged: spruce,
+fir and pine. Not yet done: firs drawn to shaded north slopes and damp hollows, and alder and willow by the water.

@@ -177,3 +177,25 @@ One line per moment worth remembering. Newest at the bottom.
   at night in winter goes for a man on his own; howls, snarls and yelps (D-090). ([journal](journal/2026-11-12-the-patrol-and-the-fight.md))
 - **2026-11-12:** The bear (#61): a voxel bear in the beech valley at the thaw that rears and huffs, bluffs a charge,
   charges for real when shot at and runs when badly hurt; huffs, roars and swipes (D-091). ([journal](journal/2026-11-12-the-patrol-and-the-fight.md))
+- **2026-11-12:** Survival planned (docs/survival.md, phase 3, #50) and its first part built: each man's hunger,
+  warmth and rest; making camp with C, the fire that cooks, warms and keeps the wolves off but is seen by a patrol and
+  smelled by the bear; sleeping round it; breath in the cold (D-092 to D-094). ([journal](journal/2026-11-12-the-camp-and-the-fire.md))
+- **2026-11-12:** Gathering (#66): patches of berries, nuts, mushrooms, pears, greens and herbs on the ground by the
+  wood and the season; right-click to send men to gather them into their packs (D-095). ([journal](journal/2026-11-12-the-camp-and-the-fire.md))
+- **2026-11-12:** Packs (#67, #69): a pack's weight slows a man; X drops the men's packs in a pile, which is also a
+  cache for the way home that a patrol can find and the bear can eat (D-096). ([journal](journal/2026-11-12-the-camp-and-the-fire.md))
+- **2026-11-12:** The Roman drain studied at the ruins and known by the men who learned it, and the tally at the end:
+  who came back, who lies where, what they carry, what they know (#70, #72, D-097, D-098). ([journal](journal/2026-11-12-the-camp-and-the-fire.md))
+- **2026-11-12:** The campfire lights the men from where it is: their sides toward it, its pool on the ground, and
+  their shadows cast away from it, in place of a round glow seen from the camera (D-099). ([journal](journal/2026-11-12-the-fire-lights-the-men.md))
+- **2026-11-12:** Dominic and a Bulgarian's eye: the woods too sparse, "a little path through Africa". Plan
+  `docs/woods.md`; the woods grown dense and clumped from the maps' trees, with mantles at their edges and the rim
+  wooded (D-100). ([notes](notes/2026-11-12-dominic-forest-density-and-ferns.md))
+- **2026-11-12:** The trail broken up by grass, domed crowns, trees in stands of one kind (D-102), and a soft
+  watercolour filter on trial (D-103, Creel PR 30). ([notes](notes/2026-11-12-dominic-forest-density-and-ferns.md))
+- **2026-11-12:** Bracken patches in the light and male fern shuttlecocks in the shade replace the palm-like fern
+  (D-104); the men's shadows fall the trees' way (D-105). ([notes](notes/2026-11-12-dominic-forest-density-and-ferns.md))
+- **2026-11-12:** Dog roses with red hips at the woods' edges (D-106); autumn turned gold all through, the evergreens
+  alone green (D-107). ([notes](notes/2026-11-12-dominic-forest-density-and-ferns.md))
+- **2026-11-12:** Evergreens placed by height and ground: none in the low broadleaf woods, groups of fir among the
+  beech in the middle belt, pines on rock (D-108).

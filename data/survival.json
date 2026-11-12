@@ -1,0 +1,226 @@
+{
+ "_doc": "The men's needs, the camp and the fire (docs/survival.md, #65, #68; src/smyana/survival.lobster). Needs run from 100 (fine) to 0 (spent), per man. Rates are a game hour's worth (the clock: route.json's day_minutes, a night faster). start_food: portions each man leaves the village with, one a man a day.",
+ "start_food": 4,
+ "fed": {
+  "_doc": "Hunger. 'per_hour' is how much a man awake loses an hour, more by 'work' hundredths while he fells or digs and 'loaded' while he carries; 'asleep' asleep. A hot meal at a lit fire fills him, a cold one gives 'cold_meal'. At 0 he loses 'starving_hp' health an hour.",
+  "per_hour": 2.5,
+  "work": 150,
+  "loaded": 125,
+  "asleep": 1.2,
+  "cold_meal": 50,
+  "starving_hp": 1.5
+ },
+ "warm": {
+  "_doc": "Warmth goes toward the air's: 'air' by season (summer, autumn, winter, spring; between them by the year), less 'altitude' a hundred of the leg's altitude, 'night' at night, up to 'wind', 'rain' and 'snow' at their hardest, and 'wading' in a ford times how cold the water is (0..1). It falls 'fall' an hour toward it and rises 'rise'; within 'fire_tiles' of a lit fire the air is 'fire' warmer and it rises 'fire_rise'; asleep in a camp with others, 'huddle' warmer. At 0 he loses 'freezing_hp' health an hour.",
+  "air": [
+   100,
+   72,
+   22,
+   62
+  ],
+  "altitude": 4,
+  "night": 22,
+  "wind": 10,
+  "rain": 18,
+  "snow": 12,
+  "wading": 40,
+  "fall": 18,
+  "rise": 30,
+  "fire_tiles": 4,
+  "fire": 70,
+  "fire_rise": 80,
+  "huddle": 12,
+  "freezing_hp": 3
+ },
+ "rested": {
+  "_doc": "Tiredness: 'per_hour' awake, 'loaded' hundredths of that while he walks loaded; 'asleep' back an hour in a camp. A man who is fed, warm and asleep heals 'heal_hp' an hour.",
+  "per_hour": 4.5,
+  "loaded": 130,
+  "asleep": 13,
+  "heal_hp": 1
+ },
+ "pace": {
+  "_doc": "Below 'low' a need takes up to 'most' hundredths off a man's pace, each need its own share.",
+  "low": 30,
+  "most": 12
+ },
+ "camp": {
+  "_doc": "Making camp (C): the men stand round the fire, the nearest 'ring_tiles' from it, and lay a fire: it costs 'wood' off their backs and takes 'lay_s' seconds, or 'lay_bare_s' if none of them carries wood. A man within 'in_tiles' of it is in the camp; at night he sleeps there. The camp is struck when no man has been within 'in_tiles' for 'struck_s'. Woken by a shot, a man stays up 'woken_s'. The meal is at the first camp after 'meal_hour'.",
+  "ring_tiles": 1.1,
+  "wood": 2,
+  "lay_s": 4,
+  "lay_bare_s": 50,
+  "in_tiles": 5,
+  "struck_s": 30,
+  "woken_s": 40,
+  "meal_hour": 17
+ },
+ "fire_seen": {
+  "_doc": "A lit fire draws the threats (docs/survival.md): seen at night 'night_tiles' off, through any cover; its smoke by day 'day_tiles'; wolves keep 'wolves_keep_tiles' off it; the bear smells a camp's food 'bear_smell_tiles' off.",
+  "night_tiles": 34,
+  "day_tiles": 18,
+  "wolves_keep_tiles": 7,
+  "bear_smell_tiles": 16
+ },
+ "forage": {
+  "_doc": "What the wood gives, by its kind (the map's 'wood') and the season (docs/survival.md, #66). Each find shows on open ground as a patch ('look': how the view draws it) on 'per_mille' of the open cells, and a man gathers it in 'gather_s' seconds standing on it: 'food' portions into his pack, 'goods' to take home (herbs, honey). What is taken stays taken. A man's pack holds what packs.most allows. Right-click a patch with men chosen: each goes to the nearest one within 'reach_tiles' of it.",
+  "gather_s": 6,
+  "reach_tiles": 9,
+  "woods": {
+   "beech": {
+    "summer": [
+     {
+      "id": "bilberries",
+      "look": "berries_blue",
+      "food": 1,
+      "per_mille": 15
+     },
+     {
+      "id": "herbs",
+      "look": "herbs",
+      "goods": 1,
+      "per_mille": 9
+     }
+    ],
+    "autumn": [
+     {
+      "id": "beechnuts",
+      "look": "nuts",
+      "food": 1,
+      "per_mille": 24
+     },
+     {
+      "id": "mushrooms",
+      "look": "mushrooms",
+      "food": 2,
+      "per_mille": 15
+     }
+    ],
+    "winter": [
+     {
+      "id": "rosehips",
+      "look": "berries_red",
+      "food": 1,
+      "per_mille": 3
+     }
+    ],
+    "spring": [
+     {
+      "id": "nettles",
+      "look": "greens",
+      "food": 1,
+      "per_mille": 12
+     }
+    ]
+   },
+   "oak": {
+    "summer": [
+     {
+      "id": "wild strawberries",
+      "look": "berries_red",
+      "food": 1,
+      "per_mille": 12
+     },
+     {
+      "id": "herbs",
+      "look": "herbs",
+      "goods": 1,
+      "per_mille": 12
+     }
+    ],
+    "autumn": [
+     {
+      "id": "wild pears",
+      "look": "pears",
+      "food": 2,
+      "per_mille": 9
+     },
+     {
+      "id": "mushrooms",
+      "look": "mushrooms",
+      "food": 2,
+      "per_mille": 12
+     }
+    ],
+    "winter": [],
+    "spring": [
+     {
+      "id": "wild garlic",
+      "look": "greens",
+      "food": 1,
+      "per_mille": 18
+     }
+    ]
+   },
+   "deep": {
+    "summer": [
+     {
+      "id": "bilberries",
+      "look": "berries_blue",
+      "food": 1,
+      "per_mille": 12
+     }
+    ],
+    "autumn": [
+     {
+      "id": "ceps",
+      "look": "mushrooms",
+      "food": 2,
+      "per_mille": 18
+     }
+    ],
+    "winter": [],
+    "spring": []
+   },
+   "high": {
+    "summer": [
+     {
+      "id": "bilberries",
+      "look": "berries_blue",
+      "food": 1,
+      "per_mille": 18
+     },
+     {
+      "id": "mountain tea",
+      "look": "herbs",
+      "goods": 1,
+      "per_mille": 12
+     }
+    ],
+    "autumn": [
+     {
+      "id": "lingonberries",
+      "look": "berries_red",
+      "food": 1,
+      "per_mille": 12
+     },
+     {
+      "id": "mountain tea",
+      "look": "herbs",
+      "goods": 1,
+      "per_mille": 6
+     }
+    ],
+    "winter": [],
+    "spring": []
+   }
+  }
+ },
+ "packs": {
+  "_doc": "A man's pack (docs/survival.md, #67, #69): it holds 'most' of food portions and goods together; a bundle of wood on top weighs 'wood'. A full pack takes 'slow' hundredths off his pace (in proportion as it fills). X: the chosen men drop their packs where they stand, keeping 'keep_food' portions each; a pile left at the foot of an old tree is a cache. A pile is found by a patrol passing that sees it (the cover over it hides it as it hides a man: the leaves falling, the tree felled) and taken; the bear smells food in one from 'bear_smell_tiles' and eats it. Right-click a pile with men chosen and they share it out into their packs.",
+  "most": 12,
+  "wood": 2,
+  "slow": 22,
+  "keep_food": 1,
+  "bear_smell_tiles": 10
+ },
+ "knowledge": {
+  "_doc": "What the men learn (docs/survival.md, #70): the Roman drain at the ruins. Right-click the old road (its drain runs beside it) with men chosen and they stand at it and study; it takes 'man_hours' of men's time on the clock (four men about six hours; more men, quicker), and a man must give at least 'least_hours' of it to have learned it. Kept between the two visits to the ruins. Lost if every man who learned it dies.",
+  "drain": {
+   "name": "the Roman drain",
+   "man_hours": 24,
+   "least_hours": 1,
+   "reach_tiles": 2
+  }
+ }
+}

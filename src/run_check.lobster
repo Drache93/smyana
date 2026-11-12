@@ -57,6 +57,9 @@ def walk_in_clear(n:int):
 
 lib_load("../data")
 route_load()
+// (the walk and the threats are checked on their own: the men are kept fed, warm and rested; the needs are checked at
+// the end)
+needs_kept = true
 run_begin()
 leg_loads.push(last_load_s)
 expect(place_now() == "village_edge" and u_x.length == 20, "the run starts at the village edge with twenty men ({u_x.length})")
@@ -72,7 +75,7 @@ walk_in_clear(200)
 go_on(walk_to_gate("east"), "the men walked out of the village to the east gate")
 expect(place_now() == "beech_valley" and arrived_by == "west", "the beech valley is loaded, the men at its west edge")
 // cover (#9): somewhere under the beeches a man is well hidden in summer and a watcher eight tiles' sight off does not
-// spot him from six; in winter, with the leaves down, he is far less hidden there and is spotted
+// spot him from four (the wood is thick now, D-100); in winter, with the leaves down, he is far less hidden there and is spotted
 let grass_t = str_index(tr_names, "grass")
 var hid = 0
 var hid_c = 0
@@ -84,10 +87,10 @@ for(terrain) t, c:
             hid = v
             hid_c = c
         open_least = min(open_least, v)
-let watch_x = (hid_c % W) * TILE + TILE / 2 + 6 * TILE
+let watch_x = (hid_c % W) * TILE + TILE / 2 + 4 * TILE
 let watch_y = (hid_c / W) * TILE + TILE / 2
 expect(hid >= 60 and open_least <= 10, "the wood hides a man well in summer and the open ground does not ({hid} and {open_least} in a hundred)")
-expect(not spots(watch_x, watch_y, hid_c, 8 * TILE), "a watcher six tiles off does not spot him under the leaves")
+expect(not spots(watch_x, watch_y, hid_c, 8 * TILE), "a watcher four tiles off does not spot him under the leaves")
 year_force = 2000
 let hid_winter = cover_at(hid_c)
 expect(hid_winter < hid * 2 / 3, "in winter the same tile hides him far less ({hid_winter})")
@@ -465,4 +468,165 @@ for(150 * TICK_HZ):
 print "bear: charged {charged}, {swipes} swipes, {bear_hit} hits on it, state {bears[0].state}"
 expect(charged, "shot at, it charges")
 expect(bears[0].state == B_FLED or bears[0].state == B_DEAD, "badly hurt it runs, or it falls ({bear_hit} hits)")
+
+// surviving (#65, #68, docs/survival.md): a winter night in the fir woods, half the men in a camp round a fire and half
+// standing out in the cold; the camp sleeps, eats hot and stays warm, the others don't, and the wolves keep off the fire
+needs_kept = false
+hour_force = 22.0
+enter_leg("fir_woods_home", "east")
+let all_ids = ids_alive()
+for(men) m: if m.alive: m.warm = 60000
+let campers = slice(all_ids, 0, all_ids.length / 2)
+let cold_ones = slice(all_ids, all_ids.length / 2, -1)
+for(cold_ones) id, n:
+    // (to open ground twelve tiles off, wherever the wood leaves it)
+    let to = road_on_open([ u_x[index_of(id)] - 12 * TILE + (n % 4) * 700, u_y[index_of(id)] + (n / 4) * 700 ])
+    issue_cmd(0, CMD_MOVE, [ id ], to[0], to[1], 0, 0)
+let food_before = (fold(men, 0) a, m: a + m.food)
+expect(camp_order(campers), "the men make camp")
+var slept = 0
+var wolves_near_fire = 1 << 30
+for(80 * TICK_HZ):
+    step()
+    threats_after_step(guns_after_step())
+    route_tick()
+    for(campers) id: if is_asleep(id): slept = max(slept, (filter(campers) c: is_asleep(c)).length)
+    let fl = fires_lit()
+    if fl.length and packs.length: for(pack_alive(packs[0])) wid: wolves_near_fire = min(wolves_near_fire, int(sqrt(float(dist2(u_x[index_of(wid)], u_y[index_of(wid)], fl[0].x, fl[0].y)))) / TILE)
+hour_force = -1.0
+def warm_of(ids:[int]) -> int:
+    var w = 0
+    for(ids) id:
+        let m = man_of(id)
+        if m: w += m.warm / 1000 / ids.length
+    return w
+def rested_of(ids:[int]) -> int:
+    var r = 0
+    for(ids) id:
+        let m = man_of(id)
+        if m: r += m.rested / 1000 / ids.length
+    return r
+let food_after = (fold(men, 0) a, m: a + m.food)
+print "camp: {slept} asleep, warmth {warm_of(campers)} by the fire and {warm_of(cold_ones)} out in the cold, rest {rested_of(campers)} and {rested_of(cold_ones)}, {meals_hot} hot meals, food {food_before} to {food_after}, wolves {wolves_near_fire} tiles from the fire at the closest"
+expect(fires_lit().length == 1, "its fire burns")
+expect(slept > campers.length / 2, "the camp sleeps at night ({slept})")
+expect(warm_of(campers) > warm_of(cold_ones) + 20, "the fire keeps them warm, the others get cold")
+expect(rested_of(campers) > rested_of(cold_ones) + 10, "they get their rest back")
+expect(meals_hot > 0 and food_after < food_before, "they eat a hot meal from what they carry")
+expect(wolves_near_fire >= fire_keep_tiles(), "the wolves keep off the fire")
+// a fire is seen at night: a patrol passing sixteen tiles off, too far to see the men, comes to look
+hour_force = 23.0
+with_patrol = true
+enter_leg("beech_valley_out", "west")
+with_patrol = false
+for(80): step()
+let mid = men_here()[0]
+let fx = u_x[mid] / TILE
+let fy = u_y[mid] / TILE
+// (two of them carry wood for the fire)
+for(2) n:
+    u_carry[men_here()[n]] = r_carry
+    u_carry_kind[men_here()[n]] = wood_k
+camp_order(ids_alive())
+for(10 * TICK_HZ):
+    step()
+    route_tick()
+let road_x = min(W - 3, fx + 16)
+patrol_spawn(map([ road_x, max(2, fy - 20), road_x, min(H - 3, fy + 20) ]) v: v * TILE + TILE / 2, 6)
+var came_to_look = false
+for(60 * TICK_HZ):
+    step()
+    threats_after_step(guns_after_step())
+    route_tick()
+    if patrols[0].state == P_WARY: came_to_look = true
+let lead_i = index_of(patrols[0].ids[0])
+print "fire seen: {fires_lit().length} fires at {fires_lit()[0].x / TILE},{fires_lit()[0].y / TILE}, men from {fx},{fy}, patrol state {patrols[0].state} lead at {u_x[lead_i] / TILE},{u_y[lead_i] / TILE} road from {patrols[0].road[0] / TILE},{patrols[0].road[1] / TILE} next {patrols[0].next}"
+hour_force = -1.0
+expect(came_to_look, "a patrol sees the fire at night and comes to look")
+// put out, the fire is not seen
+camp_order(ids_alive())
+expect(not fires_lit().length, "the fire is put out")
+// gathering (#66): in the autumn beeches there are nuts and mushrooms to find; men sent to a patch gather it into their
+// packs, and it stays taken when they come back
+year_force = 1000
+enter_leg("beech_valley_out", "west")
+for(60): step()
+let patches_before = forage_patches().length
+let gatherers = slice(ids_alive(), 0, 4)
+let food0 = fold(men, 0) a, m: a + m.food
+let gi = index_of(gatherers[0])
+var nearest_patch = -1
+for(forage_patches()) c: if nearest_patch < 0 or dist2((c % W) * TILE, (c / W) * TILE, u_x[gi], u_y[gi]) < dist2((nearest_patch % W) * TILE, (nearest_patch / W) * TILE, u_x[gi], u_y[gi]): nearest_patch = c
+expect(patches_before > 10 and forage_order(gatherers, nearest_patch), "autumn beeches give patches to gather ({patches_before}), and men go to them")
+for(60 * TICK_HZ):
+    step()
+    route_tick()
+let food1 = fold(men, 0) a, m: a + m.food
+let patches_after = forage_patches().length
+print "gathering: {patches_before} patches, {patches_before - patches_after} gathered, food {food0} to {food1}"
+expect(food1 > food0 and patches_after < patches_before, "they gather it into their packs")
+forage_leave(place_now())
+forage_enter(place_now())
+expect(forage_patches().length == patches_after, "what is taken stays taken")
+year_force = -1
+// packs (#67, #69): a full pack slows a man; the men drop their packs and pick them up again; a pile in the open is
+// found by a patrol that passes
+year_force = 1000
+with_patrol = true
+enter_leg("beech_valley_out", "west")
+with_patrol = false
+for(80): step()
+let carriers = ids_alive()
+for(men) m: if m.alive: m.food = 2
+let first = man_of(carriers[0])
+if first: first.food = 12
+for(20):
+    step()
+    route_tick()
+// (the pack's own share of his pace: the ground under each, thick wood or open, slows them as well)
+let heavy = load_pace(assert man_of(carriers[0]), index_of(carriers[0]))
+let light = load_pace(assert man_of(carriers[1]), index_of(carriers[1]))
+expect(heavy < light, "a full pack slows a man ({heavy} against {light})")
+let food_pk = fold(men, 0) a, m: a + m.food
+expect(packs_drop(carriers) and piles.length == 1, "the men drop their packs")
+let left = fold(men, 0) a, m: a + m.food
+expect(left == carriers.length and piles[0].food == food_pk - left, "keeping a day\'s food each ({left})")
+packs_fetch(carriers, 0)
+for(20 * TICK_HZ):
+    step()
+    route_tick()
+expect(not piles.length and (fold(men, 0) a, m: a + m.food) == food_pk, "and pick them up again")
+// (a pile left out in the open, and a patrol down a road past it)
+packs_drop(carriers)
+let pile_x = piles[0].x / TILE
+let pile_y = piles[0].y / TILE
+for(men) m:
+    if m.alive:
+        let mi = index_of(m.uid)
+        if mi >= 0: issue_cmd(0, CMD_MOVE, [ m.uid ], 4 * TILE, u_y[mi], 0, 0)
+patrol_spawn(map([ pile_x + 14, pile_y - 12, pile_x + 1, pile_y, pile_x + 1, min(H - 3, pile_y + 20) ]) v: v * TILE + TILE / 2, 6)
+for(60 * TICK_HZ):
+    step()
+    threats_after_step(guns_after_step())
+    route_tick()
+expect(piles_lost > 0 and not piles.length, "a patrol passing finds the pile and takes it")
+year_force = -1
+// the Roman drain (#70): eight men study it at the ruins and learn it; the tally (#72) says so, and names the fallen
+needs_kept = true
+enter_leg("ruins_out", "west")
+for(40): step()
+let scholars = slice(ids_alive(), 0, 8)
+expect(study_order(scholars), "the men go to study the drain")
+var learned_after = -1
+for(150 * TICK_HZ) n:
+    step()
+    route_tick()
+    if learned_after < 0 and drain_learned(): learned_after = n / TICK_HZ
+let knowers = (filter(men) m: m.alive and knows_drain(m)).length
+print "drain: learned after {learned_after} s by {knowers} men"
+expect(learned_after > 0 and knowers == 8, "they learn it, and those eight know it")
+let said = tally_lines()
+print "tally: {said}"
+expect((find(said) l: find_string(l, "Romans") >= 0) >= 0, "the tally says what they learned")
+expect(men_alive() == men.length or (find(said) l: find_string(l, " lies in ") >= 0) >= 0, "and names the fallen")
 print (if failed: "run_check: {failed} FAILED" else: "run_check: ok")

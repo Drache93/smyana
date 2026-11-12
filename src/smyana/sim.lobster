@@ -51,4 +51,9 @@ import gen.reset
 import smyana.route
 import smyana.guns
 import smyana.threats
+import smyana.survival
+import smyana.forage
+import smyana.packs
+import smyana.knowledge
+import smyana.woods
 let SMYANA_VERSION = "0.1.0"

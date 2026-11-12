@@ -1,0 +1,23 @@
+{
+ "_doc": "How the woods grow when a place is loaded (docs/woods.md, D-100): the map's trees say where the wood is, and the wood is grown out from them by these rules. 'reach': tiles round a tile read for how wooded the map draws it; a tile at least 'wood_at' of whose neighbours are drawn as trees is in the wood, and one at 'closed_at' is deep in it. In the wood, 'closed' of the tiles hold an old tree, more or less by a clumping field 'clump_tiles' across that varies it by 'clump' (some patches thick, some thinner, a gap here and there); 'young' of the rest a young tree. At the wood's edge, the 'edge_tiles' toward the open, 'edge_young' young trees and 'edge_old' old ones (the wood's mantle). Out in the open, 'groups' of the tiles start a group of 'group_size' trees round them. The rim beyond play (the map's 'rim') is wood at 'rim'. Nothing grows within 'keep_trail' tiles of the trail or a ford, 'keep_gate' of a gate, 'keep_set' of a camp, a ruin, a bridge or the start, nor on a cliff's edge. A place can override any of these under 'places'.",
+ "reach": 3,
+ "wood_at": 0.06,
+ "closed_at": 0.16,
+ "closed": 0.5,
+ "clump_tiles": 7,
+ "clump": 0.75,
+ "young": 0.1,
+ "edge_tiles": 2,
+ "edge_young": 0.3,
+ "edge_old": 0.12,
+ "groups": 0.006,
+ "group_size": 4,
+ "rim": 0.7,
+ "keep_trail": 1,
+ "keep_gate": 3,
+ "keep_set": 4,
+ "places": {
+  "camp_clearing": { "off": 1 },
+  "pass": { "rim": 0.3, "closed": 0.35 }
+ }
+}
