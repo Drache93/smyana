@@ -52,7 +52,7 @@ of the one before it, behind a letter home of about 20 seconds. That makes 12 lo
 | 4 | Gorge | 96 x 64 | 145 x 95 m | Built, grey-box; its floor four levels below the wood, a ramp down each side | West, east |
 | 5 | Roman ruins | 76 x 76 | 115 x 115 m | Grey-box (#53): a shelf four levels above the river, the old road on it | West, east |
 | 6 | The pass | 108 x 44 | 160 x 65 m | Grey-box (#54): the trail on a shelf eight levels up, a valley path below (D-076) | West, east |
-| 7 | High ridge | 108 x 76 | 160 x 115 m | Grey-box (#55): a lookout over the far valley and its road, eight levels down | West only: in and out the same way |
+| 7 | High ridge | 108 x 76 | 160 x 115 m | A ridge trail across the picture, cliffs down to a spruce valley in low fog, the far road on a shelf beyond (D-084) | West only: in and out the same way |
 
 Every map adds a rim of 10 tiles of forest on each side that the men can't enter. All seven fit the budget in
 `data/route.json` (128 x 96 tiles in all, 3,200 old trees). Forks, such as the long way round the fir woods, wait

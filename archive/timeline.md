@@ -166,3 +166,5 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-12:** The flintlock: the men carry the swallow-tail rifle, aim, fire and ram; the pan flashes, the charge
   hangs, the place answers the bang, the smoke hangs and hides them, and twenty rifles go off in ones and twos (D-080
   to D-083, Creel #28). ([journal](journal/2026-11-12-the-flintlock.md))
+- **2026-11-12:** The ridge made like its mock-up: laid on the diagonal, the valley in drifting low fog, a patrol with
+  a red banner on the far road below (D-084, Creel low fog). ([journal](journal/2026-11-12-the-ridge-in-fog.md))
