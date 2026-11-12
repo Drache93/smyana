@@ -201,6 +201,7 @@ def drift_at(x:float, y:float, grain:int) -> float:
     return clamp((n - 0.42) * 7.0, 0.006, 1.0)
 
 def build_props():
+    if arg_of("props") == "0": return  // props:0: the bare ground and its cliffs, for a look at them
     props = []
     let debris_t = str_index(tr_names, "rubble")
     props_version = map_version
@@ -226,7 +227,7 @@ def build_props():
             let sp = if (sp0 == "pine" or sp0 == "bpine") and not pines: "beech" else: sp0
             props.push(Prop { 0, k, "{sp}{k}", sp, off, c })
         elif t == young:
-            let fir = wood != "beech" and (h / 7) % 4 != 0
+            let fir = not broadleaved(wood) and (h / 7) % 4 != 0
             props.push(Prop { 1, h / 7, if fir: "yspruce{(h / 7) % YOUNG_KINDS}" else: "young{(h / 7) % YOUNG_KINDS}", if fir: "spruce" else: "beech", centre, c })
         elif t == stump:
             // (and what was left when it was sawn up lies beside it: its top and boughs, a round of its trunk)
@@ -312,7 +313,7 @@ def build_props():
             if (h2 / 100) % 100 >= 90 and (h2 / 100) % 100 < 94:
                 // (a sapling of the wood's own kinds, #98)
                 let r = (h2 / 10000) % 10
-                let sp = if wood == "beech": (if r < 5: "beech" elif r < 8: "oak" else: "hornbeam") else: (if r < 4: "spruce" elif r < 7: "fir" else: "beech")
+                let sp = if wood == "oak": (if r < 6: "oak" else: "hornbeam") elif wood == "beech": (if r < 5: "beech" elif r < 8: "oak" else: "hornbeam") else: (if r < 4: "spruce" elif r < 7: "fir" else: "beech")
                 props.push(Prop { 5, 0, "sapling_" + sp, "", centre, c })
             if (h2 / 100) % 100 < 6: props.push(Prop { 5, 0, "bush{h2 % BUSH_KINDS}", "", centre + iso(float((h2 / 13) % 600) - 300.0, float((h2 / 19) % 600) - 300.0), c })
             elif (h2 / 100) % 100 == 99: props.push(Prop { 6, 0, "log{h2 % LOG_KINDS}", "", centre, c })
@@ -501,7 +502,7 @@ def build_litter():
                     if v > a[y * w + x]: a[y * w + x] = v
     // autumn in a broadleaf wood: the year's leaves lie over nearly everything, thinner in the open
     let turf_seed = gint(su_map, "grass_seed", 9001)
-    if carpet > 0.0 and place_wood() == "beech":
+    if carpet > 0.0 and broadleaved(place_wood()):
         for(h) y: for(w) x:
             // (2026-11-11: the leaves lie over all of it, only a worn spot of turf here and there: the mock-up's grass
             // stands out of the leaves in tufts, it isn't a green floor between drifts of them)
@@ -553,7 +554,7 @@ def ground_turn() -> string, string, float:
 def ground_season_tick():
     let base, next, t = ground_turn()
     def atlas(name:string) -> resource<texture>?:
-        return gl.load_texture("../data/ground/atlas" + (if place_wood() != "beech": "_conifer" else: "") + name + ".png", texture_format_clamp | texture_format_nomipmap | texture_format_nearest_mag | texture_format_nearest_min)
+        return gl.load_texture("../data/ground/atlas" + (if not broadleaved(place_wood()): "_conifer" else: "") + name + ".png", texture_format_clamp | texture_format_nomipmap | texture_format_nearest_mag | texture_format_nearest_min)
     if base != ground_base or next != ground_next:
         ground_atlas_tex = atlas(base)
         ground_atlas_next = if next != base: atlas(next) else: nil
@@ -566,6 +567,8 @@ def ground_season_tick():
         ground_atlas_mix = float(step) / 48.0
         // (no drawn line where the fallen leaves and needles end: they thin out onto the grass; under snow less so)
         ground_litter_fringe = 0.3 - 0.2 * (if next == "_winter": ground_atlas_mix elif base == "_winter": 1.0 else: 0.0)
+        // (and snow lies on the cliffs' ledges, lips and scree as it lies on the ground)
+        relief_snow = if next == "_winter": ground_atlas_mix elif base == "_winter": 1.0 else: 0.0
         ground_stale = true
     // (and the carpet of leaves on a beech wood's floor thickens with it, painted again an eighth at a time)
     if carpet_step >= 0 and int(leaf_carpet() * 8.0 + 0.5) != carpet_step: build_litter()
@@ -601,6 +604,9 @@ def view_enter(between):
     relief_sharp = true
     // (and no rim is ruled straight along the tiles: the ground by a drop rises and falls, Dominic's "hard edges")
     relief_rough = (if arg_of("rough") != "": string_to_float(arg_of("rough")) else: gfloat(su_map, "rough", 0.9))
+    // (proper cliffs, Creel #25: each drop a curve through the unwalkable tile below it, with ledges, a rolled rim and scree)
+    relief_cliffs = if arg_of("cliffs") != "": string_to_float(arg_of("cliffs")) else: gfloat(su_map, "cliffs", 0.0)
+    if relief_cliffs > 0.0: relief_rough = 0.0
     build_relief()
     trail_wear()
     build_trail()
@@ -1657,7 +1663,8 @@ while gl.frame():
         if not letter_loaded and phase_t > 0.3:  // (the letter is on the screen first: the load stops the picture for its length)
             load_next()
             letter_loaded = true
-        let hold = if script == "tour": 6.0 else: float(gint(route, "letter_seconds", 20))
+        // (no letter on the last walk, down the lane into the village: straight on to the end)
+        let hold = if not letter.length: 0.5 elif script == "tour": 6.0 else: float(gint(route, "letter_seconds", 20))
         let skip = letter_loaded and phase_t > 2.0 and (gl.button("mouse1") == 1 or gl.button("space") == 1 or gl.button("return") == 1)
         if letter_loaded and (phase_t >= hold or skip):
             paused = false

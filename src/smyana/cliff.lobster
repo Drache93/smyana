@@ -12,17 +12,18 @@ def cliff_shaders() -> string:
         UNIFORMS mvp
         gl_Position = mvp * apos;
         iface = atc;
-        iinfo = vec4(acolor.r * 9.0, acolor.g, acolor.b * 9.0, 0.0);   // the rim's height, which way it faces, the foot's height
+        iinfo = vec4(acolor.r * 9.0, acolor.g, acolor.b * 9.0, acolor.a);   // the rim's height, which way it faces (0 to 1), the foot's height, 1 on a tile's edge (0.5: Creel's cliffs off the grid)
     PIXEL
         INPUTS iface:2 iinfo:4
         UNIFORM float art_px
         UNIFORM float level_px
+        UNIFORM float snow
         float rim = iinfo.x;
         float foot = iinfo.z;
         float side = iinfo.y;
         float bay = bayer(ivec2(gl_FragCoord.xy / art_px));
         // (in art px: along the face, and down from the rim)
-        vec2 p = floor(vec2(iface.x * 35.8 * 1.5 + side * 300.0, (rim - iface.y) * level_px * 1.5));
+        vec2 p = floor(vec2(iface.x * 35.8 * 1.5 + (iinfo.w > 0.75 ? side * 300.0 : 0.0), (rim - iface.y) * level_px * 1.5));
         float depth = max((rim - foot) * level_px * 1.5, 1.0);
         float k = clamp(p.y / depth, 0.0, 1.0);
         // Massive rock, not masonry: broad patches of a few close tones, split into uneven upright blocks by
@@ -51,7 +52,8 @@ def cliff_shaders() -> string:
         float f2 = floor(fxw / 19.0);
         if (floor(mod(fxw, 19.0)) == floor(hash(vec2(f2, 3.0)) * 19.0) && hash(vec2(f2, floor(p.y / 31.0))) > 0.72) col *= 0.66;
         // moss where water seeps, a leaf caught on a ledge
-        if (vnoise(p * 0.07 + 40.0) > 0.72 && hash(p) > 0.4) col = mix(col, vec3(0.33, 0.40, 0.19), 0.65);
+        // (not on a face off the grid seen nearly edge on, where it would run in upright stripes)
+        if (iinfo.w > 0.75 && vnoise(p * 0.07 + 40.0) > 0.72 && hash(p) > 0.4) col = mix(col, vec3(0.33, 0.40, 0.19), 0.65);
         if (lg < 0.07 && hash(p + 17.0) > 0.97) col = hash(p + 3.0) > 0.5 ? vec3(0.80, 0.50, 0.14) : vec3(0.62, 0.30, 0.10);
         // the lip: the ground's own cover hanging over the edge
         float lip = 2.0 + floor(3.0 * vnoise(vec2(p.x * 0.3, 2.0))) + (hash(vec2(p.x, 5.0)) > 0.8 ? 2.0 : 0.0);
@@ -61,11 +63,19 @@ def cliff_shaders() -> string:
         } else if (p.y < lip + 2.0) {
             col *= 0.55;
         }
-        col *= side > 0.5 ? 1.0 : 0.7;                                    // (the face turned from the sun)
+        col *= mix(0.7, 1.0, clamp(side, 0.0, 1.0));                    // (the face turned from the sun)
         col *= mix(1.0, 0.7, floor(clamp(k + bay * 0.2, 0.0, 0.999) * 4.0) / 3.0);
         // scree at the foot
         float scree = 3.0 + floor(4.0 * vnoise(vec2(p.x * 0.25, 9.0)));
         if (depth - p.y < scree && hash(p + 31.0) > 0.45) col = mix(col, vec3(0.40, 0.38, 0.33), 0.7);
         if (depth - p.y < 2.0) col *= 0.55;
+        // snow (Creel's relief_snow): on the lip, on the ledges' lit tops, in the scree, a pixel at a time
+        if (snow > 0.0) {
+            vec3 sn = vec3(0.86, 0.89, 0.94) * mix(0.8, 1.0, clamp(side, 0.0, 1.0));
+            float hs1 = hash(p + 61.0);
+            if (p.y < lip && hs1 < snow * 1.2) col = sn;
+            else if (lg < 0.09 && hs1 < snow * 0.95) col = mix(col, sn, 0.9);
+            else if (depth - p.y < scree + 2.0 && hs1 < snow * 0.8) col = mix(col, sn, 0.8);
+        }
         frag_color = vec4(col, 1.0);
 """

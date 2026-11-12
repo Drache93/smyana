@@ -44,15 +44,15 @@ of the one before it, behind a letter home of about 20 seconds. That makes 12 lo
 
 ![The seven maps and when each loads](../archive/images/2026-11-11/62-the-seven-maps-and-when-each-loads.jpg)
 
-| # | Map | Walkable tiles | About | State on 2026-11-11 | Gates |
+| # | Map | Walkable tiles | About | State (late 2026-11-11, D-077) | Gates |
 |---|---|---|---|---|---|
-| 1 | Village edge | 76 x 64 | 115 x 95 m | New (#52) | Village lane (start and end), east |
+| 1 | Village edge | 76 x 64 | 115 x 95 m | Grey-box (#52): the village as blocks beyond the lane, terraces | Village lane (west: start and end), east |
 | 2 | Beech valley | 96 x 64 | 145 x 95 m | Built, grey-box | West, east |
 | 3 | Deep fir woods | 96 x 64 | 145 x 95 m | Built, grey-box | West, east |
 | 4 | Gorge | 96 x 64 | 145 x 95 m | Built, grey-box; its floor four levels below the wood, a ramp down each side | West, east |
-| 5 | Roman ruins | 76 x 76 | 115 x 115 m | New (#53) | West, east |
-| 6 | The pass | 108 x 44 | 160 x 65 m | New (#54) | West, east |
-| 7 | High ridge | 108 x 76 | 160 x 115 m | New (#55) | West only: in and out the same way |
+| 5 | Roman ruins | 76 x 76 | 115 x 115 m | Grey-box (#53): a shelf four levels above the river, the old road on it | West, east |
+| 6 | The pass | 108 x 44 | 160 x 65 m | Grey-box (#54): the trail on a shelf eight levels up, a valley path below (D-076) | West, east |
+| 7 | High ridge | 108 x 76 | 160 x 115 m | Grey-box (#55): a lookout over the far valley and its road, eight levels down | West only: in and out the same way |
 
 Every map adds a rim of 10 tiles of forest on each side that the men can't enter. All seven fit the budget in
 `data/route.json` (128 x 96 tiles in all, 3,200 old trees). Forks, such as the long way round the fir woods, wait
@@ -80,7 +80,9 @@ The run is two hours: 13 legs and a 3-minute intro. Minutes are a first guess, t
 | 12 | Beech valley | The thaw | 8 | No cover left. A bear wakes hungry |
 | 13 | Village edge | Spring | 7 | Coming home, then the ending |
 
-With nothing to do, the walk alone is about 21 minutes plus 4 minutes of letters.
+With nothing to do, the walk alone is about 21 minutes plus 4 minutes of letters. The run check walked all 13 legs on
+2026-11-11 (#57): about 26 minutes, with felling, digging, mending the bridge and the ridge's lookout on the way; the
+time of each leg is in [`../archive/journal/2026-11-11-the-whole-world-grey-boxed.md`](../archive/journal/2026-11-11-the-whole-world-grey-boxed.md).
 
 ## The phases
 
