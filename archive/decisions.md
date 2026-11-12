@@ -668,3 +668,10 @@ can select everyone, but I don't seem to have to move anyone", and the camera "s
 Claude.) Orders listened to SDL's middle button ("mouse2"); the right button is "mouse3", as in Creel's own controls.
 Either now gives the order. The camera's edge clamp went through a ground pick and back, so on raised ground each
 frame nudged it; it now clamps in flat map space and never moves the camera when it's inside the map.
+
+**D-111, 2026-11-12: The men carry their load.** (From Dominic: "they might have a few pistols on their body... they
+might have their packs"; Claude.) Every man has two flintlock pistols through the front of his sash, long grips with
+big silver ball pommels (they had two stubs there before, too small to see). Each carries a grey felt bedroll tied
+across his shoulder blades, a red-striped woven bag (torba) at his left hip, or both, by turn
+(art/men/tools/men.py, write_vox.py). The patrol has the pistols but no packs. Not dynamic: the load shows in the look
+and the slower walk (D-109), not in the numbers.
