@@ -16,7 +16,7 @@
   "sash": [ 0.2, 0.36, 0.22 ],
   "looks": [ "patrol_01", "patrol_02", "patrol_03", "patrol_04" ],
   "unit": {
-   "slot": "patrol", "speed": 11, "radius": 180, "hp": 40, "pop": 0, "cost": {}, "train_time": 1, "tags": [], "age": 1,
+   "slot": "patrol", "speed": 4, "radius": 180, "hp": 40, "pop": 0, "cost": {}, "train_time": 1, "tags": [], "age": 1,
    "attack": 9, "damage": "pierce", "bonus": {}, "armour": {}, "range": 6, "reload": 360, "sight": 10, "look": {}
   }
  },
@@ -32,7 +32,7 @@
   "flee_after": 2,
   "howl_s": [ 25, 60 ],
   "unit": {
-   "slot": "wolf", "speed": 20, "radius": 170, "hp": 30, "pop": 0, "cost": {}, "train_time": 1, "tags": [], "age": 1,
+   "slot": "wolf", "speed": 12, "radius": 170, "hp": 30, "pop": 0, "cost": {}, "train_time": 1, "tags": [], "age": 1,
    "attack": 10, "damage": "melee", "bonus": {}, "armour": {}, "range": 0, "reload": 30, "sight": 12, "look": {}
   }
  },
@@ -48,10 +48,10 @@
   "flee_hp": 30,
   "hit_damage": 25,
   "unit": {
-   "slot": "bear", "speed": 9, "radius": 320, "hp": 125, "pop": 0, "cost": {}, "train_time": 1, "tags": [], "age": 1,
+   "slot": "bear", "speed": 6, "radius": 320, "hp": 125, "pop": 0, "cost": {}, "train_time": 1, "tags": [], "age": 1,
    "attack": 22, "damage": "melee", "bonus": {}, "armour": {}, "range": 0, "reload": 40, "sight": 12, "look": {}
   },
-  "charge_speed": 24
+  "charge_speed": 14
  },
  "rear": {
   "_doc": "How each beast rears up on its hind legs (men_view's bake): its hips' [ y, z ] in body units, the angle, and its shoulders' [ y, z ] (the forelegs hang from them).",

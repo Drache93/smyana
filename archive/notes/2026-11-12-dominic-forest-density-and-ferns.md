@@ -119,3 +119,12 @@ this is cloud clinging to and lifting off a wooded slope.
 ## 17:46, evergreens
 
 > Do we expect evergreens mixed in with the other ones? What's their general rules of placement in regards to each other?
+
+## 17:58, the kind of tree, and the leaf floor (with a photo)
+
+> It looks like I think we're still doing the wrong type of tree. We're doing very specific types of trees that will obviously have their foliage on the top. If you look at this picture, the trees have foliage all the way up the branch, or we've got the ones where the tree splits early at the bottom. It seems like we're doing the wrong type. Plus you can see in this picture all the leaves on the bottom. In our ones we're seeing lots and lots of obviously brown things growing, but we're not seeing leaf coverage. In these kinds of forests, everywhere off the path will just be covered in really deep leaf cover. You won't be able to walk without just going through leaves.
+
+His photo (not ours, and personal: not committed): a forest track in autumn through a beech wood. Tall slender grey
+trunks with leafy side branches all the way up them, gold and orange, some forking low into two or three stems; a few
+birches; firs and pines dark further along. The ground on both sides and on the track itself is a thick, unbroken
+carpet of copper-brown beech leaves, with nothing growing through it but a little green at the far edge.

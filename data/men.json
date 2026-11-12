@@ -1,8 +1,8 @@
 {
- "_doc": "The builders: one kind of man, twenty of them (docs/design.md). Creel calls a unit that gathers a 'worker'. speed 12 is about 1.2 tiles a second. range 6 and reload 360 (18 s, data/guns.json adds up to 5 s more each time): the swallow-tail flintlock. The looks are the twelve sample men in art/men/vox/samples, given out by turn; the names are placeholders (Proposal) until Dominic picks them.",
+ "_doc": "The builders: one kind of man, twenty of them (docs/design.md). Creel calls a unit that gathers a 'worker'. speed 6 is about 0.6 tiles a second, a loaded man's march (Dominic, 2026-11-12: they moved \"very fast and very small steps\"; it was 12). range 6 and reload 360 (18 s, data/guns.json adds up to 5 s more each time): the swallow-tail flintlock. The looks are the twelve sample men in art/men/vox/samples, given out by turn; the names are placeholders (Proposal) until Dominic picks them.",
  "count": 20,
  "unit": {
-  "slot": "worker", "speed": 12, "radius": 180, "hp": 40, "pop": 1, "cost": {}, "train_time": 1,
+  "slot": "worker", "speed": 6, "radius": 180, "hp": 40, "pop": 1, "cost": {}, "train_time": 1,
   "tags": [ "worker" ], "age": 1, "attack": 9, "damage": "pierce", "bonus": {}, "armour": {}, "range": 6,
   "reload": 360, "sight": 7, "look": {}
  },

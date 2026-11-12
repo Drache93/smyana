@@ -583,7 +583,11 @@ def route_tick() -> string:
             let i = index_of(m.uid)
             if i >= 0:
                 let wading = terrain[cell_of(u_x[i], u_y[i])] == ford
-                u_speed[i] = max(1, t_speed[u_kind[i]] * pace / 100 * (if wading: wade_pace(u_carry[i] > 0) else: 100) / 100 * wound_pace(i) / 100 * needs_pace(m) / 100 * load_pace(m, i) / 100)
+                // (all the shares at once, rounded once: at a march's slow pace, cut a share at a time, a loaded man
+                // in the snow came down to a crawl, D-109; and never under half his pace: hurt, hungry, loaded and in
+                // the snow, a man still walks)
+                let share = float(pace) * float(if wading: wade_pace(u_carry[i] > 0) else: 100) * float(wound_pace(i)) * float(needs_pace(m)) * float(load_pace(m, i)) / 10000000000.0
+                u_speed[i] = max(1, int(float(t_speed[u_kind[i]]) * max(share, 0.5) + 0.5))
     let inside = map(gate_names): 0
     var alive = 0
     var in_any = 0

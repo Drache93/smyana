@@ -134,8 +134,26 @@ def chest_piece(look):
     def f(c):
         x, y, z = c
         ax = abs(x)
-        butt = in_ball(c, (2.6 * sign(x), 5.4, 49.4), (0.9, 1.5, 1.0)) or \
-            in_taper(c, 45.0, 49.0, (2.6 * sign(x), 4.0), (2.6 * sign(x), 4.8), (0.8, 0.9), (0.8, 0.9))
+        # two flintlock pistols thrust through the sash, their long grips leaning out and forward and ending in big
+        # silver ball pommels (Dominic, 2026-11-12: "a few pistols on their body")
+        side = 2.9 * sign(x)
+        pommel = in_ball(c, (side * 1.15, 7.6, 52.6), (1.6, 1.6, 1.5))
+        grip = in_taper(c, 44.0, 52.0, (side, 4.4), (side * 1.15, 7.0), (1.0, 1.0), (1.1, 1.1))
+        butt = pommel or grip
+        pack = look.get("pack", "")
+        # a felt bedroll tied across the shoulder blades, over any cloak
+        if pack in ("roll", "both"):
+            ry, rz = y + 10.6, z - 55.0
+            if ax < 8.6 and ry * ry + rz * rz < 3.0 * 3.0:
+                if abs(ax - 5.0) < 0.7: return BELT
+                return GREY if (int(math.floor(x)) % 4 != 0) else STRIPE_W
+        # the striped woven bag (torba) hanging at the left hip from the strap
+        if pack in ("torba", "both"):
+            bx = -x - 10.6
+            if abs(bx) < 1.7 - max(0.0, 36.5 - z) * 0.25 and -3.5 < y < 3.5 and 32.0 < z < 44.0:
+                if z > 42.6: return STRIPE_K
+                s = int(math.floor(z)) % 5
+                return STRIPE_R if s < 3 else (STRIPE_W if s == 3 else STRIPE_K)
         strap = z >= 48.0 and abs(x - (z - 54.5)) < 1.3
         body = in_taper(c, 44.0, 57.0, (0.0, 0.0), (0.0, -0.3), (7.0, 4.4), (9.4, 5.0)) or \
             in_taper(c, 57.0, 61.5, (0.0, -0.3), (0.0, -0.6), (9.4, 5.0), (7.0, 3.8))
@@ -175,7 +193,7 @@ def chest_piece(look):
             if o and not i and -14.0 < d - 6.0 < -5.0 + 9.0 and x < 6.0:
                 s = int(math.floor(z + y * 0.3)) % 8
                 return STRIPE_R if s < 3 else (STRIPE_K if s < 5 else (STRIPE_W if s < 6 else STRIPE_R))
-        if 1.4 < ax < 3.8 and butt: return SILVER if (y > 6.0 and z > 49.6) else WOOD
+        if butt: return SILVER if (pommel or 47.0 < z < 48.0) else WALNUT
         if not body: return 0
         if strap: return SILVER if (y > 0.0 and int(math.floor(z)) % 2 == 0 and abs(x - (z - 54.5)) < 0.6) else BELT
         if z < 48.0: return SASH

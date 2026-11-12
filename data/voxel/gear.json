@@ -1,22 +1,242 @@
 {
- "_doc": "How the men hold their arms and the rifle. 'hang' is the arms at rest, swinging as they walk (Creel needs it). 'rifle' is the swallow-tail rifle carried on the right shoulder, muzzle up and back, and brought up to aim: the butt in the shoulder, the left hand under the barrel, a kick back as it fires. 'rifle_up' and 'ram_high'/'ram_low' are the reload: the rifle stood upright, held by the barrel, and the rod driven down it (src/smyana/men_view.lobster bakes these poses). Places are in arm lengths from the shoulder: x to his right, y ahead, z up. The rifle's model (models/rifle_swallow_tail.vox, a copy of art/men/vox/gear/) is 66 voxels long, butt to muzzle along its y; the hand holds the wrist of the stock, 18 voxels from the butt.",
+ "_doc": "How the men hold their arms and the rifle. 'hang' is the arms at rest, swinging as they walk (Creel needs it). 'rifle' is the swallow-tail rifle carried on the right shoulder, muzzle up and back, and brought up to aim: the butt in the shoulder, the left hand under the barrel, a kick back as it fires. 'rifle_up' and 'ram_high'/'ram_low' are the reload: the rifle stood upright, held by the barrel, and the rod driven down it (src/smyana/men_view.lobster bakes these poses). Places are in arm lengths from the shoulder: x to his right, y ahead, z up. The rifle's model (models/rifle_swallow_tail.vox, a copy of art/men/vox/gear/) is 66 voxels long, butt to muzzle along its y; the hand holds the wrist of the stock, 18 voxels from the butt. (2026-11-12, Dominic: the barrel looked \"almost like a hand cannon\": the barrel's and stock's capsules halved, iron 0.32 to 0.16 and wood 0.42 to 0.22.)",
  "holds": {
-  "hang": { "rest": [ 0.14, 0.08, -0.93 ], "dir": [ 0, 0.1, 1 ], "swing": 0.2 },
-  "rifle": { "rest": [ -0.12, 0.14, -0.3 ], "dir": [ 0, -0.5, 0.87 ], "aim": [ -0.2, 0.53, 0.02 ], "aim_dir": [ 0, 1, 0 ], "kick": 0.12, "support": 5.0 },
-  "rifle_up": { "rest": [ -0.3, 0.42, -0.6 ], "dir": [ 0, 0.05, 1 ] },
-  "ram_high": { "rest": [ 0.34, 0.47, 0.69 ], "dir": [ 0, 0, -1 ] },
-  "ram_low": { "rest": [ 0.34, 0.47, 0.31 ], "dir": [ 0, 0, -1 ] }
+  "hang": {
+   "rest": [
+    0.14,
+    0.08,
+    -0.93
+   ],
+   "dir": [
+    0,
+    0.1,
+    1
+   ],
+   "swing": 0.2
+  },
+  "rifle": {
+   "rest": [
+    -0.12,
+    0.14,
+    -0.3
+   ],
+   "dir": [
+    0,
+    -0.5,
+    0.87
+   ],
+   "aim": [
+    -0.2,
+    0.53,
+    0.02
+   ],
+   "aim_dir": [
+    0,
+    1,
+    0
+   ],
+   "kick": 0.12,
+   "support": 5.0
+  },
+  "rifle_up": {
+   "rest": [
+    -0.3,
+    0.42,
+    -0.6
+   ],
+   "dir": [
+    0,
+    0.05,
+    1
+   ]
+  },
+  "ram_high": {
+   "rest": [
+    0.34,
+    0.47,
+    0.69
+   ],
+   "dir": [
+    0,
+    0,
+    -1
+   ]
+  },
+  "ram_low": {
+   "rest": [
+    0.34,
+    0.47,
+    0.31
+   ],
+   "dir": [
+    0,
+    0,
+    -1
+   ]
+  }
  },
  "loads": {},
  "gear": {
-  "rifle": { "hand": "right", "hold": "rifle", "shapes": [ { "model": "rifle_swallow_tail.vox", "at": [ "hand", 7.5, 0, 0 ], "to": [ "hand", 8.5, 0, 0 ], "side": [ 0, 0, 1 ] },
-                                                       { "cap": [ "hand", 2, 0, 0.3 ], "to": [ "hand", 24, 0, 0.3 ], "r": 0.32, "mat": "iron" },
-                                                       { "cap": [ "hand", 1, 0, -0.3 ], "to": [ "hand", 19, 0, -0.3 ], "r": 0.42, "mat": "wood" } ] },
-  "rifle_up": { "hand": "right", "hold": "rifle_up", "shapes": [ { "model": "rifle_swallow_tail.vox", "at": [ "hand", -6.0, 0, 0 ], "to": [ "hand", -5.0, 0, 0 ], "side": [ 0, 0, 1 ] },
-                                                             { "cap": [ "hand", -11.5, 0, 0.3 ], "to": [ "hand", 10.5, 0, 0.3 ], "r": 0.32, "mat": "iron" },
-                                                             { "cap": [ "hand", -12, 0, -0.3 ], "to": [ "hand", 6, 0, -0.3 ], "r": 0.42, "mat": "wood" } ] },
-  "ram_high": { "hand": "left", "hold": "ram_high", "shapes": [ { "cap": [ "hand", 0, 0, 0 ], "to": [ "hand", -14, 0, 0 ], "r": 0.3, "mat": "metal" } ] },
-  "ram_low": { "hand": "left", "hold": "ram_low", "shapes": [ { "cap": [ "hand", 0, 0, 0 ], "to": [ "hand", -14, 0, 0 ], "r": 0.3, "mat": "metal" } ] }
+  "rifle": {
+   "hand": "right",
+   "hold": "rifle",
+   "shapes": [
+    {
+     "model": "rifle_swallow_tail.vox",
+     "at": [
+      "hand",
+      7.5,
+      0,
+      0
+     ],
+     "to": [
+      "hand",
+      8.5,
+      0,
+      0
+     ],
+     "side": [
+      0,
+      0,
+      1
+     ]
+    },
+    {
+     "cap": [
+      "hand",
+      2,
+      0,
+      0.3
+     ],
+     "to": [
+      "hand",
+      24,
+      0,
+      0.3
+     ],
+     "r": 0.16,
+     "mat": "iron"
+    },
+    {
+     "cap": [
+      "hand",
+      1,
+      0,
+      -0.3
+     ],
+     "to": [
+      "hand",
+      19,
+      0,
+      -0.3
+     ],
+     "r": 0.22,
+     "mat": "wood"
+    }
+   ]
+  },
+  "rifle_up": {
+   "hand": "right",
+   "hold": "rifle_up",
+   "shapes": [
+    {
+     "model": "rifle_swallow_tail.vox",
+     "at": [
+      "hand",
+      -6.0,
+      0,
+      0
+     ],
+     "to": [
+      "hand",
+      -5.0,
+      0,
+      0
+     ],
+     "side": [
+      0,
+      0,
+      1
+     ]
+    },
+    {
+     "cap": [
+      "hand",
+      -11.5,
+      0,
+      0.3
+     ],
+     "to": [
+      "hand",
+      10.5,
+      0,
+      0.3
+     ],
+     "r": 0.16,
+     "mat": "iron"
+    },
+    {
+     "cap": [
+      "hand",
+      -12,
+      0,
+      -0.3
+     ],
+     "to": [
+      "hand",
+      6,
+      0,
+      -0.3
+     ],
+     "r": 0.22,
+     "mat": "wood"
+    }
+   ]
+  },
+  "ram_high": {
+   "hand": "left",
+   "hold": "ram_high",
+   "shapes": [
+    {
+     "cap": [
+      "hand",
+      0,
+      0,
+      0
+     ],
+     "to": [
+      "hand",
+      -14,
+      0,
+      0
+     ],
+     "r": 0.3,
+     "mat": "metal"
+    }
+   ]
+  },
+  "ram_low": {
+   "hand": "left",
+   "hold": "ram_low",
+   "shapes": [
+    {
+     "cap": [
+      "hand",
+      0,
+      0,
+      0
+     ],
+     "to": [
+      "hand",
+      -14,
+      0,
+      0
+     ],
+     "r": 0.3,
+     "mat": "metal"
+    }
+   ]
+  }
  },
  "parts": []
 }
