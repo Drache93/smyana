@@ -500,3 +500,12 @@ and D-077.) On leg 8, eight patrolmen set out on the valley path 30 seconds afte
 the east gate and walk the trail behind them, a little slower than the men walk. So the pressure is behind you: keep
 going and they never close, stop to rest, to fell or to fight and they are on you. Fighting them from the rocks or
 the last trees is the player's choice.
+
+**D-090, 2026-11-12: The wolves are heard more than seen, and only winter's go for a man.** (Claude, from the threats
+plan, docs/threats.md; a Proposal.) A pack of five or six, a voxel wolf on Creel's rig with two pairs of legs. In
+autumn on the way out (leg 3) they follow the men at about fifteen tiles, never closing, and a shot within fourteen
+tiles scatters them for a minute; the music stays "wary" while they follow. In winter on the way home (leg 11) they
+follow closer, and at night they rush a man more than four tiles from any other, all at once, and draw off if he gets
+back to the others. Two wolves down and the pack runs. A bite wounds a man like a ball. While they follow one howls
+now and then and the others join in (every 25 to 60 seconds); a bite snarls, a ball yelps. The sounds are made from
+sine waves and noise like the flintlock's (sound/wolves.py). A lit fire keeping them off comes with the fire (#68).

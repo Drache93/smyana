@@ -74,3 +74,44 @@ def bake_men(between):
 
 // How far a man walks in one cycle of his steps, milli-tiles.
 def man_cycle() -> float: return vx_walk_cycle(men_looks[0])
+
+// ---- the beasts (docs/threats.md): a wolf for now, its body data/voxel/bodies/<id>.json. Baked as the men are:
+// standing and eight steps of its trot, and fallen on its side, from eight sides, and its shadow.
+let BEAST_DOWN = MEN_STEPS + 1
+let BEAST_POSES = MEN_STEPS + 2
+let BEAST_BAKE = "beasts 1"
+
+def beast_frame_name(id:string, pose:int, facing:int) -> string: return "{id}.{pose}.{facing}"
+def beast_shadow_name(id:string, facing:int) -> string: return "{id}.shadow.{facing}"
+
+// A beast's part laid on its right side (turned a quarter about its length).
+def vx_on_side(q:vx_prim) -> vx_prim:
+    def turn(v:float3) -> float3: return float3 { v.z, v.y, -v.x }
+    def at(v:float3) -> float3: return float3 { v.z - 12.0, v.y, -v.x }
+    return vx_prim { at(q.a), at(q.b), q.ra, q.rb, q.mat, q.hard, q.disc, q.box, model: q.model, mx: turn(q.mx), mz: turn(q.mz) }
+
+let beast_defs = dictionary<string, vx_unit_def>(4)
+
+def bake_beast(id:string, between):
+    vx_load([ "../data/voxel" ])
+    let key = "{BEAST_BAKE} {vx_RES} {sha256_text(vx_data_text() + (read_file("../data/voxel/bodies/{id}.json") or ""))}"
+    let u = vx_unit_def { id, id, float3_0, float3_0, float3_0, [], "", false, float3_0, float3_0, float3_0, nil }
+    beast_defs.set(id, u)
+    let s = sheet_new(id, key, 1024)
+    if sheet_load(s, MEN_DRAW_K): return
+    vx_set_look(u, 0)
+    vx_pat_scale = vx_RES * vx_size_of(u)
+    for(BEAST_POSES) pose:
+        vx_stand = pose == 0 or pose == BEAST_DOWN
+        let ph = if pose == 0 or pose == BEAST_DOWN: 0.0 else: float(pose - 1) * 360.0 / float(MEN_STEPS)
+        let parts = if pose == BEAST_DOWN: map(vx_unit_prims(u, 0.0)) q: vx_on_side(q) else: vx_unit_prims(u, ph)
+        let sh = vx_fill(parts, vx_size_of(u), false)
+        for(8) facing:
+            sheet_add_cell(s, beast_frame_name(id, pose, facing), vx_cell(sh, facing), vx_CELL.x, vx_box, vx_ANCHOR)
+            if pose == 0: sheet_add_cell(s, beast_shadow_name(id, facing), vx_ground_shadow(sh, facing), vx_SCELL.x, vx_sbox, vx_SANCHOR)
+        between()
+    vx_stand = false
+    sheet_finish(s, MEN_DRAW_K, true)
+
+// How far a beast walks in one cycle of its steps, milli-tiles.
+def beast_cycle(id:string) -> float: return vx_walk_cycle(beast_defs.get(id, men_looks[0]))

@@ -173,3 +173,5 @@ One line per moment worth remembering. Newest at the bottom.
   miss and hit, men are wounded and fall, the music turns (D-085 to D-088). ([journal](journal/2026-11-12-the-patrol-and-the-fight.md))
 - **2026-11-12:** The pass's set piece: on the way home a patrol comes up from the valley path far below and follows
   the men along the trail; only men who stop are caught (D-089). ([journal](journal/2026-11-12-the-patrol-and-the-fight.md))
+- **2026-11-12:** The wolves (#60): a voxel wolf, a pack that follows the men in the fir woods, scatters at a shot and
+  at night in winter goes for a man on his own; howls, snarls and yelps (D-090). ([journal](journal/2026-11-12-the-patrol-and-the-fight.md))

@@ -885,10 +885,28 @@ def collect_men(alpha:float):
         let d = dir_of(iso(float(f.by_x - f.x), float(f.by_y - f.y)))
         let facing = (max(0, d) + 2) % 8
         add_lift = lift_at(float(f.x), float(f.y)) * 1.5
+        if f.beast != "":
+            add(frame_at.get(beast_frame_name(f.beast, BEAST_DOWN, facing), -1), p.x, p.y, p.y - 0.4, float4_1, 1.0, 4)
+            continue
         add(frame_at.get(man_frame_name(f.look, POSE_DOWN, facing), -1), p.x, p.y, p.y - 0.4, if f.patrol: patrol_sash() else: SASH, 1.0, 4)
     for(u_x.length) i:
         let m = man_of(u_id[i])
         let pk = patrol_look(u_id[i])
+        if is_wolf(u_id[i]):
+            // (a wolf: trotting, or standing, facing the way it goes or what it goes for)
+            let px, py = prev_pos(i)
+            let x = float(px) + float(u_x[i] - px) * alpha
+            let y = float(py) + float(u_y[i] - py) * alpha
+            let moving, walking_d = unit_walk(i, man_dir.get(u_id[i], 2), px, py)
+            man_dir.set(u_id[i], walking_d)
+            let step = int(man_walked.get(u_id[i], 0.0) / beast_cycle("wolf") * float(MEN_STEPS)) % MEN_STEPS
+            let facing = (walking_d + 2) % 8
+            let p = gp(x, y)
+            add_lift = lift_at(x, y) * 1.5
+            add(frame_at.get(beast_shadow_name("wolf", facing), -1), p.x, p.y, p.y - 0.5, float4_1, 1.0, 1)
+            add(frame_at.get(beast_frame_name("wolf", if moving: 1 + step else: 0, facing), -1), p.x, p.y, p.y, float4_1, 1.0, 4)
+            feet.push(float3 { p.x, p.y, 2.6 })
+            continue
         if not m and pk < 0 and u_owner[i] == 1:  // (the mark, on the range)
             let p = gp(float(u_x[i]), float(u_y[i]))
             draws.push(Drawable { p.y, draws.length, -7, p.x, p.y, float4_1, 1.0, 3, 0.0, 0.0 })
@@ -1538,6 +1556,28 @@ def danger_tick():
     else: score_safe()
     danger_was = d
 
+// The wolves are heard more than seen (docs/threats.md): while a pack follows, one of them howls now and then, and
+// the others join in; far off it is the wood's echo more than the wolf. A bite snarls, a ball yelps.
+let howl_next = dictionary<int, float>(8)  // a pack's first wolf -> seconds till it howls
+
+def wolf_cry(what:string, x:int, y:int):
+    let far, pan = gun_hear(gp(float(x), float(y)))
+    if far < 24.0: play_sound_at(what, -far * 0.6, pan)
+
+def howl_tick(dt:float):
+    for(packs) p:
+        let alive = pack_alive(p)
+        if not alive.length or p.state == W_FLED: continue
+        let t = howl_next.get(p.ids[0], gun_between(glist(wolf_cfg(), "howl_s")) * 0.25) - dt
+        if t > 0.0 or p.state != W_FOLLOW:
+            howl_next.set(p.ids[0], max(t, 1.0))
+            continue
+        howl_next.set(p.ids[0], gun_between(glist(wolf_cfg(), "howl_s")))
+        let i = index_of(alive[0])
+        let far, pan = gun_hear(gp(float(u_x[i]), float(u_y[i])))
+        if far < 12.0: play_sound_at("howl", -2.0 - far * 0.4, pan)
+        else: play_sound_at("far_howl", -2.0 - (far - 12.0) * 0.25, pan * 0.6)
+
 def order_tick():
     if gl.button("mouse2") != 1: return
     let ids = filter(selected) id: index_of(id) >= 0
@@ -1690,6 +1730,7 @@ waiting_frame()
 waiting_frame()
 let boot0 = seconds_elapsed()
 bake_men(): waiting_frame()
+bake_beast("wolf"): waiting_frame()
 bake_trees(): waiting_frame()
 bake_camp(): waiting_frame()
 sounds_load()
@@ -1697,6 +1738,7 @@ guns_load()
 threats_load()
 with_mark = arg_of("range") != ""
 with_patrol = arg_of("fight") != ""
+with_wolves = arg_of("wolves") != ""
 run_begin()
 if arg_of("leg") != "": enter_leg(arg_of("leg"), "west")
 // range:<x>,<y>: the men in a loose line on that tile, a mark five tiles east of them, and told to fire at it, for a
@@ -1723,6 +1765,13 @@ if arg_of("fight") != "":
     for(u_id) id, i: issue_cmd(0, CMD_MOVE, [ id ], u_x[i], u_y[i], 0, 0)
     let road = [ xy[0] + 24, xy[1] - 14, xy[0] + 6, xy[1], xy[0], xy[1] + 26 ]
     patrol_spawn(map(road) v: v * TILE + TILE / 2, if xy.length > 2: xy[2] else: 7)
+    p_id = []
+// wolves:<x>,<y>[,<n>[,bold]]: a pack of n (5) set down on that tile, following the men; bold: winter's, which go for
+// a man on his own at night (docs/threats.md, #60)
+if arg_of("wolves") != "":
+    let ws = tokenize(arg_of("wolves"), ",", " ")
+    let xy = map(ws) v: string_to_int(v)
+    pack_spawn(xy[0] * TILE + 500, xy[1] * TILE + 500, if ws.length > 2: xy[2] else: 5, ws.length > 3 and ws[3] == "bold")
     p_id = []
 // fallen: beside each man, one lying as if fallen, turned each of the eight ways, the patrol's among them (for a look)
 if has_s(args, "fallen"):
@@ -1897,7 +1946,11 @@ while gl.frame():
             threats_after_step(fired)
             ambush_tick()
             let snow = snow_lying() > 300
-            for(threats_landed()) l: gunfire_strike(gp(float(l.x), float(l.y)), l.hit, snow, l.by * 31 + l.to + tick)
+            for(threats_landed()) l:
+                if is_wolf(l.by): wolf_cry("snarl", l.x, l.y)
+                else:
+                    gunfire_strike(gp(float(l.x), float(l.y)), l.hit, snow, l.by * 31 + l.to + tick)
+                    if l.hit and is_wolf(l.to): wolf_cry("yelp", l.x, l.y)
             for(events) e: if e.kind == EV_MISS: gunfire_strike(gp(float(e.x), float(e.y)), false, snow, e.a + tick)
             for(u_x.length) i:
                 let px, py = prev_pos(i)
@@ -1916,6 +1969,7 @@ while gl.frame():
         mood_tick()
         if phase != "leaving": score_tick(dt, season_now(), mood_now(), fires.length > 0)
         danger_tick()
+        if not paused: howl_tick(dt)
         if debug_line: score_keys()
         ground_season_tick()
     if phase == "arriving" and phase_t >= 1.5: set_phase("play")

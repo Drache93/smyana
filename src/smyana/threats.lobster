@@ -4,7 +4,7 @@
 // has fired is seen through his cover while his smoke hangs over him. A shot is heard a long way (data/threats.json).
 // How a ball lands is here too: a flintlock misses more the further it is fired and the better the target is hidden,
 // a first hit wounds a man and a second kills him.
-// The Ottoman patrol (#62) is the first threat; the wolves (#60) and the bear (#61) come next.
+// The Ottoman patrol (#62) and the wolves (#60); the bear (#61) comes next.
 // Sim side only (no window), and every chance is a hash of the sim's own numbers, so a fight plays the same every time.
 
 let P_ROAD = 0      // walking their road
@@ -23,6 +23,24 @@ class Patrol:
     goal_y:int = 0
     since:int = 0  // the tick a man was last seen (hunting), or the search began (wary)
 
+let W_FOLLOW = 0   // shadowing the men at a distance
+let W_HUNT = 1     // rushing a man on his own
+let W_SCATTER = 2  // a shot near: off for a while
+let W_FLED = 3     // too many down: gone
+
+class WolfPack:
+    ids:[int]
+    den_x:int  // where they came from, and go back to
+    den_y:int
+    bold:bool  // winter's wolves: at night they go for a man on his own
+    start:int
+    state:int = W_FOLLOW
+    since:int = 0
+    prey:int = 0
+    from_x:int = 0  // what scared them off
+    from_y:int = 0
+    reach:[int] = []  // the tiles they can walk to that the men can too (reach_from)
+
 // A ball landing (the view shows it): on whom, whether it hit, and where.
 class Landed:
     by:int
@@ -40,9 +58,11 @@ class Fallen:
     patrol:bool
     by_x:int  // where the shot that killed him came from: he falls back, away from it
     by_y:int
+    beast:string = ""  // a beast's body (a wolf), drawn lying on its side
 
 var threats_cfg = jobj()
 var patrols = []::Patrol
+var packs = []::WolfPack
 var landed = []::Landed
 var fallen = []::Fallen
 var men_killed = 0        // men killed in this place
@@ -51,7 +71,8 @@ var patrol_due_n = 0
 var patrol_due_at = 0
 let shot_seen = dictionary<int, int>(32)     // a rifleman's id: the tick he last fired
 let patrol_looks = dictionary<int, int>(32)  // a patrolman's id: his look among the patrol's
-let patrol_hurt = dictionary<int, int>(32)   // a patrolman's id: 1 if a ball has hit him
+let hurt_units = dictionary<int, int>(32)    // a patrolman's or a beast's id: 1 if a ball has hit him
+let wolf_ids = dictionary<int, int>(32)      // a wolf's id: 1
 let men_firing = dictionary<int, int>(32)    // a man told to fire (guns_order): 1 till he is told to walk somewhere
 let aim_seen = dictionary<int, int>(32)      // a rifleman's id: the tick he last saw the one he is firing at
 
@@ -68,7 +89,9 @@ def threats_clear():
     men_killed = 0
     shot_seen.clear()
     patrol_looks.clear()
-    patrol_hurt.clear()
+    hurt_units.clear()
+    wolf_ids.clear()
+    packs = []
     men_firing.clear()
     aim_seen.clear()
 
@@ -90,6 +113,12 @@ def rifleman(uid:int) -> bool: return man_of(uid) != nil or patrol_look(uid) >= 
 // hook_on_hit.
 def threats_on_hit(by:int, j:int, damage:int) -> int:
     let i = index_of(by)
+    if is_wolf(by):
+        // (a bite: it wounds a man too)
+        let bitten = man_of(u_id[j])
+        if bitten: bitten.wounded = true
+        landed.push(Landed { by, u_id[j], true, u_x[j], u_y[j] })
+        return damage
     if i < 0 or not rifleman(by): return damage
     let h = gobj(threats_cfg, "hit")
     let d = sqrt(float(dist2(u_x[i], u_y[i], u_x[j], u_y[j]))) / float(TILE)
@@ -105,7 +134,7 @@ def threats_on_hit(by:int, j:int, damage:int) -> int:
     if t_hp[u_kind[j]] > 100000: return damage
     let m = man_of(u_id[j])
     if m: m.wounded = true
-    if patrol_look(u_id[j]) >= 0: patrol_hurt.set(u_id[j], 1)
+    if patrol_look(u_id[j]) >= 0 or is_wolf(u_id[j]): hurt_units.set(u_id[j], 1)
     return if d <= float(gint(h, "kill_tiles", 1)): u_hp[j] else: gint(h, "wound", 25)
 
 // Creel's hook_on_death: a man or a patrolman falls where he was, back from the one who shot him.
@@ -119,11 +148,12 @@ def threats_on_death(i:int, killer:int):
         men_killed++
     let pk = patrol_look(u_id[i])
     if pk >= 0: fallen.push(Fallen { u_id[i], u_x[i], u_y[i], gstrs(men_data, "looks").length + pk, true, bx, by })
+    if is_wolf(u_id[i]): fallen.push(Fallen { u_id[i], u_x[i], u_y[i], -1, true, bx, by, beast: "wolf" })
 
 // How fast this unit walks for its wounds, in hundredths: slowly once a ball has hit him.
 def wound_pace(i:int) -> int:
     let m = man_of(u_id[i])
-    let hurt = if m: m.wounded else: patrol_hurt.get(u_id[i], 0) == 1
+    let hurt = if m: m.wounded else: hurt_units.get(u_id[i], 0) == 1
     return if hurt: gint(threats_cfg, "wounded_pace", 55) else: 100
 
 // The ball, the dust and the dead the view has drawn: take them.
@@ -184,7 +214,7 @@ def reach_from(k:int, c:int) -> [int]:
 def reachable_near(reach:[int], x:int, y:int) -> int, int:
     let cx = clamp(x / TILE, 0, W - 1)
     let cy = clamp(y / TILE, 0, H - 1)
-    for(12) r:
+    for(24) r:
         for(r * 2 + 1) j: for(r * 2 + 1) i:
             let u = cx + i - r
             let v = cy + j - r
@@ -310,6 +340,10 @@ def threats_after_step(fired:[int]):
     for(fired) id:
         shot_seen.set(id, tick)
         let i = index_of(id)
+        if i >= 0:
+            for(packs) pk:
+                let near = find(pack_alive(pk)) wid: dist2(u_x[index_of(wid)], u_y[index_of(wid)], u_x[i], u_y[i]) <= hearing * hearing
+                if near >= 0: pack_hear(pk, u_x[i], u_y[i])
         if i >= 0 and man_of(id):
             for(patrols) p:
                 let near = find(patrol_alive(p)) pid: dist2(u_x[index_of(pid)], u_y[index_of(pid)], u_x[i], u_y[i]) <= hearing * hearing
@@ -322,6 +356,7 @@ def threats_tick():
         patrol_due = []
     if tick % 5 == 0:
         for(patrols) p: patrol_think(p)
+        for(packs) p: pack_think(p)
         men_fight()
 
 // A patrol that sets out on its road after so many seconds in the place (a leg's "patrol": "after_s").
@@ -332,6 +367,122 @@ def patrol_later(road:[int], n:int, after_s:int):
     patrol_due = road
     patrol_due_n = n
     patrol_due_at = tick + after_s * TICK_HZ
+
+// ---- the wolves (#60)
+
+def wolf_cfg() -> JV: return gobj(threats_cfg, "wolves")
+
+def is_wolf(uid:int) -> bool: return wolf_ids.get(uid, 0) == 1
+
+// A pack of n set down round (x, y), milli-tiles, or the nearest place to it they can walk from to the men. bold:
+// winter's.
+def pack_spawn(x0:int, y0:int, n:int, bold:bool) -> int:
+    let k = type_of_slot(1, "wolf")
+    let here = men_here()
+    if k < 0 or not here.length: return -1
+    let reach = reach_from(k, cell_of(u_x[here[0]], u_y[here[0]]))
+    let x, y = reachable_near(reach, x0, y0)
+    let ids = []::int
+    for(n) m:
+        let wx, wy = reachable_near(reach, x + (m % 3 - 1) * 900, y + (m / 3 - 1) * 900)
+        let i = add_unit(1, k, wx, wy)
+        u_posture[i] = PASSIVE
+        ids.push(u_id[i])
+        wolf_ids.set(u_id[i], 1)
+    grow_scratch()
+    packs.push(WolfPack { ids, x, y, bold, n, reach: reach })
+    return packs.length - 1
+
+def pack_alive(p:WolfPack) -> [int]: return filter(p.ids) id: index_of(id) >= 0
+
+// The men alive in the place: their indexes.
+def men_here() -> [int]:
+    let out = []::int
+    for(men) m:
+        if m.alive:
+            let i = index_of(m.uid)
+            if i >= 0: out.push(i)
+    return out
+
+// A man on his own: the one (an index) furthest from the next man, if that is more than `apart` milli-tiles, or -1.
+def straggler(here:[int], apart:int) -> int:
+    var best = -1
+    var best_d = apart * apart
+    for(here) i:
+        var near = 1 << 62
+        for(here) j: if j != i: near = min(near, dist2(u_x[i], u_y[i], u_x[j], u_y[j]))
+        if near > best_d:
+            best = i
+            best_d = near
+    return best
+
+// A shot heard by a pack: off, away from it, for a while.
+def pack_hear(p:WolfPack, x:int, y:int):
+    if p.state == W_FLED: return
+    p.state = W_SCATTER
+    p.since = tick
+    p.from_x = x
+    p.from_y = y
+    p.prey = 0
+    let off = gint(wolf_cfg(), "scatter_tiles", 14) * TILE
+    for(pack_alive(p)) id:
+        let i = index_of(id)
+        let dx = u_x[i] - x
+        let dy = u_y[i] - y
+        let d = max(1, int(sqrt(float(dx * dx + dy * dy))))
+        let tx, ty = reachable_near(p.reach, clamp(u_x[i] + dx * off / d, TILE, (W - 1) * TILE), clamp(u_y[i] + dy * off / d, TILE, (H - 1) * TILE))
+        issue_cmd(1, CMD_MOVE, [ id ], tx, ty, 0, 0)
+
+def pack_think(p:WolfPack):
+    if p.state == W_FLED: return
+    let alive = pack_alive(p)
+    let here = men_here()
+    let wc = wolf_cfg()
+    if not alive.length or not here.length:
+        p.state = W_FLED
+        return
+    for(alive) id:
+        let i = index_of(id)
+        u_speed[i] = max(1, t_speed[u_kind[i]] * wound_pace(i) / 100)
+    // two down: the rest run back where they came from, and are gone
+    if p.start - alive.length >= gint(wc, "flee_after", 2):
+        p.state = W_FLED
+        issue_cmd(1, CMD_MOVE, alive, p.den_x, p.den_y, 0, 0)
+        return
+    if p.state == W_SCATTER:
+        if tick - p.since < gint(wc, "scatter_s", 60) * TICK_HZ: return
+        p.state = W_FOLLOW
+    var cx = 0
+    var cy = 0
+    for(here) i:
+        cx += u_x[i] / here.length
+        cy += u_y[i] / here.length
+    if p.state == W_HUNT:
+        let j = index_of(p.prey)
+        // (he fell, or got back among the others: they draw off again)
+        if j < 0 or straggler(here, gint(wc, "rejoined_tiles", 3) * TILE) != j:
+            p.state = W_FOLLOW
+            p.prey = 0
+        else:
+            return
+    // following: each wolf to its own place on a ring round the men, on the side the pack came from
+    let ring_r = gint(wc, if p.bold: "follow_bold_tiles" else: "follow_tiles", 14) * TILE
+    let base = atan2(float2 { float(p.den_x - cx), float(p.den_y - cy) })
+    for(alive) id, n:
+        let i = index_of(id)
+        let a = base + float(n - alive.length / 2) * 14.0
+        let tx, ty = reachable_near(p.reach, clamp(cx + int(cos(a) * float(ring_r)), TILE, (W - 1) * TILE), clamp(cy + int(sin(a) * float(ring_r)), TILE, (H - 1) * TILE))
+        if dist2(u_x[i], u_y[i], tx, ty) > 3 * TILE * 3 * TILE and (u_moving[i] == 0 or tick % 40 == 0): issue_cmd(1, CMD_MOVE, [ id ], tx, ty, 0, 0)
+    // winter's wolves, at night: a man on his own, smelled or seen, is rushed by all of them at once
+    if p.bold and is_night():
+        let s = straggler(here, gint(wc, "alone_tiles", 4) * TILE)
+        if s >= 0:
+            let sight = gint(wc, "sight", 16) * TILE
+            let near = find(alive) wid: dist2(u_x[index_of(wid)], u_y[index_of(wid)], u_x[s], u_y[s]) <= sight * sight
+            if near >= 0:
+                p.state = W_HUNT
+                p.prey = u_id[s]
+                issue_cmd(1, CMD_ATTACK, alive, u_id[s], 0, 0, 0)
 
 def men_told_to_fire(id:int): men_firing.set(id, 1)
 
@@ -348,9 +499,8 @@ def men_fight():
         if foe >= 0 and (t_hp[u_kind[foe]] > 100000 or keeps_on(i, foe, sight)): continue
         var best = -1
         var best_d = 1 << 62
-        for(patrols) p:
-            for(patrol_alive(p)) pid:
-                let j = index_of(pid)
+        for(u_x.length) j:
+            if u_owner[j] == 1 and t_hp[u_kind[j]] < 100000:
                 let d = dist2(u_x[i], u_y[i], u_x[j], u_y[j])
                 if d < best_d and sees(i, j, sight):
                     best = j
@@ -366,4 +516,7 @@ def threats_danger() -> string:
     for(patrols) p:
         if p.state == P_HUNT: return "ottomans"
         if p.state == P_WARY: d = "wary"
+    for(packs) p:
+        if p.state == W_HUNT: return "beasts"
+        if p.state == W_FOLLOW and pack_alive(p).length: d = "wary"
     return d

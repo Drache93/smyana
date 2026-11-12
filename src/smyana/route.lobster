@@ -36,6 +36,7 @@ var gate_rects = []::[int]  // tiles: x0, y0, x1, y1
 var last_load_s = 0.0       // how long the last place took to set up, seconds
 var with_mark = false       // a second side, a mark to fire at, in every place (the range: src/smyana/guns.lobster)
 var with_patrol = false     // a second side with the patrol's unit in every place (the fight: bench, smyana/threats.lobster)
+var with_wolves = false     // and with the wolf (the wolves: bench)
 let place_memory = dictionary<string, PlaceMemory>(17)
 
 def route_load():
@@ -161,7 +162,7 @@ def is_night() -> bool:
     let n = gobj(route, "night")
     let falls = gint(n, "from", 21)
     let ends = gint(n, "to", 5)
-    let h = (gint(route, "start_hour", 7) + clock_uh / 1000000) % 24
+    let h = if hour_force >= 0.0: int(hour_force) else: (gint(route, "start_hour", 7) + clock_uh / 1000000) % 24
     return if falls > ends: h >= falls or h < ends else: h >= falls and h < ends
 
 def clock_tick():
@@ -378,6 +379,7 @@ def enter_leg(id:string, edge:string):
     let theirs = []::JV
     if with_mark: theirs.push(shallow_copy(at(lib_data("guns.json"), "mark")))
     if with_patrol or has(leg_now(), "patrol"): theirs.push(shallow_copy(at(patrol_cfg(), "unit")))
+    if with_wolves or has(leg_now(), "wolves"): theirs.push(shallow_copy(at(wolf_cfg(), "unit")))
     if theirs.length:
         for(theirs) u: set(u, "line", jarr([ shallow_copy(u) ]))
         let other = jobj()
@@ -410,6 +412,11 @@ def enter_leg(id:string, edge:string):
     if has(leg_now(), "patrol"):
         let pl = gobj(leg_now(), "patrol")
         patrol_later(map(glist(pl, "road")) v: as_int(v) * TILE + TILE / 2, gint(pl, "men", 7), gint(pl, "after_s", 0))
+    // (a pack of wolves, #60: "wolves": { "at": [ x, y tiles ], "n": n, "bold": winter's })
+    if has(leg_now(), "wolves"):
+        let wl = gobj(leg_now(), "wolves")
+        let at_ = map(glist(wl, "at")) v: as_int(v) * TILE + TILE / 2
+        pack_spawn(at_[0], at_[1], gint(wl, "n", 5), gbool(wl, "bold", false))
     last_load_s = seconds_elapsed() - t0
 
 def gate_index(edge:string) -> int: return find(gate_names) n: n == edge

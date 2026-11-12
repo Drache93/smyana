@@ -136,7 +136,7 @@ let clock_before = clock_uh
 let year_before = year_m
 go_on(walk_to_gate("east"), "all the men reached the east gate")
 expect(place_now() == "fir_woods" and arrived_by == "west", "the fir woods are loaded, the men at its west edge")
-expect(u_x.length == 20, "all twenty arrived")
+expect((filter(u_owner) o: o == 0).length == 20, "all twenty arrived")
 let i1 = index_of(cutter.uid)
 expect(i1 >= 0 and u_carry[i1] == r_carry and resource_names[u_carry_kind[i1] - 1] == "wood", "the load of wood came with its man")
 expect(u_hp[index_of(men[1].uid)] == 17, "the hurt man is still hurt")
@@ -385,4 +385,45 @@ expect(patrols.length == 1, "the patrol sets out after the men")
 expect(not below_saw, "from the valley path it does not see the men on the shelf")
 expect(came_up, "it comes up the ramp onto the shelf")
 expect(hunted_on_shelf, "and finds the men who waited on the trail")
+
+// the wolves (#60): in early autumn they follow the men at a distance, never close in, and a shot scatters them
+enter_leg("fir_woods_out", "west")
+expect(packs.length == 1 and pack_alive(packs[0]).length == 5, "five wolves in the fir woods")
+var closest = 1 << 30
+var bit = false
+for(90 * TICK_HZ):
+    step()
+    route_tick()
+    for(threats_landed()) l: if is_wolf(l.by): bit = true
+    for(pack_alive(packs[0])) wid: for(men_here()) mi: closest = min(closest, int(sqrt(float(dist2(u_x[index_of(wid)], u_y[index_of(wid)], u_x[mi], u_y[mi])))) / TILE)
+expect(not bit and closest >= 6, "they follow and never close in ({closest} tiles at the closest)")
+expect(threats_danger() == "wary", "the music is wary while they follow")
+let shooter = men_here()[0]
+threats_after_step([ u_id[shooter] ])
+expect(packs[0].state == W_SCATTER, "a shot scatters them")
+// in deep winter, at night, they go for a man on his own; the men fire, and when two are down the pack runs
+hour_force = 23.0
+enter_leg("fir_woods_home", "east")
+let lone = men_here()[0]
+for(men_here()) mi: if mi != lone: issue_cmd(0, CMD_MOVE, [ u_id[mi] ], u_x[mi], u_y[mi], 0, 0)
+issue_cmd(0, CMD_MOVE, [ u_id[lone] ], 70 * TILE, 62 * TILE, 0, 0)
+var hunted = false
+var wolves_bit = 0
+var fired_on = false
+for(120 * TICK_HZ):
+    step()
+    let fired = guns_after_step()
+    threats_after_step(fired)
+    route_tick()
+    for(threats_landed()) l: if is_wolf(l.by): wolves_bit++
+    if packs[0].state == W_HUNT: hunted = true
+    if hunted and not fired_on:
+        fired_on = true
+        guns_order(map(filter(men_here()) mi: mi != index_of(packs[0].prey)) mi: u_id[mi], pack_alive(packs[0])[0])
+hour_force = -1.0
+let wolves_down = (filter(fallen) f: f.beast == "wolf").length
+print "wolves: winter pack hunted {hunted}, {wolves_bit} bites, {wolves_down} wolves down, state {packs[0].state}"
+expect(hunted, "at night the winter wolves go for a man on his own")
+expect(wolves_bit > 0, "they bite him ({wolves_bit})")
+expect(packs[0].state == W_FLED or packs[0].state == W_SCATTER, "shot at, they scatter or run ({packs[0].state})")
 print (if failed: "run_check: {failed} FAILED" else: "run_check: ok")

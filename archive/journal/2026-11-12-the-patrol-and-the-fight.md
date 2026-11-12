@@ -71,3 +71,33 @@ first, unseen from below, up the ramp, and it finds men who waited. The whole-ro
 tour's men keep walking.
 
 ![The patrol coming up the ramp in the snow](../images/2026-11-12/43-the-pass-in-snow-the-patrol-coming-up-the-ramp.jpg)
+
+## Later the same day: the wolves (#60)
+
+The second threat. A grey wolf of the Rhodopes in voxels (`data/voxel/bodies/wolf.json`): Creel's rig with two pairs
+of legs, trotting, the front pair half a stride from the hind, a grey-brown coat with a pale belly and a dark saddle,
+and a lying frame for one that is shot. A pack's mind is in `src/smyana/threats.lobster` beside the patrol's
+(D-090):
+
+- **Autumn, the way out (leg 3, the fir woods):** five wolves follow the men at about fifteen tiles, on the side
+  toward their den, and never close in. The music is "wary" for as long as they follow. A shot heard within fourteen
+  tiles scatters them away from it for a minute.
+- **Winter, the way home (leg 11):** six, bolder and closer. At night they go for a man more than four tiles from any
+  other, all at once and fast; if he gets back to the others they draw off. Two down and the pack runs.
+- **Heard more than seen:** while they follow one of them howls every half minute to a minute and the others join
+  in, dull and mostly echo when they are far off. A bite snarls, a ball that hits one makes it yelp. All made from
+  sine waves and noise like the flintlock's (`python3 sound/wolves.py`).
+- **A bench:** `cd src && lobster smyana.lobster -- leg:village_out wolves:22,50,6 look:14,47 zoom:1.6 year:1050 hour:15`
+  (add `bold` and `hour:23` for winter's). The run check follows the autumn pack (it never comes within ten tiles and
+  scatters at a shot) and the winter pack at night (it goes for a man alone, bites him, and runs or scatters when shot).
+
+![The wolves crossing the path in the oaks](../images/2026-11-12/45-the-wolves-crossing-the-path-in-the-oaks.jpg)
+
+Bugs on the way: the first pack never moved, because its den was in a pocket of the wood five cells across with no
+way out; the den is now set down on ground the men can be reached from. And winter's wolves never hunted in the run
+check, because night only looked at the season clock, not at an hour set by hand.
+
+![The men, the wolves somewhere out of sight](../images/2026-11-12/46-the-men-with-the-wolves-somewhere-out-of-sight.jpg)
+
+Left for next: the bear (#61); a fire keeping wolves off (#68); wolves seen in the fir woods' own light (they are dark
+there, against dark ground).
