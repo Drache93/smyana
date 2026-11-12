@@ -426,4 +426,43 @@ print "wolves: winter pack hunted {hunted}, {wolves_bit} bites, {wolves_down} wo
 expect(hunted, "at night the winter wolves go for a man on his own")
 expect(wolves_bit > 0, "they bite him ({wolves_bit})")
 expect(packs[0].state == W_FLED or packs[0].state == W_SCATTER, "shot at, they scatter or run ({packs[0].state})")
+// the bear (#61): at the thaw in the beech valley it wanders; a man it sees close makes it rear up and huff, then
+// bluff, stopping short; shot at, it charges for real, and runs when it is badly hurt
+enter_leg("beech_valley_home", "east")
+expect(bears.length == 1, "a bear in the beech valley at the thaw")
+let bear_men = men_here()
+let bi0 = index_of(bears[0].id)
+// (the men walk up to it)
+for(bear_men) mi: issue_cmd(0, CMD_MOVE, [ u_id[mi] ], u_x[bi0] + 5 * TILE, u_y[bi0], 0, 0)
+var reared = false
+var bluffed = false
+var swiped_in_bluff = false
+for(90 * TICK_HZ):
+    step()
+    route_tick()
+    if bears[0].state == B_REAR: reared = true
+    if bears[0].state == B_BLUFF: bluffed = true
+    for(threats_landed()) l: if bear_of(l.by) >= 0: swiped_in_bluff = true
+    if bluffed and bears[0].state == B_WANDER: break
+expect(reared, "it rears up at a man close by")
+expect(bluffed and not swiped_in_bluff, "it bluffs, and stops short")
+expect(threats_danger() == "", "and leaves them be ({threats_danger()})")
+// shot at: it charges the men, and the men keep firing
+guns_order(map(men_here()) mi: u_id[mi], bears[0].id)
+var charged = false
+var swipes = 0
+var bear_hit = 0
+for(150 * TICK_HZ):
+    step()
+    let fired = guns_after_step()
+    threats_after_step(fired)
+    route_tick()
+    if bears[0].state == B_CHARGE: charged = true
+    for(threats_landed()) l:
+        if bear_of(l.by) >= 0: swipes++
+        if l.hit and bear_of(l.to) >= 0: bear_hit++
+    if bears[0].state >= B_FLED: break
+print "bear: charged {charged}, {swipes} swipes, {bear_hit} hits on it, state {bears[0].state}"
+expect(charged, "shot at, it charges")
+expect(bears[0].state == B_FLED or bears[0].state == B_DEAD, "badly hurt it runs, or it falls ({bear_hit} hits)")
 print (if failed: "run_check: {failed} FAILED" else: "run_check: ok")

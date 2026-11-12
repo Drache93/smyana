@@ -175,3 +175,5 @@ One line per moment worth remembering. Newest at the bottom.
   the men along the trail; only men who stop are caught (D-089). ([journal](journal/2026-11-12-the-patrol-and-the-fight.md))
 - **2026-11-12:** The wolves (#60): a voxel wolf, a pack that follows the men in the fir woods, scatters at a shot and
   at night in winter goes for a man on his own; howls, snarls and yelps (D-090). ([journal](journal/2026-11-12-the-patrol-and-the-fight.md))
+- **2026-11-12:** The bear (#61): a voxel bear in the beech valley at the thaw that rears and huffs, bluffs a charge,
+  charges for real when shot at and runs when badly hurt; huffs, roars and swipes (D-091). ([journal](journal/2026-11-12-the-patrol-and-the-fight.md))

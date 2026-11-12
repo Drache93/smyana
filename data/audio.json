@@ -1,5 +1,5 @@
 {
- "_doc": "The game's sounds (Creel's game/audio: sounds_load). Each is assets/audio/sfx/<name>_<take>.wav, takes played in turn; gap: seconds it won't play again within; bus: a volume in dB over it (buses). Made by sound/flintlock.py and sound/wolves.py. The music is apart: data/music.json.",
+ "_doc": "The game's sounds (Creel's game/audio: sounds_load). Each is assets/audio/sfx/<name>_<take>.wav, takes played in turn; gap: seconds it won't play again within; bus: a volume in dB over it (buses). Made by sound/flintlock.py, sound/wolves.py and sound/bear.py. The music is apart: data/music.json.",
  "buses": { "Guns": 0.0, "Reload": -4.0, "Beasts": -2.0 },
  "sounds": {
   "pan": { "takes": 3, "bus": "Guns" },
@@ -18,6 +18,9 @@
   "howl": { "takes": 3, "bus": "Beasts", "gap": 8 },
   "far_howl": { "takes": 3, "bus": "Beasts", "gap": 8 },
   "snarl": { "takes": 3, "bus": "Beasts", "gap": 0.4 },
-  "yelp": { "takes": 3, "bus": "Beasts", "gap": 0.3 }
+  "yelp": { "takes": 3, "bus": "Beasts", "gap": 0.3 },
+  "bear_huff": { "takes": 3, "bus": "Beasts", "gap": 1.5 },
+  "bear_roar": { "takes": 3, "bus": "Beasts", "gap": 1.5 },
+  "bear_swipe": { "takes": 3, "bus": "Beasts", "gap": 0.4 }
  }
 }

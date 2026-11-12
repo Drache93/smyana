@@ -37,6 +37,7 @@ var last_load_s = 0.0       // how long the last place took to set up, seconds
 var with_mark = false       // a second side, a mark to fire at, in every place (the range: src/smyana/guns.lobster)
 var with_patrol = false     // a second side with the patrol's unit in every place (the fight: bench, smyana/threats.lobster)
 var with_wolves = false     // and with the wolf (the wolves: bench)
+var with_bear = false       // and with the bear (the bear: bench)
 let place_memory = dictionary<string, PlaceMemory>(17)
 
 def route_load():
@@ -380,6 +381,7 @@ def enter_leg(id:string, edge:string):
     if with_mark: theirs.push(shallow_copy(at(lib_data("guns.json"), "mark")))
     if with_patrol or has(leg_now(), "patrol"): theirs.push(shallow_copy(at(patrol_cfg(), "unit")))
     if with_wolves or has(leg_now(), "wolves"): theirs.push(shallow_copy(at(wolf_cfg(), "unit")))
+    if with_bear or has(leg_now(), "bear"): theirs.push(shallow_copy(at(bear_cfg(), "unit")))
     if theirs.length:
         for(theirs) u: set(u, "line", jarr([ shallow_copy(u) ]))
         let other = jobj()
@@ -417,6 +419,10 @@ def enter_leg(id:string, edge:string):
         let wl = gobj(leg_now(), "wolves")
         let at_ = map(glist(wl, "at")) v: as_int(v) * TILE + TILE / 2
         pack_spawn(at_[0], at_[1], gint(wl, "n", 5), gbool(wl, "bold", false))
+    // (the bear, #61: "bear": { "at": [ x, y tiles ] })
+    if has(leg_now(), "bear"):
+        let ba = map(glist(gobj(leg_now(), "bear"), "at")) v: as_int(v) * TILE + TILE / 2
+        bear_spawn(ba[0], ba[1])
     last_load_s = seconds_elapsed() - t0
 
 def gate_index(edge:string) -> int: return find(gate_names) n: n == edge

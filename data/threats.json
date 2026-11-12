@@ -35,5 +35,27 @@
    "slot": "wolf", "speed": 20, "radius": 170, "hp": 30, "pop": 0, "cost": {}, "train_time": 1, "tags": [], "age": 1,
    "attack": 10, "damage": "melee", "bonus": {}, "armour": {}, "range": 0, "reload": 30, "sight": 12, "look": {}
   }
+ },
+ "bear": {
+  "_doc": "The bear of the beech valley at the thaw (#61). It wanders round where it is set down, wander_tiles about, at its own slow pace. A man it sees within notice_tiles (by the cover check, sight) makes it rear up and huff for rear_s, then charge him and stop bluff_stop_tiles short, and amble off; it won't bluff again for calm_s. Shot (hit or not, by a ball from within shot_tiles), it charges the one who fired for real, and runs when its hp is down to flee_hp. A rifle ball does it hit_damage (no one-shot kill close up, as on a man). The unit swipes (melee), 22 a swipe, about every two seconds.",
+  "wander_tiles": 10,
+  "notice_tiles": 9,
+  "sight": 12,
+  "rear_s": 2.5,
+  "bluff_stop_tiles": 2,
+  "calm_s": 40,
+  "shot_tiles": 14,
+  "flee_hp": 30,
+  "hit_damage": 25,
+  "unit": {
+   "slot": "bear", "speed": 9, "radius": 320, "hp": 125, "pop": 0, "cost": {}, "train_time": 1, "tags": [], "age": 1,
+   "attack": 22, "damage": "melee", "bonus": {}, "armour": {}, "range": 0, "reload": 40, "sight": 12, "look": {}
+  },
+  "charge_speed": 24
+ },
+ "rear": {
+  "_doc": "How each beast rears up on its hind legs (men_view's bake): its hips' [ y, z ] in body units, the angle, and its shoulders' [ y, z ] (the forelegs hang from them).",
+  "wolf": [ -7.5, 15.0, 55.0, 6.1, 13.3 ],
+  "bear": [ -9.0, 16.0, 62.0, 6.0, 14.5 ]
  }
 }

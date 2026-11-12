@@ -509,3 +509,13 @@ follow closer, and at night they rush a man more than four tiles from any other,
 back to the others. Two wolves down and the pack runs. A bite wounds a man like a ball. While they follow one howls
 now and then and the others join in (every 25 to 60 seconds); a bite snarls, a ball yelps. The sounds are made from
 sine waves and noise like the flintlock's (sound/wolves.py). A lit fire keeping them off comes with the fire (#68).
+
+**D-091, 2026-11-12: The bear bluffs before it fights, and only fights when shot at.** (Claude, from the threats plan,
+docs/threats.md; Dominic chose to build it next.) One brown bear in the beech valley at the thaw (leg 12), wandering
+round where it lives. A man it sees within nine tiles (by the same cover check, so bare woods make it worse) makes it
+rear up and huff for a moment, then charge him and stop two tiles short, and amble off; it leaves them be for forty
+seconds after. A ball fired at it, hit or miss, makes it charge the one who fired, for real: its swipe wounds a man
+like a ball does. A ball does it a fixed wound (no one-shot kill close up), so it takes four hits before it runs and
+a fifth kills it. The music is the beasts' loop while it rears, bluffs or charges. So the right answer to a bear is to
+hold fire and back off; to shoot is to fight it. Signs of it on the way out (a scratched trunk, tracks by the stream)
+are left for later.

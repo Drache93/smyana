@@ -111,3 +111,33 @@ and forward at the back's height with upright ears, the dark only a thin line do
 toward the hocks, its tip dark. The coat is a little lighter.
 
 ![The wolves reshaped](../images/2026-11-12/47-the-wolves-reshaped-longer-legs-head-low.jpg)
+
+## Later the same day: the bear (#61)
+
+Dominic chose it next, from three options (the bear, the fight's sounds, or a pause). A brown bear in voxels
+(`data/voxel/bodies/bear.json`): heavy in the forequarters with a hump over the shoulders, a broad head, a short pale
+muzzle, small round ears and a stub of a tail. Besides walking and lying it has a new pose, shared with the wolf:
+reared up on its hind legs, everything ahead of the hips turned up about them and the forelegs hanging from where the
+shoulders went (`vx_reared` in `men_view.lobster`). Its mind is beside the patrol's and the wolves' (D-091):
+
+- **Wandering** round where it lives, slowly.
+- **A man seen close** (nine tiles, by the cover check): it rears up and huffs, then charges and stops two tiles
+  short, huffs again and ambles off. The music is the beasts' loop while it does.
+- **Shot at**, hit or not: it charges the man who fired, roaring, and swipes; a swipe wounds a man as a ball does.
+  Four hits and it runs; a fifth kills it, and it lies where it fell.
+- **Sounds** (`python3 sound/bear.py`): hard breaths out with the jaws clacking, a deep rough roar, a thump and a
+  grunt for a swipe. Made like the wolves' and the flintlock's.
+- **A bench:** `cd src && lobster smyana.lobster -- leg:village_out bear:24,50 look:20,50 zoom:2.5 year:1050 hour:15`,
+  and the run check plays it in the beech valley: it rears, bluffs without touching anyone and leaves them be; shot
+  at, it charges, and runs or falls.
+
+![The bear at the thaw](../images/2026-11-12/48-the-bear-in-the-beech-valley-at-the-thaw.jpg)
+
+On the way, both beasts' legs were found bent at the knee when standing: their bones were longer than the hip was
+high, so the joint folded (the wolves' hind legs seemed to trail behind them). Now the bones fit, and they stand
+straight (picture 50: walking, reared up and fallen).
+
+![The bear reared up](../images/2026-11-12/49-the-bear-reared-up-at-the-men.jpg)
+
+Left for next: the bear's signs on the way out (a scratched trunk, tracks); the sounds of a ball landing and a man
+hit; the patrol's voices.

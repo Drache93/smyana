@@ -78,4 +78,4 @@ for a fight however many fall. What is left of him and his name for the homecomi
    shots both ways, smoke on both sides, misses and hits seen, men falling, the music turning. Then the patrol in the
    pass (leg 8). Its voxel men are new looks of our men's rig.
 2. **The wolves** (built 2026-11-12, D-090): a voxel wolf, the pack, howls.
-3. **The bear**: a voxel bear, the bluff and the charge.
+3. **The bear** (built 2026-11-12, D-091): a voxel bear, the bluff and the charge.
