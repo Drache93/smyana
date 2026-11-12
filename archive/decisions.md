@@ -581,3 +581,16 @@ lights each man and the foot of each trunk, tent or beast near it on their side 
 a shadow on the ground away from it, longer the further he stands. Its strength follows the mood's glow, so it rules
 the night and is faint by day. Creel's screen glow stays, smaller, as the lit air round the flames. All of it is in
 Smyana, and Creel is unchanged.
+
+**D-100, 2026-11-12: The woods are grown from the maps' trees by rules, not dotted by hand.** (Dominic, "It should feel
+dense and rich and alive"; Claude's plan `docs/woods.md`, a Proposal.) When a place loads, its drawn trees say where
+the wood is. The wood is grown out from them (`src/smyana/woods.lobster`, numbers in `data/woods.json`):
+- About half the tiles of a wood hold an old tree, in clumps from a smooth field, thinner in some places and with
+  gaps in others, and a tenth hold young trees.
+- A mantle of young trees grows at the edge toward the open, and small groups of trees stand out in the meadows.
+- The rim beyond play is wooded.
+- The trail, a ford, the gates, a patrol's road, the camp, the ruins, a bridge, the start and a cliff's edge are left
+  clear.
+- No pocket of open ground is closed off from the gates.
+The same place grows the same wood every time. The camp clearing (already dense, the mock-up) is left as drawn. The
+size budget is now 6400 old trees a place, and the frame rate is to be watched.

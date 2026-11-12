@@ -199,7 +199,33 @@ def threats_landed() -> [Landed]:
 // ---- the patrol
 
 // A patrol of n men set on its road (x, y pairs, milli-tiles), at its first point.
-def patrol_spawn(road:[int], n:int) -> int:
+// A road's points (sim units, x, y, ...) each moved onto walkable ground if it falls on a tree or a rock: the nearest
+// open tile within a few (the woods grow round a place's roads, but a road given by hand may not know where they are).
+def road_on_open(road:[int]) -> [int]:
+    let out = copy(road)
+    for(road.length / 2) k:
+        let c = cell_of(road[k * 2], road[k * 2 + 1])
+        if walks[0][c] != 1:
+            var best = -1
+            var bd = 1 << 30
+            let x = c % W
+            let y = c / W
+            for(13) j:
+                for(13) i:
+                    let u = x + i - 6
+                    let v = y + j - 6
+                    if u >= 0 and v >= 0 and u < W and v < H and walks[0][v * W + u] == 1:
+                        let d = (u - x) * (u - x) + (v - y) * (v - y)
+                        if d < bd:
+                            bd = d
+                            best = v * W + u
+            if best >= 0:
+                out[k * 2] = (best % W) * TILE + TILE / 2
+                out[k * 2 + 1] = (best / W) * TILE + TILE / 2
+    return out
+
+def patrol_spawn(road_given:[int], n:int) -> int:
+    let road = road_on_open(road_given)
     let k = type_of_slot(1, "patrol")
     if k < 0 or road.length < 4: return -1
     let ids = []::int

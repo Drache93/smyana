@@ -188,3 +188,6 @@ One line per moment worth remembering. Newest at the bottom.
   who came back, who lies where, what they carry, what they know (#70, #72, D-097, D-098). ([journal](journal/2026-11-12-the-camp-and-the-fire.md))
 - **2026-11-12:** The campfire lights the men from where it is: their sides toward it, its pool on the ground, and
   their shadows cast away from it, in place of a round glow seen from the camera (D-099). ([journal](journal/2026-11-12-the-fire-lights-the-men.md))
+- **2026-11-12:** Dominic and a Bulgarian's eye: the woods too sparse, "a little path through Africa". Plan
+  `docs/woods.md`; the woods grown dense and clumped from the maps' trees, with mantles at their edges and the rim
+  wooded (D-100). ([notes](notes/2026-11-12-dominic-forest-density-and-ferns.md))

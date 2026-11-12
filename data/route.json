@@ -13,7 +13,7 @@
  "letter_seconds": 20,
  "budget": {
   "_doc": "How big one place may be, so it loads behind the letter home and stays light to draw: tiles across and down, and how many old trees.",
-  "width": 128, "height": 96, "old_trees": 3200
+  "width": 128, "height": 96, "old_trees": 6400
  },
  "legs": {
   "village_out": {

@@ -75,7 +75,7 @@ walk_in_clear(200)
 go_on(walk_to_gate("east"), "the men walked out of the village to the east gate")
 expect(place_now() == "beech_valley" and arrived_by == "west", "the beech valley is loaded, the men at its west edge")
 // cover (#9): somewhere under the beeches a man is well hidden in summer and a watcher eight tiles' sight off does not
-// spot him from six; in winter, with the leaves down, he is far less hidden there and is spotted
+// spot him from four (the wood is thick now, D-100); in winter, with the leaves down, he is far less hidden there and is spotted
 let grass_t = str_index(tr_names, "grass")
 var hid = 0
 var hid_c = 0
@@ -87,10 +87,10 @@ for(terrain) t, c:
             hid = v
             hid_c = c
         open_least = min(open_least, v)
-let watch_x = (hid_c % W) * TILE + TILE / 2 + 6 * TILE
+let watch_x = (hid_c % W) * TILE + TILE / 2 + 4 * TILE
 let watch_y = (hid_c / W) * TILE + TILE / 2
 expect(hid >= 60 and open_least <= 10, "the wood hides a man well in summer and the open ground does not ({hid} and {open_least} in a hundred)")
-expect(not spots(watch_x, watch_y, hid_c, 8 * TILE), "a watcher six tiles off does not spot him under the leaves")
+expect(not spots(watch_x, watch_y, hid_c, 8 * TILE), "a watcher four tiles off does not spot him under the leaves")
 year_force = 2000
 let hid_winter = cover_at(hid_c)
 expect(hid_winter < hid * 2 / 3, "in winter the same tile hides him far less ({hid_winter})")
@@ -478,7 +478,10 @@ let all_ids = ids_alive()
 for(men) m: if m.alive: m.warm = 60000
 let campers = slice(all_ids, 0, all_ids.length / 2)
 let cold_ones = slice(all_ids, all_ids.length / 2, -1)
-for(cold_ones) id, n: issue_cmd(0, CMD_MOVE, [ id ], u_x[index_of(id)] - 12 * TILE + (n % 4) * 700, u_y[index_of(id)] + (n / 4) * 700, 0, 0)
+for(cold_ones) id, n:
+    // (to open ground twelve tiles off, wherever the wood leaves it)
+    let to = road_on_open([ u_x[index_of(id)] - 12 * TILE + (n % 4) * 700, u_y[index_of(id)] + (n / 4) * 700 ])
+    issue_cmd(0, CMD_MOVE, [ id ], to[0], to[1], 0, 0)
 let food_before = (fold(men, 0) a, m: a + m.food)
 expect(camp_order(campers), "the men make camp")
 var slept = 0
@@ -536,6 +539,8 @@ for(60 * TICK_HZ):
     threats_after_step(guns_after_step())
     route_tick()
     if patrols[0].state == P_WARY: came_to_look = true
+let lead_i = index_of(patrols[0].ids[0])
+print "fire seen: {fires_lit().length} fires at {fires_lit()[0].x / TILE},{fires_lit()[0].y / TILE}, men from {fx},{fy}, patrol state {patrols[0].state} lead at {u_x[lead_i] / TILE},{u_y[lead_i] / TILE} road from {patrols[0].road[0] / TILE},{patrols[0].road[1] / TILE} next {patrols[0].next}"
 hour_force = -1.0
 expect(came_to_look, "a patrol sees the fire at night and comes to look")
 // put out, the fire is not seen
@@ -578,8 +583,9 @@ if first: first.food = 12
 for(20):
     step()
     route_tick()
-let heavy = u_speed[index_of(carriers[0])]
-let light = u_speed[index_of(carriers[1])]
+// (the pack's own share of his pace: the ground under each, thick wood or open, slows them as well)
+let heavy = load_pace(assert man_of(carriers[0]), index_of(carriers[0]))
+let light = load_pace(assert man_of(carriers[1]), index_of(carriers[1]))
 expect(heavy < light, "a full pack slows a man ({heavy} against {light})")
 let food_pk = fold(men, 0) a, m: a + m.food
 expect(packs_drop(carriers) and piles.length == 1, "the men drop their packs")

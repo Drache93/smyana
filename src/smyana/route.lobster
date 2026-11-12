@@ -411,6 +411,7 @@ def enter_leg(id:string, edge:string):
     for(gs.keys) name, k:
         gate_names.push(name)
         gate_rects.push(map(gs.a[k].a) v: as_int(v))
+    woods_grow()  // (the wood grown out from the map's trees: smyana/woods.lobster)
     let why = over_budget()
     if why != "": print "over budget: {why}"
     let mem = place_memory.get(place)
