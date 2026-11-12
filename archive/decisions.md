@@ -543,3 +543,13 @@ D-021; a Proposal.) Cold air shows the men's breath, a little pale cloud now and
 cold man shivers when he stands; men in camp face the fire; a hungry or tired man is slower, so he falls behind. The
 only words: with one man chosen, his name and under it how he is ("cold and hungry", "worn out", "well"). Nothing for
 a group, no meters.
+
+**D-095, 2026-11-12: The wood's food lies in patches you send men to, by the wood and the season.** (Claude, from the
+survival plan; a Proposal.) Open ground off the bracken has patches of what its kind of wood gives in the season
+(data/survival.json "forage"): bilberries and herbs in summer, beechnuts, mushrooms, wild pears and lingonberries in
+autumn, nearly nothing in winter, nettles and wild garlic in spring; none on the fir woods' floor in winter or spring.
+Each is worked out from the cell's number, as the bracken is. Right-click one with men chosen and each goes to the
+nearest patch within nine tiles of it and gathers it in six seconds: one or two portions into his pack (at most
+twelve), or goods to take home (herbs, mountain tea). What is taken stays taken, on the way home too. The patches are
+a few pixels of art on the ground (pale caps, husks, fruiting tufts, flowering sprigs) with no marker; a first pass
+that needs Dominic's eye.

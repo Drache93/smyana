@@ -49,8 +49,23 @@ to build them in. Carts are proposed to be cut. Everything in it is a Proposal u
 - The breath, drawn into the lit world, came out the same blue-grey as the snow and could not be seen. It is drawn over
   the lit picture now, a cool grey in the art's own pixels.
 
+## Gathering (#66)
+
+The second part, the same afternoon. `src/smyana/forage.lobster`: open ground (not trail, not bracken) has patches of
+what the wood gives now, from `data/survival.json`'s "forage" by the map's wood and the season. Right-click a patch
+with men chosen and each goes to the nearest free patch near it, stands on it six seconds, and puts its food (or its
+herbs, as goods) into his pack. The place remembers what was taken. The run check sends four men to gather in the
+autumn beeches and checks their food goes up, the patches go down, and stay down after leaving and coming back.
+
+![First pass: mushrooms to gather in the shade of the beeches](../images/2026-11-12/54-first-pass-mushrooms-to-gather-in-the-shade-of-the-beeches.jpg)
+
+Found on the way: at first nothing could be seen. A tile is 96 pixels of art across, so a patch of a few pixels per
+few dozen tiles was lost in the leaf litter and the undergrowth's tufts drew over it. The patches are now three times
+as many, kept off bracken, drawn in front of their own tile's tufts, spread wider, with a dark pixel of shadow under
+each thing so it stands off the litter. They are still quiet on purpose (no marker), and want a look from Dominic.
+
 ## Left for later
 
 - A tired man sitting down when he stops needs a sitting pose (later, with the other poses).
 - Barks for hunger and cold come with the voices (#51).
-- Next in the plan: food patches by place and season (#66), then packs and caches.
+- Game to hunt with the rifle (roe deer, chamois), after the patches. Next: packs and weight, caches.

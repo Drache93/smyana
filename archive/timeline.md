@@ -180,3 +180,5 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-12:** Survival planned (docs/survival.md, phase 3, #50) and its first part built: each man's hunger,
   warmth and rest; making camp with C, the fire that cooks, warms and keeps the wolves off but is seen by a patrol and
   smelled by the bear; sleeping round it; breath in the cold (D-092 to D-094). ([journal](journal/2026-11-12-the-camp-and-the-fire.md))
+- **2026-11-12:** Gathering (#66): patches of berries, nuts, mushrooms, pears, greens and herbs on the ground by the
+  wood and the season; right-click to send men to gather them into their packs (D-095). ([journal](journal/2026-11-12-the-camp-and-the-fire.md))

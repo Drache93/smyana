@@ -807,6 +807,9 @@ class Breath:
     phase:float  // his own breathing, seconds
     every:float  // a breath every so many seconds: the colder the more often it shows
 var breaths = []::Breath
+let PATCH_LOOKS = [ "mushrooms", "nuts", "berries_blue", "berries_red", "herbs", "greens", "pears" ]
+var patch_cells = []::int  // the patches of what the wood gives (smyana/forage.lobster), looked for again now and then
+var patch_tick = -1000
 var view_lo = float2_0
 var view_hi = float2_0
 
@@ -1098,6 +1101,7 @@ def draw_world(alpha:float):
     if not fires_look: fires = map(fires_lit()) cp: gp(float(cp.x), float(cp.y))
     collect_men(alpha)
     collect_props()
+    collect_patches()
     draws.push(Drawable { -39990.0, draws.length, -6, 0.0, 0.0, float4_1, 1.0, 3, 0.0, 0.0 })  // the feet: on the ground, over its shadows
     draws.push(Drawable { -30000.0, draws.length, -4, 0.0, 0.0, float4_1, 1.0, 3, 0.0, 0.0 })  // the rings: on the ground, over the shadows
     for(fires) p, i:
@@ -1256,6 +1260,10 @@ def draw_world(alpha:float):
                         flush_sprites()
                         draw_mark(d.x, d.ay)
                         b_sheet = -1
+                    elif d.f == -8:
+                        flush_sprites()
+                        draw_patch(d.x, d.ay, int(d.col.x), int(d.col.y))
+                        b_sheet = -1
                     elif shading and d.kind == 1: pass()
                     elif d.fade < 1.0: sprite_faded(d.f, d.x, d.ay, d.col, d.fade)
                     elif d.lean != 0.0: sprite_leaning(d.f, d.x, d.ay, d.col, d.lean)
@@ -1407,6 +1415,67 @@ def draw_breaths():
                 gl.translate(floor(at)): gl.rect(float2 { w, max(1.0, w - 2.0) } * zoom)
                 gl.translate(floor(at + float2 { zoom, -zoom })): gl.rect(float2 { max(1.0, w - 2.0), 1.0 } * zoom)
                 gl.translate(floor(at + float2 { zoom, (w - 2.0) * zoom })): gl.rect(float2 { max(1.0, w - 2.0), 1.0 } * zoom)
+
+// The patches the wood gives (docs/survival.md, #66): drawn on the ground among everything else, so the light and the
+// season's dark fall on them too.
+def collect_patches():
+    if tick - patch_tick >= 40 or tick < patch_tick:
+        patch_cells = forage_patches()
+        patch_tick = tick
+    let finds = forage_finds()
+    for(patch_cells) c:
+        let k = patch_at(c)
+        if k >= 0:
+            let p = gp(float((c % W) * 1000 + 500), float((c / W) * 1000 + 500))
+            if p.x > view_lo.x and p.x < view_hi.x and p.y > view_lo.y and p.y < view_hi.y:
+                let look = find(PATCH_LOOKS) l: l == gstr(finds[k], "look", "")
+                draws.push(Drawable { p.y + 6.0, draws.length, -8, p.x, p.y, float4 { float(look), float(c), 0.0, 0.0 }, 1.0, 3, 0.0, 0.0 })
+
+// One patch, a few pixels of the art about its foot (x, y art px): pale mushroom caps, fallen nuts and husks, a
+// fruiting tuft, flowering sprigs. Spread over a stretch of ground and pale against the litter, so it can be found.
+def draw_patch(x:float, y:float, look:int, cell:int):
+    gl.set_shader("color")
+    def px(dx:float, dy:float, w:float, h:float, c:float4):
+        gl.color(c): gl.translate(float2 { floor(x) + dx, floor(y) + dy }): gl.rect(float2 { w, h })
+    def spot(n:int) -> float2: return float2 { float(cell_hash(cell * 7 + n) % 29) - 14.0, float(cell_hash(cell * 13 + n) % 13) - 6.0 }
+    let leaf = float4 { 0.22, 0.36, 0.17, 1.0 }
+    let shade = float4 { 0.08, 0.06, 0.04, 0.6 }
+    if look == 0:  // mushrooms: pale stems under cream and brown caps, in a ring
+        for(7) n:
+            let o = spot(n)
+            px(o.x - 1.0, o.y, 4.0, 1.0, shade)
+            px(o.x, o.y - 2.0, 2.0, 2.0, float4 { 0.94, 0.91, 0.82, 1.0 })
+            px(o.x - 1.0, o.y - 4.0, 4.0, 2.0, if n % 3 == 0: float4 { 0.62, 0.4, 0.22, 1.0 } else: float4 { 0.9, 0.84, 0.68, 1.0 })
+            px(o.x, o.y - 5.0, 2.0, 1.0, float4 { 0.7, 0.5, 0.3, 1.0 })
+    elif look == 1:  // nuts: split pale husks and dark nuts scattered on the litter
+        for(12) n:
+            let o = spot(n)
+            px(o.x, o.y + 1.0, 3.0, 1.0, shade)
+            px(o.x, o.y - 1.0, 3.0, 2.0, float4 { 0.86, 0.76, 0.55, 1.0 })
+            px(o.x + 1.0, o.y - 1.0, 1.0, 1.0, float4 { 0.3, 0.18, 0.09, 1.0 })
+    elif look == 2 or look == 3:  // a fruiting tuft: low leaves, dark blue or red berries
+        let berry = if look == 2: float4 { 0.24, 0.26, 0.56, 1.0 } else: float4 { 0.85, 0.14, 0.1, 1.0 }
+        for(3) t:
+            let o = spot(t + 20)
+            px(o.x - 5.0, o.y + 1.0, 11.0, 1.0, shade)
+            px(o.x - 5.0, o.y - 2.0, 11.0, 3.0, leaf)
+            px(o.x - 3.0, o.y - 4.0, 7.0, 2.0, leaf)
+            for(5) n: px(o.x + float(cell_hash(cell + n + t * 9) % 10) - 5.0, o.y + float(cell_hash(cell * 3 + n + t) % 4) - 4.0, 1.0, 1.0, berry)
+    elif look == 4:  // herbs: green sprigs with white flower heads
+        for(9) n:
+            let o = spot(n)
+            px(o.x, o.y - 4.0, 1.0, 4.0, float4 { 0.36, 0.52, 0.24, 1.0 })
+            px(o.x - 1.0, o.y - 6.0, 3.0, 2.0, float4 { 0.95, 0.93, 0.84, 1.0 })
+    elif look == 5:  // greens: low bright tufts
+        for(4) n:
+            let o = spot(n)
+            px(o.x - 4.0, o.y - 2.0, 9.0, 2.0, float4 { 0.4, 0.62, 0.22, 1.0 })
+            px(o.x - 2.0, o.y - 4.0, 5.0, 2.0, float4 { 0.5, 0.72, 0.3, 1.0 })
+    elif look == 6:  // pears: small yellow fruit fallen under the tree
+        for(6) n:
+            let o = spot(n)
+            px(o.x, o.y - 2.0, 3.0, 2.0, float4 { 0.84, 0.76, 0.28, 1.0 })
+            px(o.x + 1.0, o.y - 3.0, 1.0, 1.0, float4 { 0.36, 0.24, 0.12, 1.0 })
 
 // The mark on the range: a pale board with a dark ring, nailed to a post (art px, its foot at x, y).
 def draw_mark(x:float, y:float):
@@ -1607,6 +1676,14 @@ def young_tree_at(mm:float2) -> int:
         if x >= 0 and y >= 0 and x < W and y < H and (terrain[y * W + x] == young or (n == 0 and terrain[y * W + x] == heap)): return y * W + x
     return -1
 
+// The patch the mouse is on, or the one just below it (a patch is drawn a little up from its foot), or -1.
+def patch_under(mm:float2) -> int:
+    for(2) n:
+        let x = int(mm.x / 1000.0) + n
+        let y = int(mm.y / 1000.0) + n
+        if x >= 0 and y >= 0 and x < W and y < H and patch_at(y * W + x) >= 0: return y * W + x
+    return -1
+
 // The music turns with the threats (docs/threats.md): wary, then the hunting threat's own loop; when it is over, the
 // end stroke and quiet, or the lament if a man fell in it (#64).
 var danger_was = ""
@@ -1657,6 +1734,12 @@ def order_tick():
         guns_order(ids, u_id[foe])
         mark_t = gl.time()
         mark_at = gp(float(u_x[foe]), float(u_y[foe]))
+        return
+    // (a patch of what the wood gives under the mouse: gather it)
+    let pc = patch_under(mm)
+    if pc >= 0 and forage_order(ids, pc):
+        mark_at = gp(float((pc % W) * 1000 + 500), float((pc / W) * 1000 + 500))
+        mark_t = gl.time()
         return
     let tree = young_tree_at(mm)
     // (a broken bridge under the mouse: mend it, if the chosen men carry the wood for it)

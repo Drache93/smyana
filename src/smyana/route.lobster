@@ -19,6 +19,7 @@ class Man:
     warm:int = 100000
     rested:int = 100000
     food:int = 0     // portions of food in his pack, one a day
+    goods:int = 0    // goods in his pack to take home: herbs, hides (smyana/forage.lobster)
     hurt_uh:int = 0  // health owed to cold and hunger, and back to sleep, in millionths of a point
     heal_uh:int = 0
 
@@ -349,6 +350,7 @@ def run_begin():
     year_m = gint(gobj(route, "season"), "start", 0)
     place_memory.clear()
     survival_begin()
+    forage_begin()
     enter_leg(gstr(route, "start", ""), gstr(route, "start_edge", "west"))
 
 // Why this place is over the size budget ("" if it isn't): checked when it's loaded.
@@ -376,6 +378,7 @@ def enter_leg(id:string, edge:string):
     reset_world()
     threats_clear()
     survival_enter()
+    forage_enter(place_now())
     if run_over(): return
     // (the walk here brought the season on at least to where this leg begins)
     let span = glist(leg_now(), "year")
@@ -517,6 +520,7 @@ def route_tick() -> string:
         if n > 0 and u_carry_kind[i] == spoil: u_carry[i] = 0
     if tick % 10 != 0 or run_over(): return ""
     survival_tick()
+    forage_tick()
     // (the weather's pace on the men, and the water's on a man in a ford, and his needs')
     let pace = weather_pace()
     let ford = str_index(tr_names, "ford")
@@ -557,6 +561,7 @@ def exit_by(edge:string) -> JV: return at(at(leg_now(), "exits"), edge)
 def route_leave(edge:string):
     men_read()
     let place = place_now()
+    forage_leave(place)
     let was = place_memory.get(place)
     place_memory.set(place, PlaceMemory { copy(terrain), copy(amount), copy(wear), if was: was.visits + 1 else: 1, copy(br_up) })
 

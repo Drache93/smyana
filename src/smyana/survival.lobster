@@ -255,7 +255,7 @@ def survival_tick():
             if take_portion(m):
                 m.fed = if hot: NEED_FULL else: need_set(m.fed + gint(fd, "cold_meal", 50) * 1000)
                 if hot: meals_hot++ else: meals_cold++
-        let working = u_task[i] == GATHER or u_task[i] == BUILD
+        let working = u_task[i] == GATHER or u_task[i] == BUILD or foraging(m.uid)
         let loaded = u_carry[i] > 0
         // hunger
         var hunger = sv_milli(fd, if sleeps: "asleep" else: "per_hour", 2.5)

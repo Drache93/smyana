@@ -541,4 +541,27 @@ expect(came_to_look, "a patrol sees the fire at night and comes to look")
 // put out, the fire is not seen
 camp_order(ids_alive())
 expect(not fires_lit().length, "the fire is put out")
+// gathering (#66): in the autumn beeches there are nuts and mushrooms to find; men sent to a patch gather it into their
+// packs, and it stays taken when they come back
+year_force = 1000
+enter_leg("beech_valley_out", "west")
+for(60): step()
+let patches_before = forage_patches().length
+let gatherers = slice(ids_alive(), 0, 4)
+let food0 = fold(men, 0) a, m: a + m.food
+let gi = index_of(gatherers[0])
+var nearest_patch = -1
+for(forage_patches()) c: if nearest_patch < 0 or dist2((c % W) * TILE, (c / W) * TILE, u_x[gi], u_y[gi]) < dist2((nearest_patch % W) * TILE, (nearest_patch / W) * TILE, u_x[gi], u_y[gi]): nearest_patch = c
+expect(patches_before > 10 and forage_order(gatherers, nearest_patch), "autumn beeches give patches to gather ({patches_before}), and men go to them")
+for(60 * TICK_HZ):
+    step()
+    route_tick()
+let food1 = fold(men, 0) a, m: a + m.food
+let patches_after = forage_patches().length
+print "gathering: {patches_before} patches, {patches_before - patches_after} gathered, food {food0} to {food1}"
+expect(food1 > food0 and patches_after < patches_before, "they gather it into their packs")
+forage_leave(place_now())
+forage_enter(place_now())
+expect(forage_patches().length == patches_after, "what is taken stays taken")
+year_force = -1
 print (if failed: "run_check: {failed} FAILED" else: "run_check: ok")
