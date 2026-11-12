@@ -1,6 +1,6 @@
 // ------------------------------------------------------------------ baked art, kept between runs
 // The men and the trees are drawn into pictures when the game first starts (a bake), which takes a while. A Sheet is
-// one such picture with its frames; it's saved in bake_cache/ (a PNG and a list of its frames) and read back the next
+// one such picture with its frames; it's saved in baked/ (a PNG and a list of its frames) and read back the next
 // time, as long as its key (what it was made from) is the same.
 
 class SheetFrame:
@@ -13,7 +13,7 @@ class SheetFrame:
     oy:int
 
 class Sheet:
-    file:string  // bake_cache/<file>.png and .txt
+    file:string  // baked/<file>.png and .txt
     key:string
     w:int
     rows:[[float4]] = []
@@ -22,7 +22,10 @@ class Sheet:
     sy:int = 0
     sh:int = 0
 
-let BAKE_DIR = "../bake_cache"
+// The baked pictures ship in the repo (baked/), so a start only reads them (Dominic, 2026-11-12: "we shouldnt be baking
+// at load. no point right?"). A changed key (the art, the light, the camera) bakes that sheet again and writes it here:
+// commit the new files with the change that made them (tools/prebake.sh bakes them all).
+let BAKE_DIR = "../baked"
 
 var bake_light = ""  // the light the art is baked under (the sun's height): part of every sheet's key
 
@@ -72,7 +75,7 @@ def sheet_finish(s:Sheet, k:float, save:bool):
             var t = s.key + "\n"
             for(s.frames) f: t += "{f.name} {f.x} {f.y} {f.w} {f.h} {f.ox} {f.oy}\n"
             write_file("{BAKE_DIR}/{s.file}.txt", t)
-        else: print "(bake_cache/ isn\'t there or can\'t be written: the art will be baked again next time)"
+        else: print "(baked/ isn\'t there or can\'t be written: the art will be baked again next time)"
     sheet_frames(s, tex, float2 { float(s.w), float(s.rows.length) }, k)
     s.rows = []
 

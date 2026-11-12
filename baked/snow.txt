@@ -1,0 +1,20 @@
+trees 63 135.7645 135.7645022156 883a56bd1b2fd0eeb4b4452cc4ac7293bf2aecd0f12788dd49ef8b731cc93f91 sun 40.0 0.15 4.0 true 0.4 fall 996 86 elev 22.0
+beech0.snow 1 1 244 312 118 303
+beech1.snow 247 1 224 312 112 303
+beech2.snow 473 1 153 236 78 228
+oak0.snow 628 1 247 271 127 260
+oak1.snow 877 1 209 249 104 238
+oak2.snow 1088 1 195 213 115 204
+hornbeam0.snow 1285 1 166 214 83 206
+hornbeam1.snow 1453 1 166 228 74 220
+hornbeam2.snow 1621 1 135 184 74 177
+pine0.crown.ever.snow 1758 1 193 130 83 287
+spruce0.crown.ever.snow 1953 1 130 282 64 270
+pine1.crown.ever.snow 2085 1 199 134 87 295
+spruce1.crown.ever.snow 2286 1 132 277 65 270
+pine2.crown.ever.snow 2420 1 142 100 77 248
+spruce2.crown.ever.snow 2564 1 117 240 57 227
+young0.bare.snow 2683 1 101 142 50 136
+yspruce0.snow 2786 1 52 86 26 75
+young1.bare.snow 2840 1 103 147 47 141
+yspruce1.snow 2945 1 65 127 32 113

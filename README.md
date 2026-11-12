@@ -22,7 +22,12 @@ src/lint.sh --fix             # lobsterfmt's layout for every file of ours (lint
 ./play.sh windowed season:autumn leg:fir_woods_out   # a look at any leg in any season
 ./play.sh windowed season:autumn hour:18.5 camp:52,48 zoom:2.75   # the men round a fire at dusk
 ./play.sh windowed leg:camp_look camp:29,31 hour:19 debug   # the camp with its music (hour:22 for the men's song); music:off, music:homecoming
+./play.sh windowed script:play fast:40 fresh   # a fast playthrough of the whole route, logged ("play:" lines); fresh keeps the men fed
+tools/prebake.sh              # after changing the art, the light or the camera: bake every picture into baked/ and commit it
 ```
+
+The pictures the game draws ship baked in `baked/`, so a start only reads them (a second or two). A sheet whose art
+has changed is baked again on the next start and written there; commit it with the change.
 
 It needs [Lobster](https://github.com/Drache93/lobster) (`LOBSTER=/path/to/bin/lobster`, by
 default `~/Dev/lobster/bin/lobster`), with `lobsterfmt` built beside it (`cmake --build build --target

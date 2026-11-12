@@ -685,3 +685,23 @@ young beech does. One of each young, mature and old beech, and one old hornbeam,
 (tools/tree_vox.py; TREE_BAKE "trees 63"). Under a broadleaf tree the fallen leaves now lie in every season and reach
 2.6 tiles, deep, so in a closed wood they meet; the trail keeps only a thin scatter; grass gives out sooner under
 broadleaves. This supersedes the summer part of D-101's green floor in closed broadleaf wood; glades stay turf.
+
+**D-113, 2026-11-12: A fast playthrough checks the whole game, and finds what breaks it.** (From Dominic: "very fast
+playthroughs where we speed it up loads and shoot through everything really quickly"; Claude.) `script:play fast:<n>`
+plays the real game, window and all, with the sim n times as fast: the men walk every leg, fire at any beast or
+patrolman within eight tiles, camp at night and walk on at first light, and every event is logged on a "play:" line; a
+leg not left in three game days is called stuck, with where every man is. Its first runs found: the game never ended
+when every man was dead (now "Nobody came home", with where each lies); two men wedged for good where rock pinched the
+gorge's ford to one tile on its west bank (the rock there is now grass); food runs out after four nights of about ten
+(not changed: gameplay, for Dominic); the Ottoman patrol, slower than the men, never catches men who keep walking (not
+changed). A man walking with the others who comes no nearer for half a minute is sent on by himself (a safety net for
+Creel's block steering, which once held a man the bear had mauled in a night camp). With the men fed (`fresh`) the
+whole route plays from the village to the homecoming: 13 legs, 8 fights, 20 of 20 home.
+
+**D-114, 2026-11-12: Nothing bakes at load: the pictures ship in baked/.** (From Dominic: "we shouldnt be baking at
+load. no point right?"; Claude.) Every sheet (men, beasts, trees in every season, snow, camp) is baked by
+`tools/prebake.sh` into `baked/`, which is committed; a start only reads it. A changed key still bakes that sheet and
+writes it there, to be committed with the change. The start also stopped re-reading the men's voxel models (2 s: they
+are read only when something must be baked; the walk cycles are kept beside the sheets) and re-hashing the 28 MB of
+tree models for each of seven sheets (the key is now each model's length and tail). A start with everything baked: 8 s
+to about 1.5 s, here.

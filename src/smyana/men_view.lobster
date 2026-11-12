@@ -17,7 +17,7 @@ let POSE_RAM_DOWN = MEN_STEPS + 4
 let POSE_DOWN = MEN_STEPS + 5  // fallen: lying on his back where he was hit (smyana/threats.lobster)
 let MEN_POSES = MEN_STEPS + 6
 let men_looks = []::vx_unit_def
-var men_bake_s = 0.0  // how long the bake took (0: read from bake_cache/)
+var men_bake_s = 0.0  // how long the bake took (0: read from baked/)
 
 def man_frame_name(look:int, pose:int, facing:int) -> string: return "man{look}.{pose}.{facing}"  // pose 0: standing, 1..8: the walk, then POSE_*
 def man_shadow_name(look:int, facing:int) -> string: return "man{look}.shadow.{facing}"
@@ -26,6 +26,7 @@ def man_shadow_name(look:int, facing:int) -> string: return "man{look}.shadow.{f
 def bake_look(look:int, key:string, between):
     let s = sheet_new("man{look}", key, 1024)
     if sheet_load(s, MEN_DRAW_K): return
+    vx_need()
     let t0 = seconds_elapsed()
     let u = men_looks[look]
     vx_set_look(u, 0)
@@ -65,15 +66,31 @@ def men_vox_text() -> string:
         if names: for(sorted_strs(names)) n: t += n + (read_file(dir + "/" + n) or "")
     return t
 
+// The voxel bodies are read only when something has to be baked: reading the twenty men's models took two seconds
+// of every start (2026-11-12, Dominic: "we shouldnt be baking at load"). The bake keys need only the data's text.
+def vx_need(): vx_load([ "../data/voxel" ])
+
+// A body's walk cycle, kept beside the sheets under the same key, so a start with every sheet baked needs no bodies.
+let cycles = dictionary<string, float>(8)
+def cycle_of(name:string, key:string, u:vx_unit_def) -> float:
+    let file = "{BAKE_DIR}/cycle_{name}.txt"
+    let t = tokenize(read_file(file) or "", "\n", "")
+    if t.length == 2 and t[0] == key: return string_to_float(t[1])
+    vx_need()
+    let c = vx_walk_cycle(u)
+    write_file(file, "{key}\n{c}\n")
+    return c
+
 def bake_men(between):
-    vx_load([ "../data/voxel" ])
+    vx_data_dirs = [ "../data/voxel" ]
     let key = "{MEN_BAKE} {vx_RES} {sha256_text(vx_data_text() + men_vox_text())}"
     for(append(gstrs(men_data, "looks"), gstrs(gobj(lib_data("threats.json"), "patrol"), "looks"))) id, look:
         men_looks.push(vx_unit_def { id, id, float3_0, float3_0, float3_0, [], "", false, float3_0, float3_0, float3_0, nil })
         bake_look(look, key, between)
+    cycles.set("man", cycle_of("man", key, men_looks[0]))
 
 // How far a man walks in one cycle of his steps, milli-tiles.
-def man_cycle() -> float: return vx_walk_cycle(men_looks[0])
+def man_cycle() -> float: return cycles.get("man", 1000.0)
 
 // ---- the beasts (docs/threats.md): the wolf and the bear, each body data/voxel/bodies/<id>.json. Baked as the men
 // are: standing and eight steps of its walk, fallen on its side, and reared up on its hind legs, from eight sides, and
@@ -111,14 +128,16 @@ def vx_reared(q:vx_prim, r:[float]) -> vx_prim:
 let beast_defs = dictionary<string, vx_unit_def>(4)
 
 def bake_beast(id:string, between):
-    vx_load([ "../data/voxel" ])
+    vx_data_dirs = [ "../data/voxel" ]
     let rj = glist(gobj(lib_data("threats.json"), "rear"), id)
     let rear = if rj.length == 5: map(rj) v: as_float(v) else: [ 0.0, 15.0, 60.0, 6.0, 13.0 ]
     let key = "{BEAST_BAKE} {vx_RES} {rear} {sha256_text(vx_data_text() + (read_file("../data/voxel/bodies/{id}.json") or ""))}"
     let u = vx_unit_def { id, id, float3_0, float3_0, float3_0, [], "", false, float3_0, float3_0, float3_0, nil }
     beast_defs.set(id, u)
+    cycles.set(id, cycle_of(id, key, u))
     let s = sheet_new(id, key, 1024)
     if sheet_load(s, MEN_DRAW_K): return
+    vx_need()
     vx_set_look(u, 0)
     vx_pat_scale = vx_RES * vx_size_of(u)
     for(BEAST_POSES) pose:
@@ -136,4 +155,4 @@ def bake_beast(id:string, between):
     sheet_finish(s, MEN_DRAW_K, true)
 
 // How far a beast walks in one cycle of its steps, milli-tiles.
-def beast_cycle(id:string) -> float: return vx_walk_cycle(beast_defs.get(id, men_looks[0]))
+def beast_cycle(id:string) -> float: return cycles.get(id, man_cycle())

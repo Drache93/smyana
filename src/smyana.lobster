@@ -58,7 +58,10 @@ def arg_of(key:string) -> string:
     return ""
 let shot = arg_of("shot")
 let shot_at = if arg_of("at") != "": string_to_float(arg_of("at")) else: 4.0
-let script = arg_of("script")  // "tour": the men walk the whole route by themselves (captures, and timing the loads)
+let script = arg_of("script")  // "tour": the men walk the whole route by themselves (captures, and timing the loads); "play": the same, and they fight what they meet, logging the run (a fast playthrough, with fast:)
+// fast:<n>: the sim runs n times as fast as the clock, the picture drawn as usual (a playthrough in minutes, Dominic
+// 2026-11-12: "very fast playthroughs where we speed it up loads and shoot through everything really quickly")
+let fast = if arg_of("fast") != "": max(1.0, string_to_float(arg_of("fast"))) else: 1.0
 let debug_line = has_s(args, "debug")
 let show_cover = has_s(args, "cover")                                             // cover: a mark on each tile, the more solid the better it hides a man (#9), for a look
 hour_force = if arg_of("hour") != "": string_to_float(arg_of("hour")) else: -1.0  // hour:16.5: this place at that hour, for a look
@@ -2037,11 +2040,88 @@ def camera_tick():
 var tour_sent = ""
 var tour_cut = false
 
+var play_foe = -1  // (script:play) the id the men are firing at
+var play_log_leg = ""
+var play_fights = 0
+var play_frames = 0
+var play_slow = 0  // frames over 1/50 s
+var play_camped = false
+var play_leg_uh = 0
+var play_stuck = false
+var play_next_status = 0.0
+
+def play_status() -> string:
+    var fed = 0
+    var warm = 0
+    var rested = 0
+    var asleep_n = 0
+    let alive = filter(men) m: m.alive
+    for(alive) m:
+        fed += m.fed / 1000
+        warm += m.warm / 1000
+        rested += m.rested / 1000
+        if is_asleep(m.uid): asleep_n++
+    let n = max(1, alive.length)
+    return "men {alive.length} (asleep {asleep_n}), fed {fed / n} warm {warm / n} rested {rested / n}, food {sum(map(alive) m: m.food)}"
+
+// script:play: the men fire at the nearest beast or patrolman within eight tiles of any of them, all together, and
+// walk on when it is down or gone. What happens is printed as it happens, for a playthrough's log.
+def play_fight(ids:[int]) -> bool:
+    if play_foe >= 0 and index_of(play_foe) >= 0: return true
+    if play_foe >= 0:
+        print "play: {leg_id} foe {play_foe} down or gone at {int(clock_s)} s, men {men_alive()}"
+        play_foe = -1
+        tour_sent = ""  // (walk on)
+    var best = -1
+    var best_d = 8 * TILE * 8 * TILE
+    for(u_x.length) j:
+        if u_owner[j] == 1 and t_hp[u_kind[j]] < 100000:
+            for(ids) id:
+                let i = index_of(id)
+                let d = dist2(u_x[i], u_y[i], u_x[j], u_y[j])
+                if d < best_d:
+                    best_d = d
+                    best = j
+    if best < 0: return false
+    play_foe = u_id[best]
+    play_fights++
+    print "play: {leg_id} fire at {play_foe} ({if is_wolf(play_foe): "wolf" elif bear_of(play_foe) >= 0: "bear" else: "patrol"}) at {int(clock_s)} s, men {men_alive()}"
+    guns_order(ids, play_foe)
+    return true
+
 def tour_tick():
-    if script != "tour" or run_over(): return
+    if (script != "tour" and script != "play") or run_over() or play_stuck: return
     let ids = map(filter(men) m: m.alive) m: m.uid
     if not ids.length: return
     if not gates_armed: return
+    if script == "play":
+        if play_log_leg != leg_id:
+            play_log_leg = leg_id
+            play_leg_uh = clock_uh
+            print "play: into {leg_id} at {int(clock_s)} s ({season_now()}), men {men_alive()}"
+        // (three days in one place and not out of it: stuck; say where everyone is and stop)
+        if clock_uh - play_leg_uh > 72 * 1000000:
+            print "play: STUCK in {leg_id} for three days, the bridges {br_up}"
+            for(ids) id:
+                let i = index_of(id)
+                print "play:   man {id} at tile {u_x[i] / TILE},{u_y[i] / TILE}, going to {u_tx[i] / TILE},{u_ty[i] / TILE}, moving {u_moving[i]}, stuck {u_stuck[i]}, speed {u_speed[i]} pace {u_pace[i]} block {u_block[i]} group {u_group[i]} foe {u_foe[i]} task {u_task[i]} hp {u_hp[i]}"
+            play_stuck = true
+            return
+        if play_fight(ids): return
+        // (at night they make camp and light a fire, as a player would, and walk on at first light)
+        if is_night():
+            if not play_camped:
+                play_camped = true
+                camp_order(ids)
+                print "play: {leg_id} camp at {int(hour_now())}h, {play_status()}"
+            return
+        if play_camped:
+            play_camped = false
+            tour_sent = ""
+            print "play: {leg_id} morning, walk on, {play_status()}"
+        if clock_s >= play_next_status:
+            play_next_status = clock_s + 300.0
+            print "play: {leg_id} at {int(clock_s)} s, {int(hour_now())}h, {play_status()}"
     // one man fells the first young tree he finds, once, on the way out
     if not tour_cut and leg_id == gstr(route, "start", ""):
         tour_cut = true
@@ -2172,12 +2252,31 @@ def waiting_frame():
 waiting_frame()
 waiting_frame()
 let boot0 = seconds_elapsed()
+// (how long each took, for the start's line: where a slow start goes)
+var boot_parts = ""
+var boot_t = seconds_elapsed()
+def boot_part(name:string):
+    boot_parts += " {name} {int((seconds_elapsed() - boot_t) * 1000.0)} ms,"
+    boot_t = seconds_elapsed()
+boot_part("window")
 bake_men(): waiting_frame()
+boot_part("men")
 bake_beast("wolf"): waiting_frame()
 bake_beast("bear"): waiting_frame()
+boot_part("beasts")
 bake_trees(): waiting_frame()
+boot_part("trees")
 bake_camp(): waiting_frame()
+boot_part("camp")
+// prebake: every season's leaves and snow baked too (tools/prebake.sh), then the game stops: the baked/ folder is then
+// whole, to be committed, and no start bakes anything
+let prebake = has_s(args, "prebake")
+if prebake:
+    for([ 0, 700, 1350, 1750, 2650, 3500 ]) begins: bake_season(stage_of(begins)): waiting_frame()
+    print "prebake: done in {seconds_elapsed() - boot0} s"
+let boot_bakes = seconds_elapsed() - boot0
 sounds_load()
+boot_part("sounds")
 guns_load()
 threats_load()
 with_mark = arg_of("range") != ""
@@ -2185,8 +2284,11 @@ with_patrol = arg_of("fight") != ""
 with_wolves = arg_of("wolves") != ""
 with_bear = arg_of("bear") != ""
 needs_kept = has_s(args, "fresh")  // fresh: the men never get hungry, cold or tired (for a look)
+boot_part("data")
 run_begin()
-if arg_of("leg") != "": enter_leg(arg_of("leg"), "west")
+boot_part("the first place")
+if arg_of("leg") != "": enter_leg(arg_of("leg"), if arg_of("by") != "": arg_of("by") else: "west")  // by:east: walked in by that gate
+if arg_of("hours") != "": clock_uh += string_to_int(arg_of("hours")) * 1000000                      // hours:<n>: the clock that much later (an evening arrival, for a playthrough from there)
 // range:<x>,<y>: the men in a loose line on that tile, a mark five tiles east of them, and told to fire at it, for a
 // look and a listen at the rifles (#58)
 if arg_of("range") != "":
@@ -2241,6 +2343,10 @@ def ambush_tick():
             if not ambushed and mi >= 0 and dist2(u_x[pi], u_y[pi], u_x[mi], u_y[mi]) < 7 * TILE * 7 * TILE:
                 ambushed = true
                 guns_order(map(filter(men) n: n.alive) n: n.uid, pid)
+if has_s(args, "broken"):  // broken: every bridge down, as the men find the gorge's (for a look, or a playthrough from there)
+    for(br_id.length) k:
+        br_up[k] = 0
+        set_deck(br_cells[k], false)
 if has_s(args, "mended"):
     // (mended: this place's broken bridges standing again, for a look)
     for(br_id.length) k:
@@ -2336,7 +2442,8 @@ if arg_of("look") != "":  // look:<x>,<y>: the camera on this tile
                 u_y[i] = (on[k] / W) * TILE + 500
                 issue_cmd(0, CMD_MOVE, [ u_id[i] ], u_x[i], u_y[i], 0, 0)
                 man_dir.set(u_id[i], 1)
-print "start: {seconds_elapsed() - boot0} s (men baked in {men_bake_s} s, trees in {trees_bake_s} s; 0: read from bake_cache/)"
+boot_part("the rest")
+print "start: {seconds_elapsed() - boot0} s ({boot_parts}) (the bakes {boot_bakes} s: men baked in {men_bake_s} s, trees in {trees_bake_s} s, 0: read from baked/; the first place {last_load_s} s, its view {view_load_s} s)"
 
 // ------------------------------------------------------------------ the loop
 
@@ -2381,6 +2488,7 @@ def score_keys():
     if gl.button("0") == 1: score_safe()
 
 while gl.frame():
+    if prebake: break
     let dt = min(gl.delta_time(), 0.1)
     frame_no++
     phase_t += dt
@@ -2400,7 +2508,7 @@ while gl.frame():
             select_tick()
             order_tick()
         if phase != "menu": camera_tick()
-        if not paused: acc = min(acc + dt, 0.5)
+        if not paused: acc = min(acc + dt * fast, 0.5 * fast)
         while acc >= 0.05:
             p_id = copy(u_id)
             p_x = copy(u_x)
@@ -2432,6 +2540,10 @@ while gl.frame():
             if phase != "menu": tour_tick()
             clock_s += 0.05
             acc -= 0.05
+            // (every man dead: the run ends where they fell, 2026-11-12: a playthrough found it running on forever)
+            if phase == "play" and men_alive() == 0:
+                set_phase("end")
+                break
             if edge != "" and phase == "play":
                 leave_edge = edge
                 set_phase("leaving")
@@ -2455,7 +2567,7 @@ while gl.frame():
             load_next()
             letter_loaded = true
         // (no letter on the last walk, down the lane into the village: straight on to the end)
-        let hold = if not letter.length: 0.5 elif script == "tour": 6.0 else: float(gint(route, "letter_seconds", 20))
+        let hold = if not letter.length: 0.5 elif script == "tour": 6.0 elif script == "play": 1.0 else: float(gint(route, "letter_seconds", 20))
         let skip = letter_loaded and phase_t > 2.0 and (gl.button("mouse1") == 1 or gl.button("space") == 1 or gl.button("return") == 1)
         if letter_loaded and (phase_t >= hold or skip):
             paused = false
@@ -2503,4 +2615,12 @@ while gl.frame():
         print "shot {100 + shots_n}: {leg_id} {phase} {clock_s} s"
         shots_n++
         shots_next += if arg_of("every") != "": string_to_float(arg_of("every")) else: 8.0
+    if script == "play":
+        play_frames++
+        if dt > 0.02: play_slow++
+    if play_stuck: break
+    if script == "play" and phase == "end" and phase_t > 2.0:
+        print "play: the end at {int(clock_s)} s of game time, men {men_alive()}, {play_fights} fights, {play_frames} frames, {play_slow} slower than 50 fps"
+        for(tally_lines()) l: print "play: tally: {l}"
+        break
     if script == "tour" and phase == "end" and phase_t > 6.0: break

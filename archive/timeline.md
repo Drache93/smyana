@@ -204,3 +204,6 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-12:** The men carry pistols in their sashes, bedrolls on their backs and striped bags at the hip (D-111).
 - **2026-11-12:** Beeches leafy down to the ground, some forking low, and a deep leaf floor under broadleaves all year
   (D-112).
+- **2026-11-12:** A fast playthrough (`script:play fast:40`) plays the whole route; it found a run that never ended
+  and a ford two men wedged in, both fixed (D-113). Nothing bakes at load: the pictures ship in baked/, and a start
+  takes about 1.5 s (D-114).
