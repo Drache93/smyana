@@ -55,7 +55,19 @@ because of what Dominic said on 2026-11-11: "All that matters is some fighting v
 
 ## Left for next
 
-- The patrol in the pass (leg 8, the set piece): following the men up from the valley path (D-076, D-077).
+- The patrol in the pass: done the same day (below).
 - The wolves (#60), then the bear (#61). A man's death beyond falling (#64): what is left, his name kept.
 - Sounds: nothing new is heard when a ball lands or a man is hit, and the patrol has no voices yet.
 - Whether some of the patrol ride, as on the ridge (D-084), and whether they take prisoners (#62).
+
+## Later the same day: the patrol in the pass (leg 8)
+
+The world plan's set piece (D-076, D-077), now played. On the way home, half a minute after the men come into the pass,
+a patrol of eight sets out on the valley path far below the shelf. From down there it can't see the men and they
+can't see it. It comes up the ramp near the east gate and walks the trail behind them. Men who keep walking stay
+ahead (the patrol walks a little slower); men who stop on the trail are found and fired on. The leg's data says where
+the road runs, how many, and when they set out (`data/route.json`, `"patrol"`). The run check plays it: no patrol at
+first, unseen from below, up the ramp, and it finds men who waited. The whole-route walk is unchanged, because the
+tour's men keep walking.
+
+![The patrol coming up the ramp in the snow](../images/2026-11-12/43-the-pass-in-snow-the-patrol-coming-up-the-ramp.jpg)

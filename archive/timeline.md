@@ -171,3 +171,5 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-12:** Threats planned (`docs/threats.md`) and the first built: an Ottoman patrol that walks its road,
   hears the shots, finds the men by their cover and their smoke, fires back and falls back when half are down; balls
   miss and hit, men are wounded and fall, the music turns (D-085 to D-088). ([journal](journal/2026-11-12-the-patrol-and-the-fight.md))
+- **2026-11-12:** The pass's set piece: on the way home a patrol comes up from the valley path far below and follows
+  the men along the trail; only men who stop are caught (D-089). ([journal](journal/2026-11-12-the-patrol-and-the-fight.md))

@@ -41,6 +41,7 @@ let place_memory = dictionary<string, PlaceMemory>(17)
 def route_load():
     route = lib_data("route.json")
     men_data = lib_data("men.json")
+    threats_load()
 
 def leg_of(id:string) -> JV: return at(at(route, "legs"), id)
 def leg_now() -> JV: return leg_of(leg_id)
@@ -405,10 +406,10 @@ def enter_leg(id:string, edge:string):
         let trail = str_index(tr_names, "trail")
         for(terrain) t, c: if t == trail: wear[c] = tr_max
     walk_in(edge)
-    // (a patrol on its road through this place, #62: "patrol": { "road": [ x, y, ... tiles ], "men": n })
+    // (a patrol on its road through this place, #62: "patrol": { "road": [ x, y, ... tiles ], "men": n, "after_s": s })
     if has(leg_now(), "patrol"):
         let pl = gobj(leg_now(), "patrol")
-        patrol_spawn(map(glist(pl, "road")) v: as_int(v) * TILE + TILE / 2, gint(pl, "men", 7))
+        patrol_later(map(glist(pl, "road")) v: as_int(v) * TILE + TILE / 2, gint(pl, "men", 7), gint(pl, "after_s", 0))
     last_load_s = seconds_elapsed() - t0
 
 def gate_index(edge:string) -> int: return find(gate_names) n: n == edge
@@ -486,6 +487,7 @@ def mend_bridge(ids:[int], k:int) -> bool:
 def route_tick() -> string:
     run_ticks++
     clock_tick()
+    threats_tick()
     // (clearing a landslide (#20): what a man digs out he throws aside, down the slope, so he is never loaded with
     // it and digs on till the heap is gone)
     let spoil = str_index(resource_names, "spoil") + 1

@@ -74,7 +74,7 @@ for a fight however many fall. What is left of him and his name for the homecomi
 
 ## Order of building
 
-1. **The patrol and the fight** (built 2026-11-12, D-085 to D-088; the pass still to do), on a test bench like the range: `fight:` puts the men and a patrol on a map, with
+1. **The patrol and the fight** (built 2026-11-12, D-085 to D-088; the pass, D-089), on a test bench like the range: `fight:` puts the men and a patrol on a map, with
    shots both ways, smoke on both sides, misses and hits seen, men falling, the music turning. Then the patrol in the
    pass (leg 8). Its voxel men are new looks of our men's rig.
 2. **The wolves**: a voxel wolf, the pack, howls.

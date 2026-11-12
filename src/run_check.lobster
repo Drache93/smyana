@@ -360,4 +360,29 @@ expect(hits > 0 and misses > 0, "balls both hit and miss ({hits}, {misses})")
 expect(patrol_fell > 0, "patrolmen fall ({patrol_fell})")
 expect(find_string(danger_seen, "ottomans") >= 0, "the music turns to the patrol\'s")
 expect(patrols[0].state == P_FALLBACK or patrols[0].state == P_GONE, "the patrol breaks off ({patrols[0].state})")
+
+// the set piece in the pass (leg 8, D-076, D-077): the patrol sets out on the valley path far below the shelf, is not
+// seen from it nor sees the men up there, comes up the ramp near the east gate, and finds men who have waited on the
+// trail
+enter_leg("pass_home", "east")
+expect(not patrols.length, "no patrol in the pass when the men come in")
+for(u_x.length) i: issue_cmd(0, CMD_MOVE, [ u_id[i] ], (86 + i % 5) * TILE + 500, (22 + i / 5) * TILE + 500, 0, 0)
+var below_saw = false
+var came_up = false
+var hunted_on_shelf = false
+for(150 * TICK_HZ):
+    step()
+    threats_after_step(guns_after_step())
+    route_tick()
+    if patrols.length:
+        let lead = patrol_alive(patrols[0])
+        if lead.length:
+            let ly = u_y[index_of(lead[0])] / TILE
+            if ly > 40 and patrols[0].state == P_HUNT: below_saw = true
+            if ly < 30: came_up = true
+            if ly < 30 and patrols[0].state == P_HUNT: hunted_on_shelf = true
+expect(patrols.length == 1, "the patrol sets out after the men")
+expect(not below_saw, "from the valley path it does not see the men on the shelf")
+expect(came_up, "it comes up the ramp onto the shelf")
+expect(hunted_on_shelf, "and finds the men who waited on the trail")
 print (if failed: "run_check: {failed} FAILED" else: "run_check: ok")

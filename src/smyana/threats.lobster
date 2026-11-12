@@ -45,7 +45,10 @@ var threats_cfg = jobj()
 var patrols = []::Patrol
 var landed = []::Landed
 var fallen = []::Fallen
-var men_killed = 0                           // men killed in this place
+var men_killed = 0        // men killed in this place
+var patrol_due = []::int  // a patrol's road, due to set out on it at patrol_due_at (patrol_later)
+var patrol_due_n = 0
+var patrol_due_at = 0
 let shot_seen = dictionary<int, int>(32)     // a rifleman's id: the tick he last fired
 let patrol_looks = dictionary<int, int>(32)  // a patrolman's id: his look among the patrol's
 let patrol_hurt = dictionary<int, int>(32)   // a patrolman's id: 1 if a ball has hit him
@@ -59,6 +62,7 @@ def patrol_cfg() -> JV: return gobj(threats_cfg, "patrol")
 // A new place: nothing of the last one's threats carries over.
 def threats_clear():
     patrols = []
+    patrol_due = []
     landed = []
     fallen = []
     men_killed = 0
@@ -300,7 +304,7 @@ def patrol_think(p:Patrol):
             p.next++
             if p.next * 2 < p.road.length: patrol_walk(p, p.road[p.next * 2], p.road[p.next * 2 + 1])
 
-// After each sim tick, with the riflemen who fired in it: the patrols hear the men's shots, and think now and then.
+// After each sim tick, with the riflemen who fired in it: the patrols hear the men's shots.
 def threats_after_step(fired:[int]):
     let hearing = gint(gobj(threats_cfg, "hearing"), gstr(gobj(guns_cfg, "places"), place_now(), "valley"), 30) * TILE
     for(fired) id:
@@ -310,9 +314,24 @@ def threats_after_step(fired:[int]):
             for(patrols) p:
                 let near = find(patrol_alive(p)) pid: dist2(u_x[index_of(pid)], u_y[index_of(pid)], u_x[i], u_y[i]) <= hearing * hearing
                 if near >= 0: patrol_hear(p, id, u_x[i], u_y[i])
+
+// Every sim tick of the run (route_tick): a patrol due on its road sets out, and now and then they all think.
+def threats_tick():
+    if patrol_due.length and tick >= patrol_due_at:
+        patrol_spawn(patrol_due, patrol_due_n)
+        patrol_due = []
     if tick % 5 == 0:
         for(patrols) p: patrol_think(p)
         men_fight()
+
+// A patrol that sets out on its road after so many seconds in the place (a leg's "patrol": "after_s").
+def patrol_later(road:[int], n:int, after_s:int):
+    if after_s <= 0:
+        patrol_spawn(road, n)
+        return
+    patrol_due = road
+    patrol_due_n = n
+    patrol_due_at = tick + after_s * TICK_HZ
 
 def men_told_to_fire(id:int): men_firing.set(id, 1)
 

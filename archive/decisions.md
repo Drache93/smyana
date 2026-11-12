@@ -494,3 +494,9 @@ prisoners stay open (#62). The ridge's far-off patrol is mounted (D-084); whethe
 firing, each at the nearest enemy he can see, until they are told to walk somewhere; a man shot at does not fire back
 by himself, so hiding is always the player's choice. When the danger ends, the end stroke plays as before (D-042),
 or, if a man fell in the fight, the short lament (track 18) in its place, once.
+
+**D-089, 2026-11-12: In the pass the patrol follows the men, and only catches men who stop.** (Claude, building D-076
+and D-077.) On leg 8, eight patrolmen set out on the valley path 30 seconds after the men come in, climb the ramp by
+the east gate and walk the trail behind them, a little slower than the men walk. So the pressure is behind you: keep
+going and they never close, stop to rest, to fell or to fight and they are on you. Fighting them from the rocks or
+the last trees is the player's choice.
