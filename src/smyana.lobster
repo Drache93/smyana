@@ -802,6 +802,19 @@ class Drawable:
 var draws = []::Drawable
 var fires = []::float2  // the camp's fires, art px: where each one's foot is (draw_fire)
 var fires_look = false  // (the camp option's fire, for a look: kept, not the camps')
+// The fire's light on what stands round it (Dominic, 2026-11-12: "should be over the men, creating shadow and light on
+// them"): each man near a lit fire is lit on his side toward it, and casts a shadow on the ground away from it.
+class FireLit:
+    f:int        // his frame
+    p:float2     // his foot, art px
+    to:float2    // toward the fire on the picture (unit)
+    away:float2  // away from it on the ground (unit, the map's milli)
+    tiles:float  // how far from it on the ground
+    k:float      // how much of its light reaches him
+    up:bool      // standing (his shadow falls away from it); lying, none
+    upto:float   // art px above its foot the light reaches (a tree's trunk, not its crown)
+var fire_lits = []::FireLit
+let FIRE_LIGHT_TILES = 5.5  // how far the fire's light reaches a man
 class Breath:
     p:float2     // his head, art px
     phase:float  // his own breathing, seconds
@@ -956,7 +969,9 @@ def collect_men(alpha:float):
                 var fire = gp(x + 1000.0, y)
                 for(fires) f: if magnitude(f - p) < magnitude(fire - p): fire = f
                 let fd = dir_of(fire - p)
-                add(frame_at.get(man_frame_name(look, POSE_DOWN, (max(0, fd) + 2) % 8), -1), p.x, p.y, p.y - 0.4, SASH, 1.0, 4)
+                let lf = frame_at.get(man_frame_name(look, POSE_DOWN, (max(0, fd) + 2) % 8), -1)
+                add(lf, p.x, p.y, p.y - 0.4, SASH, 1.0, 4)
+                fire_light_man(lf, p, p.y - 0.39, false)
                 eyes.push(p - float2 { 0.0, 6.0 })
                 continue
             if m and not moving and m.warm < 30000 and (int(gl.time() * 14.0) + u_id[i]) % 3 == 0: p.x += if (int(gl.time() * 14.0) / 3 + u_id[i]) % 2 == 0: 1.0 else: -1.0
@@ -964,7 +979,9 @@ def collect_men(alpha:float):
                 let chill = max(35 - air_warmth(), (40000 - m.warm) / 1000)
                 if chill > 0: breaths.push(Breath { p - float2 { 0.0, 19.0 }, float(u_id[i] % 13) * 0.37, max(1.8, 4.2 - float(chill) * 0.06) })
             add(frame_at.get(man_shadow_name(look, facing), -1), p.x, p.y, p.y - 0.5, float4_1, 1.0, 1)
-            add(frame_at.get(man_frame_name(look, if gun >= 0: gun elif moving: 1 + step else: 0, facing), -1), p.x, p.y, p.y, if m: SASH else: patrol_sash(), 1.0, 4)
+            let mf = frame_at.get(man_frame_name(look, if gun >= 0: gun elif moving: 1 + step else: 0, facing), -1)
+            add(mf, p.x, p.y, p.y, if m: SASH else: patrol_sash(), 1.0, 4)
+            fire_light_man(mf, p, p.y + 0.01, true)
             feet.push(float3 { p.x, p.y, 2.2 })
             if u_carry[i] > 0: add(frame_at.get("load.wood", -1), p.x + 3.0, p.y - 27.0, p.y + 0.1, float4_1, 1.0, 2)
             eyes.push(p - float2 { 0.0, 16.0 })
@@ -1098,12 +1115,27 @@ def draw_world(alpha:float):
     draws = []
     feet = []
     breaths = []
+    fire_lits = []
     if not fires_look: fires = map(fires_lit()) cp: gp(float(cp.x), float(cp.y))
     collect_men(alpha)
     collect_props()
     collect_patches()
     draws.push(Drawable { -39990.0, draws.length, -6, 0.0, 0.0, float4_1, 1.0, 3, 0.0, 0.0 })  // the feet: on the ground, over its shadows
     draws.push(Drawable { -30000.0, draws.length, -4, 0.0, 0.0, float4_1, 1.0, 3, 0.0, 0.0 })  // the rings: on the ground, over the shadows
+    // (what stands near a fire, the trunks, tents and beasts: lit on its side toward it, up to a man's height or two)
+    if fires.length and atmo_on:
+        let n0 = draws.length
+        for(n0) n:
+            let d = draws[n]
+            if d.f >= 0 and (d.kind == 0 or d.kind == 2) and d.fade >= 1.0 and d.lean == 0.0:
+                var near = false
+                for(fires) fp: if magnitude(iso_inv(float2 { d.x, d.ay } - fp)) > 300.0: near = true
+                if near:
+                    add_lift = d.lift
+                    fire_light_man(d.f, float2 { d.x, d.ay }, d.y - d.lift + 0.01, false, 70.0)
+        add_lift = 0.0
+    if fires.length and atmo_on: draws.push(Drawable { -39996.0, draws.length, -11, 0.0, 0.0, float4_1, 1.0, 3, 0.0, 0.0 })  // the fire's light on the ground
+    if fire_lits.length: draws.push(Drawable { -39995.0, draws.length, -10, 0.0, 0.0, float4_1, 1.0, 3, 0.0, 0.0 })          // the fire's shadows
     for(fires) p, i:
         // (the fireplace: its ring of stones, its logs and the tripod with the cauldron; the flames are the game's own)
         add(frame_at.get("fireplace.shadow", -1), p.x, p.y, -39997.0, float4_1)
@@ -1263,6 +1295,18 @@ def draw_world(alpha:float):
                     elif d.f == -8:
                         flush_sprites()
                         draw_patch(d.x, d.ay, int(d.col.x), int(d.col.y))
+                        b_sheet = -1
+                    elif d.f == -9:
+                        flush_sprites()
+                        draw_fire_lit(int(d.x))
+                        b_sheet = -1
+                    elif d.f == -11:
+                        flush_sprites()
+                        draw_fire_pools()
+                        b_sheet = -1
+                    elif d.f == -10:
+                        flush_sprites()
+                        draw_fire_shadows()
                         b_sheet = -1
                     elif shading and d.kind == 1: pass()
                     elif d.fade < 1.0: sprite_faded(d.f, d.x, d.ay, d.col, d.fade)
@@ -1519,6 +1563,120 @@ def draw_fire(i:int):
             let u = (t * 0.35 + float(k) / 6.0) % 1.0
             gl.color(float4 { 0.62, 0.6, 0.58, 0.28 * (1.0 - u) }):
                 gl.translate(float2 { sin(u * 200.0 + float(i) * 40.0) * 3.0 + u * 10.0 - 2.0, -12.0 - u * 46.0 }): gl.rect(float2 { 3.0 + u * 7.0, 3.0 + u * 5.0 })
+
+// A man at p (art px) drawn with frame f, sorted at sort_y: lit by the nearest fire if he is in its reach.
+def fire_light_man(f:int, p:float2, sort_y:float, up:bool, upto:float = 1000.0):
+    if not atmo_on or f < 0 or not fires.length: return
+    var best = 0.0
+    var at = float2_0
+    var g = float2_0
+    for(fires) fp:
+        let w = iso_inv(p - fp)
+        let k = clamp(1.0 - magnitude(w) / 1000.0 / FIRE_LIGHT_TILES, 0.0, 1.0)
+        if k > best:
+            best = k
+            at = fp
+            g = w
+    if best <= 0.0: return
+    let night = clamp(atmo_num("glow") / 2.0, 0.25, 1.2)            // (by day the sun drowns it; at night it's all there is)
+    let to = at - float2 { 0.0, 6.0 } - (p - float2 { 0.0, 12.0 })  // (flame to chest)
+    let tiles = magnitude(g) / 1000.0
+    fire_lits.push(FireLit { f, p, if magnitude(to) > 0.01: normalize(to) else: float2 { 0.0, 1.0 },
+                             if tiles > 0.01: normalize(g) else: float2 { 1.0, 1.0 } / sqrt(2.0), tiles, pow(best, 1.4) * night, up, upto })
+    draws.push(Drawable { sort_y + add_lift, draws.length, -9, float(fire_lits.length - 1), 0.0, float4_1, 1.0, 3, 0.0, add_lift })
+
+// A frame placed as sprite() places it, each corner's colour its place in the frame (0..1 across, 0..1 down).
+def fire_quad(f:int, x:float, y:float):
+    let fr = frames[f]
+    let at = sprite_sheet(fr)
+    let x0 = floor(x * sprite_snap) / sprite_snap - float(fr.ox) * fr.k
+    let y0 = floor(y * sprite_snap) / sprite_snap - float(fr.oy) * fr.k
+    let s = sheet_dims[b_sheet]
+    let n = b_pos.length
+    for([ float2 { 0.0, 0.0 }, float2 { 1.0, 0.0 }, float2 { 1.0, 1.0 }, float2 { 0.0, 1.0 } ]) c:
+        b_pos.push(float3 { x0 + c.x * float(fr.w) * fr.k, y0 + c.y * float(fr.h) * fr.k, 0.0 })
+        b_tc.push((at + c * float2 { float(fr.w), float(fr.h) }) / s)
+        b_col.push(float4 { c.x, c.y, 0.0, 1.0 })
+    for([ n, n + 2, n + 1, n, n + 3, n + 2 ]) k: b_idx.push(k)
+
+// The fire's light on a man: his frame again, added over him, warm on the side toward the fire, brightest on the edge
+// facing it, and on his front when the fire is before him; his back is left dark when it's behind him.
+def draw_fire_lit(n:int):
+    let fl = fire_lits[n]
+    let fr = frames[fl.f]
+    gl.blend(blend_add)
+    sprite_shader = "smyana_fire_lit"
+    gl.set_shader(sprite_shader)
+    gl.set_uniform("to", fl.to)
+    gl.set_uniform("k", fl.k)
+    gl.set_uniform("mid", float(fr.ox) / float(max(1, fr.w)))
+    gl.set_uniform("team", float3 { SASH.x, SASH.y, SASH.z })
+    gl.set_uniform("up", if fl.up or fl.upto < 1000.0: 1.0 else: 0.0)
+    // (texels of the frame from its top down to where the light stops, and to its foot)
+    gl.set_uniform("upto", float2 { (float(fr.oy) - fl.upto / fr.k) / float(max(1, fr.h)), float(fr.oy) / float(max(1, fr.h)) })
+    fire_quad(fl.f, fl.p.x, fl.p.y)
+    flush_sprites()
+    sprite_shader = "sprite"
+    gl.blend(blend_alpha)
+
+// The fire's light on the ground round it, out to FIRE_LIGHT_TILES: brightest at the stones, falling off as the
+// square of the way out, flickering with the flames. Drawn under what stands, so a man's shadow from it (and the man
+// himself) is laid over it, as light on the ground should be.
+def draw_fire_pools():
+    let night = clamp(atmo_num("glow") / 2.0, 0.25, 1.2)
+    let t = gl.time()
+    let rings = 7
+    let sides = 40
+    var pos = []::float3
+    var col = []::float4
+    var idx = []::int
+    for(fires) fp, i:
+        let flick = 0.9 + 0.06 * sin((t * 9.0 + float(i) * 3.1) * 57.29578) + 0.04 * sin((t * 23.0 + float(i)) * 57.29578)
+        let c0 = pos.length
+        pos.push(float3 { fp.x, fp.y - 1.0, 0.0 })
+        col.push(float4 { 0.8, 0.38, 0.12, 1.0 } * (night * flick))
+        for(rings) r:
+            let u = float(r + 1) / float(rings)
+            let k = pow(1.0 - u, 1.6)
+            for(sides) a:
+                let ang = float(a) * 360.0 / float(sides)
+                let w = iso(cos(ang), sin(ang)) * (u * FIRE_LIGHT_TILES * 1000.0 * flick)
+                pos.push(float3 { fp.x + w.x, fp.y - 1.0 + w.y, 0.0 })
+                col.push(float4 { 0.8 * k, 0.38 * k, 0.12 * k, 1.0 } * (night * flick))
+        for(sides) a:
+            let b = (a + 1) % sides
+            idx.push(c0)
+            idx.push(c0 + 1 + a)
+            idx.push(c0 + 1 + b)
+            for(rings - 1) r:
+                let i0 = c0 + 1 + r * sides
+                let i1 = i0 + sides
+                for([ i0 + a, i1 + a, i1 + b, i0 + a, i1 + b, i0 + b ]) q: idx.push(q)
+    gl.blend(blend_add)
+    gl.set_shader("color_attr")
+    gl.draw_mesh("PC", pos, col, []::float3, []::float2, []::float2, idx)
+    gl.blend(blend_alpha)
+
+// Each standing man's shadow from the fire, on the ground away from it: his frame laid down from his feet, longer the
+// further he stands from the low flames, fading with the light.
+def draw_fire_shadows():
+    sprite_shader = "smyana_fire_shadow"
+    for(fire_lits) fl:
+        if fl.up:
+            let fr = frames[fl.f]
+            let along = iso(fl.away.x, fl.away.y) * 1000.0    // (a tile along the ground, away from the fire, art px)
+            let side = iso(-fl.away.y, fl.away.x) * 1000.0    // (a tile across it)
+            let len = clamp(0.5 + fl.tiles * 0.45, 0.6, 2.4)  // (tiles his shadow reaches at its head)
+            let wide = fr.k / 40.0                            // (tiles across a texel of him)
+            let h = float(max(1, fr.oy))
+            let a = side.x * wide
+            let b = side.y * wide
+            let c = -along.x * len / h
+            let d = -along.y * len / h
+            sprite_xf(fl.f, [ a, b, c, d, fl.p.x - float(fr.ox) * a - float(fr.oy) * c, fl.p.y - float(fr.ox) * b - float(fr.oy) * d ],
+                      float4 { 0.0, 0.0, 0.0, min(1.0, fl.k * 2.0) })
+    flush_sprites()
+    sprite_shader = "sprite"
 
 def fires_glow():
     if not atmo_on or not fires.length: return
@@ -1878,6 +2036,60 @@ SHADER smyana_shade_restore
         frag_color = texelFetch(tex0, ivec2(gl_FragCoord.xy), 0);
 """, true))
 fatal(gl.load_materials(GUNFIRE_SHADERS, true))
+// (the fire's light on a man, added over him, and his shadow from it: draw_fire_lit, draw_fire_shadows)
+fatal(gl.load_materials("""
+SHADER smyana_fire_lit
+    VERTEX
+        INPUTS apos:4 atc:2 acolor:4
+        UNIFORMS mvp
+        gl_Position = mvp * apos;
+        itc = atc;
+        icolor = acolor;
+    PIXEL
+        INPUTS itc:2 icolor:4
+        UNIFORMS tex0
+        UNIFORM vec2 to
+        UNIFORM float k
+        UNIFORM float mid
+        UNIFORM float up
+        UNIFORM vec2 upto
+        UNIFORM vec3 team
+        ivec2 sz = textureSize(tex0, 0);
+        ivec2 a = ivec2(floor(itc * vec2(sz)));
+        vec4 t = texelFetch(tex0, a, 0);
+        if (t.a < 0.5) discard;
+        vec3 rgb = t.rgb;
+        if (min(t.r, t.b) - t.g > 0.22 && abs(t.r - t.b) < 0.3) rgb = team * max(t.r, t.b) * 1.08;
+        // (his edge toward the fire: here he is, a texel or two toward it he isn't)
+        ivec2 o = ivec2(round(to * 1.4));
+        float rim = (1.0 - texelFetch(tex0, a + o, 0).a) * 0.7 + (1.0 - texelFetch(tex0, a + o * 2, 0).a) * 0.3;
+        // (his side toward it, across him; all his front when it's before him, little of his back when it's behind)
+        float lat = clamp(0.5 + (icolor.r - mid) * to.x * 2.5, 0.0, 1.0);
+        float front = clamp(to.y, 0.0, 1.0);
+        float fill = mix(lat * 0.7, 1.0, front) * mix(0.25, 1.0, front * 0.5 + 0.5 * abs(to.x));
+        fill *= 0.65 + 0.35 * icolor.g;  // (his legs nearer the flames than his head)
+        if (up < 0.5) { fill = 0.4; rim *= 0.25; }  // (lying: lit all over, softly)
+        // (a tree: its trunk lit up to where the light stops, fading, and its crown above left dark)
+        float reach = smoothstep(upto.x - 0.06, upto.x + 0.06, icolor.g);
+        fill *= reach;
+        rim *= reach;
+        vec3 warm = vec3(1.0, 0.55, 0.22);
+        frag_color = vec4((rgb * 1.6 + vec3(0.05)) * warm * k * (fill * 1.1 + rim * 1.4), 0.0);
+SHADER smyana_fire_shadow
+    VERTEX
+        INPUTS apos:4 atc:2 acolor:4
+        UNIFORMS mvp
+        gl_Position = mvp * apos;
+        itc = atc;
+        icolor = acolor;
+    PIXEL
+        INPUTS itc:2 icolor:4
+        UNIFORMS tex0
+        ivec2 sz = textureSize(tex0, 0);
+        float a = texelFetch(tex0, ivec2(floor(itc * vec2(sz))), 0).a;
+        if (a < 0.5) discard;
+        frag_color = vec4(0.02, 0.01, 0.02, clamp(icolor.a * 2.8021978 * 0.55, 0.0, 0.7));
+""", true))
 pace_background = not capture
 pace(PACE_MATCH)
 lib_load("../data")

@@ -574,3 +574,10 @@ panel says "knows the Roman drain". It is the only piece of knowledge for the de
 Kept as the run goes: who came back, each man who didn't by name and the place he lies in, what they carry home, and
 how many know the Roman drain (or that those who learned it did not come home). For now it is the end screen's lines;
 the homecoming and the ending (#51) will show it instead of saying it.
+
+**D-099, 2026-11-12: The fire is a light in the world, not a glow on the picture.** (Dominic, "should be over the men,
+creating shadow and light on them"; built by Claude.) A lit fire lights the ground round it, out to 5.5 tiles. It
+lights each man and the foot of each trunk, tent or beast near it on their side toward it, and each standing man casts
+a shadow on the ground away from it, longer the further he stands. Its strength follows the mood's glow, so it rules
+the night and is faint by day. Creel's screen glow stays, smaller, as the lit air round the flames. All of it is in
+Smyana, and Creel is unchanged.

@@ -186,3 +186,5 @@ One line per moment worth remembering. Newest at the bottom.
   cache for the way home that a patrol can find and the bear can eat (D-096). ([journal](journal/2026-11-12-the-camp-and-the-fire.md))
 - **2026-11-12:** The Roman drain studied at the ruins and known by the men who learned it, and the tally at the end:
   who came back, who lies where, what they carry, what they know (#70, #72, D-097, D-098). ([journal](journal/2026-11-12-the-camp-and-the-fire.md))
+- **2026-11-12:** The campfire lights the men from where it is: their sides toward it, its pool on the ground, and
+  their shadows cast away from it, in place of a round glow seen from the camera (D-099). ([journal](journal/2026-11-12-the-fire-lights-the-men.md))
