@@ -15,3 +15,7 @@ In the project chat, 10:03 UTC, after the flintlock (Smyana #106, Creel #28) was
 In the threats thread, 12:00 UTC, on the first wolves (picture 45):
 
 > wolves look pretty weird
+
+In the threats thread, 13:57 UTC, on the bear (pictures 48 and 49, PR #110):
+
+> perfect
