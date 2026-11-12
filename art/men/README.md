@@ -47,4 +47,5 @@ part, like the haidut's cloaks) and the engine picks a look per man.
 
 - Not seen in the engine or in a real match yet, only in `render.py`'s pictures.
 - The engine can't stack parts yet: today a variant is a whole `.vox` of its own.
-- The rifle and tools have no holds yet (slung, on the shoulder, swinging, aiming).
+- The tools have no holds yet. The rifle has (2026-11-12, #58): on the shoulder, aimed and upright for the reload,
+  in `data/voxel/gear.json`, with a copy of its `.vox` in `data/voxel/models/`.

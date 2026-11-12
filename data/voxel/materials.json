@@ -9,6 +9,7 @@
  "leather": { "rgb": "#6b4a2e" },
  "wood": { "rgb": "#5a3a22" },
  "metal": { "rgb": "#c8c8c0", "shine": 0.5 },
+ "iron": { "rgb": "#55524c", "shine": 0.35 },
  "coat": { "rgb": "#7a5236" },
  "mane": { "rgb": "#3a2a20" },
  "coat_mark": { "rgb": "#e0d6be" },

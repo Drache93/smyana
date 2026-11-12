@@ -1,0 +1,31 @@
+{
+ "_doc": "How long each track in assets/audio/music is, seconds. Written by music/pieces/set_03_score.py index.",
+ "seconds": {
+  "01_summer_day": 126.0,
+  "02_summer_dusk": 98.74,
+  "03_autumn_day": 126.0,
+  "04_autumn_dusk": 146.0,
+  "05_autumn_night": 102.0,
+  "06_winter_day": 106.0,
+  "07_winter_night": 65.37,
+  "08_spring_morning": 42.92,
+  "09_spring_day": 80.65,
+  "10_wary": 56.0,
+  "11_hiding": 74.0,
+  "12_beasts": 46.07,
+  "13_bandits": 64.74,
+  "14_ottomans": 72.0,
+  "15_chase": 63.91,
+  "16_end_stroke_1": 4.5,
+  "16_end_stroke_2": 4.5,
+  "16_end_stroke_3": 4.5,
+  "16_end_stroke_4": 4.5,
+  "18_a_man_dies": 52.0,
+  "19_the_fire": 105.16,
+  "20_intro": 121.4,
+  "21_leaving_the_village": 85.21,
+  "22_homecoming": 154.14,
+  "23_ending": 110.76,
+  "24_menu": 84.0
+ }
+}

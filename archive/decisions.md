@@ -380,6 +380,31 @@ solid and only the screen pixel where two meet is a mix, so the art stays crisp 
 not changed. Rejected: zooming only in whole-number steps (fewer, bigger zoom jumps), and remaking the men at twice the
 detail (a much bigger job that changes their look).
 
+**D-072, 2026-11-11: Which calm track plays when is data, by season and the light's mood of the hour.** (Claude's
+how, to Dominic's D-036 and D-042; open to him) The nine calm tracks are shared over four seasons and four moods of
+the day (dawn, day, dusk, night) in `data/music.json`: dawn has the day's track except in spring, which has a morning
+of its own. A track plays once and the forest is then left alone for 90 seconds, a short gap so the first demo is not
+mostly silence; the plan's "a few minutes" waits for the sounds of the world. At night with a fire lit, the men's song
+takes turns with the season's night track. The main theme the frame tracks share is a first version, a proposal like
+every track of the first draft.
+
+**D-073, 2026-11-11: Each song has a design stage before it is made.** (Dominic) "each song needs a clear design
+stage. Like we did for 2D before 3D", after hearing the first draft of the score: "worry we're just churning out songs
+with not much thoughts". How (Claude's, for him to agree): a sheet in plain words with a picture of the tune's shape,
+then a "pencil" sketch of the tune alone, and only then the track (`docs/music-design.md`). The first draft's tracks
+stay in the game as placeholders until each is replaced by a designed one.
+
+(D-072 and D-073 were written as D-059 and D-060 on the music branch, pull request #63, and renumbered on
+2026-11-11 at 22:05 UTC when it was merged up to main, where those numbers had gone to the start-up thread.)
+
+**D-074, 2026-11-11: The demo's one song is autumn dusk: one kaba gaida, as slow as it can go.** (Dominic asked for
+"one good song for that demo"; the choice of song and everything in it is Claude's, made while he was away, and open
+to him.) It is the track the camp plays at dusk in autumn. Its sheet (`docs/music-design.md`) held, with one addition:
+a fourth phrase with the piece's one leap, up a fifth to the pipe's top note, answered at the end by the far kaval's
+leap down a fifth. The pipe is a new, rounder kaba gaida whose bag pressure wanders, so held notes are never still;
+the mist is the pipe's own long dark echo, not a separate haze of high notes; the drone is low in the mix and grows
+only for the leap. Every later song goes through the same written checklist, one at a time.
+
 **D-075, 2026-11-11: Cliffs are drawn off the grid, and the sim's levels stay as they are.** (Dominic asked for proper
 cliffs, Creel #25; Claude chose how.) Creel's `relief_cliffs` draws each level's drop as a curve inside the unwalkable
 tile below it, with ledges where two drops drift apart, scree at the foot, ramps as straight slopes and snow on the
@@ -416,3 +441,24 @@ litter and young trees that lose their leaves. `high` has the conifers' floor. #
 the valleys (`"altitude"`), but the pass is kept in autumn on the way out. Leaving the village takes the run's first
 10 thousandths of a season, so the beech valley still starts in late summer, as the run check expects. Walking down
 the lane at the end goes straight to the end screen, with no blank letter between.
+
+**D-080, 2026-11-12: A shot is two sounds and a gap, and the place answers it.**
+(Claude.) The lock and pan are one sound, the charge another, and the game puts the hang (0.06 to 0.18 s, one shot in
+twelve up to 0.9 s) between them, so no two shots sound alike. Each map is one of four kinds of place for the echo
+(close wood, valley, gorge, open ridge, `data/guns.json`), its echo made into the bang's own file. A shot far from the
+view is the low far boom. All the sounds are made by `sound/flintlock.py` from noise and sine waves, none recorded.
+
+**D-081, 2026-11-12: The rifle's smoke hangs where it was fired and hides the man.**
+(Claude.) 26 s in the wood, 18 in a valley, 20 in the gorge, 10 on the ridge, drifting slowly east. It is drawn over
+the men, on purpose: a line that has fired a few times stands in its own smoke and is hard to see, from the player's
+side as much as the enemy's.
+
+**D-082, 2026-11-12: The reload is 18 to 23 seconds, and each man aims in his own time.**
+(Claude.) A Balkan long gun was loaded by hand with horn and rod; 18 s is quick for it. Each man takes 1 to 4.5 s to
+bring his rifle up when told to fire, and 0 to 5 s more over each reload, so twenty rifles go off in ones and twos
+and never as one volley (#58). Picked by a hash of his id and the tick, so a run is the same each time.
+
+**D-083, 2026-11-12: The men carry the rifle on the shoulder, muzzle up and back.**
+(Claude.) As the builders in old pictures carry long guns; it shows the swallow-tail butt in front of him. Aimed, the
+butt is in the shoulder and the left hand under the barrel; reloading, the rifle stands upright. Dominic's to judge
+(D-019 left the rifle's look to him).

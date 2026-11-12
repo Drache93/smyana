@@ -111,7 +111,7 @@ def hiding():
 
 # ---------------------------------------------------------------- 06 morning
 
-def morning():
+def morning(done=None):
     rng = np.random.default_rng(1866)
     bpm, beat = 104, 60 / 104
     A = "E4/.5 'B4 E4/.5 G4/.5 A4/.5 | B4/1 A4/.5 G4/.5 | A4/.5 G4/.5 E4/.5 D4/.5 | E4/1 'B4 E4/1"
@@ -144,8 +144,10 @@ def morning():
         (drone, -33, 0.0, 0.7, 0.4),
         (s.wind(total, rng), -40, 0, 1.0, 0.0),
     ], rng, echo=3.5, dark=4500, wet=0.8)
-    s.finish("track_06_morning", mix, fade_in=0.05, fade_out=4.0,
-             midi=[("Kaval", 75, tune), ("Tambura", 25, pluck)])
+    midi = [("Kaval", 75, tune), ("Tambura", 25, pluck)]
+    if done:    # (set_03_score.py makes the game's "spring morning" of it)
+        return done(mix, midi)
+    s.finish("track_06_morning", mix, fade_in=0.05, fade_out=4.0, midi=midi)
 
 
 # ---------------------------------------------------------------- 07 autumn dusk, second take
