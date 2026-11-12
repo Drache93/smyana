@@ -95,7 +95,7 @@ def dabs(m, tip, reach, count, cling, rng):
         sub[inside & ~up & (sub == 0)] = CLING_LOW if cling else UNDER
 
 
-def broadleaf(height, girth, bole, spread, boughs, seed, cling=0.4, stout=1.0, fill=16, body=0.0):
+def broadleaf(height, girth, bole, spread, boughs, seed, cling=0.4, stout=1.0, fill=16, body=0.0, skirt=0.0, split=0):
     """As on the sheet and in the target picture: a flared foot, one clean slim silver bole, boughs that rise steeply
     from the fork and then spread, each breaking into branches and fine twigs that can be seen, and the leaves in
     clusters of dabs at the twigs' ends. Sizes in men: height, the trunk's width, how far up the clean bole goes (of the
@@ -108,7 +108,23 @@ def broadleaf(height, girth, bole, spread, boughs, seed, cling=0.4, stout=1.0, f
     cx = cy = N / 2
     fork = np.array([cx + rng.uniform(-0.02, 0.02) * H, cy + rng.uniform(-0.02, 0.02) * H, H * bole])
     m.capsule((cx, cy, 0), (cx, cy, r0 * 2.6), r0 * 1.7, r0 * 1.02, BARK)          # the elephant's foot
-    m.capsule((cx, cy, r0), fork, r0, r0 * 0.74, BARK)
+    # (2026-11-12, Dominic, from a beech wood: "the trees have foliage all the way up the branch, or we've got the ones
+    # where the tree splits early at the bottom". split: the trunk forks low into that many stems, each with a crown of
+    # its own, the crowns leaning apart.)
+    stems = []
+    if split > 1:
+        low = np.array([cx, cy, H * rng.uniform(0.1, 0.17)])
+        m.capsule((cx, cy, r0), low, r0, r0 * 0.9, BARK)
+        turn = rng.uniform(0, 6.28)
+        for k in range(split):
+            a = turn + 2 * math.pi * (k + rng.uniform(-0.15, 0.15)) / split
+            lean = S * rng.uniform(0.28, 0.42)
+            top_k = np.array([cx + math.cos(a) * lean, cy + math.sin(a) * lean, H * bole * rng.uniform(1.05, 1.3)])
+            m.capsule(low, top_k, r0 * 0.78, r0 * 0.55, BARK)
+            stems.append((low, top_k, a))
+    else:
+        m.capsule((cx, cy, r0), fork, r0, r0 * 0.74, BARK)
+        stems.append((np.array([cx, cy, r0 * 2.6]), fork, None))
     for i in range(int(H * bole / 7 / F)):                                               # scars across the bark
         z = r0 * 2.6 + rng.random() * max(1.0, H * bole - r0 * 3)
         a = rng.uniform(0, 2 * math.pi)
@@ -147,10 +163,37 @@ def broadleaf(height, girth, bole, spread, boughs, seed, cling=0.4, stout=1.0, f
             twigs((at + br) / 2, a2 + rng.uniform(-1, 1), S * rng.uniform(0.1, 0.18))
         twigs(end, az, S * rng.uniform(0.12, 0.22))
 
-    for i in range(boughs):
-        az = 2 * math.pi * (i + rng.uniform(-0.25, 0.25)) / boughs
-        bough(fork - [0, 0, rng.uniform(0, 0.12) * H * bole], az, S * rng.uniform(0.6, 0.9), top * rng.uniform(0.5, 0.85), r0 * 0.52 * stout)
-    bough(fork, rng.uniform(0, 6.28), S * 0.12, top * 0.95, r0 * 0.6)              # the leader
+    if split > 1:
+        # each stem's crown: boughs mostly on its outer side, so the crowns part and the tree reads as two or three
+        for low, top_k, a in stems:
+            nb = max(3, boughs // split + 2)
+            for i in range(nb):
+                az = a + (2 * math.pi * (i + rng.uniform(-0.25, 0.25)) / nb) * 0.75
+                bough(top_k - [0, 0, rng.uniform(0, 0.15) * top_k[2]], az, S * rng.uniform(0.45, 0.7), (H - top_k[2]) * rng.uniform(0.5, 0.85), r0 * 0.4 * stout)
+            bough(top_k, a, S * 0.1, (H - top_k[2]) * 0.92, r0 * 0.45)
+    else:
+        for i in range(boughs):
+            az = 2 * math.pi * (i + rng.uniform(-0.25, 0.25)) / boughs
+            bough(fork - [0, 0, rng.uniform(0, 0.12) * H * bole], az, S * rng.uniform(0.6, 0.9), top * rng.uniform(0.5, 0.85), r0 * 0.52 * stout)
+        bough(fork, rng.uniform(0, 6.28), S * 0.12, top * 0.95, r0 * 0.6)          # the leader
+    if skirt > 0:
+        # leaves all the way down: short leafy shoots off the stems from `skirt` of the height up to the crown, longer
+        # the higher they are, so the green runs down the trunk in a narrowing skirt rather than sitting on a bare pole
+        for low, top_k, a in stems:
+            z0, z1 = H * skirt, max(top_k[2], H * 0.62)
+            n = int((z1 - z0) / (0.9 * F))
+            for i in range(max(0, n)):
+                u = (i + rng.random()) / max(1, n)
+                z = z0 + (z1 - z0) * u
+                at = low + (top_k - low) * (min(z, top_k[2]) - low[2]) / max(1e-6, top_k[2] - low[2])
+                at = np.array([at[0], at[1], z])
+                az = rng.uniform(0, 6.28)
+                ln = S * (0.12 + 0.5 * u * (1 - u * 0.4)) * rng.uniform(0.6, 1.1)
+                tw = at + np.array([math.cos(az), math.sin(az), rng.uniform(-0.1, 0.35)]) * ln
+                m.capsule(at, tw, 0.6 * F, 0.45 * F, BARK)
+                clings = rng.random() < cling + 0.25         # (a young beech's low shoots keep their dead leaves)
+                dabs(m, tw, (1.8 + 1.8 * u) * F, 8 + int(10 * u), clings, rng)
+                dabs(m, (at + tw) / 2, 1.4 * F, 4, False, rng)
     for tip in tips:
         clings = rng.random() < cling
         dabs(m, tip, 2.6 * F, 10 if clings else 13, clings, rng)
@@ -322,9 +365,16 @@ def make(kind, name, h, g, b, s, n, seed):
     if kind == "fir": return fir(h, g, b, s, seed)
     if kind == "bpine": return black_pine(h, g, b, s, n, seed)
     if kind == "oak": return broadleaf(h, g, b, s, n, seed, cling=0.65, stout=1.3, fill=20, body=1.0)        # holds its russet leaves
-    if kind == "hornbeam": return broadleaf(h, g, b, s, n, seed, cling=0.35, stout=0.9, fill=14, body=0.9)
+    if kind == "hornbeam": return broadleaf(h, g, b, s, n, seed, cling=0.35, stout=0.9, fill=14, body=0.9, skirt=0.2, split=2 if tag_now == "hornbeam_old_1" else 0)
     if kind == "pine": return broadleaf(h, g, b, s, n, seed, cling=0.0, stout=1.0, fill=10)        # a bare bole, a high flat crown
+    if kind == "beech": return broadleaf(h, g, b, s, n, seed, body=1.0, skirt=SKIRT.get(name, 0.0), split=SPLIT.get(tag_now, 0))
     return broadleaf(h, g, b, s, n, seed, body=1.0)
+
+
+# (Dominic's beech wood, 2026-11-12: leafy shoots from this far up the trunk, of the height; these beeches fork low)
+SKIRT = {"sapling": 0.2, "young": 0.14, "mature": 0.18, "old": 0.22}
+SPLIT = {"beech_young_1": 2, "beech_mature_1": 2, "beech_old_1": 3}
+tag_now = ""
 
 
 # In men, measured from the route mock-ups (an old tree five or six men tall, its trunk a quarter to a third of a man
@@ -343,6 +393,7 @@ for kind, sizes in KINDS.items():
     for name, (h, g, b, s, n) in sizes.items():
         for variant in range(2 if name in ("old", "young") or (kind == "beech" and name == "mature") else 1):
             tag = "%s_%s_%d" % (kind, name, variant)
+            tag_now = tag
             size, foot, count = make(kind, name, h, g, b, s, n, 100 + len(lines)).save("art/trees/vox/%s.vox" % tag)
             lines.append("%s %d %d" % (tag, foot[0], foot[1]))
             print("%s: %s voxels %d, foot %s" % (tag, size, count, foot))

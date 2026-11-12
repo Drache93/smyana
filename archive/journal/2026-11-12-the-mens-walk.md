@@ -21,3 +21,10 @@ Pictures: [83](../images/2026-11-12/83-the-men-walking-out-slower-with-bedrolls-
 [85](../images/2026-11-12/85-a-man-s-load-pistols-in-the-sash-striped-bag-bedroll.jpg).
 
 Next: Dominic's tree note (foliage all the way up, beech forking low, a deep leaf floor off the path).
+
+**The trees and the floor (D-112).** From Dominic's beech-wood photo (not kept: it's his family's). The beeches grow
+leafy shoots from low on the trunk into the crown, and some fork low into two or three stems. The fallen leaves lie
+deep under broadleaves in every season, so a closed wood's floor is leaves, and the grass thins sooner there. Pictures:
+[86](../images/2026-11-12/86-beeches-with-leaves-down-the-trunk-and-low-forks.jpg),
+[87](../images/2026-11-12/87-the-beech-valley-beeches-leafy-to-the-ground.jpg),
+[88](../images/2026-11-12/88-the-oak-wood-floor-deep-in-leaves-off-the-path.jpg).

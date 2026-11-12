@@ -299,7 +299,9 @@ def build_props():
                 let nx = c % W + dx - 2
                 let ny = c / W + dy - 2
                 if nx >= 0 and ny >= 0 and nx < W and ny < H and terrain[ny * W + nx] == old: shading++
-            let sunny = clamp(1.15 - float(shading) / 7.0, 0.08, 1.0)
+            // (under broadleaves the grass gives out sooner: the year's leaves lie deep and smother it, Dominic
+            // 2026-11-12: "you won't be able to walk without just going through leaves")
+            let sunny = if broadleaved(wood): clamp(1.15 - float(shading) / 4.0, 0.03, 1.0) else: clamp(1.15 - float(shading) / 7.0, 0.08, 1.0)
             var edge_grass = 0.0
             for([ -1, 1, -W, W ]) d:
                 let n = c + d
@@ -491,6 +493,7 @@ def trail_wear():
 // strong, and its own masks only make it so in a solid wood, not under one great tree. So after build_masks, the
 // litter is painted here: full under each giant's crown, fading out at its edge.
 let LITTER_REACH = 1.5  // tiles
+let LITTER_DEEP = 2.6   // tiles, under a broadleaf giant
 
 // How much of the year's leaves lie as a carpet over a broadleaf wood's floor, 0 .. 1: they come down through the
 // autumn (the season clock's leaves_down) and the snow covers them.
@@ -509,7 +512,10 @@ def build_litter():
     let r = int(LITTER_REACH * 3.2 * float(MASK_K)) + 1
     for(props) pr:
         if pr.kind == 0 or pr.kind == 2:
-            let reach = (if pr.kind == 0: (if leafy(pr.sp): LITTER_REACH else: 1.0) else: 0.6) * (if leafy(pr.sp): 1.0 + 0.25 * carpet else: 1.0) * (0.8 + 0.4 * float(cell_hash(pr.cell) % 100) / 100.0)
+            // (2026-11-12, Dominic, from a beech wood: "everywhere off the path will just be covered in really deep leaf
+            // cover". A beech's leaves lie all year, deep: under a broadleaf giant they reach well past its crown, so
+            // in a closed wood they meet and the floor is leaves, and only the open glades are turf)
+            let reach = (if pr.kind == 0: (if leafy(pr.sp): LITTER_DEEP else: 1.0) else: 0.6) * (if leafy(pr.sp): 1.0 + 0.25 * carpet else: 1.0) * (0.8 + 0.4 * float(cell_hash(pr.cell) % 100) / 100.0)
             let cx = float(pr.cell % W) + 0.5
             let cy = float(pr.cell / W) + 0.5
             let lobe = float(cell_hash(pr.cell) % 360)
@@ -522,7 +528,7 @@ def build_litter():
                     let o = float2 { (float(x) + 0.5) / float(MASK_K) - cx, (float(y) + 0.5) / float(MASK_K) - cy }
                     // (ragged: leaves drift, they don't fall in a ring)
                     let d = magnitude(o) / (reach * (1.0 + 0.28 * sin(atan2(o) * 3.0 + lobe) + 0.15 * sin(atan2(o) * 7.0 + lobe * 2.0)))
-                    let v = clamp((1.0 - d) * 1.3, 0.0, 0.85)
+                    let v = clamp((1.0 - d) * 2.2, 0.0, if leafy(pr.sp): 0.95 else: 0.85)
                     if v > a[y * w + x]: a[y * w + x] = v
     // autumn in a broadleaf wood: the year's leaves lie over nearly everything, thinner in the open
     let turf_seed = gint(su_map, "grass_seed", 9001)
@@ -540,6 +546,10 @@ def build_litter():
             // (as the leaves come down through the autumn the carpet thickens from what lies under each tree)
             let full = max(a[y * w + x] * (1.0 - 0.35 * thin), leaves - (leaves - LITTER_THIN) * max(thin, slow * 0.45))
             a[y * w + x] = a[y * w + x] + (full - a[y * w + x]) * carpet
+    // (the path stays worn: the leaves lie thin on it, kicked aside by feet)
+    let trail_tt = str_index(tr_names, "trail")
+    for(h) y: for(w) x:
+        if terrain[(y / MASK_K) * W + x / MASK_K] == trail_tt: a[y * w + x] = min(a[y * w + x], 0.3)
     // scree under a landslide's debris (the shader's G), reaching a little past it and ragged
     let sc = map(w * h): 0.0
     let debris_t = str_index(tr_names, "rubble")
