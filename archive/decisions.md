@@ -675,3 +675,13 @@ big silver ball pommels (they had two stubs there before, too small to see). Eac
 across his shoulder blades, a red-striped woven bag (torba) at his left hip, or both, by turn
 (art/men/tools/men.py, write_vox.py). The patrol has the pistols but no packs. Not dynamic: the load shows in the look
 and the slower walk (D-109), not in the numbers.
+
+**D-112, 2026-11-12: Beeches leafy to the ground; some fork low; a deep leaf floor all year.** (From Dominic, with a
+photo of a beech wood: "the trees have foliage all the way up the branch, or we've got the ones where the tree splits
+early at the bottom", and "everywhere off the path will just be covered in really deep leaf cover"; Claude.) The beech
+and hornbeam models grow short leafy shoots from low on the trunk up into the crown, longer the higher they are, so the
+green runs down the tree instead of sitting on a bare pole; their low shoots keep more dead leaves through winter, as
+young beech does. One of each young, mature and old beech, and one old hornbeam, fork low into two or three stems
+(tools/tree_vox.py; TREE_BAKE "trees 63"). Under a broadleaf tree the fallen leaves now lie in every season and reach
+2.6 tiles, deep, so in a closed wood they meet; the trail keeps only a thin scatter; grass gives out sooner under
+broadleaves. This supersedes the summer part of D-101's green floor in closed broadleaf wood; glades stay turf.
