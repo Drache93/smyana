@@ -14,3 +14,9 @@ valley so the far trees and riders fade grey-blue while the ridge stays crisp an
 **04:48 UTC:**
 
 > Yes, important for the atmosphere
+
+**06:25 UTC:** a photo, with no words: a real autumn wood in fog, tall dark trunks fading to grey-white within a few
+rows, yellow maple leaves overhead, a thick orange-brown leaf floor. Taken as the mood reference for how mist eats
+depth among the trees.
+
+![Dominic's photo](../images/2026-11-12/37-dominics-photo-a-foggy-autumn-wood.jpg)
