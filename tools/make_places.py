@@ -451,42 +451,85 @@ def the_pass(c):
 
 def high_ridge(c):
     """Map 7 (#55): the bare ridge at 2,050 m, the furthest point, and the turn for home: the men come in by the west
-    gate and go out by it. Gneiss slabs and grass, dwarf pines (young spruces stand in) and few trees; a rocky knoll
-    to the north. To the south the ridge breaks away in ledges of rock to the far valley eight levels below, its road
-    running across it, seen and not walked (D-076). Spruce grows down there, below the rim."""
+    gate and go out by it. Laid out for the mock-up (archive/images/2026-11-10/21-route-ridge.jpg, D-084): the ridge
+    runs across the screen, the men's trail along its crest, gneiss slabs, grass and dwarf pines (young spruces stand
+    in) on it. Behind it, up the screen, the ground breaks away in a cliff four levels down to a valley of spruce where
+    the fog lies (the cliff faces away from the camera, so the valley seems to open out right behind the men); beyond
+    the valley the far side climbs by a low wall of rock to a shelf at level 6 with the far road on it, seen
+    and not walked (D-076), and above that beyond it a second valley lies in the fog, the forest climbing out of it. Screen across is a line of the same
+    x + y, so all of it runs on the diagonal: d = x + y is down the screen, r = x - y across it."""
     w, h, rng, ty = c.w, c.h, c.rng, c.trail_y
     c.base = 8
-    end = RIM + 74
-    crest = ragged(rng, w, 10, 2.0)
-    span = ragged(rng, w, 7, 1.5)
-    knoll = ragged(rng, w, 8, 3.0)
+    D = h - 4                      # (the trail's d: its west end at the gate, in the south-west)
+    end = RIM + 66                 # (the trail's east end, at the lookout)
+    crest = ragged(rng, w + h, 9, 1.6)
+    wob = ragged(rng, w + h, 11, 1.2)
+    slope = ragged(rng, w + h, 13, 2.0)
+    road = ragged(rng, w + h, 15, 1.0)
     rough = [noise1(rng, h, 3) for _ in range(w)]
     drift = [noise1(rng, w, 5) for _ in range(h)]
-    road = ragged(rng, w, 14, 2.5)
+    def ri(x, y): return x - y + h    # (r, from 0)
     for x in range(w):
-        # (the trail bends south at its end, to the lookout over the valley)
-        t = max(0.0, (x - (end - 20)) / 20.0)
-        ty[x] = int(round(ty[x] * (1 - t) + (RIM + 40) * t)) if x <= end else ty[end]
-    for x in range(w):
-        top = int(round(RIM + 6 + knoll[x]))
-        for y in range(0, top):
-            c.lev[(x, y)] = 9
-            c.g[y][x] = "#" if rng.random() < 0.5 else "b"
-        e = RIM + 46 + crest[x]
-        sp = 8.0 + span[x]
-        for y in range(top, h):
-            k = int(math.ceil((y - e + rough[x][y]) * 4.0 / sp))
+        ty[x] = int(round(D - x + wob[ri(x, D - x)])) if x <= end else ty[end]
+    c.road = []
+    VALLEY = 6.0                   # (tiles of valley floor, most of it hidden under the cliff)
+    for y in range(h):
+        for x in range(w):
+            d, r = x + y, ri(x, y)
+            rim = D - 3.5 + crest[r]
+            k = rim - d + rough[x][y] * 0.6        # (tiles behind the crest's rim, up the screen)
             if k <= 0:
-                if c.g[y][x] == "." and drift[y][x] > -0.15: c.g[y][x] = "b"
+                # (the ridge's top: grass, bare slabs of gneiss in drifts, a rock here and there; higher to the south)
+                lv = 8 if d < D + 12 + slope[r] else 9
+                c.lev[(x, y)] = lv
+                if c.g[y][x] == "." and drift[y][x] > 0.62: c.g[y][x] = "b"
+                elif c.g[y][x] == "." and rng.random() < 0.035: c.g[y][x] = "#"
+                elif c.g[y][x] == "." and rng.random() < 0.05 and abs(d - D) > 2 and d > rim + 1: c.g[y][x] = "t"
                 continue
-            c.lev[(x, y)] = max(0, 8 - 2 * k)
-            if k < 4: wall_tile(c, x, y, k, 0.5)
-        floor = int(e + sp) + 1
-        ry = int(round(floor + 12 + road[x]))
-        for yy in range(min(ry, int(round(floor + 12 + road[max(0, x - 1)]))), max(ry, int(round(floor + 12 + road[max(0, x - 1)]))) + 1):
-            if yy < h: c.g[yy][x] = ":"
-        c.bare_zone.append((x, floor, x, floor + 3))
+            # (the cliff: four levels down in two tiles, broken rock on its ledges)
+            if k < 2.2:
+                c.lev[(x, y)] = max(4, 8 - int(math.ceil(k * 2.0)))
+                wall_tile(c, x, y, k, 0.35)
+                continue
+            # (the far side is laid by whole tiles of d, bending only along the ridge: no lone tile stands up out of a slope)
+            v = (rim - d) - 2.2 - (VALLEY + slope[r])   # (tiles up the far side, from the valley's floor)
+            if v < 0:
+                c.lev[(x, y)] = 4                  # the valley floor, under spruce
+                if c.g[y][x] == "." and rng.random() < 0.5: c.g[y][x] = "T"
+                continue
+            # the far side: a low wall of rock up to the road's shelf at 6, then the forest on bands of rock above it
+            # (Creel's ramps run along tile edges, and on this diagonal they would be a saw's teeth: cliffs bend)
+            v = int(v)
+            # (beyond the road the shelf breaks away again, out of sight, into a second valley of the fog's, and the far
+            # mountain rises out of it in bands well up the screen: the top of the frame is fog, as in the mock-up)
+            c.lev[(x, y)] = 6 if v < 7 else 4 if v < 16 else 6 if v < 24 else 8
+            if v - int(round(road[r] * 0.6)) in (3, 4):
+                c.g[y][x] = ":"   # (two tiles of d: a road on the diagonal joins up)
+                c.road.append((x, y))
+            elif v in (0, 7, 16, 24): wall_tile(c, x, y, 1, 0.0)   # (bare rock: no outcrops on the far walls)
+            elif v < 7:
+                if c.g[y][x] == "." and rng.random() < 0.05 and abs(v - 3.5) > 1.6: c.g[y][x] = "T"
+            elif c.g[y][x] == "." and rng.random() < 0.5: c.g[y][x] = "T"
+    RIDGE_ROAD[:] = c.road
     return (0, end)
+
+
+RIDGE_ROAD = []
+
+
+def patrol():
+    """The patrol on the far road, for the ridge's look (D-084): seven riders in a file heading east (to the
+    screen's right), the standard-bearer at the back as in the mock-up, on the road's middle line (its tiles step
+    across the diagonal). Each is [name, x, y in milli-tiles, "far"]."""
+    by_r = {p[0] - p[1]: p[0] + p[1] + 1.0 for p in RIDGE_ROAD}   # (r to the d of its tile's centre)
+    out = []
+    names = ["riderbanner0"] + ["rider%d" % (k % 4) for k in range(6)]
+    for k, n in enumerate(names):
+        r = -11 + 2 * k
+        ds = [by_r[q] for q in range(r - 2, r + 3) if q in by_r]
+        d = sum(ds) / len(ds)
+        out.append([n, int((d + r) / 2.0 * 1000), int((d - r) / 2.0 * 1000), "far"])
+    return out
 
 
 # The beech valley (the first place, and the last before home): open old beech wood, a stream, meadows.
@@ -509,5 +552,6 @@ place("ruins", "beech", 1883, 76, 76, west_y=30, east_y=28, stream_x=-1, old_gap
       clearings=[(14, 30, 3), (60, 26, 3)], rocks=[(12, 12, 3), (58, 10, 3), (68, 44, 2)], ruins=38, land=roman_ruins)
 place("pass", "high", 1884, 108, 44, west_y=16, east_y=14, stream_x=-1, old_gap=2.4, old_fill=0.5, young_clumps=14,
       clearings=[], rocks=[(30, 8, 2), (62, 20, 2), (84, 9, 3)], land=the_pass)
-place("ridge", "high", 1885, 108, 76, west_y=26, east_y=26, stream_x=-1, old_gap=3.0, old_fill=0.35, young_clumps=10,
-      clearings=[], rocks=[(24, 18, 2), (46, 30, 2), (60, 16, 3), (78, 34, 2), (92, 22, 3)], land=high_ridge, edges=("west",))
+place("ridge", "high", 1885, 108, 76, west_y=70, east_y=70, stream_x=-1, old_gap=3.0, old_fill=0.0, young_clumps=0,
+      clearings=[], rocks=[], land=high_ridge, edges=("west",), north_rock=False,
+      extra=lambda doc: {"camp": patrol(), "occlude": 5, "low_fog": [8.3, 4.0], "spruce": 1, "crags": 0, "light": {"haze": 0.28, "haze_start": 0.05, "deep": -0.25, "low_fog": 0.1}})

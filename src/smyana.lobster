@@ -126,6 +126,7 @@ class Canopy:
     x:float
     y:float
     s:float
+    lift:float
 var canopies = []::Canopy
 // The broadleaves in view that are shedding (#11): where each one's foot is (art px), its kind, and how fast it sheds
 // (0 .. 1). Their leaves are drawn coming down (draw_leaf_fall).
@@ -207,6 +208,7 @@ def build_props():
     props_version = map_version
     let wood = place_wood()
     let pines = gint(su_map, "pines", 1) != 0
+    let crags = gint(su_map, "crags", 1) != 0
     let trail_t = str_index(tr_names, "trail")
     let water_t = str_index(tr_names, "water")
     let grass_seed = gint(su_map, "grass_seed", 9001)  // (which way this place's drifts of grass fall)
@@ -227,7 +229,7 @@ def build_props():
             let sp = if (sp0 == "pine" or sp0 == "bpine") and not pines: "beech" else: sp0
             props.push(Prop { 0, k, "{sp}{k}", sp, off, c })
         elif t == young:
-            let fir = not broadleaved(wood) and (h / 7) % 4 != 0
+            let fir = not broadleaved(wood) and ((h / 7) % 4 != 0 or gint(su_map, "spruce", 0) == 1)
             props.push(Prop { 1, h / 7, if fir: "yspruce{(h / 7) % YOUNG_KINDS}" else: "young{(h / 7) % YOUNG_KINDS}", if fir: "spruce" else: "beech", centre, c })
         elif t == stump:
             // (and what was left when it was sawn up lies beside it: its top and boughs, a round of its trunk)
@@ -241,11 +243,12 @@ def build_props():
             if (h / 3) % 5 == 0: props.push(Prop { 6, 0, "log{h % LOG_KINDS}", "", off + iso(float(h % 500) - 250.0, float((h / 9) % 500) - 250.0), c })
         // a cliff's foot (#20): crags stand against the face behind this tile (to its north, or to its west), more
         // of them where the face turns a corner, and loose rock lies between them
+        // (a place can leave them out, "crags": 0: the ridge's far walls, seen in fog, where lit crags read as snow)
         if t != debris_t and t != rock:
             let cx = c % W
             for([ -W, -1 ]) d, side:
                 let n = c + d
-                if n >= 0 and (side == 0 or cx > 0) and level[n] - level[c] >= 2:
+                if n >= 0 and (side == 0 or cx > 0) and level[n] - level[c] >= 2 and crags:
                     let hs = mixed(c * 2 + side + 77001)
                     let o = c + (if side == 0: -1 else: -W)  // (the tile beside this one, along the face)
                     let corner = o >= 0 and (level[o] != level[c] or level[o + d] != level[n])
@@ -328,7 +331,10 @@ def build_props():
         if hearth.length:
             let f = gp(as_float(hearth[0]), as_float(hearth[1]))
             props = filter(props) pr: pr.kind != 5 or abs(pr.at.x - f.x) > 46.0 or abs(pr.at.y - f.y) > 26.0
-        for(camp) e, i: props.push(Prop { 4, 0, as_str(e.a[0]), "", stands[i], 0 })
+        // (a fourth "far": seen far off, as the ridge's patrol on the far road is, and not marked like the men: a dark
+        // shape in the fog, not a figure kept bright, D-084)
+        for(camp) e, i: props.push(Prop { 4, 0, as_str(e.a[0]), if e.a.length > 3: as_str(e.a[3]) else: "", stands[i],
+                                          (as_int(e.a[2]) / 1000) * W + as_int(e.a[1]) / 1000 })
 
     // the Roman ruins (#17), where the place has them ("ruins": [name, x, y in milli-tiles] each): the undergrowth
     // grows up round them but not through a wall or a column; on the road (#97) it grows only where the stones are gone
@@ -607,6 +613,11 @@ def view_enter(between):
     // (proper cliffs, Creel #25: each drop a curve through the unwalkable tile below it, with ledges, a rolled rim and scree)
     relief_cliffs = if arg_of("cliffs") != "": string_to_float(arg_of("cliffs")) else: gfloat(su_map, "cliffs", 0.0)
     if relief_cliffs > 0.0: relief_rough = 0.0
+    // (a high drop hides more of the ground behind it: the ridge's near edge hides four tiles of the valley, D-084)
+    relief_occlude = gint(su_map, "occlude", 2)
+    // (the fog in a valley, D-084: its top and how deep it is to its thickest, in levels; the mood says how thick)
+    let low = glist(su_map, "low_fog")
+    atmo_low_fog_at(if low.length == 2: as_float(low[0]) else: 0.0, if low.length == 2: as_float(low[1]) else: 1.0)
     build_relief()
     trail_wear()
     build_trail()
@@ -751,13 +762,17 @@ def mood_tick():
         atmo_opt = map(atmo_opt) v, i: lerp(o0[i], v, k)
         atmo_opt_cols = map(atmo_opt_cols) v, i: lerp(p0[i], v, k)
     weather_light(wkind, float(wstep) / 24.0)
+    // (and the place's own air, the map's "light", the same way: the high ridge looks out over a valley full of air, D-084)
+    light_add(gobj(su_map, "light"), 1.0)
 
 // What the weather does to the light (#15: "weather changes the mood"): atmosphere.json's "weather" gives, for mist,
 // rain and snow, how much each of a mood's numbers moves at the weather's full strength (added to whatever the hour
 // and the season have set), and a haze colour the mood's own turns toward.
 def weather_light(kind:string, k:float):
-    if k <= 0.0 or not atmo_on: return
-    let w = gobj(gobj(atmo_data, "weather"), kind)
+    light_add(gobj(gobj(atmo_data, "weather"), kind), k)
+
+def light_add(w:JV, k:float):
+    if k <= 0.0 or not atmo_on or w.kind != J_OBJ: return
     atmo_nums = map(atmo_nums) v, i: clamp(v + gfloat(w, ATMO_NUMS[i], 0.0) * k, ATMO_MIN[i], ATMO_MAX[i])
     atmo_opt = map(atmo_opt) v, i: clamp(v + gfloat(w, ATMO_OPT[i], 0.0) * k, 0.0, ATMO_OPT_MAX[i])
     let haze = gstr(w, "haze_colour", "")
@@ -778,11 +793,28 @@ class Drawable:
     kind:int    // 0 what stands up (it hides the shade under it), 1 a shadow on the ground, 2 what stands in the shade,
     // 3 drawn by hand (rings, fires), 4 a man (in the shade, and kept readable: atmo_shade_unit)
     lean:float  // art px its top leans to the right just now (a crown in the wind, #15)
+    lift:float  // art px its ground is raised (it is sorted by its place on the base plane, as Creel sorts: a hill's near edge hides what's behind it)
 
 var draws = []::Drawable
 var fires = []::float2  // the camp's fires, art px: where each one's foot is (draw_fire)
 var view_lo = float2_0
 var view_hi = float2_0
+
+// (art px each of the hills' near edges is raised: its highest tile's level; found again when the hills are rebuilt)
+var occ_lifts = []::float
+var occ_of = []::Occluder
+
+def occluder_lift(k:int) -> float:
+    if occ_of.length != occluders.length or (occ_of.length and occ_of[0] != occluders[0]):
+        occ_of = occluders
+        occ_lifts = map(occluders) o:
+            var top = 0
+            for(o.cells) c: top = max(top, level[c])
+            float(top) * LEVEL_PX * 1.5
+    return occ_lifts[k]
+
+// (art px the ground under what's being added is raised: set it before adding a thing on raised ground)
+var add_lift = 0.0
 
 def add(f:int, x:float, y:float, sort_y:float, col:float4, fade:float = 1.0, kind:int = -1, lean:float = 0.0):
     if f < 0: return
@@ -790,7 +822,9 @@ def add(f:int, x:float, y:float, sort_y:float, col:float4, fade:float = 1.0, kin
     let x0 = x - float(fr.ox) * fr.k
     let y0 = y - float(fr.oy) * fr.k
     if x0 < view_hi.x and y0 < view_hi.y and x0 + float(fr.w) * fr.k > view_lo.x and y0 + float(fr.h) * fr.k > view_lo.y:
-        draws.push(Drawable { sort_y, draws.length, f, x, y, col, fade, if kind >= 0: kind elif sort_y < -39000.0: 1 else: 0, lean })
+        let flat = sort_y < -39000.0
+        draws.push(Drawable { if flat: sort_y else: sort_y + add_lift, draws.length, f, x, y, col, fade, if kind >= 0: kind elif flat: 1 else: 0, lean,
+                              add_lift })
 
 def prev_pos(i:int) -> int, int:
     let found, at = binary_search(p_id, u_id[i])
@@ -850,11 +884,13 @@ def collect_men(alpha:float):
             let step = int(man_walked.get(u_id[i], 0.0) / man_cycle() * float(MEN_STEPS)) % MEN_STEPS
             let facing = (d + 2) % 8
             let p = gp(x, y)
+            add_lift = lift_at(x, y) * 1.5
             add(frame_at.get(man_shadow_name(m.look, facing), -1), p.x, p.y, p.y - 0.5, float4_1, 1.0, 1)
             add(frame_at.get(man_frame_name(m.look, if moving: 1 + step else: 0, facing), -1), p.x, p.y, p.y, SASH, 1.0, 4)
             feet.push(float3 { p.x, p.y, 2.2 })
             if u_carry[i] > 0: add(frame_at.get("load.wood", -1), p.x + 3.0, p.y - 27.0, p.y + 0.1, float4_1, 1.0, 2)
             eyes.push(p - float2 { 0.0, 16.0 })
+    add_lift = 0.0
 
 // How much of a giant's crown shows: it thins out over any man it would hide.
 def crown_fade(foot:float2, sp:string) -> float:
@@ -876,6 +912,7 @@ def collect_props():
             // (each tree and each clump of the undergrowth wears its own stage of the year: no two turn on one day)
             let season = leaf_stage_at(pr.cell + (if pr.kind == 5: pidx else: 0))
             let bare = season == "winter"
+            add_lift = if has_heights != 0: float(level[pr.cell]) * LEVEL_PX * 1.5 else: 0.0
             if pr.kind == 0:
                 // (deep in a wood a tree stands under its neighbours' crowns: drawn darker, as the floor round it is)
                 let dim = float4 { 1.0, 1.0, 1.0, 1.0 - canopy_dim * (if pidx < canopy.length: canopy[pidx] else: 0.0) }
@@ -893,7 +930,7 @@ def collect_props():
                     add(snow_frame(crown, pr.cell), pr.at.x, pr.at.y, pr.at.y + 0.2, dim, crown_fade(pr.at, pr.sp), -1, crown_lean(pr.cell))
                 if (pr.sp == "tall" or not leafy(pr.sp) or not bare) and pidx < canopy.length and canopy[pidx] > 0.0:
                     let f = frame_at.get(crown + ".shadow", -1)
-                    if f >= 0: canopies.push(Canopy { f, pr.at.x, pr.at.y, 1.0 + (canopy_spread - 1.0) * canopy[pidx] })
+                    if f >= 0: canopies.push(Canopy { f, pr.at.x, pr.at.y, 1.0 + (canopy_spread - 1.0) * canopy[pidx], add_lift })
                     if day and canopy[pidx] > 0.5 and (pr.sp == "tall" or not bare):
                         for(canopy_flecks) k:
                             let h = cell_hash(pr.cell * 13 + k + 17)
@@ -931,8 +968,9 @@ def collect_props():
                 // instead of reading as grey ghosts)
                 let beast = starts_with(pr.name, "horse") or starts_with(pr.name, "mule") or starts_with(pr.name, "rider")
                 add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0,
-                    if pr.kind == 3: 0 elif beast: 4 else: 2)
+                    if pr.kind == 3: 0 elif beast and pr.sp != "far": 4 else: 2)
 
+    add_lift = 0.0
     // the map's bridges (#20): a standing one's deck tile by tile, a broken one's two ends
     for(br_id.length) k:
         let cells = br_cells[k]
@@ -983,13 +1021,15 @@ def draw_world(alpha:float):
     feet = []
     collect_men(alpha)
     collect_props()
-    draws.push(Drawable { -39990.0, draws.length, -6, 0.0, 0.0, float4_1, 1.0, 3, 0.0 })  // the feet: on the ground, over its shadows
-    draws.push(Drawable { -30000.0, draws.length, -4, 0.0, 0.0, float4_1, 1.0, 3, 0.0 })  // the rings: on the ground, over the shadows
+    draws.push(Drawable { -39990.0, draws.length, -6, 0.0, 0.0, float4_1, 1.0, 3, 0.0, 0.0 })  // the feet: on the ground, over its shadows
+    draws.push(Drawable { -30000.0, draws.length, -4, 0.0, 0.0, float4_1, 1.0, 3, 0.0, 0.0 })  // the rings: on the ground, over the shadows
     for(fires) p, i:
         // (the fireplace: its ring of stones, its logs and the tripod with the cauldron; the flames are the game's own)
         add(frame_at.get("fireplace.shadow", -1), p.x, p.y, -39997.0, float4_1)
         add(frame_at.get("fireplace", -1), p.x, p.y, p.y, float4_1, 1.0, 2)
-        draws.push(Drawable { p.y + 0.05, draws.length, -5, float(i), 0.0, float4_1, 1.0, 3, 0.0 })
+        draws.push(Drawable { p.y + 0.05, draws.length, -5, float(i), 0.0, float4_1, 1.0, 3, 0.0, 0.0 })
+    // (a hill's near edge, drawn again over what stands down behind it: the ridge hides the valley's trees' feet)
+    for(occluders) o, k: draws.push(Drawable { o.sort_y, draws.length, -2, float(k), 0.0, float4_1, 1.0, 3, 0.0, occluder_lift(k) })
     qsort_in_place(draws) a, b: a.y < b.y or (a.y == b.y and a.seq < b.seq)
     // the ground's shadows into the light's shade buffer, where they join into one shade (a low sun's long shadows
     // overlap everywhere in a wood), then what stands up out of them wipes them off itself: the trees and rocks are lit
@@ -1002,24 +1042,36 @@ def draw_world(alpha:float):
             gl.translate(ws / 2.0):
                 gl.scale(zoom):
                     gl.translate(-cam_px):
-                        b_sheet = -1
-                        sprite_shader = "atmo_shade_cast"
-                        for(draws) d: if d.kind == 1: sprite(d.f, d.x, d.ay, d.col)
-                        flush_sprites()
-                        b_sheet = -1
-                        sprite_shader = "atmo_shade_canopy"
-                        // (the canopy overhead: a crown's shade spread round itself, as far as the wood is closed: drawn again
-                        // at a ring of offsets rather than scaled up, so its pixels stay the art's size and its edge stays fine)
-                        for(canopies) cp:
-                            let fr = frames[cp.f]
-                            let rx = float(fr.w) * fr.k * (cp.s - 1.0) * 0.5
-                            let ry = float(fr.h) * fr.k * (cp.s - 1.0) * 0.5
-                            sprite(cp.f, cp.x, cp.y, float4_1)
-                            if rx > 0.5:
-                                for(8) a:
-                                    let ang = float(a) * 45.0 + 22.5
-                                    sprite(cp.f, cp.x + cos(ang) * rx, cp.y + sin(ang) * ry, float4_1)
-                        flush_sprites()
+                        // (level by level, from the lowest: the shadows and the canopy of what stands at a level, then the
+                        // near edges of the hills above it, lit, so the shade of a valley's trees isn't laid over the
+                        // ridge in front of them; there's one level on a map with no hills)
+                        let levels = if has_heights != 0: MAX_LEVEL + 1 else: 1
+                        let step = LEVEL_PX * 1.5
+                        for(levels) lv:
+                            def here(lift:float) -> bool: return has_heights == 0 or int(lift / step + 0.5) == lv
+                            b_sheet = -1
+                            sprite_shader = "atmo_shade_cast"
+                            for(draws) d: if d.kind == 1 and here(d.lift): sprite(d.f, d.x, d.ay, d.col)
+                            flush_sprites()
+                            b_sheet = -1
+                            sprite_shader = "atmo_shade_canopy"
+                            // (the canopy overhead: a crown's shade spread round itself, as far as the wood is closed: drawn again
+                            // at a ring of offsets rather than scaled up, so its pixels stay the art's size and its edge stays fine)
+                            for(canopies) cp:
+                                if here(cp.lift):
+                                    let fr = frames[cp.f]
+                                    let rx = float(fr.w) * fr.k * (cp.s - 1.0) * 0.5
+                                    let ry = float(fr.h) * fr.k * (cp.s - 1.0) * 0.5
+                                    sprite(cp.f, cp.x, cp.y, float4_1)
+                                    if rx > 0.5:
+                                        for(8) a:
+                                            let ang = float(a) * 45.0 + 22.5
+                                            sprite(cp.f, cp.x + cos(ang) * rx, cp.y + sin(ang) * ry, float4_1)
+                            flush_sprites()
+                            if has_heights != 0:
+                                gl.set_shader("color")
+                                gl.color(float4 { 0.0, 0.0, 0.0, 1.0 }):
+                                    for(occluders) o, k: if int(occluder_lift(k) / step + 0.5) == lv + 1: gl.render_mesh(o.tops)
                         // the sunflecks: a spot of sun on the floor of the wood, swelling and gone as the boughs sway
                         if flecks.length:
                             gl.set_shader("color")
@@ -1045,7 +1097,19 @@ def draw_world(alpha:float):
                     var now = -1
                     b_sheet = -1
                     for(draws) d:
-                        if d.f >= 0 and (d.kind == 0 or d.kind == 4):
+                        if d.f == -2:
+                            // (a hill's near edge takes back the ground's own shade over whatever stood down behind it)
+                            flush_sprites()
+                            b_sheet = -1
+                            now = -1
+                            let o = occluders[int(d.x)]
+                            gl.blend(blend_none)
+                            gl.set_shader("smyana_shade_restore")
+                            let ag = atmo_ground
+                            if ag:
+                                gl.set_mesh_texture(o.tops, 0, 0, ag)
+                                gl.render_mesh(o.tops)
+                        elif d.f >= 0 and (d.kind == 0 or d.kind == 4):
                             let k = if d.kind == 0: 0 else: 1
                             if k != now:
                                 flush_sprites()
@@ -1057,6 +1121,29 @@ def draw_world(alpha:float):
                             sprite(d.f, d.x, d.ay, if d.kind == 0: float4 { d.fade, 0.0, 0.0, 1.0 } else: atmo_stand_colour((float2 { d.x, d.ay - 3.0 } - cam_px) * zoom + ws / 2.0))
                     flush_sprites()
                     gl.blend(blend_alpha)
+                    sprite_shader = "sprite"
+        gl.blend(blend_alpha)
+    // the low fog's heights (Creel's atmo_low_begin): the ground's, then what stands on it, back to front, each pixel as
+    // high as its foot and how far above it, with the hills' near edges again over what stands down behind them
+    if atmo_low_fogging():
+        atmo_low_begin(cam_px, zoom)
+        gl.blend(blend_none)
+        gl.set_shader("atmo_low_stand")
+        gl.set_uniform("level_screen", LEVEL_PX * 1.5 * zoom)
+        gl.translate(ws / 2.0):
+            gl.scale(zoom):
+                gl.translate(-cam_px):
+                    draw_ground_heights()
+                    b_sheet = -1
+                    sprite_shader = "atmo_low_stand"
+                    for(draws) d:
+                        if d.f == -2:
+                            flush_sprites()
+                            b_sheet = -1
+                            draw_occluder_heights(occluders[int(d.x)])
+                        elif d.f >= 0 and d.kind != 1:
+                            sprite(d.f, d.x, d.ay, atmo_low_colour((float2 { d.x, d.ay } - cam_px) * zoom + ws / 2.0, d.lift / (LEVEL_PX * 1.5)))
+                    flush_sprites()
                     sprite_shader = "sprite"
         gl.blend(blend_alpha)
     let atmo_drawn = atmo_begin(float4 { 0.04, 0.05, 0.04, 1.0 })
@@ -1071,7 +1158,11 @@ def draw_world(alpha:float):
             gl.translate(-cam_px):
                 b_sheet = -1
                 for(draws) d:
-                    if d.f == -4:
+                    if d.f == -2:
+                        flush_sprites()
+                        draw_occluder(occluders[int(d.x)], zoom / ART_K)
+                        b_sheet = -1
+                    elif d.f == -4:
                         flush_sprites()
                         draw_rings(alpha)
                         b_sheet = -1
@@ -1490,6 +1581,18 @@ fatal(gl.load_materials(SPRITE_SHADERS, true))
 fatal(gl.load_materials(TERRAIN_SHADERS, true))
 fatal(gl.load_materials(cliff_shaders(), true))
 fatal(gl.load_materials(ATMO_SHADERS, true))
+// (a hill's near edge in the shade buffer, over what stood behind it: the ground's own shade there, kept by Creel's
+// atmo_shade_standing, read back pixel for pixel)
+fatal(gl.load_materials("""
+SHADER smyana_shade_restore
+    VERTEX
+        INPUTS apos:4
+        UNIFORMS mvp
+        gl_Position = mvp * apos;
+    PIXEL
+        UNIFORMS tex0
+        frag_color = texelFetch(tex0, ivec2(gl_FragCoord.xy), 0);
+""", true))
 pace_background = not capture
 pace(PACE_MATCH)
 lib_load("../data")
@@ -1583,6 +1686,25 @@ for(fires) f:
 if arg_of("look") != "":  // look:<x>,<y>: the camera on this tile
     let xy = tokenize(arg_of("look"), ",", " ")
     cam = gp(string_to_float(xy[0]) * 1000.0, string_to_float(xy[1]) * 1000.0)
+    // file:<x>,<y>: the men in single file along the trail through that tile, as the ridge's mock-up has them, for a look
+    if arg_of("file") != "":
+        let fxy = map(tokenize(arg_of("file"), ",", " ")) v: string_to_int(v)
+        let trail = str_index(tr_names, "trail")
+        let on = []::int
+        for(29) dy: for(29) dx:
+            let x = fxy[0] + dx - 14
+            let y = fxy[1] + dy - 14
+            if x >= 0 and y >= 0 and x < W and y < H and terrain[y * W + x] == trail and level[y * W + x] == level[fxy[1] * W + fxy[0]]: on.push(y * W + x)
+        // (across the screen, left to right: by x - y)
+        insertion_sort(on) a, b: a % W - a / W < b % W - b / W
+        let mid = on.length / 2
+        for(u_x.length) i:
+            let k = clamp(mid + (i - u_x.length / 2), 0, on.length - 1)
+            if on.length:
+                u_x[i] = (on[k] % W) * TILE + 500
+                u_y[i] = (on[k] / W) * TILE + 500
+                issue_cmd(0, CMD_MOVE, [ u_id[i] ], u_x[i], u_y[i], 0, 0)
+                man_dir.set(u_id[i], 1)
 print "start: {seconds_elapsed() - boot0} s (men baked in {men_bake_s} s, trees in {trees_bake_s} s; 0: read from bake_cache/)"
 
 // ------------------------------------------------------------------ the loop
