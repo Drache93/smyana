@@ -519,3 +519,27 @@ like a ball does. A ball does it a fixed wound (no one-shot kill close up), so i
 a fifth kills it. The music is the beasts' loop while it rears, bluffs or charges. So the right answer to a bear is to
 hold fire and back off; to shoot is to fight it. Signs of it on the way out (a scratched trunk, tracks by the stream)
 are left for later.
+
+**D-092, 2026-11-12: Each man is fed, warm and rested, and a need run out costs his health.** (Claude, from the
+survival plan, docs/survival.md; a Proposal.) Three needs per man, 100 to 0, kept on him between places: hunger falls
+about 60 a day (faster working or loaded), warmth goes toward the air's (season, height of the place, night, wind,
+rain, snow, a ford's water) and climbs fast by a lit fire, rest falls about 5 an hour awake and comes back asleep in a
+camp. Below 30 each need takes up to a ninth of his pace; at 0 cold takes 3 health an hour and hunger 1.5, so a
+winter night in the open without a fire can kill a man. Fed, warm and asleep he heals slowly. The walks between places
+cost food and rest (no meal, no sleep on the way). Numbers in data/survival.json.
+
+**D-093, 2026-11-12: Camp is one key, and the fire is the night's choice.** (Claude, building D-009; a Proposal.) With
+men chosen, C makes camp: they pick the most open ground near them, stand round its far side and flanks (never
+between the fire and the camera) and lay a fire, which costs two bundles of wood off their backs, or nearly a minute
+of finding dead wood if nobody carries any. C again puts it out, or lights it again. At night men in a camp sleep, lying
+feet to the fire, and wake at first light or at a shot. The day's meal is eaten at the first camp after five in the
+evening, one portion each from what they carry (shared out if a man has none): hot at a lit fire, half as good cold.
+They leave the village with four days' food each. A lit fire warms everyone within four tiles; wolves will not come
+within seven tiles of it; a patrol sees it at night from 34 tiles through any cover (its smoke by day from 18) and
+comes to look as for a shot; the bear smells a camp with food in it from 16 tiles and wanders round it.
+
+**D-094, 2026-11-12: A man's state is read off him, with one line of words for one man.** (Claude, from #73 and
+D-021; a Proposal.) Cold air shows the men's breath, a little pale cloud now and then, the colder the more often; a
+cold man shivers when he stands; men in camp face the fire; a hungry or tired man is slower, so he falls behind. The
+only words: with one man chosen, his name and under it how he is ("cold and hungry", "worn out", "well"). Nothing for
+a group, no meters.

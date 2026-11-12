@@ -801,6 +801,12 @@ class Drawable:
 
 var draws = []::Drawable
 var fires = []::float2  // the camp's fires, art px: where each one's foot is (draw_fire)
+var fires_look = false  // (the camp option's fire, for a look: kept, not the camps')
+class Breath:
+    p:float2     // his head, art px
+    phase:float  // his own breathing, seconds
+    every:float  // a breath every so many seconds: the colder the more often it shows
+var breaths = []::Breath
 var view_lo = float2_0
 var view_hi = float2_0
 
@@ -923,6 +929,13 @@ def collect_men(alpha:float):
             if not moving and u_task[i] == GATHER and u_target[i] >= 0:
                 let nd = dir_of(iso(float((u_target[i] % W) * 1000 + 500) - x, float((u_target[i] / W) * 1000 + 500) - y))
                 if nd >= 0: d = nd
+            // (standing in a camp, he faces its fire)
+            if m and not moving:
+                let k = camp_of(i)
+                if k >= 0:
+                    let fx, fy = camp_xy(k)
+                    let fd = dir_of(iso(float(fx) - x, float(fy) - y))
+                    if fd >= 0: d = fd
             // (his rifle: aimed at what he was told to fire at, fired, or being loaded again)
             let foe = if u_foe[i] != 0: index_of(u_foe[i]) else: -1
             let gun = gun_pose(u_id[i], moving, foe >= 0)
@@ -932,8 +945,21 @@ def collect_men(alpha:float):
             man_dir.set(u_id[i], d)
             let step = int(man_walked.get(u_id[i], 0.0) / man_cycle() * float(MEN_STEPS)) % MEN_STEPS
             let facing = (d + 2) % 8
-            let p = gp(x, y)
+            var p = gp(x, y)
             add_lift = lift_at(x, y) * 1.5
+            // (his needs, read off him (docs/survival.md, #73): asleep he lies with his feet to the fire, cold he
+            // shivers when he stands, and his breath shows in the cold, the colder the more often)
+            if m and is_asleep(m.uid):
+                var fire = gp(x + 1000.0, y)
+                for(fires) f: if magnitude(f - p) < magnitude(fire - p): fire = f
+                let fd = dir_of(fire - p)
+                add(frame_at.get(man_frame_name(look, POSE_DOWN, (max(0, fd) + 2) % 8), -1), p.x, p.y, p.y - 0.4, SASH, 1.0, 4)
+                eyes.push(p - float2 { 0.0, 6.0 })
+                continue
+            if m and not moving and m.warm < 30000 and (int(gl.time() * 14.0) + u_id[i]) % 3 == 0: p.x += if (int(gl.time() * 14.0) / 3 + u_id[i]) % 2 == 0: 1.0 else: -1.0
+            if m:
+                let chill = max(35 - air_warmth(), (40000 - m.warm) / 1000)
+                if chill > 0: breaths.push(Breath { p - float2 { 0.0, 19.0 }, float(u_id[i] % 13) * 0.37, max(1.8, 4.2 - float(chill) * 0.06) })
             add(frame_at.get(man_shadow_name(look, facing), -1), p.x, p.y, p.y - 0.5, float4_1, 1.0, 1)
             add(frame_at.get(man_frame_name(look, if gun >= 0: gun elif moving: 1 + step else: 0, facing), -1), p.x, p.y, p.y, if m: SASH else: patrol_sash(), 1.0, 4)
             feet.push(float3 { p.x, p.y, 2.2 })
@@ -1068,6 +1094,8 @@ def draw_world(alpha:float):
     view_hi = from_screen(ws) + float2_1
     draws = []
     feet = []
+    breaths = []
+    if not fires_look: fires = map(fires_lit()) cp: gp(float(cp.x), float(cp.y))
     collect_men(alpha)
     collect_props()
     draws.push(Drawable { -39990.0, draws.length, -6, 0.0, 0.0, float4_1, 1.0, 3, 0.0, 0.0 })  // the feet: on the ground, over its shadows
@@ -1363,6 +1391,23 @@ def draw_weather():
 // The camp's fires (for now only for a look: the camp option lights one among the men at dusk): the fireplace's model,
 // flames drawn unlit, a glow each in the light (atmosphere.json's "glows": "building_fire"), and a thread of smoke.
 
+// A man's breath in the cold air (docs/survival.md): a little pale cloud at his mouth now and then, rising and gone.
+// Drawn over the lit world, in the art's pixels, a cool grey that shows on a dark coat and on the night.
+def draw_breaths():
+    if not breaths.length: return
+    gl.set_shader("color")
+    let t = gl.time()
+    for(breaths) b:
+        let u = ((t + b.phase) % b.every) / 1.6
+        if u < 1.0:
+            let a = 0.7 * (1.0 - u) * min(1.0, u * 5.0)
+            let w = floor(3.0 + u * 4.0)
+            let at = to_screen(float2 { floor(b.p.x + 2.0 + u * 4.0), floor(b.p.y - u * 5.0) })
+            gl.color(float4 { 0.78, 0.8, 0.86, a }):
+                gl.translate(floor(at)): gl.rect(float2 { w, max(1.0, w - 2.0) } * zoom)
+                gl.translate(floor(at + float2 { zoom, -zoom })): gl.rect(float2 { max(1.0, w - 2.0), 1.0 } * zoom)
+                gl.translate(floor(at + float2 { zoom, (w - 2.0) * zoom })): gl.rect(float2 { max(1.0, w - 2.0), 1.0 } * zoom)
+
 // The mark on the range: a pale board with a dark ring, nailed to a post (art px, its foot at x, y).
 def draw_mark(x:float, y:float):
     gl.set_shader("color")
@@ -1424,6 +1469,23 @@ def draw_lines(texts:[string], t:float, size:int):
             gl.color(float4 { 0.93, 0.89, 0.78, a }):
                 gl.translate(float2 { floor(ws.x / 2.0 - min(w, ws.x * 0.7) / 2.0), floor(y) }): gl.text(l)
         y += gap
+
+// The one panel left (docs/survival.md, #73): with one man chosen, his name and, under it, how he is in a few plain
+// words. Nothing for a group.
+def draw_one_man():
+    if selected.length != 1: return
+    let m = man_of(selected[0])
+    if not m: return
+    let ws = float(gl.window_size())
+    let size = int(ws.y / 40.0)
+    gl.set_shader("color")
+    gl.set_font_name("../data/fonts/OldStandard/OldStandard-Regular.ttf")
+    gl.set_font_size(size)
+    gl.color(float4 { 0.93, 0.89, 0.78, 0.9 }):
+        gl.translate(float2 { floor(ws.y * 0.03), floor(ws.y - float(size) * 3.4) }): gl.text(m.name)
+    gl.set_font_size(int(float(size) * 0.72))
+    gl.color(float4 { 0.85, 0.81, 0.7, 0.75 }):
+        gl.translate(float2 { floor(ws.y * 0.03), floor(ws.y - float(size) * 1.9) }): gl.text(man_state(m))
 
 // ------------------------------------------------------------------ the menu (#86)
 // Dominic: "Game start is slow, we want very minimal loader. The game menu should show the village (once ready - just
@@ -1582,6 +1644,10 @@ def howl_tick(dt:float):
         else: play_sound_at("far_howl", -2.0 - (far - 12.0) * 0.25, pan * 0.6)
 
 def order_tick():
+    // C: make camp where the chosen men stand, or put its fire out, or light it again (docs/survival.md, #68)
+    if gl.button("c") == 1 and selected.length:
+        camp_order(filter(selected) id: man_of(id) != nil)
+        selected = []
     if gl.button("mouse2") != 1: return
     let ids = filter(selected) id: index_of(id) >= 0
     if not ids.length: return
@@ -1744,6 +1810,7 @@ with_mark = arg_of("range") != ""
 with_patrol = arg_of("fight") != ""
 with_wolves = arg_of("wolves") != ""
 with_bear = arg_of("bear") != ""
+needs_kept = has_s(args, "fresh")  // fresh: the men never get hungry, cold or tired (for a look)
 run_begin()
 if arg_of("leg") != "": enter_leg(arg_of("leg"), "west")
 // range:<x>,<y>: the men in a loose line on that tile, a mark five tiles east of them, and told to fire at it, for a
@@ -1848,12 +1915,22 @@ if has_s(args, "camp") or arg_of("camp") != "":
         fires = [ cam ]
     else:
         fires = [ men_centre() + float2 { 0.0, 6.0 } ]
+    fires_look = true
 view_enter(): waiting_frame()
 // (round a camp's fire the men face it)
 for(fires) f:
     for(u_x.length) i:
         let to_fire = f - gp(float(u_x[i]), float(u_y[i]))
         if magnitude(to_fire) < 75.0 and dir_of(to_fire) >= 0: man_dir.set(u_id[i], dir_of(to_fire))
+// makecamp: the men make camp where they stand as the place opens, two of them with wood for the fire (#68, for a look)
+if has_s(args, "makecamp"):
+    let wood = str_index(resource_names, "wood") + 1
+    for(min(2, u_x.length)) n:
+        u_carry[n] = r_carry
+        u_carry_kind[n] = wood
+    camp_order(filter(u_id) id: man_of(id) != nil)
+    let fx, fy = camp_xy(0)
+    cam = gp(float(fx), float(fy))
 if arg_of("look") != "":  // look:<x>,<y>: the camera on this tile
     let xy = tokenize(arg_of("look"), ",", " ")
     cam = gp(string_to_float(xy[0]) * 1000.0, string_to_float(xy[1]) * 1000.0)
@@ -2016,6 +2093,7 @@ while gl.frame():
             draw_lines([ "Home.", "{men_alive()} of {men.length} men came back." ], phase_t, int(float(gl.window_size().y) / 30.0))
         else:
             draw_world(acc / 0.05)
+            draw_breaths()
             if dragging and magnitude(mouse_px() - drag_from) > 6.0:
                 let a = drag_from
                 let b = mouse_px()
@@ -2024,6 +2102,7 @@ while gl.frame():
             veil(if phase == "arriving" or phase == "menu": 1.0 - phase_t / 1.5 elif phase == "leaving": phase_t / 1.5 else: 0.0)
             if phase != "menu": menu_alpha = max(0.0, menu_alpha - dt / 1.2)
             menu_hover = draw_title(menu_alpha, if phase == "menu": clamp((phase_t - 1.0) / 1.0, 0.0, 1.0) else: menu_alpha)
+        if phase == "play": draw_one_man()
         if debug_line:
             gl.set_shader("color")
             gl.set_font_name(FONT)

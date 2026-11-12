@@ -15,6 +15,12 @@ class Man:
     uid:int = 0  // his unit in the place that's loaded (ids start again in every place)
     alive:bool = true
     wounded:bool = false  // a ball has hit him (smyana/threats.lobster): he walks slowly
+    fed:int = 100000      // his needs (smyana/survival.lobster, #65), thousandths of a point: 100000 fine, 0 spent
+    warm:int = 100000
+    rested:int = 100000
+    food:int = 0     // portions of food in his pack, one a day
+    hurt_uh:int = 0  // health owed to cold and hunger, and back to sleep, in millionths of a point
+    heal_uh:int = 0
 
 // What a place keeps while the men are away (per map id).
 class PlaceMemory:
@@ -44,6 +50,7 @@ def route_load():
     route = lib_data("route.json")
     men_data = lib_data("men.json")
     threats_load()
+    survival_load()
 
 def leg_of(id:string) -> JV: return at(at(route, "legs"), id)
 def leg_now() -> JV: return leg_of(leg_id)
@@ -341,6 +348,7 @@ def run_begin():
     clock_uh = 0
     year_m = gint(gobj(route, "season"), "start", 0)
     place_memory.clear()
+    survival_begin()
     enter_leg(gstr(route, "start", ""), gstr(route, "start_edge", "west"))
 
 // Why this place is over the size budget ("" if it isn't): checked when it's loaded.
@@ -367,6 +375,7 @@ def enter_leg(id:string, edge:string):
     gate_rects = []
     reset_world()
     threats_clear()
+    survival_enter()
     if run_over(): return
     // (the walk here brought the season on at least to where this leg begins)
     let span = glist(leg_now(), "year")
@@ -507,7 +516,8 @@ def route_tick() -> string:
     for(u_carry) n, i:
         if n > 0 and u_carry_kind[i] == spoil: u_carry[i] = 0
     if tick % 10 != 0 or run_over(): return ""
-    // (the weather's pace on the men, and the water's on a man in a ford)
+    survival_tick()
+    // (the weather's pace on the men, and the water's on a man in a ford, and his needs')
     let pace = weather_pace()
     let ford = str_index(tr_names, "ford")
     for(men) m:
@@ -515,7 +525,7 @@ def route_tick() -> string:
             let i = index_of(m.uid)
             if i >= 0:
                 let wading = terrain[cell_of(u_x[i], u_y[i])] == ford
-                u_speed[i] = max(1, t_speed[u_kind[i]] * pace / 100 * (if wading: wade_pace(u_carry[i] > 0) else: 100) / 100 * wound_pace(i) / 100)
+                u_speed[i] = max(1, t_speed[u_kind[i]] * pace / 100 * (if wading: wade_pace(u_carry[i] > 0) else: 100) / 100 * wound_pace(i) / 100 * needs_pace(m) / 100)
     let inside = map(gate_names): 0
     var alive = 0
     var in_any = 0
@@ -555,4 +565,5 @@ def route_arrive(edge:string):
     let ex = exit_by(edge)
     run_ticks += gint(ex, "hours", 0) * ticks_per_hour()
     clock_uh += gint(ex, "hours", 0) * 1000000
+    survival_walk(gint(ex, "hours", 0))
     enter_leg(rstr(ex, "to"), gstr(ex, "arrive", ""))

@@ -362,6 +362,12 @@ def patrol_think(p:Patrol):
             p.state = P_ROAD
             patrol_walk(p, p.road[p.next * 2], p.road[p.next * 2 + 1])
     elif p.state == P_ROAD:
+        // (a camp's fire seen, its light at night or its smoke by day: they come to look, as for a shot)
+        let f = fire_seen_from(u_x[lead], u_y[lead])
+        if f >= 0:
+            let fl = fires_lit()
+            patrol_hear(p, 0, fl[f].x, fl[f].y)
+            return
         if dist2(u_x[lead], u_y[lead], p.road[p.next * 2], p.road[p.next * 2 + 1]) < 2 * TILE * 2 * TILE:
             p.next++
             if p.next * 2 < p.road.length: patrol_walk(p, p.road[p.next * 2], p.road[p.next * 2 + 1])
@@ -369,6 +375,7 @@ def patrol_think(p:Patrol):
 // After each sim tick, with the riflemen who fired in it: the patrols hear the men's shots.
 def threats_after_step(fired:[int]):
     let hearing = gint(gobj(threats_cfg, "hearing"), gstr(gobj(guns_cfg, "places"), place_now(), "valley"), 30) * TILE
+    if fired.length: survival_heard_shot()
     for(fired) id:
         shot_seen.set(id, tick)
         let i = index_of(id)
@@ -493,13 +500,15 @@ def pack_think(p:WolfPack):
     if p.state == W_HUNT:
         let j = index_of(p.prey)
         // (he fell, or got back among the others: they draw off again)
-        if j < 0 or straggler(here, gint(wc, "rejoined_tiles", 3) * TILE) != j:
+        if j < 0 or straggler(here, gint(wc, "rejoined_tiles", 3) * TILE) != j or fire_keeps_off(u_x[j], u_y[j]):
             p.state = W_FOLLOW
             p.prey = 0
         else:
             return
     // following: each wolf to its own place on a ring round the men, on the side the pack came from
-    let ring_r = gint(wc, if p.bold: "follow_bold_tiles" else: "follow_tiles", 14) * TILE
+    var ring_r = gint(wc, if p.bold: "follow_bold_tiles" else: "follow_tiles", 14) * TILE
+    // (a lit fire among the men: they keep off it, out past its light)
+    if fire_keeps_off(cx, cy): ring_r = max(ring_r, (fire_keep_tiles() + 3) * TILE)
     let base = atan2(float2 { float(p.den_x - cx), float(p.den_y - cy) })
     for(alive) id, n:
         let i = index_of(id)
@@ -509,7 +518,7 @@ def pack_think(p:WolfPack):
     // winter's wolves, at night: a man on his own, smelled or seen, is rushed by all of them at once
     if p.bold and is_night():
         let s = straggler(here, gint(wc, "alone_tiles", 4) * TILE)
-        if s >= 0:
+        if s >= 0 and not fire_keeps_off(u_x[s], u_y[s]):
             let sight = gint(wc, "sight", 16) * TILE
             let near = find(alive) wid: dist2(u_x[index_of(wid)], u_y[index_of(wid)], u_x[s], u_y[s]) <= sight * sight
             if near >= 0:
@@ -686,6 +695,12 @@ def bear_think(b:Bear):
                 cries.push(Cry { "bear_huff", u_x[i], u_y[i] })
                 issue_cmd(1, CMD_MOVE, [ b.id ], u_x[i], u_y[i], 0, 0)
         if b.state == B_REAR: return
+    // (a camp's food smelled: it wanders round the camp)
+    let smelled = camp_smelled(u_x[i], u_y[i])
+    if smelled >= 0:
+        let hx, hy = camp_xy(smelled)
+        b.home_x = hx
+        b.home_y = hy
     if u_moving[i] == 0 and (threat_hash(b.id, tick, 7) % 6) == 0:
         let r = gint(bc, "wander_tiles", 10) * TILE
         let a = float(threat_hash(b.id, tick, 3) % 360)

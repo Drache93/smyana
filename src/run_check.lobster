@@ -57,6 +57,9 @@ def walk_in_clear(n:int):
 
 lib_load("../data")
 route_load()
+// (the walk and the threats are checked on their own: the men are kept fed, warm and rested; the needs are checked at
+// the end)
+needs_kept = true
 run_begin()
 leg_loads.push(last_load_s)
 expect(place_now() == "village_edge" and u_x.length == 20, "the run starts at the village edge with twenty men ({u_x.length})")
@@ -465,4 +468,77 @@ for(150 * TICK_HZ):
 print "bear: charged {charged}, {swipes} swipes, {bear_hit} hits on it, state {bears[0].state}"
 expect(charged, "shot at, it charges")
 expect(bears[0].state == B_FLED or bears[0].state == B_DEAD, "badly hurt it runs, or it falls ({bear_hit} hits)")
+
+// surviving (#65, #68, docs/survival.md): a winter night in the fir woods, half the men in a camp round a fire and half
+// standing out in the cold; the camp sleeps, eats hot and stays warm, the others don't, and the wolves keep off the fire
+needs_kept = false
+hour_force = 22.0
+enter_leg("fir_woods_home", "east")
+let all_ids = ids_alive()
+for(men) m: if m.alive: m.warm = 60000
+let campers = slice(all_ids, 0, all_ids.length / 2)
+let cold_ones = slice(all_ids, all_ids.length / 2, -1)
+for(cold_ones) id, n: issue_cmd(0, CMD_MOVE, [ id ], u_x[index_of(id)] - 12 * TILE + (n % 4) * 700, u_y[index_of(id)] + (n / 4) * 700, 0, 0)
+let food_before = (fold(men, 0) a, m: a + m.food)
+expect(camp_order(campers), "the men make camp")
+var slept = 0
+var wolves_near_fire = 1 << 30
+for(80 * TICK_HZ):
+    step()
+    threats_after_step(guns_after_step())
+    route_tick()
+    for(campers) id: if is_asleep(id): slept = max(slept, (filter(campers) c: is_asleep(c)).length)
+    let fl = fires_lit()
+    if fl.length and packs.length: for(pack_alive(packs[0])) wid: wolves_near_fire = min(wolves_near_fire, int(sqrt(float(dist2(u_x[index_of(wid)], u_y[index_of(wid)], fl[0].x, fl[0].y)))) / TILE)
+hour_force = -1.0
+def warm_of(ids:[int]) -> int:
+    var w = 0
+    for(ids) id:
+        let m = man_of(id)
+        if m: w += m.warm / 1000 / ids.length
+    return w
+def rested_of(ids:[int]) -> int:
+    var r = 0
+    for(ids) id:
+        let m = man_of(id)
+        if m: r += m.rested / 1000 / ids.length
+    return r
+let food_after = (fold(men, 0) a, m: a + m.food)
+print "camp: {slept} asleep, warmth {warm_of(campers)} by the fire and {warm_of(cold_ones)} out in the cold, rest {rested_of(campers)} and {rested_of(cold_ones)}, {meals_hot} hot meals, food {food_before} to {food_after}, wolves {wolves_near_fire} tiles from the fire at the closest"
+expect(fires_lit().length == 1, "its fire burns")
+expect(slept > campers.length / 2, "the camp sleeps at night ({slept})")
+expect(warm_of(campers) > warm_of(cold_ones) + 20, "the fire keeps them warm, the others get cold")
+expect(rested_of(campers) > rested_of(cold_ones) + 10, "they get their rest back")
+expect(meals_hot > 0 and food_after < food_before, "they eat a hot meal from what they carry")
+expect(wolves_near_fire >= fire_keep_tiles(), "the wolves keep off the fire")
+// a fire is seen at night: a patrol passing sixteen tiles off, too far to see the men, comes to look
+hour_force = 23.0
+with_patrol = true
+enter_leg("beech_valley_out", "west")
+with_patrol = false
+for(80): step()
+let mid = men_here()[0]
+let fx = u_x[mid] / TILE
+let fy = u_y[mid] / TILE
+// (two of them carry wood for the fire)
+for(2) n:
+    u_carry[men_here()[n]] = r_carry
+    u_carry_kind[men_here()[n]] = wood_k
+camp_order(ids_alive())
+for(10 * TICK_HZ):
+    step()
+    route_tick()
+let road_x = min(W - 3, fx + 16)
+patrol_spawn(map([ road_x, max(2, fy - 20), road_x, min(H - 3, fy + 20) ]) v: v * TILE + TILE / 2, 6)
+var came_to_look = false
+for(60 * TICK_HZ):
+    step()
+    threats_after_step(guns_after_step())
+    route_tick()
+    if patrols[0].state == P_WARY: came_to_look = true
+hour_force = -1.0
+expect(came_to_look, "a patrol sees the fire at night and comes to look")
+// put out, the fire is not seen
+camp_order(ids_alive())
+expect(not fires_lit().length, "the fire is put out")
 print (if failed: "run_check: {failed} FAILED" else: "run_check: ok")

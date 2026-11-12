@@ -1,0 +1,18 @@
+{
+ "_doc": "The men's needs, the camp and the fire (docs/survival.md, #65, #68; src/smyana/survival.lobster). Needs run from 100 (fine) to 0 (spent), per man. Rates are a game hour's worth (the clock: route.json's day_minutes, a night faster). start_food: portions each man leaves the village with, one a man a day.",
+ "start_food": 4,
+ "fed": { "_doc": "Hunger. 'per_hour' is how much a man awake loses an hour, more by 'work' hundredths while he fells or digs and 'loaded' while he carries; 'asleep' asleep. A hot meal at a lit fire fills him, a cold one gives 'cold_meal'. At 0 he loses 'starving_hp' health an hour.", "per_hour": 2.5, "work": 150, "loaded": 125, "asleep": 1.2, "cold_meal": 50, "starving_hp": 1.5 },
+ "warm": {
+  "_doc": "Warmth goes toward the air's: 'air' by season (summer, autumn, winter, spring; between them by the year), less 'altitude' a hundred of the leg's altitude, 'night' at night, up to 'wind', 'rain' and 'snow' at their hardest, and 'wading' in a ford times how cold the water is (0..1). It falls 'fall' an hour toward it and rises 'rise'; within 'fire_tiles' of a lit fire the air is 'fire' warmer and it rises 'fire_rise'; asleep in a camp with others, 'huddle' warmer. At 0 he loses 'freezing_hp' health an hour.",
+  "air": [ 100, 72, 22, 62 ],
+  "altitude": 4, "night": 22, "wind": 10, "rain": 18, "snow": 12, "wading": 40,
+  "fall": 18, "rise": 30, "fire_tiles": 4, "fire": 70, "fire_rise": 80, "huddle": 12, "freezing_hp": 3
+ },
+ "rested": { "_doc": "Tiredness: 'per_hour' awake, 'loaded' hundredths of that while he walks loaded; 'asleep' back an hour in a camp. A man who is fed, warm and asleep heals 'heal_hp' an hour.", "per_hour": 4.5, "loaded": 130, "asleep": 13, "heal_hp": 1 },
+ "pace": { "_doc": "Below 'low' a need takes up to 'most' hundredths off a man's pace, each need its own share.", "low": 30, "most": 12 },
+ "camp": {
+  "_doc": "Making camp (C): the men stand round the fire, the nearest 'ring_tiles' from it, and lay a fire: it costs 'wood' off their backs and takes 'lay_s' seconds, or 'lay_bare_s' if none of them carries wood. A man within 'in_tiles' of it is in the camp; at night he sleeps there. The camp is struck when no man has been within 'in_tiles' for 'struck_s'. Woken by a shot, a man stays up 'woken_s'. The meal is at the first camp after 'meal_hour'.",
+  "ring_tiles": 1.1, "wood": 2, "lay_s": 4, "lay_bare_s": 50, "in_tiles": 5, "struck_s": 30, "woken_s": 40, "meal_hour": 17
+ },
+ "fire_seen": { "_doc": "A lit fire draws the threats (docs/survival.md): seen at night 'night_tiles' off, through any cover; its smoke by day 'day_tiles'; wolves keep 'wolves_keep_tiles' off it; the bear smells a camp's food 'bear_smell_tiles' off.", "night_tiles": 34, "day_tiles": 18, "wolves_keep_tiles": 7, "bear_smell_tiles": 16 }
+}
