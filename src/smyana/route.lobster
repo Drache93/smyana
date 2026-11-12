@@ -204,6 +204,15 @@ def ford_cold() -> int: return clamp(winter_depth() / 8 + high_water() / 40, 0, 
 // What grows on a cell is worked out from the cell's number, here in the sim, and the view draws the same thing.
 def cell_hash(c:int) -> int: return ((c * 2654435761) >> 7) & 0xFFFF
 
+// The pick of which old tree stands on cell c (old_species): its kind by a smooth field over the wood, so the trees of
+// a kind stand together in stands and families (a clump of fir among the beeches, an oak wood's hornbeams in a patch)
+// as they grow, not one of each by turns (docs/woods.md, D-102); which of its models by the cell's own hash.
+def species_pick(c:int) -> int:
+    let h = cell_hash(c) / 7
+    let f = woods_field(c % W, c / W, 5.0, 4111) * 0.85 + float(cell_hash(c + 77) % 100) / 100.0 * 0.15
+    let r = clamp(int(f * 9.0) - 1, 0, 7)  // (the field is rarely at its ends: stretched to reach every kind)
+    return h % 3 + 3 * r + 24 * ((h / 24) % 2)
+
 // Which old tree stands in a wood of this kind (the map's "wood": beech, conifer or deep, the high dark woods where
 // the trunks run up out of sight).
 def old_species(wood:string, pick:int) -> string:
@@ -211,7 +220,8 @@ def old_species(wood:string, pick:int) -> string:
     // (a pine among the beeches is a Scots pine or a black pine, half and half; the conifer woods mix spruce, silver
     // fir, Scots and black pine; in the deep woods a fir stands among the spruces' tall trunks now and then)
     let other = (pick / 24) % 2 == 1
-    var sp = if r < 4: "beech" elif r < 6: "oak" elif r < 7: "hornbeam" elif other: "bpine" else: "pine"
+    // (the beech woods of the western Rhodopes are mixed with silver fir and spruce, D-102)
+    var sp = if r < 4: "beech" elif r < 5: "oak" elif r < 6: "hornbeam" elif r < 7: (if other: "fir" else: "spruce") elif other: "bpine" else: "pine"
     if wood == "deep": sp = if r < 6: "tall" elif r < 7: (if other: "fir" else: "spruce") else: "beech"
     if wood == "conifer": sp = if r < 3: "spruce" elif r < 5: "fir" elif r < 6: "pine" elif r < 7: "bpine" else: "beech"
     // (#48, D-077: the village edge's oaks and hornbeams, a beech standing in for the lime and the wild pear; the high
@@ -229,7 +239,7 @@ def leafy(sp:string) -> bool: return sp == "beech" or sp == "oak" or sp == "horn
 
 // The old tree on this cell (a place can say it has no pines among its beeches: "pines": 0).
 def old_tree_at(c:int) -> string:
-    let sp = old_species(place_wood(), cell_hash(c) / 7)
+    let sp = old_species(place_wood(), species_pick(c))
     return if (sp == "pine" or sp == "bpine") and gint(su_map, "pines", 1) == 0: "beech" else: sp
 
 // Bracken grows in drifts a few tiles across, and a little between them.

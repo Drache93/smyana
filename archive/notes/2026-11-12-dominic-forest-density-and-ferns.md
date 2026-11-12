@@ -87,3 +87,15 @@ this is cloud clinging to and lifting off a wooded slope.
 
 > With the bridge scene, by the way, it's the same thing, where our players are. You've got all these little ferns
 > everywhere that just look really out of place, and then the trees below just aren't dense enough.
+
+## On the new ground and trail (17:22 UTC)
+
+*Verbatim.*
+
+> That new path is much too hard. Actually, looking at the pictures, the path in the previous one actually almost looks
+> better now that the trees are dense. Yeah, that path doesn't look quite so bad, maybe. But I think the key thing is a
+> path is not a single solid thing. It's something that grows naturally over time, right? So it's more of a gap in all
+> the growth. It's not anything solid. Also, there's the question of whether we make the colours more... Try making
+> this a bit more watercolour. I wonder if there's a potential of us doing a filter over the top to make things
+> smoother, more less pixelated. I don't know if that will help. But the trees right now, they look really good and
+> the density's better. I'm just wondering if they look like the right kind of tree or not.

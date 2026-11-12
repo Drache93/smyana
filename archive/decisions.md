@@ -603,3 +603,20 @@ dried out part is too dry looking", "a yellow trail, which just isn't something 
 - In autumn the meadow is green going gold, with only a few blown leaves on it. The carpet of leaves lies under the
   trees, on a browner bed.
 - The trail is dark brown earth with stones in every season, not a pale sand stripe.
+
+**D-102, 2026-11-12: Crowns are full domes, and the trees grow in stands of one kind.** (From Dominic: "the trees
+right now, they look really good and the density's better. I'm just wondering if they look like the right kind of
+tree or not"; Claude, `tools/tree_vox.py`, `species_pick` in `src/smyana/route.lobster`.)
+- Beech, oak and hornbeam crowns get a full leafy shell round their branch tips, so they read as domes and not as
+  flat umbrellas (the acacia outline).
+- Which tree grows where follows a smooth field over the map, so trees of one kind stand together, as they do in the
+  western Rhodopes: beech mostly, with patches of oak and hornbeam, and stands of silver fir and spruce, and pine on
+  the far side. Before, each tile picked its kind at random.
+- The trail (supersedes D-101's dark trail, which Dominic found "much too hard"): lighter worn earth broken up by
+  patches of grass, pebbles and tufts, "more of a gap in all the growth" than a solid stripe.
+
+**D-103, 2026-11-12: A soft watercolour filter over the picture, on trial.** (From Dominic: "Try making this a bit
+more watercolour… a filter over the top to make things smoother, less pixelated"; Claude, Creel PR 30.)
+Creel's atmosphere pass gains a `paint` setting: a Kuwahara filter that flattens busy areas into patches of colour and
+keeps edges, leaving the men sharp. Smyana sets it to 0.5 in `data/atmosphere.json`; `paint:<v>` on the command line
+tries another strength (0 off, 1 is blotchy). Dominic to say whether it stays.

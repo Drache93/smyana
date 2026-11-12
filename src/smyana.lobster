@@ -227,7 +227,7 @@ def build_props():
         // (not dead centre: a wood isn't planted in rows)
         let off = gp(float((c % W) * 1000 + 500 + (h % 400) - 200), float((c / W) * 1000 + 500 + ((h / 400) % 400) - 200))
         if t == old:
-            let sp0, k = old_kind(wood, h / 7)
+            let sp0, k = old_kind(wood, species_pick(c))
             // (a place can say it has no pines among its beeches, "pines": 0: the mock-up's clearing has none)
             let sp = if (sp0 == "pine" or sp0 == "bpine") and not pines: "beech" else: sp0
             props.push(Prop { 0, k, "{sp}{k}", sp, off, c })
@@ -768,6 +768,11 @@ def mood_tick():
     weather_light(wkind, float(wstep) / 24.0)
     // (and the place's own air, the map's "light", the same way: the high ridge looks out over a valley full of air, D-084)
     light_add(gobj(su_map, "light"), 1.0)
+    // (the painter's softening over the whole picture, whatever the hour: atmosphere.json's "paint", or paint:<0..1>
+    // for a look at it; Dominic, 2026-11-12: "Try making this a bit more watercolour")
+    if atmo_on:
+        let pi = find(ATMO_OPT) n: n == "paint"
+        if pi >= 0: atmo_opt[pi] = if arg_of("paint") != "": string_to_float(arg_of("paint")) else: gfloat(atmo_data, "paint", 0.0)
 
 // What the weather does to the light (#15: "weather changes the mood"): atmosphere.json's "weather" gives, for mist,
 // rain and snow, how much each of a mood's numbers moves at the weather's full strength (added to whatever the hour

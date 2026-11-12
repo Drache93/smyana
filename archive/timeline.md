@@ -191,3 +191,5 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-12:** Dominic and a Bulgarian's eye: the woods too sparse, "a little path through Africa". Plan
   `docs/woods.md`; the woods grown dense and clumped from the maps' trees, with mantles at their edges and the rim
   wooded (D-100). ([notes](notes/2026-11-12-dominic-forest-density-and-ferns.md))
+- **2026-11-12:** The trail broken up by grass, domed crowns, trees in stands of one kind (D-102), and a soft
+  watercolour filter on trial (D-103, Creel PR 30). ([notes](notes/2026-11-12-dominic-forest-density-and-ferns.md))

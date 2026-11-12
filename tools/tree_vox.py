@@ -95,7 +95,7 @@ def dabs(m, tip, reach, count, cling, rng):
         sub[inside & ~up & (sub == 0)] = CLING_LOW if cling else UNDER
 
 
-def broadleaf(height, girth, bole, spread, boughs, seed, cling=0.4, stout=1.0, fill=16):
+def broadleaf(height, girth, bole, spread, boughs, seed, cling=0.4, stout=1.0, fill=16, body=0.0):
     """As on the sheet and in the target picture: a flared foot, one clean slim silver bole, boughs that rise steeply
     from the fork and then spread, each breaking into branches and fine twigs that can be seen, and the leaves in
     clusters of dabs at the twigs' ends. Sizes in men: height, the trunk's width, how far up the clean bole goes (of the
@@ -156,6 +156,25 @@ def broadleaf(height, girth, bole, spread, boughs, seed, cling=0.4, stout=1.0, f
         dabs(m, tip, 2.6 * F, 10 if clings else 13, clings, rng)
         # (summer's body: more leaves round each twig's end, none of which outlast the fall)
         dabs(m, tip + np.array([rng.gauss(0, 1), rng.gauss(0, 1), rng.uniform(-0.2, 0.8)]) * 3.0 * F, 3.4 * F, fill, False, rng)
+    if body > 0 and tips:
+        # (2026-11-12, a Bulgarian's eye: the crowns were flat sprays on a bare trunk, an acacia's outline. A beech's
+        # crown is a full dome: summer's leaves fill out the shell over the twigs' ends, thick at the top and sides,
+        # thinner underneath, with a few gaps the sky shows through. None of these outlast the fall.)
+        t = np.array(tips)
+        c = t.mean(axis=0)
+        rx = max(np.abs(t[:, 0] - c[0]).max(), np.abs(t[:, 1] - c[1]).max()) * 1.02
+        lo_z, hi_z = t[:, 2].min(), t[:, 2].max()
+        cz = (lo_z + hi_z) / 2 + (hi_z - lo_z) * 0.05
+        rz = (hi_z - lo_z) / 2 * 1.12 + 3 * F
+        for i in range(int(body * 140 * (1 if height < 2 else height / 5.5))):
+            a = rng.uniform(0, 2 * math.pi)
+            cz_t = rng.uniform(-0.55, 1.0)                     # (more of the shell over the middle than under it)
+            ring = math.sqrt(max(0.0, 1 - cz_t * cz_t))
+            sh = rng.uniform(0.72, 1.0)
+            p = np.array([c[0] + math.cos(a) * ring * rx * sh, c[1] + math.sin(a) * ring * rx * sh, cz + cz_t * rz * sh])
+            # (only near the twigs: the dome is leaves on branches, not a ball)
+            if np.min(np.linalg.norm(t - p, axis=1)) < rx * 0.45:
+                dabs(m, p, 2.8 * F, 9, False, rng)
     return m
 
 
@@ -302,10 +321,10 @@ def make(kind, name, h, g, b, s, n, seed):
     if kind == "spruce": return spruce(h, g, b, s, seed)
     if kind == "fir": return fir(h, g, b, s, seed)
     if kind == "bpine": return black_pine(h, g, b, s, n, seed)
-    if kind == "oak": return broadleaf(h, g, b, s, n, seed, cling=0.65, stout=1.3, fill=20)        # holds its russet leaves
-    if kind == "hornbeam": return broadleaf(h, g, b, s, n, seed, cling=0.35, stout=0.9, fill=14)
+    if kind == "oak": return broadleaf(h, g, b, s, n, seed, cling=0.65, stout=1.3, fill=20, body=1.0)        # holds its russet leaves
+    if kind == "hornbeam": return broadleaf(h, g, b, s, n, seed, cling=0.35, stout=0.9, fill=14, body=0.9)
     if kind == "pine": return broadleaf(h, g, b, s, n, seed, cling=0.0, stout=1.0, fill=10)        # a bare bole, a high flat crown
-    return broadleaf(h, g, b, s, n, seed)
+    return broadleaf(h, g, b, s, n, seed, body=1.0)
 
 
 # In men, measured from the route mock-ups (an old tree five or six men tall, its trunk a quarter to a third of a man

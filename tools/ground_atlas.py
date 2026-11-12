@@ -116,6 +116,19 @@ def pebbles(tile, seed, n, colours):
     return out
 
 
+def worn(earth, grass_tile, seed, share=0.42):
+    """A trail as a worn gap in the growth, not a solid stripe (Dominic, 2026-11-12: "a path is not a single solid
+    thing... it's more of a gap in all the growth"): bare earth where feet go, and the grass coming back through it in
+    soft patches and tufts, so its edge frays into the grass beside it."""
+    rng = np.random.default_rng(seed)
+    v = tile_noise(rng, 7) * 0.65 + tile_noise(rng, 22) * 0.35
+    v = (v - v.min()) / (v.max() - v.min())
+    out = earth.copy()
+    g = v > 1.0 - share
+    out[g] = grass_tile[g]
+    return out
+
+
 def tiles(wood, season):
     """The sixteen grounds of a place. Beech wood: mountain grass, a thick copper litter of beech leaves, warm grey
     gneiss. Conifer wood: moss and bilberry where the beech has grass, a dark rusty floor of needles."""
@@ -180,6 +193,12 @@ def tiles(wood, season):
             t[4] = strew(pebbles(t[4], 404, 260, ["#9b9485", "#b0a896", "#857e70"]), 304, 120, old)
     else:
         t[4] = pebbles(t[4], 404, 260, ["#9b9485", "#b0a896", "#857e70"])
+    if season != "winter":
+        # (the trail: lighter earth, worn, with the grass of the place through it)
+        earth = ["#5e4c34", "#6a573c", "#766245", "#826d4d"] if season != "autumn" else ["#5a4630", "#655038", "#705a3f", "#7b6446"]
+        bed = pebbles(make(5, earth, fine=40, grain=0.2, height=0.35), 404, 160, ["#9b9485", "#b0a896", "#857e70"])
+        if not conifer and season == "autumn": bed = strew(bed, 304, 160, fall)
+        t[4] = tufts(worn(bed, t[0], 405), 406, 260, ["#6f8f3c", "#7e9a44", "#5f7a34"] if season != "autumn" else ["#8a9846", "#7f8f40", "#9aa04c"])
     # bare mountain ground and scree: stones you can see, of many sizes, lying on stony earth with a tuft between them
     t[11] = tufts(strew(strew(make(12, ["#77705f", "#7b7463", "#7f7867", "#837c6b"], coarse=5, fine=16, grain=0.05, height=0.55),
                               512, 420, ["#8a8374", "#8f8879", "#857e6f", "#948d7d"], length=(6.0, 13.0), edge=0.86, drift=False),
