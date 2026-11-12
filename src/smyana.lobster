@@ -978,7 +978,8 @@ def collect_men(alpha:float):
             if m:
                 let chill = max(35 - air_warmth(), (40000 - m.warm) / 1000)
                 if chill > 0: breaths.push(Breath { p - float2 { 0.0, 19.0 }, float(u_id[i] % 13) * 0.37, max(1.8, 4.2 - float(chill) * 0.06) })
-            add(frame_at.get(man_shadow_name(look, facing), -1), p.x, p.y, p.y - 0.5, float4_1, 1.0, 1)
+            // (by the fire at dark, his shadow is the fire's, thrown behind him: not the sky's)
+            if not (fire_dark() > 0.4 and fire_reach_k(p) > 0.05): add(frame_at.get(man_shadow_name(look, facing), -1), p.x, p.y, p.y - 0.5, float4_1, 1.0, 1)
             let mf = frame_at.get(man_frame_name(look, if gun >= 0: gun elif moving: 1 + step else: 0, facing), -1)
             add(mf, p.x, p.y, p.y, if m: SASH else: patrol_sash(), 1.0, 4)
             fire_light_man(mf, p, p.y + 0.01, true)
@@ -1564,6 +1565,15 @@ def draw_fire(i:int):
             gl.color(float4 { 0.62, 0.6, 0.58, 0.28 * (1.0 - u) }):
                 gl.translate(float2 { sin(u * 200.0 + float(i) * 40.0) * 3.0 + u * 10.0 - 2.0, -12.0 - u * 46.0 }): gl.rect(float2 { 3.0 + u * 7.0, 3.0 + u * 5.0 })
 
+// How dark it is for the fire's light (0 by day .. 1 at night), from the mood's glow.
+def fire_dark() -> float: return clamp((atmo_num("glow") - 1.1) / 1.1, 0.0, 1.0)
+
+// How much of the nearest fire's light reaches p (art px): 1 at it, 0 at FIRE_LIGHT_TILES.
+def fire_reach_k(p:float2) -> float:
+    var best = 0.0
+    for(fires) fp: best = max(best, clamp(1.0 - magnitude(iso_inv(p - fp)) / 1000.0 / FIRE_LIGHT_TILES, 0.0, 1.0))
+    return best
+
 // A man at p (art px) drawn with frame f, sorted at sort_y: lit by the nearest fire if he is in its reach.
 def fire_light_man(f:int, p:float2, sort_y:float, up:bool, upto:float = 1000.0):
     if not atmo_on or f < 0 or not fires.length: return
@@ -1578,7 +1588,7 @@ def fire_light_man(f:int, p:float2, sort_y:float, up:bool, upto:float = 1000.0):
             at = fp
             g = w
     if best <= 0.0: return
-    let night = clamp(atmo_num("glow") / 2.0, 0.25, 1.2)            // (by day the sun drowns it; at night it's all there is)
+    let night = 0.2 + 0.5 * fire_dark()                             // (by day the sun drowns it; at night it's all there is)
     let to = at - float2 { 0.0, 6.0 } - (p - float2 { 0.0, 12.0 })  // (flame to chest)
     let tiles = magnitude(g) / 1000.0
     fire_lits.push(FireLit { f, p, if magnitude(to) > 0.01: normalize(to) else: float2 { 0.0, 1.0 },
@@ -1623,7 +1633,7 @@ def draw_fire_lit(n:int):
 // square of the way out, flickering with the flames. Drawn under what stands, so a man's shadow from it (and the man
 // himself) is laid over it, as light on the ground should be.
 def draw_fire_pools():
-    let night = clamp(atmo_num("glow") / 2.0, 0.25, 1.2)
+    let night = 0.15 + 0.45 * fire_dark()
     let t = gl.time()
     let rings = 7
     let sides = 40
@@ -1674,7 +1684,7 @@ def draw_fire_shadows():
             let c = -along.x * len / h
             let d = -along.y * len / h
             sprite_xf(fl.f, [ a, b, c, d, fl.p.x - float(fr.ox) * a - float(fr.oy) * c, fl.p.y - float(fr.ox) * b - float(fr.oy) * d ],
-                      float4 { 0.0, 0.0, 0.0, min(1.0, fl.k * 2.0) })
+                      float4 { 0.0, 0.0, 0.0, min(1.0, fl.k * 3.0) })
     flush_sprites()
     sprite_shader = "sprite"
 

@@ -80,3 +80,10 @@ still that the trees are sparse.
 
 Claude: the low cloud on the mountain goes into the plan beside density. Creel has a low valley fog (D-084), and
 this is cloud clinging to and lifting off a wooded slope.
+
+## On the bridge scene (17:07 UTC)
+
+*Verbatim.*
+
+> With the bridge scene, by the way, it's the same thing, where our players are. You've got all these little ferns
+> everywhere that just look really out of place, and then the trees below just aren't dense enough.

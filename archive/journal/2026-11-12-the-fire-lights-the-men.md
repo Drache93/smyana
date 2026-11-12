@@ -38,3 +38,17 @@ palms, the trail is too yellow: "a little path through Africa"), on the men's wa
 their dress (a photo, and the April Uprising of 1876 as a source). They are kept verbatim in
 `archive/notes/2026-11-12-dominic-forest-density-and-ferns.md`, `-the-mens-walk.md` and `-men-dress-reference.md`.
 They are the next work, in that order. The photos are not ours, so they are described there and not kept.
+
+## Second pass, after Dominic's look (17:08 UTC)
+
+Dominic: the first pass was "way too bright", though "the shadows and stuff all sit better". Also, the men's shadows
+still fell the same way, "even though there's a fire in front of them. The shadows should move behind them." (His
+words in full: `archive/notes/2026-11-12-dominic-campfire-light.md`.)
+
+- The light is about half as strong: the pool at night is 0.6 of the first pass and the men's light 0.7 of it. Both
+  now follow how dark it is (from the mood's glow), from a little by day to all of it at night.
+- When it is dark, a man in the fire's light no longer casts the sky's shadow. His only shadow is the fire's, thrown
+  behind him. At dusk the sky still casts its shadows.
+- The fire's shadows are a little darker, to read against the softer pool.
+
+Pictures 61 (night) and 62 (winter dusk).
