@@ -44,3 +44,20 @@ becomes soft patches and edges stay. The men are left sharp. At 0.5 it is gentle
 
 Still to do from the plan: the shuttlecock ferns, bracken and polypody in place of the palm-like fern, and low cloud
 on the slopes.
+
+## The ferns, and the shadows (D-104, D-105)
+
+The old fern was a stem of fronds radiating from one point, a palm. Now there are two. Bracken is a patch: a tile's
+worth of fronds each arching up from the ground with a broad lacy blade. The first try held the blades flat on bare
+stalks and read as mushrooms; arching them out of the ground fixed it. It grows in drifts in the light and goes rust
+in autumn. The male fern is a shuttlecock of narrow fronds from a crown on the ground, in small groups under the wood
+and by water and rock.
+
+![bracken and male ferns](../images/2026-11-12/74-bracken-patches-and-male-fern-shuttlecocks-summer-and-autumn.png)
+
+Dominic saw the men's shadows going a different way from the trees'. They were: down-right against left. The men's
+way was worked out from the light with its downward part still in it, and squashed for a 30 degree camera when ours is
+22. Now they agree.
+
+![before and after](../images/2026-11-12/73-shadows-before-the-men-down-right-the-tent-left-after-all-one-way.jpg)
+![the gorge](../images/2026-11-12/75-the-gorge-in-autumn-rust-bracken-in-drifts-and-shadows-one-way.jpg)

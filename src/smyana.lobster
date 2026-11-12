@@ -183,6 +183,18 @@ def build_canopy():
 // Where the soft grass grows, 0 (none) to 1 (thick), x and y in tiles: smooth drifts a few tiles across, and thin
 // single tufts between them.
 // A whole number stirred well (cell_hash's low bits march in step for numbers in a row).
+// Damp ground: water, a ford or a rock face within a tile (where the male fern grows, out of the wood too).
+def near_wet(c:int) -> bool:
+    let wet = [ str_index(tr_names, "water"), str_index(tr_names, "ford"), str_index(tr_names, "rock") ]
+    for(3) dy:
+        for(3) dx:
+            let x = c % W + dx - 1
+            let y = c / W + dy - 1
+            if x >= 0 and y >= 0 and x < W and y < H:
+                let t = terrain[y * W + x]
+                if t == wet[0] or t == wet[1] or t == wet[2]: return true
+    return false
+
 def mixed(n:int) -> int:
     var v = (n + 0x9E3779B9) & 0xFFFFFFFF
     v = ((v ^ (v >> 16)) * 0x45D9F3B) & 0xFFFFFFFF
@@ -278,11 +290,15 @@ def build_props():
             if by_rock and y >= 0: props.push(Prop { 4, 0, "slabs{(h / 7) % SLAB_KINDS}", "", off, c })
         if t == grass:
             // the undergrowth (#8): bracken in drifts, a bush here and there, now and then a fallen trunk
-            let drift = bracken_drift(c)
             let h2 = cell_hash(c + 40507)
-            if bracken_at(c): props.push(Prop { 5, 0, "fern{h2 % FERN_KINDS}", "", off, c })
-            if drift and h2 % 7 < 3:
-                props.push(Prop { 5, 0, "fern{(h2 / 3) % FERN_KINDS}", "", centre + iso(float((h2 / 11) % 700) - 350.0, float((h2 / 17) % 700) - 350.0), c })
+            // (bracken: a patch of it covers the tile, in drifts out in the light)
+            if bracken_at(c): props.push(Prop { 5, 0, "fern{h2 % FERN_KINDS}", "", centre + iso(float((h2 / 11) % 300) - 150.0, float((h2 / 17) % 300) - 150.0), c })
+            // (male ferns: in groups of a few, only in the shade and the damp, under the wood, by water, at a rock's foot)
+            let damp = near_wet(c)
+            if (shade_at(c) >= 9 or damp) and woods_field(c % W, c / W, 3.0, 5113) > (if damp: 0.45 else: 0.6):
+                for(1 + h2 % 3) k:
+                    let hk = mixed(c * 7 + k + 31)
+                    props.push(Prop { 5, 0, "malefern{(hk / 5) % MALE_FERN_KINDS}", "", centre + iso(float((hk / 11) % 800) - 400.0, float((hk / 13) % 800) - 400.0), c })
             // (soft grass: pale tufts standing out of the leaves in drifts a few tiles across, thick at a drift's
             // middle and thinning to single tufts at its edge; a low herb here and there among them)
             var shading = 0
@@ -665,10 +681,14 @@ def sun_from_data():
     let elev = gfloat(sun, "elevation", 48.0)
     VM_SUN = float3 { -elev, VM_SUN.y, 0.0 }
     let view = euler(VM_VIEW)
-    let d = light_along(VM_SUN)  // where the light goes; on the screen, the way the shadows fall
-    let fall = normalize(float2 { dot(d, view.x), -dot(d, view.y) })
-    // the men's shadows the same way (their baker's ground is x right, y away, seen at 30 degrees: half as deep)
-    let toward = normalize(float2 { -fall.x, 2.0 * fall.y })
+    let d = light_along(VM_SUN)  // where the light goes
+    // (on the screen, the way the shadows fall: the light's way along the ground, as the trees' baker lays them; the
+    // light's own way, with its fall from the sky in it, pointed elsewhere, and the men's shadows went another way from
+    // the trees', Dominic 2026-11-12)
+    let fall = normalize(float2 { dot(float3 { d.x, 0.0, d.z }, view.x), -dot(float3 { d.x, 0.0, d.z }, view.y) })
+    // the men's shadows the same way (their baker's ground is x right, y away, seen at the camera's elevation: its
+    // depth shrunk by the sine of it, not the half of the old 30 degrees)
+    let toward = normalize(float2 { -fall.x, fall.y / sin(vx_ELEV) })
     vx_SUN = normalize(float3 { toward.x, toward.y, tan(elev) })
     atmo_sun_dir = normalize(float2 { -fall.x, fall.y })  // (towards the sun, y up)
     // crisp art (Dominic: "evryhting crisp and sharp" in the mock-ups): little jitter in the voxels' light, and a leaf's
@@ -678,7 +698,7 @@ def sun_from_data():
     // (a model's own shadow, exact to a voxel: a crown shades its boughs and trunk; and how deep that shade is)
     vg_sun_shadow = gint(sun, "self_shadow", 1) != 0
     vg_shade = gfloat(sun, "self_shade", 0.4)
-    bake_light = "sun {elev} {vg_dither} {vg_leaf_tones} {vg_sun_shadow} {vg_shade}"
+    bake_light = "sun {elev} {vg_dither} {vg_leaf_tones} {vg_sun_shadow} {vg_shade} fall {int(fall.x * 1000.0)} {int(fall.y * 1000.0)}"
     // (Dominic, 2026-11-11: "concerned the men look a little pixelated". At a zoom between whole numbers every art px
     // drawn the same size, crisp, not two screen px and then three; look option even:0 shows it without)
     sprite_even = arg_of("even") != "0"

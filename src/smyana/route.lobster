@@ -242,9 +242,23 @@ def old_tree_at(c:int) -> string:
     let sp = old_species(place_wood(), species_pick(c))
     return if (sp == "pine" or sp == "bpine") and gint(su_map, "pines", 1) == 0: "beech" else: sp
 
-// Bracken grows in drifts a few tiles across, and a little between them.
-def bracken_drift(c:int) -> bool: return cell_hash((c / W / 4) * W + (c % W) / 4 + 9001) % 8 < 3
-def bracken_at(c:int) -> bool: return cell_hash(c + 40507) % 100 < (if bracken_drift(c): 62 else: 7)
+// How many old trees stand within two tiles (0 in the open to 25 deep in the wood).
+def shade_at(c:int) -> int:
+    let old = str_index(tr_names, "tree")
+    var n = 0
+    for(5) dy:
+        for(5) dx:
+            let x = c % W + dx - 2
+            let y = c / W + dy - 2
+            if x >= 0 and y >= 0 and x < W and y < H and terrain[y * W + x] == old: n++
+    return n
+
+// Bracken grows in the light, a sea of it over clearings and the wood's edges in drifts a few tiles across, and
+// little between them (docs/woods.md: never deep in the shade, where the male fern grows instead).
+def bracken_drift(c:int) -> bool: return woods_field(c % W, c / W, 4.0, 4447) > 0.58
+def bracken_at(c:int) -> bool:
+    if cell_hash(c + 40507) % 100 >= (if bracken_drift(c): 80 else: 4): return false
+    return shade_at(c) < 6
 
 // How well a man standing on this cell is hidden, 0 (in plain sight) to 100 (route.json's "cover" has the numbers).
 // The canopy is most of it: each old tree within two tiles gives some, a broadleaf by the leaves it still wears

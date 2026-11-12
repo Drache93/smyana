@@ -157,7 +157,7 @@ def woods_grow():
     for(grown) c: was_grown[c] = true
     for(12):
         let reached = map(W * H): false
-        var todo = []::int
+        let todo = []::int
         for(gate_rects) r:
             for(r[3] - r[1] + 1) j:
                 for(r[2] - r[0] + 1) i:

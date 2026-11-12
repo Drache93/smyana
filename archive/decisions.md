@@ -620,3 +620,19 @@ more watercolour… a filter over the top to make things smoother, less pixelate
 Creel's atmosphere pass gains a `paint` setting: a Kuwahara filter that flattens busy areas into patches of colour and
 keeps edges, leaving the men sharp. Smyana sets it to 0.5 in `data/atmosphere.json`; `paint:<v>` on the command line
 tries another strength (0 off, 1 is blotchy). Dominic to say whether it stays.
+
+**D-104, 2026-11-12: The palm-like fern is retired: bracken in the light, male ferns in the shade.** (From Dominic and
+a Bulgarian's eye: the ferns "read as small palm trees", "all these little ferns everywhere that just look really out
+of place"; Claude, from docs/woods.md.)
+- Bracken is a patch over a whole tile, many fronds arching up out of the ground with broad triangular blades, in
+  drifts out in the light (clearings and the wood's edges, never under closed wood). It turns orange-brown in autumn.
+- The male fern is a shuttlecock with no stem, in groups of a few, only in the shade under the wood or in the damp by
+  water and at a rock's foot.
+- Dominic, 17:32: his wife suggests rose hip bushes in place of ferns. He wants to see the new ferns first; rose hips
+  come next.
+
+**D-105, 2026-11-12: Every shadow falls one way.** (From Dominic: "the shadows aren't all going the same direction";
+Claude.) The men's (and the horses') shadows went down and right while the trees' went left. Two mistakes: the way was
+taken from the sun's light with its fall from the sky in it, not along the ground as the trees' baker lays it, and the
+men's ground was squashed by the old 30 degree camera's half, not by the 22 degree camera's sine. Both fixed, and the
+sheets are now keyed by the shadows' way, so they bake again when it changes.

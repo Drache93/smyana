@@ -99,3 +99,11 @@ this is cloud clinging to and lifting off a wooded slope.
 > this a bit more watercolour. I wonder if there's a potential of us doing a filter over the top to make things
 > smoother, more less pixelated. I don't know if that will help. But the trees right now, they look really good and
 > the density's better. I'm just wondering if they look like the right kind of tree or not.
+
+## 17:32, after the paint filter pictures
+
+> For now, let's stick with the watercolor. I think that might make more sense. My wife also says instead of ferns, we should try rose hip bushes. But since you're about to redo the ferns, let's see your new ones first, and then we can start with the rose hip.
+
+## 17:36, the shadows
+
+> One other thing I noticed actually looking at the pictures is the shadows aren't all going the same direction. Shadows of the trees and the shadows of the men are both going in different angles.
