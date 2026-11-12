@@ -7,7 +7,7 @@
 // seen. The leaves are baked once a season (their colour), behind the letter home, and kept in bake_cache/.
 
 let TREE_K = 64.0  // voxels a tile for the load of wood (baked at twice this)
-let TREE_BAKE = "trees 55"
+let TREE_BAKE = "trees 56"
 // Voxels a tile in the trees, rocks and undergrowth: one voxel is one pixel of Creel's art (WB_PX at its art scale of
 // 3), as the men's are, so they are as crisp as the men (Dominic, 2026-11-10: "evryhting crisp and sharp").
 let VOX_K = 135.7645
@@ -404,12 +404,14 @@ def grass_tuft(look:vglook, kind:int) -> vgrid:
 // The soft grass' colours: straw yellow tips over olive in autumn, fresh green in spring and summer.
 def tuft_look(season:string, kind:int) -> vglook:
     // (late summer: one fresh, one deep green, one gone straw; warmer than the crowns over them)
-    var leaf = [ [ float3 { 0.54, 0.64, 0.28 }, float3 { 0.36, 0.48, 0.20 }, float3 { 0.19, 0.29, 0.13 }, float3 { 0.70, 0.76, 0.40 } ],
-                 [ float3 { 0.46, 0.60, 0.30 }, float3 { 0.30, 0.44, 0.21 }, float3 { 0.16, 0.27, 0.13 }, float3 { 0.60, 0.70, 0.40 } ],
-                 [ float3 { 0.72, 0.70, 0.40 }, float3 { 0.52, 0.52, 0.27 }, float3 { 0.26, 0.28, 0.14 }, float3 { 0.84, 0.80, 0.54 } ] ][kind % 3]
-    if season == "spring": leaf = [ float3 { 0.56, 0.70, 0.30 }, float3 { 0.38, 0.54, 0.22 }, float3 { 0.20, 0.32, 0.14 }, float3 { 0.74, 0.82, 0.42 } ]
-    if season == "autumn": leaf = [ float3 { 0.86, 0.82, 0.42 }, float3 { 0.64, 0.62, 0.27 }, float3 { 0.32, 0.33, 0.14 }, float3 { 0.97, 0.94, 0.64 } ]
-    if season == "autumn" and kind % 3 == 2: leaf = [ float3 { 0.70, 0.72, 0.34 }, float3 { 0.48, 0.54, 0.24 }, float3 { 0.25, 0.31, 0.14 }, float3 { 0.86, 0.86, 0.50 } ]
+    // (2026-11-12, a Bulgarian's eye: "too dry". Green with lighter green tips, not straw, in summer and spring; in
+    // autumn green going gold)
+    var leaf = [ [ float3 { 0.42, 0.62, 0.24 }, float3 { 0.28, 0.46, 0.17 }, float3 { 0.15, 0.28, 0.11 }, float3 { 0.56, 0.74, 0.32 } ],
+                 [ float3 { 0.36, 0.58, 0.26 }, float3 { 0.24, 0.42, 0.18 }, float3 { 0.13, 0.26, 0.12 }, float3 { 0.50, 0.70, 0.36 } ],
+                 [ float3 { 0.50, 0.62, 0.28 }, float3 { 0.34, 0.46, 0.19 }, float3 { 0.18, 0.28, 0.12 }, float3 { 0.66, 0.74, 0.38 } ] ][kind % 3]
+    if season == "spring": leaf = [ float3 { 0.48, 0.70, 0.28 }, float3 { 0.32, 0.54, 0.20 }, float3 { 0.17, 0.32, 0.13 }, float3 { 0.64, 0.82, 0.40 } ]
+    if season == "autumn": leaf = [ float3 { 0.66, 0.68, 0.32 }, float3 { 0.46, 0.52, 0.22 }, float3 { 0.24, 0.30, 0.12 }, float3 { 0.80, 0.78, 0.44 } ]
+    if season == "autumn" and kind % 3 == 2: leaf = [ float3 { 0.50, 0.60, 0.26 }, float3 { 0.34, 0.46, 0.19 }, float3 { 0.18, 0.28, 0.12 }, float3 { 0.64, 0.72, 0.36 } ]
     return vglook { leaf, [ float3 { 0.20, 0.17, 0.14 }, float3 { 0.28, 0.24, 0.20 }, float3 { 0.37, 0.32, 0.26 }, float3 { 0.46, 0.40, 0.33 } ],
                     [ float3 { 0.3, 0.3, 0.3 }, float3 { 0.5, 0.5, 0.5 } ], false, false, false }
 

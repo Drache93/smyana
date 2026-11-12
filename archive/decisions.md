@@ -594,3 +594,12 @@ the wood is. The wood is grown out from them (`src/smyana/woods.lobster`, number
 - No pocket of open ground is closed off from the gates.
 The same place grows the same wood every time. The camp clearing (already dense, the mock-up) is left as drawn. The
 size budget is now 6400 old trees a place, and the frame rate is to be watched.
+
+**D-101, 2026-11-12: Open ground is green and the trail is dark earth.** (From Dominic and a Bulgarian's eye: "the
+dried out part is too dry looking", "a yellow trail, which just isn't something that would make sense"; Claude,
+`tools/ground_atlas.py`, the soft grass in `src/smyana/trees.lobster`.)
+- The summer grass is a fresh green, not olive and straw. The soft grass tufts are green with lighter tips, not straw
+  (this supersedes their straw-tipped look from 2026-11-11).
+- In autumn the meadow is green going gold, with only a few blown leaves on it. The carpet of leaves lies under the
+  trees, on a browner bed.
+- The trail is dark brown earth with stones in every season, not a pale sand stripe.
