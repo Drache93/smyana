@@ -441,3 +441,24 @@ litter and young trees that lose their leaves. `high` has the conifers' floor. #
 the valleys (`"altitude"`), but the pass is kept in autumn on the way out. Leaving the village takes the run's first
 10 thousandths of a season, so the beech valley still starts in late summer, as the run check expects. Walking down
 the lane at the end goes straight to the end screen, with no blank letter between.
+
+**D-080, 2026-11-12: A shot is two sounds and a gap, and the place answers it.**
+(Claude.) The lock and pan are one sound, the charge another, and the game puts the hang (0.06 to 0.18 s, one shot in
+twelve up to 0.9 s) between them, so no two shots sound alike. Each map is one of four kinds of place for the echo
+(close wood, valley, gorge, open ridge, `data/guns.json`), its echo made into the bang's own file. A shot far from the
+view is the low far boom. All the sounds are made by `sound/flintlock.py` from noise and sine waves, none recorded.
+
+**D-081, 2026-11-12: The rifle's smoke hangs where it was fired and hides the man.**
+(Claude.) 26 s in the wood, 18 in a valley, 20 in the gorge, 10 on the ridge, drifting slowly east. It is drawn over
+the men, on purpose: a line that has fired a few times stands in its own smoke and is hard to see, from the player's
+side as much as the enemy's.
+
+**D-082, 2026-11-12: The reload is 18 to 23 seconds, and each man aims in his own time.**
+(Claude.) A Balkan long gun was loaded by hand with horn and rod; 18 s is quick for it. Each man takes 1 to 4.5 s to
+bring his rifle up when told to fire, and 0 to 5 s more over each reload, so twenty rifles go off in ones and twos
+and never as one volley (#58). Picked by a hash of his id and the tick, so a run is the same each time.
+
+**D-083, 2026-11-12: The men carry the rifle on the shoulder, muzzle up and back.**
+(Claude.) As the builders in old pictures carry long guns; it shows the swallow-tail butt in front of him. Aimed, the
+butt is in the shoulder and the left hand under the barrel; reloading, the rifle stands upright. Dominic's to judge
+(D-019 left the rifle's look to him).

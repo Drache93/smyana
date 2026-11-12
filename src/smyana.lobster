@@ -43,6 +43,7 @@ import view.vox
 import view.voxel
 import smyana.sheets
 import smyana.men_view
+import smyana.gunfire
 import smyana.trees
 import smyana.cliff
 import smyana.camp
@@ -586,6 +587,7 @@ def view_enter(between):
     man_dir.clear()
     man_walked.clear()
     selected = []
+    gunfire_clear()
     if run_over(): return
     // the ground's own textures: a beech wood's leaf litter and grass, or a conifer wood's needles and moss
     ground_base = ""
@@ -839,6 +841,9 @@ def collect_men(alpha:float):
     eyes = []
     for(u_x.length) i:
         let m = man_of(u_id[i])
+        if not m and u_owner[i] == 1:  // (the mark, on the range)
+            let p = gp(float(u_x[i]), float(u_y[i]))
+            draws.push(Drawable { p.y, draws.length, -7, p.x, p.y, float4_1, 1.0, 3, 0.0 })
         if m:
             let px, py = prev_pos(i)
             let x = float(px) + float(u_x[i] - px) * alpha
@@ -848,12 +853,18 @@ def collect_men(alpha:float):
             if not moving and u_task[i] == GATHER and u_target[i] >= 0:
                 let nd = dir_of(iso(float((u_target[i] % W) * 1000 + 500) - x, float((u_target[i] / W) * 1000 + 500) - y))
                 if nd >= 0: d = nd
+            // (his rifle: aimed at what he was told to fire at, fired, or being loaded again)
+            let foe = if u_foe[i] != 0: index_of(u_foe[i]) else: -1
+            let gun = gun_pose(u_id[i], moving, foe >= 0)
+            if gun >= 0 and foe >= 0:
+                let fd = dir_of(iso(float(u_x[foe]) - x, float(u_y[foe]) - y))
+                if fd >= 0 and (gun == POSE_AIM or gun == POSE_FIRE): d = fd
             man_dir.set(u_id[i], d)
             let step = int(man_walked.get(u_id[i], 0.0) / man_cycle() * float(MEN_STEPS)) % MEN_STEPS
             let facing = (d + 2) % 8
             let p = gp(x, y)
             add(frame_at.get(man_shadow_name(m.look, facing), -1), p.x, p.y, p.y - 0.5, float4_1, 1.0, 1)
-            add(frame_at.get(man_frame_name(m.look, if moving: 1 + step else: 0, facing), -1), p.x, p.y, p.y, SASH, 1.0, 4)
+            add(frame_at.get(man_frame_name(m.look, if gun >= 0: gun elif moving: 1 + step else: 0, facing), -1), p.x, p.y, p.y, SASH, 1.0, 4)
             feet.push(float3 { p.x, p.y, 2.2 })
             if u_carry[i] > 0: add(frame_at.get("load.wood", -1), p.x + 3.0, p.y - 27.0, p.y + 0.1, float4_1, 1.0, 2)
             eyes.push(p - float2 { 0.0, 16.0 })
@@ -1060,6 +1071,7 @@ def draw_world(alpha:float):
                     flush_sprites()
                     gl.blend(blend_alpha)
                     sprite_shader = "sprite"
+                    gunfire_shade()
         gl.blend(blend_alpha)
     let atmo_drawn = atmo_begin(float4 { 0.04, 0.05, 0.04, 1.0 })
     let stale_was = ground_stale
@@ -1085,15 +1097,21 @@ def draw_world(alpha:float):
                         flush_sprites()
                         draw_feet()
                         b_sheet = -1
+                    elif d.f == -7:
+                        flush_sprites()
+                        draw_mark(d.x, d.ay)
+                        b_sheet = -1
                     elif shading and d.kind == 1: pass()
                     elif d.fade < 1.0: sprite_faded(d.f, d.x, d.ay, d.col, d.fade)
                     elif d.lean != 0.0: sprite_leaning(d.f, d.x, d.ay, d.col, d.lean)
                     else: sprite(d.f, d.x, d.ay, d.col)
                 flush_sprites()
                 draw_leaf_fall()
+                gunfire_draw()
                 draw_weather()
                 if show_cover: draw_cover()
                 fires_glow()
+                gunfire_glow()
     sprite_snap = 1.0
     if atmo_on: atmo_end(cam_px, zoom, 1.5)
 
@@ -1217,6 +1235,15 @@ def draw_weather():
 
 // The camp's fires (for now only for a look: the camp option lights one among the men at dusk): the fireplace's model,
 // flames drawn unlit, a glow each in the light (atmosphere.json's "glows": "building_fire"), and a thread of smoke.
+
+// The mark on the range: a pale board with a dark ring, nailed to a post (art px, its foot at x, y).
+def draw_mark(x:float, y:float):
+    gl.set_shader("color")
+    let f = float(floor(float2 { x, y }))
+    for([ [ -1.0, -15.0, 2.0, 15.0 ], [ -5.0, -24.0, 10.0, 10.0 ], [ -3.0, -22.0, 6.0, 6.0 ], [ -1.0, -20.0, 2.0, 2.0 ] ]) r, k:
+        let c = [ float4 { 0.3, 0.22, 0.15, 1.0 }, float4 { 0.84, 0.8, 0.7, 1.0 }, float4 { 0.22, 0.18, 0.14, 1.0 }, float4 { 0.84, 0.8, 0.7, 1.0 } ][k]
+        gl.color(c):
+            gl.translate(f + float2 { r[0], r[1] }): gl.rect(float2 { r[2], r[3] })
 
 def draw_fire(i:int):
     let p = fires[i]
@@ -1396,6 +1423,12 @@ def order_tick():
     let ids = filter(selected) id: index_of(id) >= 0
     if not ids.length: return
     let mm = mouse_milli()
+    let foe = unit_at_screen(mouse_px())
+    if foe >= 0 and not man_of(u_id[foe]):
+        guns_order(ids, u_id[foe])
+        mark_t = gl.time()
+        mark_at = gp(float(u_x[foe]), float(u_y[foe]))
+        return
     let tree = young_tree_at(mm)
     // (a broken bridge under the mouse: mend it, if the chosen men carry the wood for it)
     let mc = clamp(int(mm.y / 1000.0), 0, H - 1) * W + clamp(int(mm.x / 1000.0), 0, W - 1)
@@ -1492,6 +1525,7 @@ fatal(gl.load_materials(SPRITE_SHADERS, true))
 fatal(gl.load_materials(TERRAIN_SHADERS, true))
 fatal(gl.load_materials(cliff_shaders(), true))
 fatal(gl.load_materials(ATMO_SHADERS, true))
+fatal(gl.load_materials(GUNFIRE_SHADERS, true))
 pace_background = not capture
 pace(PACE_MATCH)
 lib_load("../data")
@@ -1526,8 +1560,22 @@ let boot0 = seconds_elapsed()
 bake_men(): waiting_frame()
 bake_trees(): waiting_frame()
 bake_camp(): waiting_frame()
+sounds_load()
+guns_load()
+with_mark = arg_of("range") != ""
 run_begin()
-if arg_of("leg") != "": enter_leg(arg_of("leg"), "west")  // leg:<id>: start at this leg of the route, for a look
+if arg_of("leg") != "": enter_leg(arg_of("leg"), "west")
+// range:<x>,<y>: the men in a loose line on that tile, a mark five tiles east of them, and told to fire at it, for a
+// look and a listen at the rifles (#58)
+if arg_of("range") != "":
+    let xy = map(tokenize(arg_of("range"), ",", " ")) v: string_to_int(v)
+    for(u_x.length) i:
+        u_x[i] = xy[0] * TILE + 500 - (i % 2) * 700
+        u_y[i] = (xy[1] - 4) * TILE + 500 + (i / 2) * 800
+    let mark = guns_mark((xy[0] + 5) * TILE + 500, xy[1] * TILE + 500)
+    for(u_id) id, i: issue_cmd(0, CMD_MOVE, [ id ], u_x[i], u_y[i], 0, 0)
+    guns_order(copy(u_id), mark)
+    p_id = []  // leg:<id>: start at this leg of the route, for a look
 if has_s(args, "mended"):
     // (mended: this place's broken bridges standing again, for a look)
     for(br_id.length) k:
@@ -1655,6 +1703,10 @@ while gl.frame():
             p_x = copy(u_x)
             p_y = copy(u_y)
             step()
+            for(guns_after_step()) id:
+                let i = index_of(id)
+                let j = if i >= 0: index_of(u_foe[i]) else: -1
+                if i >= 0: gunfire_shot(id, gp(float(u_x[i]), float(u_y[i])), if j >= 0: gp(float(u_x[j]), float(u_y[j])) else: gp(float(u_x[i] + 1000), float(u_y[i])))
             for(u_x.length) i:
                 let px, py = prev_pos(i)
                 if u_moving[i] == 1: man_walked.set(u_id[i], man_walked.get(u_id[i], 0.0) + sqrt(float(dist2(px, py, u_x[i], u_y[i]))))
@@ -1668,6 +1720,7 @@ while gl.frame():
                 set_phase("leaving")
                 score_leave()
                 selected = []
+        gunfire_tick(if paused: 0.0 else: dt, cam, float(gl.window_size().x) * 0.5 / zoom)
         mood_tick()
         if phase != "leaving": score_tick(dt, season_now(), mood_now(), fires.length > 0)
         if debug_line: score_keys()

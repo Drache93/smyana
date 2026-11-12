@@ -163,3 +163,6 @@ One line per moment worth remembering. Newest at the bottom.
   the gorge's walls laid plainly instead of hidden under rock. ([engine](engine/2026-11-11-proper-cliffs.md))
 - **2026-11-11:** The whole world grey-boxed: the village edge, the Roman ruins, the pass and the high ridge, all 13
   legs in the route, and the run check walks and times them (26 minutes). ([journal](journal/2026-11-11-the-whole-world-grey-boxed.md))
+- **2026-11-12:** The flintlock: the men carry the swallow-tail rifle, aim, fire and ram; the pan flashes, the charge
+  hangs, the place answers the bang, the smoke hangs and hides them, and twenty rifles go off in ones and twos (D-080
+  to D-083, Creel #28). ([journal](journal/2026-11-12-the-flintlock.md))

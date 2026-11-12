@@ -281,4 +281,33 @@ for(leg_ids) id, k:
     all_ticks += leg_ticks[k]
     print "leg {k + 1} {id}: {leg_ticks[k] / TICK_HZ} s in it, loaded in {leg_loads[k]} s"
 print "walking in all: {all_ticks / TICK_HZ / 60} min {all_ticks / TICK_HZ % 60} s"
+
+// the rifles (#58): on the range, twenty men told to fire at a mark go off in ones and twos, and none is ready again
+// for 18 s
+guns_load()
+with_mark = true
+enter_leg("village_out", "west")
+with_mark = false
+for(u_x.length) i:
+    u_x[i] = 14 * TILE + 500 - (i % 2) * 700
+    u_y[i] = 46 * TILE + 500 + (i / 2) * 800
+let mark = guns_mark(19 * TILE + 500, 50 * TILE + 500)
+expect(mark != 0, "a mark is put up on the range")
+guns_order(ids_alive(), mark)
+let first_shot = dictionary<int, int>(32)
+var most_at_once = 0
+var shortest = 1 << 30  // ticks between a man's first two shots, the shortest
+for(60 * TICK_HZ):
+    step()
+    let fired = guns_after_step()
+    most_at_once = max(most_at_once, fired.length)
+    for(fired) id:
+        let first = first_shot.get(id, -1)
+        if first < 0: first_shot.set(id, tick)
+        elif first < 1 << 30:
+            shortest = min(shortest, tick - first)
+            first_shot.set(id, 1 << 30)  // (only the first two of each)
+expect(shortest >= 18 * TICK_HZ and shortest < 1 << 30, "a man fires again only after his reload (the quickest {shortest / TICK_HZ} s)")
+expect(first_shot.get_keys().length == 20, "all twenty men fired ({first_shot.get_keys().length})")
+expect(most_at_once <= 2, "never more than two rifles go off in one tick ({most_at_once})")
 print (if failed: "run_check: {failed} FAILED" else: "run_check: ok")

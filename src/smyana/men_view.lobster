@@ -4,11 +4,19 @@
 
 let MEN_STEPS = 8
 let MEN_DRAW_K = 1.1 / vx_RES  // art px a baked px
-let MEN_BAKE = "men 1"         // (raise the number when the bake changes: the saved sheets are made again)
+let MEN_BAKE = "men 2"         // (raise the number when the bake changes: the saved sheets are made again)
+
+// The poses past the walk (data/voxel/gear.json has the holds): the rifle brought up and fired (its kick), held aimed,
+// and the reload's two, the rifle stood upright and the rod up, then down the barrel.
+let POSE_FIRE = MEN_STEPS + 1
+let POSE_AIM = MEN_STEPS + 2
+let POSE_RAM_UP = MEN_STEPS + 3
+let POSE_RAM_DOWN = MEN_STEPS + 4
+let MEN_POSES = MEN_STEPS + 5
 let men_looks = []::vx_unit_def
 var men_bake_s = 0.0  // how long the bake took (0: read from bake_cache/)
 
-def man_frame_name(look:int, pose:int, facing:int) -> string: return "man{look}.{pose}.{facing}"  // pose 0: standing, 1..8: the walk
+def man_frame_name(look:int, pose:int, facing:int) -> string: return "man{look}.{pose}.{facing}"  // pose 0: standing, 1..8: the walk, then POSE_*
 def man_shadow_name(look:int, facing:int) -> string: return "man{look}.shadow.{facing}"
 
 // One look's sheet, baked (or read back). between(): called now and then, so the window can draw.
@@ -20,10 +28,12 @@ def bake_look(look:int, key:string, between):
     vx_set_look(u, 0)
     vx_mat_cols[vx_mat_team] = float3 { 0.85, 0.12, 0.85 }  // (the sprite shader's key for the team colour: the sash)
     vx_pat_scale = vx_RES * vx_size_of(u)
-    vx_act = ""
-    for(MEN_STEPS + 1) pose:
-        vx_stand = pose == 0
-        let parts = vx_unit_prims(u, if pose == 0: 0.0 else: float(pose - 1) * 360.0 / float(MEN_STEPS))
+    for(MEN_POSES) pose:
+        vx_stand = pose == 0 or pose > MEN_STEPS
+        vx_act = if pose == POSE_FIRE or pose == POSE_AIM: "attack" else: ""
+        u.gear = if pose == POSE_RAM_UP: [ "rifle_up", "ram_high" ] elif pose == POSE_RAM_DOWN: [ "rifle_up", "ram_low" ] else: [ "rifle" ]
+        let ph = if pose == POSE_FIRE: 0.0 elif pose == POSE_AIM: 0.6 * 360.0 elif pose == 0 or pose > MEN_STEPS: 0.0 else: float(pose - 1) * 360.0 / float(MEN_STEPS)
+        let parts = vx_unit_prims(u, ph)
         let sh = vx_fill(parts, vx_size_of(u), false)
         for(8) facing:
             let cell = vx_cell(sh, facing)
@@ -33,6 +43,7 @@ def bake_look(look:int, key:string, between):
                 sheet_add_cell(s, man_shadow_name(look, facing), sc, vx_SCELL.x, vx_sbox, vx_SANCHOR)
         between()
     vx_stand = false
+    vx_act = ""
     sheet_finish(s, MEN_DRAW_K, true)
     men_bake_s += seconds_elapsed() - t0
 

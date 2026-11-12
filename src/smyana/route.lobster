@@ -33,6 +33,7 @@ var gates_armed = false  // the men have walked clear of the edge they came in b
 var gate_names = []::string
 var gate_rects = []::[int]  // tiles: x0, y0, x1, y1
 var last_load_s = 0.0       // how long the last place took to set up, seconds
+var with_mark = false       // a second side, a mark to fire at, in every place (the range: src/smyana/guns.lobster)
 let place_memory = dictionary<string, PlaceMemory>(17)
 
 def route_load():
@@ -366,8 +367,16 @@ def enter_leg(id:string, edge:string):
     set(unit, "line", jarr([ shallow_copy(unit) ]))
     let side = jobj()
     set(side, "units", jarr([ unit ]))
+    let sides = [ side ]
+    if with_mark:
+        let mark = shallow_copy(at(lib_data("guns.json"), "mark"))
+        set(mark, "line", jarr([ shallow_copy(mark) ]))
+        let other = jobj()
+        set(other, "units", jarr([ mark ]))
+        sides.push(other)
     let place = place_now()
-    setup_world(1878, place, [ side ], load_rules("smyana"), [])
+    setup_world(1878, place, sides, load_rules("smyana"), [])
+    events_on = true  // (the shots are read from the sim's events: guns.lobster; setting the world up turns them off)
     let gs = gobj(su_map, "gates")
     for(gs.keys) name, k:
         gate_names.push(name)
