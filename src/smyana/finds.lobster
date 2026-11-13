@@ -79,10 +79,10 @@ def finds_enter(place:string):
                     let o = camp_ground_near(c, -1)
                     tx = (o % W) * TILE + TILE / 2
                     ty = (o / W) * TILE + TILE / 2
-            if first: piles.push(Pile { tx, ty, pick_in(glist(find_kind_cfg("honey"), "food"), h), 0, kind: PILE_HONEY })
+            if first: piles.push(Pile { tx, ty, pick_in(glist(find_kind_cfg("honey"), "food"), h), map(pick_in(glist(find_kind_cfg("honey"), "wax"), h / 7)): WARE_WAX, kind: PILE_HONEY })
         elif first:
             let cc = find_kind_cfg("cache")
-            piles.push(Pile { ex, ey, pick_in(glist(cc, "food"), h), pick_in(glist(cc, "goods"), h / 5), kind: PILE_CACHE })
+            piles.push(Pile { ex, ey, pick_in(glist(cc, "food"), h), map(pick_in(glist(cc, "goods"), h / 5)): WARE_WOOL, kind: PILE_CACHE })
         print "find: {place} {kind} at {end % W},{end / W}, down the {[ "deer track", "sheep path", "cart track" ][sp.size]}"
         placed++
 

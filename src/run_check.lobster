@@ -660,8 +660,14 @@ let knowers = (filter(men) m: m.alive and knows_drain(m)).length
 print "drain: learned after {learned_after} s by {knowers} men"
 // (at a march's pace the last of them may come up after it is learned, and he gave it too little time to know it)
 expect(learned_after > 0 and knowers >= 6 and knowers <= 8, "they learn it, and those of the eight who gave it their time know it")
+// (and what they bring home, kind by kind: docs/gathering.md)
+let bringer = men[find(men) m: m.alive]
+let wares_were = bringer.wares
+bringer.wares = [ WARE_HERBS, WARE_HERBS, WARE_WAX, WARE_HIDES ]
 let said = tally_lines()
 print "tally: {said}"
+bringer.wares = wares_were
+expect((find(said) l: find_string(l, "2 bundles of herbs") >= 0) >= 0 and (find(said) l: find_string(l, "wax") >= 0) >= 0 and (find(said) l: find_string(l, "hide") >= 0) >= 0, "the tally says what they bring home, kind by kind")
 expect((find(said) l: find_string(l, "Romans") >= 0) >= 0, "the tally says what they learned")
 expect(men_alive() == men.length or (find(said) l: find_string(l, " lies in ") >= 0) >= 0, "and names the fallen")
 // game (D-122): the beech valley in autumn has its deer and boar by the trail; a deer shot from close falls, and the

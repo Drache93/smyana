@@ -1541,7 +1541,7 @@ def collect_patches():
     for(piles) pl:
         let p = gp(float(pl.x), float(pl.y))
         if p.x > view_lo.x and p.x < view_hi.x and p.y > view_lo.y and p.y < view_hi.y:
-            draws.push(Drawable { p.y + 1.0, draws.length, -8, p.x, p.y, float4 { -1.0 - float(pl.kind), float(pl.food + pl.goods), 0.0, 0.0 }, 1.0, 3, 0.0, 0.0 })
+            draws.push(Drawable { p.y + 1.0, draws.length, -8, p.x, p.y, float4 { -1.0 - float(pl.kind), float(pl.food + pl.wares.length), 0.0, 0.0 }, 1.0, 3, 0.0, 0.0 })
     // (each stand as its items, each sorted on its own foot: a rose bush stands up among the men, ceps lie under them;
     // fewer of them the less is left)
     let finds = forage_finds()
@@ -1901,7 +1901,7 @@ def signs() -> [string], [int]:
     var carrying = false
     for(ids) id:
         let m = man_of(id)
-        if m and (m.food > 1 or m.goods > 0): carrying = true
+        if m and (m.food > 1 or m.wares.length > 0): carrying = true
     if carrying:
         words.push("Put the packs down")
         what.push(1)
@@ -3090,7 +3090,7 @@ if has_s(args, "makecamp"):
 // droppacks: the men put their packs down where they stand as the place opens and walk on a little (#67, for a look)
 if has_s(args, "droppacks"):
     let ids = filter(u_id) id: man_of(id) != nil
-    for(men) m: if m.alive: m.goods = 2
+    for(men) m: if m.alive: m.wares = [ WARE_HERBS, WARE_HIDES ]
     packs_drop(ids)
     cam = gp(float(piles[0].x), float(piles[0].y))
     for(ids) id, n: issue_cmd(0, CMD_MOVE, [ id ], piles[0].x + 3000 + (n % 4) * 700, piles[0].y + (n / 4) * 700 - 1500, 0, 0)

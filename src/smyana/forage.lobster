@@ -168,7 +168,7 @@ def forage_tick():
                     f.work -= need
                     s.left--
                     if gstr(finds[s.kind], "gives", "food") == "goods":
-                        m.goods++
+                        m.wares.push(max(0, find(WARES) w: w == gstr(finds[s.kind], "ware", "herbs")))
                         goods_gathered++
                     else:
                         m.food++

@@ -9,7 +9,7 @@ class Pile:
     x:int  // sim units
     y:int
     food:int
-    goods:int
+    wares:[int]   // its goods, each a kind of them (WARES)
     kind:int = 0  // 0 the men's own packs; a find (smyana/finds.lobster): PILE_CACHE, PILE_HONEY
 
 var piles = []::Pile
@@ -19,10 +19,10 @@ var piles_lost = 0                                // piles taken by a patrol or 
 def packs_cfg() -> JV: return gobj(survival_cfg, "packs")
 
 // How full a man's pack is, in its own units (a bundle of wood on top counts).
-def pack_weight(m:Man, i:int) -> int: return m.food + m.goods + (if i >= 0 and u_carry[i] > 0: gint(packs_cfg(), "wood", 2) else: 0)
+def pack_weight(m:Man, i:int) -> int: return m.food + m.wares.length + (if i >= 0 and u_carry[i] > 0: gint(packs_cfg(), "wood", 2) else: 0)
 
 // How much room is left in his pack.
-def pack_room(m:Man) -> int: return max(0, gint(packs_cfg(), "most", 12) - m.food - m.goods)
+def pack_room(m:Man) -> int: return max(0, gint(packs_cfg(), "most", 12) - m.food - m.wares.length)
 
 // His pace for his load, in hundredths kept.
 def load_pace(m:Man, i:int) -> int: return 100 - gint(packs_cfg(), "slow", 22) * min(pack_weight(m, i), gint(packs_cfg(), "most", 12)) / max(1, gint(packs_cfg(), "most", 12))
@@ -43,7 +43,7 @@ def packs_leave(place:string): pile_memory.set(place, piles)
 def packs_drop(ids:[int]) -> bool:
     let keep = gint(packs_cfg(), "keep_food", 1)
     var food = 0
-    var goods = 0
+    let wares = []::int
     var cx = 0
     var cy = 0
     var n = 0
@@ -53,13 +53,13 @@ def packs_drop(ids:[int]) -> bool:
         if m and i >= 0:
             food += max(0, m.food - keep)
             m.food = min(m.food, keep)
-            goods += m.goods
-            m.goods = 0
+            append_into(wares, m.wares)
+            m.wares = []
             cx += u_x[i]
             cy += u_y[i]
             n++
-    if n == 0 or food + goods == 0: return false
-    piles.push(Pile { cx / n, cy / n, food, goods })
+    if n == 0 or food + wares.length == 0: return false
+    piles.push(Pile { cx / n, cy / n, food, wares })
     return true
 
 // The pile near (x, y) within a tile and a half, or -1.
@@ -89,9 +89,9 @@ def packs_fetch(ids:[int], k:int):
 
 // A man's pack where he fell (threats_on_death).
 def pack_falls(m:Man, x:int, y:int):
-    if m.food + m.goods > 0: piles.push(Pile { x, y, m.food, m.goods })
+    if m.food + m.wares.length > 0: piles.push(Pile { x, y, m.food, m.wares })
     m.food = 0
-    m.goods = 0
+    m.wares = []
 
 // Every 10 sim ticks: men at a pile take from it; a patrol that sees a pile takes it; the bear eats the food in one.
 def packs_tick():
@@ -105,11 +105,9 @@ def packs_tick():
             let tf = min(f.pile.food, pack_room(m))
             m.food += tf
             f.pile.food -= tf
-            let tg = min(f.pile.goods, pack_room(m))
-            m.goods += tg
-            f.pile.goods -= tg
+            for(min(f.pile.wares.length, pack_room(m))): m.wares.push(f.pile.wares.pop())
             false
-    piles = filter(piles) p: p.food + p.goods > 0
+    piles = filter(piles) p: p.food + p.wares.length > 0
     // (found: a patrolman who sees the pile, as he would see a man lying there; the bear, by smell, if there is food)
     let smell = gint(packs_cfg(), "bear_smell_tiles", 10) * TILE
     piles = filter(piles) p:

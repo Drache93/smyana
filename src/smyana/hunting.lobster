@@ -310,7 +310,7 @@ def hunt_tick():
                     cc.meat -= take
                     meat_taken += take
                     if cc.hides > 0 and pack_room(m) >= 1:
-                        m.goods++
+                        m.wares.push(WARE_HIDES)
                         cc.hides--
                     false
     // (picked clean: it is gone from the ground)
