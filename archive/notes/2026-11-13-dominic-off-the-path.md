@@ -58,3 +58,14 @@ What Claude took from it: the fire was being laid (fifty seconds with no wood ca
 caught, so it looked like no fire; fixed (D-133). The rest is a design question, not a fix: what is worth collecting,
 why, how it shows without words under the mouse, and whether felling stays. Claude is to bring a short proposal before
 building more UI.
+
+## Evening: the gathering proposal, "go ahead"
+
+Claude brought the proposal Dominic asked for (a Claude Doc, "Gathering in Smyana: a proposal"): two kinds of
+collecting sharing the pack, fewer bigger finds the men call out, no words under the mouse but drawn cursors, no
+felling, drawn order icons and a row of loaves. Dominic ticked all five questions and wrote, **20:39**:
+
+> go ahead
+
+What Claude took from it: build it in the proposal's order (words off the mouse and no felling; stands and call-outs;
+things for home in the tally; drawn signs and loaves). Built the same evening: D-134 to D-137, `docs/gathering.md`.

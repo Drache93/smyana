@@ -2773,9 +2773,9 @@ def tour_tick():
             play_leg_uh = clock_uh
             play_camped = false  // (a camp made as they went out of the last place is not one here: a playthrough found them a night unfed)
             print "play: into {leg_id} at {int(clock_s)} s ({season_now()}), men {men_alive()}"
-        // (three days in one place and not out of it: stuck; say where everyone is and stop)
-        if clock_uh - play_leg_uh > 72 * 1000000:
-            print "play: STUCK in {leg_id} for three days, the bridges {br_up}"
+        // (five days in one place and not out of it: stuck; say where everyone is and stop. Three was too few once the bot hunted and cached through two days in the fir woods, 2026-11-13)
+        if clock_uh - play_leg_uh > 120 * 1000000:
+            print "play: STUCK in {leg_id} for five days, the bridges {br_up}"
             for(ids) id:
                 let i = index_of(id)
                 print "play:   man {id} at tile {u_x[i] / TILE},{u_y[i] / TILE}, going to {u_tx[i] / TILE},{u_ty[i] / TILE}, moving {u_moving[i]}, stuck {u_stuck[i]}, speed {u_speed[i]} pace {u_pace[i]} block {u_block[i]} group {u_group[i]} foe {u_foe[i]} task {u_task[i]} hp {u_hp[i]}"

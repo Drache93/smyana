@@ -66,13 +66,14 @@ Each man has three needs, each from 100 (fine) down to 0 (spent). They are the m
   herbs in late summer, beechnuts, mushrooms and wild pears in autumn, almost nothing in winter, sorrel and nettles in
   spring). It shows in the world: a patch of mushrooms at a tree's foot, a scatter of fallen nuts, a fruiting bush.
   Right-click a patch with men chosen and they gather it into their packs. What is taken stays taken on the way home.
+  Since 2026-11-13 the patches are a few big **stands** the men call out: see [gathering.md](gathering.md).
 - **Game.** Roe deer in the valleys and chamois on the ridge, shot with the rifles: a deer is several days' meat and a
   hide to take home. A shot is a shot, though, and it is heard (D-085). Built 2026-11-13 (D-122): roe deer, wild boar
   and chamois by place and season (`data/hunting.json`), set down by the trail; they look up at a man they can see and
   run if he comes close or moves while they watch, and run from every shot; a boar takes two balls and charges. Right-
   click the carcass to butcher it into the packs.
 - **Goods to take home** are found the same way: herbs, hides, wild honey. They feed nobody; they are what the
-  families need.
+  families need. Since 2026-11-13 each is a kind (herbs, wax, hides, wool), named in the tally (gathering.md).
 
 ## Loads and weight (#67)
 
