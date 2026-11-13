@@ -64,6 +64,7 @@ guns_load()
 // (the walk and the threats are checked on their own: the men are kept fed, warm and rested; the needs are checked at
 // the end)
 needs_kept = true
+meets_off = true  // (a patrol met by chance would upset the script; script:play meets them)
 run_begin()
 leg_loads.push(last_load_s)
 expect(place_now() == "village_edge" and u_x.length == 20, "the run starts at the village edge with twenty men ({u_x.length})")

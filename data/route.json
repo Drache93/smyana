@@ -51,7 +51,7 @@
   "pass_home": {
    "_doc": "Leg 8: the set piece (phase 2): the patrol follows the men, on the valley path far below the shelf (D-076), then up the ramp near the east gate and along the trail behind them (D-077, docs/threats.md). 'patrol': its road in tiles, how many, and how long after the men come in it sets out.",
    "place": "pass", "name": "The pass, going home", "year": [1700, 1850], "altitude": 100,
-   "patrol": { "road": [ 118, 46, 104, 46, 104, 23, 80, 21, 60, 29, 40, 24, 20, 29, 11, 26 ], "men": 8, "after_s": 30 },
+   "patrol": { "road": [ 118, 46, 104, 46, 104, 23, 80, 21, 60, 29, 40, 24, 20, 29, 11, 26 ], "men": 8, "after_s": 30, "mounted": true, "trail": true },
    "exits": { "west": { "to": "ruins_home", "arrive": "east", "hours": 5, "letter": "shelter_in_the_stones" } }
   },
   "ruins_home": {

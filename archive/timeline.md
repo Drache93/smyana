@@ -212,3 +212,5 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-13:** The giants get character: lightning scars, hollows, dead limbs, snapped tops grown again (D-117).
 - **2026-11-13:** The men are no longer spotty: baked at a little over one art voxel a pixel, their shading smoothed
   (D-118, Creel's `vx_smooth_normals` and `vx_despeckle`).
+- **2026-11-13:** The patrol rides: riders on the men's trail home from the ridge, and patrols met by chance, camped,
+  resting or at the ruins (D-119).

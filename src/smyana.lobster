@@ -1016,6 +1016,13 @@ def collect_men(alpha:float):
                 let chill = max(35 - air_warmth(), (40000 - m.warm) / 1000)
                 if chill > 0: breaths.push(Breath { p - float2 { 0.0, 19.0 }, float(u_id[i] % 13) * 0.37, max(1.8, 4.2 - float(chill) * 0.06) })
             // (by the fire at dark, his shadow is the fire's, thrown behind him: not the sky's)
+            if pk >= 0 and is_riding(u_id[i]):
+                // (a patrolman on his horse: the horse's walk, docs/threats.md, riders)
+                let hs = int(man_walked.get(u_id[i], 0.0) / beast_cycle("horse") * float(MEN_STEPS)) % MEN_STEPS
+                add(frame_at.get(rider_shadow_name(pk, facing), -1), p.x, p.y, p.y - 0.5, float4_1, 1.0, 1)
+                add(frame_at.get(rider_frame_name(pk, if moving: 1 + hs else: 0, facing), -1), p.x, p.y, p.y, patrol_sash(), 1.0, 4)
+                feet.push(float3 { p.x, p.y, 3.0 })
+                continue
             if not (fire_dark() > 0.4 and fire_reach_k(p) > 0.05): add(frame_at.get(man_shadow_name(look, facing), -1), p.x, p.y, p.y - 0.5, float4_1, 1.0, 1)
             let mf = frame_at.get(man_frame_name(look, if gun >= 0: gun elif moving: 1 + step else: 0, facing), -1)
             add(mf, p.x, p.y, p.y, if m: SASH else: patrol_sash(), 1.0, 4)
@@ -2040,7 +2047,9 @@ def camera_tick():
 var tour_sent = ""
 var tour_cut = false
 
-var play_foe = -1  // (script:play) the id the men are firing at
+var play_foe = -1    // (script:play) the id the men are firing at
+var play_foe_uh = 0  // when they were told to (a foe they can't get at in three hours is left be)
+let play_let_be = []::int
 var play_log_leg = ""
 var play_fights = 0
 var play_frames = 0
@@ -2067,15 +2076,18 @@ def play_status() -> string:
 // script:play: the men fire at the nearest beast or patrolman within eight tiles of any of them, all together, and
 // walk on when it is down or gone. What happens is printed as it happens, for a playthrough's log.
 def play_fight(ids:[int]) -> bool:
-    if play_foe >= 0 and index_of(play_foe) >= 0: return true
+    if play_foe >= 0 and index_of(play_foe) >= 0:
+        if clock_uh - play_foe_uh < 3 * 1000000: return true
+        print "play: {leg_id} foe {play_foe} out of reach, left be at {int(clock_s)} s"
+        play_let_be.push(play_foe)
+    elif play_foe >= 0: print "play: {leg_id} foe {play_foe} down or gone at {int(clock_s)} s, men {men_alive()}"
     if play_foe >= 0:
-        print "play: {leg_id} foe {play_foe} down or gone at {int(clock_s)} s, men {men_alive()}"
         play_foe = -1
         tour_sent = ""  // (walk on)
     var best = -1
     var best_d = 8 * TILE * 8 * TILE
     for(u_x.length) j:
-        if u_owner[j] == 1 and t_hp[u_kind[j]] < 100000:
+        if u_owner[j] == 1 and t_hp[u_kind[j]] < 100000 and not is_horse(u_id[j]) and (find(play_let_be) f: f == u_id[j]) < 0:
             for(ids) id:
                 let i = index_of(id)
                 let d = dist2(u_x[i], u_y[i], u_x[j], u_y[j])
@@ -2084,6 +2096,7 @@ def play_fight(ids:[int]) -> bool:
                     best = j
     if best < 0: return false
     play_foe = u_id[best]
+    play_foe_uh = clock_uh
     play_fights++
     print "play: {leg_id} fire at {play_foe} ({if is_wolf(play_foe): "wolf" elif bear_of(play_foe) >= 0: "bear" else: "patrol"}) at {int(clock_s)} s, men {men_alive()}"
     guns_order(ids, play_foe)
@@ -2263,6 +2276,8 @@ bake_men(): waiting_frame()
 boot_part("men")
 bake_beast("wolf"): waiting_frame()
 bake_beast("bear"): waiting_frame()
+bake_beast("horse"): waiting_frame()
+bake_riders(): waiting_frame()
 boot_part("beasts")
 bake_trees(): waiting_frame()
 boot_part("trees")
@@ -2285,6 +2300,7 @@ with_wolves = arg_of("wolves") != ""
 with_bear = arg_of("bear") != ""
 needs_kept = has_s(args, "fresh")  // fresh: the men never get hungry, cold or tired (for a look)
 boot_part("data")
+run_seed = if arg_of("seed") != "": string_to_int(arg_of("seed")) else: 0  // seed:7: another run's chance meetings (docs/threats.md, riders)
 run_begin()
 boot_part("the first place")
 if arg_of("leg") != "": enter_leg(arg_of("leg"), if arg_of("by") != "": arg_of("by") else: "west")  // by:east: walked in by that gate

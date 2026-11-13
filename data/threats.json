@@ -20,6 +20,31 @@
    "attack": 9, "damage": "pierce", "bonus": {}, "armour": {}, "range": 6, "reload": 360, "sight": 10, "look": {}
   }
  },
+ "riders": {
+  "_doc": "The patrol rides (docs/threats.md, riders; Dominic 2026-11-13: \"Patrol have horses\"). From the leg 'from' a mounted patrol of 'men' follows the men home, 'start_h' hours behind. Each place has a brisk time (the leg's 'brisk_h', or this one): daylight the men spend there beyond it brings the riders that much nearer, and passing quicker puts them back, never further than start_h. Nights cost nothing. At no hours behind they ride in by the men's edge on their track. They get down to fight on foot when they see a man or come within dismount_tiles of where they go to look. Beaten (half down), the trail goes cold; met and got away from, they are close_h behind. unit: a rider (no gun while riding); horse: a horse standing, its rider down (never a target: its hp is past the mark's line).",
+  "from": "pass_home",
+  "men": 6,
+  "start_h": 36,
+  "close_h": 6,
+  "brisk_h": 6,
+  "dismount_tiles": 9,
+  "unit": {
+   "slot": "rider", "speed": 11, "radius": 300, "hp": 40, "pop": 0, "cost": {}, "train_time": 1, "tags": [], "age": 1,
+   "attack": 0, "damage": "pierce", "bonus": {}, "armour": {}, "range": 0, "reload": 360, "sight": 10, "look": {}
+  },
+  "horse": {
+   "slot": "horse", "speed": 4, "radius": 300, "hp": 200001, "pop": 0, "cost": {}, "train_time": 1, "tags": [], "age": 1,
+   "attack": 0, "damage": "pierce", "bonus": {}, "armour": {}, "range": 0, "reload": 360, "sight": 0, "look": {}
+  }
+ },
+ "meet": {
+  "_doc": "Chance meetings (docs/threats.md, riders): in a place not in 'never', 'chance' in a hundred that a patrol is already there, dismounted, by the run's seed (seed:<n>): camped off the trail, resting on it for rest_h hours (at least, at most) before riding on, or, where the map has ruins, guarding them (ruins_always: always that there). Never two places running, and not when the riders on the trail are close. men: how many, at least and at most.",
+  "chance": 25,
+  "never": [ "village_edge" ],
+  "men": [ 4, 6 ],
+  "rest_h": [ 1, 2 ],
+  "ruins_always": 1
+ },
  "wolves": {
   "_doc": "The wolves of the deep fir woods (#60). They follow the men at follow_tiles (winter's, bold, closer at follow_bold_tiles), are heard more than seen, and scatter scatter_tiles away from any shot they hear for scatter_s. At night winter's wolves rush a man who is more than alone_tiles from the next man, if one of them is within sight tiles of him (by smell: cover doesn't hide him), and draw off if he gets back within rejoined_tiles of the others. flee_after: this many down and the pack is gone. howl_s: how often one howls while they follow, at least and at most. The unit bites (melee): 10 a bite, a bite a second and a half.",
   "follow_tiles": 15,

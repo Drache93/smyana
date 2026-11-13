@@ -49,6 +49,39 @@ wear red, and long flintlocks of their own. They reload as slowly as the men do.
   (leg 8, D-076, D-077: they come up the ramp behind the men).
 - **Open (#62):** whether they take men prisoner. Until Dominic decides, they only kill.
 
+## Riders and chance meetings (Proposal, 2026-11-13)
+
+*From Dominic, 2026-11-13: "Patrol have horses. Need to think how it happens. Because they could just always be
+behind you and if you are too slow for a day or 2 they catch up and fight. Equally you might come across them
+somewhere camping or resting (dismounted) or guarding ruins. Real goal is random.encounters".* The patrol on foot
+(above) stays how they fight; what changes is how the men meet them.
+
+- **They ride.** A patrol rides at about twice the men's walk. When they see a man, or come up to where they heard a
+  shot, they get down, leave the horses standing with one man, and fight on foot as before. Riders who break off
+  ride away. A horse is never a target the men are told to shoot (the men shoot at what threatens them).
+- **On your trail.** From the high ridge, where the men are seen from the valley (D-084), a mounted patrol follows
+  them home. How far behind is kept in hours: they start a day and a half behind (36 hours). Every place has a
+  "brisk" time, how long men who keep going need to cross it. Time spent in a place beyond that brings the riders
+  that much nearer; passing it quicker puts them no further back than they started. Camping at night costs nothing
+  (the riders camp too). When the riders are no hours behind, they come in by the edge the men came in by, on the
+  men's track, and the fight is on. Beat them (half down: they ride off) and the trail goes cold: no more riders that
+  run. Get away from them (leave the place first) and they are close behind: six hours.
+- **Chance meetings.** In every place but the village, a patrol may be there already, dismounted, by a chance set
+  for the whole run (so a run can be played again the same):
+  - *Camped:* off the trail in a clearing, round a fire, horses tied near. Wary of nothing, so the men can go round
+    them in the trees; a shot, or a man seen close, and they are up.
+  - *Resting:* sitting by the trail for an hour or two, then they mount and ride on along it.
+  - *Guarding ruins:* standing about the Roman ruins, looking out. They don't leave.
+  The chance is about one place in four, never twice running, and never with the riders already on the trail in the
+  same place.
+- **What the player sees first:** horses, smoke, voices; the music turns "wary" when the men come within hearing.
+- **The pass (D-089)** becomes the riders' first catch-up when the men are slow; the set piece patrol there rides.
+- Numbers in `data/threats.json` ("riders", "meet").
+- **Built so far (2026-11-13, first pass):** riders on the trail from the ridge, catching up by hours and coming in
+  by the men's edge; beaten, the trail goes cold. Chance meetings camped, resting and at the ruins, with their horses
+  tied near. A patrol gets down to fight and up again to ride (`patrol_dismount`, `patrol_mount`). Not yet: the
+  camp's fire, the horses, smoke and voices heard first, the wary music, and the pass patrol riding.
+
 ## The wolves (next)
 
 A pack of five or six, in the deep fir woods.

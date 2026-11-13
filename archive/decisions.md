@@ -740,3 +740,12 @@ smaller to stay the same size. Two new Creel settings even out the shading: norm
 surface (`vx_smooth_normals` 2) and a pass softening each material's pixels (`vx_despeckle` 1), which keeps lines and
 seams sharp. Rejected: baking them at one art pixel a pixel (stash, Claude: crisp but blocky, the detail lost). The
 wolf and the bear are unchanged.
+
+**D-119, 2026-11-13: The patrol rides; the men meet it on their trail or by chance.** (From Dominic: "Patrol have
+horses... if you are too slow for a day or 2 they catch up and fight. Equally you might come across them somewhere
+camping or resting (dismounted) or guarding ruins. Real goal is random.encounters"; the rules, Claude, a first pass
+open to him, in `docs/threats.md`.) From the ridge, riders follow the men home, starting 36 hours behind. Every place
+has a brisk time, and daylight spent in it past that brings them nearer. When they are no hours behind, they ride in
+by the men's own edge. Beaten, the trail goes cold. In any place but the village edge, a patrol may already be there
+by a chance fixed for the run (`seed:<n>`): camped, resting, or guarding the ruins, on foot, horses tied near. Patrols
+get down off their horses to fight. The riders are baked like the men (D-118).
