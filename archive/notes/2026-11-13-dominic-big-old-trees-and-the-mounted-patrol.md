@@ -50,3 +50,9 @@ pictures."). Not kept here: they are stock photographs with their makers' marks,
 start.)
 
 > Sounds fair. Foraging and hunting needed yeh
+
+## 08:28 UTC
+
+(On the riders in PR 118.)
+
+> there legs are cutting through the horses

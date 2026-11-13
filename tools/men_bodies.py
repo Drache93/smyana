@@ -16,7 +16,7 @@ RIG = {
     "arms": {"shoulder": ["chest", 4.3, -0.2, 1.2], "bone": 6.7, "thick": 1.3, "sleeve": "skin", "hand": "skin"},
     "helm": {"at": ["head", 0, -0.3, 1.0], "r": 2.75},
     "armour": {"a": ["hip", 0, 0.1, 2.6], "b": ["chest", 0, 0, 0.4], "r": [2.7, 3.2]},
-    "seat": {"z": 21.5, "astride": ["white", "hair", "leather"]},
+    "seat": {"z": 21.5, "astride": ["white", "hair", "leather"], "legs": [9.0, 8.5]},
     "shapes": [],
     # palette indices as art/men/tools/men.py numbers them: 1 SKIN, 2 HAIR, 7 SASH, 8 BELT, 9 SILVER
     "mats": {"1": "skin", "2": "hair", "7": "team", "8": "leather", "9": "metal"},

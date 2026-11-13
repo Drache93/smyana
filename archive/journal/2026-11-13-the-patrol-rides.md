@@ -36,3 +36,11 @@ legs are white like their trousers on foot. I had thought of navy, but I have no
 - [15](../images/2026-11-13/15-a-patrol-met-guarding-the-ruins-horses-tied.jpg): a patrol met guarding the ruins,
   its horses tied by the wall.
 - [16](../images/2026-11-13/16-the-patrols-riders-four-looks-two-sides.png): the four riders, from two sides.
+
+## The riders' legs
+
+Dominic, 08:28 UTC: "there legs are cutting through the horses". Creel set the legs of a rider a fixed distance out,
+narrower than the horse's barrel, and too short, so the shins ran inside it. Now the shin hangs straight down at the
+horse's widest point along it, found from the horse's own shapes (Creel PR 33). A rider's seat sets its leg length;
+the men's are 9 and 8.5 body units, so their boots hang below the belly. [17](../images/2026-11-13/17-riders-legs-before-through-the-horse-above-after-down-its-sides-below.png):
+before above, after below.

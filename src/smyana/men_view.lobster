@@ -178,7 +178,7 @@ def beast_cycle(id:string) -> float: return cycles.get(id, man_cycle())
 // ---- the patrol's riders (docs/threats.md, riders): each patrolman's look on a horse (data/voxel/bodies/horse.json,
 // Creel's mount: he sits astride, his legs down its sides), its coat by his look. Baked as the men are: standing and
 // eight steps of the horse's walk, from eight sides, and the shadow. The horse alone is a beast (bake_beast).
-let RIDER_BAKE = "riders 2"
+let RIDER_BAKE = "riders 3"
 let RIDER_COATS = [ float3 { 0.45, 0.29, 0.18 }, float3 { 0.74, 0.72, 0.68 }, float3 { 0.55, 0.30, 0.15 }, float3 { 0.22, 0.16, 0.12 } ]
 let rider_defs = []::vx_unit_def
 
