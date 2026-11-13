@@ -19,6 +19,10 @@ Text messages in the project, verbatim. Times UTC. Written after playing the bui
 
 > but i love your men saying "i cant feel my hands" etc
 
+**14:26**, after reading the plan (`docs/off-the-path.md`):
+
+> thats much better. i feel potentially going off the beaten path there might be some other paths to the woods - again the bigger the path, more likely the patrols go there, or look there. They might decide to turn left and go down another path. So hiding down a path is less good
+
 ## What Claude took from it
 
 - The trail should be the dangerous, obvious way; the wood beside it is where the reasons are: cover from patrols,
@@ -27,3 +31,5 @@ Text messages in the project, verbatim. Times UTC. Written after playing the bui
 - No goal per place. One goal for the run: home with men, resources and knowledge.
 - Orders need a small piece of UI, not keys to learn. Keep the men's own lines ("I can't feel my hands").
   Plan in `docs/off-the-path.md`.
+- Side paths into the woods, big and small. Patrols take or look down the bigger ones more often, so hiding on a path
+  is worse than hiding in the trees.

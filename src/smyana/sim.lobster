@@ -49,6 +49,7 @@ import gen.modes
 import gen.start
 import gen.reset
 import smyana.route
+import smyana.paths
 import smyana.guns
 import smyana.threats
 import smyana.survival

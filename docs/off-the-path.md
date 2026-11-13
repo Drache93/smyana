@@ -24,6 +24,11 @@ and it is where you get caught.
   there, so stepping twenty tiles into the beeches when you hear horses is the thing to do.
 - **Hearing them first.** Hooves and voices are heard before the riders are seen (in the threats plan, not built), so
   the player has the moment to choose: off the trail, or hold and fight.
+- **Side paths (built, D-128; Dominic, 14:26: "the bigger the path, more likely the patrols go there, or look there").** Each
+  place has a few paths off the main trail into the wood, of different sizes: a cart track to a hut or a clearing, a
+  shepherd's path, a deer track. A patrol coming along may turn down one, more likely the bigger it is, or stop at its
+  mouth and look down it. So a path is easy walking but a poor place to hide; the trees between the paths are the
+  safe ground. The small paths lead to the finds below.
 - **Waiting them out.** A camp off the trail with a small fire is not seen from the trail by night; the men can sleep
   while a patrol rides by, and go on behind it. A camp on the trail is found.
 
@@ -31,7 +36,8 @@ and it is where you get caught.
 
 The wood beside the trail is where the reasons are. Nothing is a fixed goal; what is there differs by the run's seed.
 
-- **Game lives off the trail** (built near it today, D-122). Herds 15 to 35 tiles in, with **signs at the trail's
+- **Game lives off the trail** (built 2026-11-13: deer and boar at the side paths' clearings or eight to twenty
+  tiles off a path; the path's mouth names the signs). Herds 15 to 35 tiles in, with **signs at the trail's
   edge**: slots in the mud, a boar's rooting, droppings. The mouse names them ("Boar have been rooting here"), and the
   sign points the way the herd went.
 - **The good gathering is deeper in.** Small patches by the trail, the rich ones (a ring of mushrooms, a stand of
@@ -43,23 +49,23 @@ The wood beside the trail is where the reasons are. Nothing is a fixed goal; wha
 - **Danger is there too.** The bear's den and the wolves keep away from the trail, steep ground and fords are slow,
   and a man far off from the others is the one the wolves pick. Going in is a choice with a price.
 
-## Seeing the men in the wood (do more, not fewer trees)
+## Seeing the men in the wood (built, D-127)
 
 Thinning the woods by the trail would undo the dense woods asked for on 2026-11-12, and the trail is no longer the
 only place the men are. So the cut-away does more instead: the crowns and trunks near any man fade further and over a
 wider ring, and the men's ghost through the trees (D-120) is a little stronger. Wherever the men go, they show.
 
-## A little UI for orders
+## A little UI for orders (built, D-126)
 
 Keys to learn are out. When men are chosen, a small row of painted signs sits at the bottom of the screen, in the
 letter's hand, and nothing shows when no one is chosen (D-021 kept as far as it can be):
 
 | Sign | What it does |
 |---|---|
-| Fire | Make camp here; again to put the fire out or light it |
-| Packs | Put the packs down (a cache); on a pile, pick them up |
-| Hold | Stand and keep still (harder to see, game comes nearer) |
-| Food | Shows the bread left, in days, for the chosen men |
+| Make camp | Make camp here; in a camp, *Put the fire out* or *Light the fire* |
+| Put the packs down | Leave the packs here (a cache); right-click a pile to pick it up |
+| Halt | Stop where they stand |
+| *Bread for 4 days* | The bread left, in days a man, under the row |
 
 The keys stay as shortcuts for those who find them. The mouse words (built, D-121) already say what a right-click on
 a thing will do.
@@ -71,7 +77,8 @@ feel my hands."*
 ## Order to build
 
 1. The order signs, food in days, and a stronger see-through. They are small and answer "how do I make a fire".
-2. Patrols that keep to the trail and see far along it; cover counting for more in the wood; the men's lines.
+2. Side paths of different sizes; patrols that keep to the trail and the paths, turning down the bigger ones more
+   often and seeing far along them; cover counting for more in the wood; the men's lines.
 3. Game deeper in with signs at the edge; the rich gathering off the trail.
 4. Finds by seed (spring, hut, cache, a second piece of knowledge), after the sources; the tally and ending counting
    what is carried home.

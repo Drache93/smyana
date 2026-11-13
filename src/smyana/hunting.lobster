@@ -114,15 +114,18 @@ def hunt_enter(place:string):
             n -= gone
             missing -= gone
             if n <= 0: continue
-            // (a spot the men can walk to, five to twelve tiles off the trail, where men walking it may see them, and
-            // at least twenty tiles from where they came in)
+            // (a spot the men can walk to, off in the wood and at least twenty tiles from where they came in: the
+            // deer and the boar at the clearings the side paths lead to, the first herds, or eight to twenty tiles off
+            // a path; the chamois anywhere off the trail, on their rocks; docs/off-the-path.md)
             var hx = -1
             var hy = -1
+            let at_end = kind != "chamois" and n_herd < side_paths.length
             for(60) tries:
                 let hh = threat_hash(run_seed + herd * 7 + hk * 31, tries, leg_hash(place) + n_herd)
-                let c = if trail_cells.length: trail_cells[hh % trail_cells.length] else: hh % (W * H)
+                let ends = if at_end: side_paths[(n_herd + run_seed) % side_paths.length].cells else: []
+                let c = if at_end: ends[ends.length - 1] elif trail_cells.length: trail_cells[hh % trail_cells.length] else: hh % (W * H)
                 let a = float(hh / 7 % 360)
-                let r = float((5 + hh / 13 % 8) * TILE)
+                let r = float((if at_end: 1 + hh / 13 % 3 else: 8 + hh / 13 % 13) * TILE)
                 let x, y = reachable_near(reach, (c % W) * TILE + TILE / 2 + int(cos(a) * r), (c / W) * TILE + TILE / 2 + int(sin(a) * r))
                 if hx < 0 and dist2(x, y, mx, my) > sq(20 * TILE) and x > 3 * TILE and y > 3 * TILE and x < (W - 3) * TILE and y < (H - 3) * TILE:
                     hx = x

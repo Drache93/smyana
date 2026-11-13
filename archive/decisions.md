@@ -784,3 +784,25 @@ the spot as before. A short move is still a group's.
 place loads in about a second behind the letter; the letter itself held the screen twenty seconds. Now it is up for its
 reading time (at most twenty seconds), and "click to go on" shows as soon as the place is ready. The calm music's gap
 between tracks is 1 second instead of 90, until the music work.
+
+**D-125, 2026-11-13: One goal for the run, none per place.** (Dominic: "each place shouldnt have fixed goals. The goal
+is getting bak home with enough resources, knowledge and men to improve your village".) Supersedes the per-place goal
+lines proposed in `docs/clarity.md`. The goal is said once and counted at the homecoming.
+
+**D-126, 2026-11-13: A few words at the foot of the screen for orders, not keys to learn.** (Dominic: "teaching them to
+press C is pretty bad. This is where we need a minimal level of UI somehow"; Claude built it.) Narrows D-021: with men
+chosen, a row of words in the letter's hand (make camp or put the fire out, put the packs down, halt) and the bread
+left in days; nothing when no one is chosen. The keys still work. The men's own lines stay ("but i love your men
+saying \"i cant feel my hands\"").
+
+**D-127, 2026-11-13: The men are seen through the wood by a wider cut-away, not by thinning the trees.** (Dominic:
+"seeing through the tree we either do more, or reduce trees a tiny bit around the path"; Claude chose more, since the
+men are meant to leave the path and D-100's dense woods stand.) Crowns near a man clear over a wider ring, trunks thin
+further, and the men's ghost is stronger.
+
+**D-128, 2026-11-13: Side paths into the wood, and patrols that use them.** (Dominic: "there might be some other paths
+to the woods - again the bigger the path, more likely the patrols go there, or look there... So hiding down a path is
+less good"; Claude built it.) Each wooded place cuts a cart track, shepherd's paths and a deer track from the trail,
+each ending in a small clearing. A patrol on its road looks down each path it passes and sees a man on it at twice
+its sight; it turns down a cart track about half the time, a shepherd's path one time in five, a deer track one in
+twenty (`data/woods.json`). The plan for reasons to leave the trail: `docs/off-the-path.md`.

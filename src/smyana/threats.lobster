@@ -448,6 +448,16 @@ def patrol_think(p:Patrol):
             let fl = fires_lit()
             patrol_hear(p, 0, fl[f].x, fl[f].y)
             return
+        // (by a side path's mouth: they look down it, and may turn down it and back, docs/off-the-path.md)
+        if p.kind != "trail":
+            let seen, detour = patrol_by_path(alive[0], u_x[lead], u_y[lead], gint(pc, "sight", 10) * TILE)
+            if seen >= 0:
+                patrol_hear(p, 0, u_x[seen], u_y[seen])
+                return
+            if detour.length:
+                for(detour.length) n: p.road.insert(p.next * 2 + n, detour[n])
+                patrol_walk(p, p.road[p.next * 2], p.road[p.next * 2 + 1])
+                return
         if dist2(u_x[lead], u_y[lead], p.road[p.next * 2], p.road[p.next * 2 + 1]) < 2 * TILE * 2 * TILE:
             p.next++
             if p.next * 2 < p.road.length: patrol_walk(p, p.road[p.next * 2], p.road[p.next * 2 + 1])
