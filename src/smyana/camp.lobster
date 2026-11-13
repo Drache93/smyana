@@ -5,15 +5,16 @@
 // its palette's own colours, lit as the props are and baked once into the "camp" sheet with its shadow. The fire
 // itself is the game's own (D-038): the fireplace is its ring of stones, its logs and the tripod over it.
 //
-// Frames, each with its .shadow: tent0 (canvas), tent1 (rugs), fireplace, woodpile, horse0..7 and mule0..7. A horse or
+// Frames, each with its .shadow: tent0 (canvas), tent1 (rugs), fireplace, woodpile, hut (a shepherds' hut at a side
+// path's end, smyana/finds.lobster), horse0..7 and mule0..7. A horse or
 // mule n is the animal n % 4 facing one way (n < 4) or the other: they face the camera's right or its left.
 
-let CAMP_BAKE = "camp 3"
+let CAMP_BAKE = "camp 5"
 let CAMP_DIR = "../art/camp/vox"
 let CAMP_ANIMALS = 4
-let CAMP_THINGS = [ "tent0", "tent_canvas", "tent1", "tent_rugs", "fireplace", "fireplace", "woodpile", "woodpile" ]
+let CAMP_THINGS = [ "tent0", "tent_canvas", "tent1", "tent_rugs", "fireplace", "fireplace", "woodpile", "woodpile", "hut", "hut" ]
 // (how each is turned, in quarter turns: the rugs' striped slope comes down toward the camera)
-let CAMP_THING_TURNS = [ 0, 2, 0, 0 ]
+let CAMP_THING_TURNS = [ 0, 2, 0, 0, 2 ]
 let CAMP_HORSES = [ "horse_0_bay", "horse_1_grey", "horse_2_chestnut", "horse_3_dark" ]
 let CAMP_RIDERS = [ "rider_0_bay", "rider_1_grey", "rider_2_chestnut", "rider_3_dark" ]  // (rider0..7: a horseman up, for a patrol)
 let CAMP_BANNER = "rider_banner"                                                         // (riderbanner0..3: the patrol's standard-bearer, facing as rider0, 4, 8 and 12 do; D-084)

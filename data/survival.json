@@ -229,5 +229,38 @@
    "least_hours": 1,
    "reach_tiles": 2
   }
+ },
+ "finds": {
+  "_doc": "What lies off the trail by the run's seed (docs/off-the-path.md, Dominic 2026-11-13: 'The goal is getting bak home with enough resources, knowledge and men to improve your village'): up to 'per_place' finds a place, no two of a kind, each at the end of a side path whose clearing has no game at it, the kind picked by 'weight' among those the place's wood has ('woods'; none: any). A 'hut' is a shepherds' hut, empty after the flocks go down in late October (the Sarakatsani leave the mountains on St Demetrius' day, 26 October): dry-stacked stone, a slab roof, one door, a hearth in the middle (summer-pasture huts of the Balkan mountains, parksdinarides.org). A camp made at it has its fire inside, seen only 'seen_tiles' off, and the men asleep in it are 'warm' warmer, out of the wind. A 'cache' is food and goods another band put by under stones ('food' and 'goods': from, to), found only by going down the path. 'honey' is wild bees in a hollow old tree (a Rhodope village's legend of oaks and walnuts whose hollows wild bees lived in, BNR 2023; swarms settled in hollow trees, BNR on Bulgarian beekeeping): 'food' portions, and the bear smells it as it smells a cache. A cache and the honey are taken like a pile of packs; a patrol that sees one takes it.",
+  "per_place": 2,
+  "kinds": {
+   "hut": {
+    "weight": 3,
+    "seen_tiles": 4,
+    "warm": 18
+   },
+   "cache": {
+    "weight": 3,
+    "food": [
+     12,
+     22
+    ],
+    "goods": [
+     0,
+     2
+    ]
+   },
+   "honey": {
+    "weight": 2,
+    "food": [
+     6,
+     10
+    ],
+    "woods": [
+     "beech",
+     "oak"
+    ]
+   }
+  }
  }
 }

@@ -602,6 +602,10 @@ for(20):
 let heavy = load_pace(assert man_of(carriers[0]), index_of(carriers[0]))
 let light = load_pace(assert man_of(carriers[1]), index_of(carriers[1]))
 expect(heavy < light, "a full pack slows a man ({heavy} against {light})")
+// (what lies at the paths' ends, smyana/finds.lobster: set aside here, so the men's own pile is the only one)
+expect(piles.length + huts.length > 0, "the beech valley has finds at its paths\' ends ({piles.length + huts.length})")
+expect((find(piles) p: p.kind == PILE_HONEY) < 0 or place_wood() == "beech", "wild honey only in a wood that has it")
+piles = []
 let food_pk = fold(men, 0) a, m: a + m.food
 expect(packs_drop(carriers) and piles.length == 1, "the men drop their packs")
 let left = fold(men, 0) a, m: a + m.food

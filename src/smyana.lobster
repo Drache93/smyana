@@ -1173,7 +1173,8 @@ def draw_world(alpha:float):
     ghosts = []
     breaths = []
     fire_lits = []
-    if not fires_look: fires = map(fires_lit()) cp: gp(float(cp.x), float(cp.y))
+    // (a fire on a hut's hearth is inside it: not drawn)
+    if not fires_look: fires = map(filter(fires_lit()) cp: not cp.hut) cp: gp(float(cp.x), float(cp.y))
     collect_men(alpha)
     collect_props()
     collect_patches()
@@ -1198,6 +1199,12 @@ def draw_world(alpha:float):
         add(frame_at.get("fireplace.shadow", -1), p.x, p.y, -39997.0, float4_1)
         add(frame_at.get("fireplace", -1), p.x, p.y, p.y, float4_1, 1.0, 2)
         draws.push(Drawable { p.y + 0.05, draws.length, -5, float(i), 0.0, float4_1, 1.0, 3, 0.0, 0.0 })
+    // (the shepherds' huts at the side paths' ends, smyana/finds.lobster)
+    for(huts) c:
+        let p = gp(float((c % W) * TILE + TILE / 2), float((c / W) * TILE + TILE / 2))
+        if p.x > view_lo.x - 120.0 and p.x < view_hi.x + 120.0 and p.y > view_lo.y - 40.0 and p.y < view_hi.y + 200.0:
+            add(frame_at.get("hut.shadow", -1), p.x, p.y, -39997.0, float4_1)
+            add(frame_at.get("hut", -1), p.x, p.y, p.y, float4_1, 1.0, 2)
     // (a hill's near edge, drawn again over what stands down behind it: the ridge hides the valley's trees' feet)
     for(occluders) o, k: draws.push(Drawable { o.sort_y, draws.length, -2, float(k), 0.0, float4_1, 1.0, 3, 0.0, occluder_lift(k) })
     qsort_in_place(draws) a, b: a.y < b.y or (a.y == b.y and a.seq < b.seq)
@@ -1527,7 +1534,7 @@ def collect_patches():
     for(piles) pl:
         let p = gp(float(pl.x), float(pl.y))
         if p.x > view_lo.x and p.x < view_hi.x and p.y > view_lo.y and p.y < view_hi.y:
-            draws.push(Drawable { p.y + 1.0, draws.length, -8, p.x, p.y, float4 { -1.0, float(pl.food + pl.goods), 0.0, 0.0 }, 1.0, 3, 0.0, 0.0 })
+            draws.push(Drawable { p.y + 1.0, draws.length, -8, p.x, p.y, float4 { -1.0 - float(pl.kind), float(pl.food + pl.goods), 0.0, 0.0 }, 1.0, 3, 0.0, 0.0 })
     let finds = forage_finds()
     for(patch_cells) c:
         let k = patch_at(c)
@@ -1546,6 +1553,24 @@ def draw_patch(x:float, y:float, look:int, cell:int):
     def spot(n:int) -> float2: return float2 { float(cell_hash(cell * 7 + n) % 29) - 14.0, float(cell_hash(cell * 13 + n) % 13) - 6.0 }
     let leaf = float4 { 0.22, 0.36, 0.17, 1.0 }
     let shade = float4 { 0.08, 0.06, 0.04, 0.6 }
+    if look == -2:  // another band's cache: a low heap of flat stones, a sack's corner showing under them
+        for(9) n:
+            let o = float2 { float(n % 3) * 4.0 - 4.0 + float(n / 3 % 2), float(n / 3) * -2.0 }
+            px(o.x - 2.0, o.y + 1.0, 5.0, 1.0, shade)
+            px(o.x - 2.0, o.y - 2.0, 4.0, 3.0, [ float4 { 0.55, 0.53, 0.5, 1.0 }, float4 { 0.47, 0.45, 0.42, 1.0 }, float4 { 0.62, 0.6, 0.56, 1.0 } ][n % 3])
+            px(o.x - 2.0, o.y - 2.0, 4.0, 1.0, float4 { 0.7, 0.68, 0.64, 1.0 })
+        px(3.0, -1.0, 3.0, 2.0, float4 { 0.55, 0.45, 0.32, 1.0 })
+        return
+    if look == -3:  // wild bees' honey: the dark mouth of a hollow at an old tree's foot, pale comb in it, a few bees
+        px(-4.0, -9.0, 7.0, 9.0, float4 { 0.12, 0.09, 0.07, 1.0 })
+        px(-3.0, -7.0, 2.0, 5.0, float4 { 0.86, 0.66, 0.24, 1.0 })
+        px(0.0, -6.0, 2.0, 4.0, float4 { 0.78, 0.56, 0.18, 1.0 })
+        if season_now() != "winter":
+            let t = gl.time()
+            for(4) n:
+                let a = t * (2.0 + float(n) * 0.7) + float(n) * 1.7
+                px(floor(cos(a) * 7.0) - 1.0, floor(sin(a * 1.3) * 4.0) - 12.0, 1.0, 1.0, float4 { 0.18, 0.14, 0.06, 1.0 })
+        return
     if look < 0:  // a pile of packs: tied sacks and a bundle, more of them the more there is (cell: how much)
         for(clamp(cell / 6 + 1, 1, 6)) n:
             let o = float2 { float(n % 3) * 5.0 - 5.0, float(n / 3) * -3.0 }
@@ -2048,7 +2073,14 @@ def hover_words() -> string, string:
     if carcass >= 0: return carcass_name(carcass), if chosen: "butcher it for meat" else: ""
     let mc = clamp(int(mm.y / 1000.0), 0, H - 1) * W + clamp(int(mm.x / 1000.0), 0, W - 1)
     if at_ruin(mc): return "Roman ruins", if chosen: "study how they drained the road" else: ""
-    if pile_near(int(mm.x), int(mm.y)) >= 0: return "Your packs", if chosen: "pick them up" else: ""
+    let pn = pile_near(int(mm.x), int(mm.y))
+    if pn >= 0:
+        let kind = piles[pn].kind
+        if kind == PILE_CACHE: return "Someone\'s cache under the stones", if chosen: "take it" else: ""
+        if kind == PILE_HONEY: return "Wild bees in a hollow tree", if chosen: "take the honey" else: ""
+        return "Your packs", if chosen: "pick them up" else: ""
+    let hn = hut_near(int(mm.x), int(mm.y), 1)
+    if hn >= 0: return "A shepherds\' hut, empty", if chosen: "make camp in it: a fire inside is not seen" else: ""
     let pc = patch_under(mm)
     if pc >= 0: return capital(gstr(forage_finds()[patch_at(pc)], "id", "")), if chosen: "gather" else: ""
     // (a side path: what it is, and the signs of game at its end, docs/off-the-path.md)
@@ -2058,7 +2090,7 @@ def hover_words() -> string, string:
         let name = [ "A deer track", "A shepherd\'s path", "A cart track" ][sp.size]
         let end = sp.cells[sp.cells.length - 1]
         let near = find(game) g: g.state != G_DEAD and index_of(g.id) >= 0 and dist2(u_x[index_of(g.id)], u_y[index_of(g.id)], (end % W) * TILE, (end / W) * TILE) < sq(8 * TILE)
-        let signs = if near < 0: "" elif game[near].kind == "boar": ": the ground rooted up, boar" elif game[near].kind == "roe": ": fresh slots, roe deer" else: ": fresh tracks"
+        let signs = if near < 0: find_signs(end) elif game[near].kind == "boar": ": the ground rooted up, boar" elif game[near].kind == "roe": ": fresh slots, roe deer" else: ": fresh tracks"
         return name + signs, if chosen: "follow it into the wood" else: ""
     let yt = young_tree_at(mm)
     if yt >= 0: return (if terrain[yt] == str_index(tr_names, "rubble"): "Fallen rock" else: "Young tree"), if chosen: (if terrain[yt] == str_index(tr_names, "rubble"): "dig it away" else: "fell it for firewood") else: ""
@@ -2276,6 +2308,7 @@ def order_tick():
     let ids = filter(selected) id: index_of(id) >= 0
     if not ids.length: return
     march_off(ids)
+    hut_goal = -1  // (a new order: not on their way to a hut any more)
     let mm = mouse_milli()
     let foe = unit_at_screen(mouse_px())
     if foe >= 0 and not man_of(u_id[foe]):
@@ -2293,6 +2326,11 @@ def order_tick():
     let carcass = carcass_near(int(mm.x), int(mm.y))
     if carcass >= 0 and butcher_order(ids, carcass):
         mark_at = gp(float(carcasses[carcass].x), float(carcasses[carcass].y))
+        mark_t = gl.time()
+        return
+    // (a shepherds' hut under the mouse: make camp in it, smyana/finds.lobster)
+    if hut_order(ids, hut_near(int(mm.x), int(mm.y), 1)):
+        mark_at = gp(mm.x, mm.y)
         mark_t = gl.time()
         return
     // (a pile of packs under the mouse: pick it up)
@@ -2447,6 +2485,7 @@ var play_scout_y = 0
 def outbound() -> bool: return leg_id.length > 4 and substring(leg_id, leg_id.length - 4, 4) == "_out"
 
 var play_fetch_leg = ""
+var play_fetched = []::Pile                // (the piles it has gone for in this place)
 var play_held = ""                         // (the leg they stopped in for the evening)                    // (the leg its caches were fetched in)
 let play_tried = dictionary<int, int>(64)  // patches already sent to in this place (one that can't be reached is left)
 var play_tried_leg = ""
@@ -2468,7 +2507,9 @@ def play_food_order(ids:[int]) -> bool:
     let food = sum(map(alive) m: m.food)
     let room = sum(map(alive) m: pack_room(m))
     if play_busy != "":
-        if (butchers.length or foragers.length or fetchers.length) and clock_uh - play_busy_uh < 2 * 1000000: return true
+        if (butchers.length or foragers.length) and clock_uh - play_busy_uh < 2 * 1000000: return true
+        // (a cache or the honey can be far down a path: six hours to walk there, a playthrough found two hours too few)
+        if fetchers.length and clock_uh - play_busy_uh < 6 * 1000000: return true
         // (scouts on their way down a path: till one is there, or four hours; then what they see is hunted)
         if play_scouts.length and clock_uh - play_busy_uh < 4 * 1000000 and not (exists(play_scouts) id: index_of(id) >= 0 and dist2(u_x[index_of(id)], u_y[index_of(id)], play_scout_x, play_scout_y) < sq(3 * TILE)): return true
         // (there, and nothing in sight: they stalk on to seven tiles from the nearest of it, once, slowly)
@@ -2501,13 +2542,18 @@ def play_food_order(ids:[int]) -> bool:
             play_busy = "butchering a {carcasses[ck].kind}"
             play_busy_uh = clock_uh
             return true
-    // (on the way home: their caches here, first, docs/design.md: "Pick up the caches left on the way out")
-    if not outbound() and play_fetch_leg != leg_id and piles.length and room > 0:
+    // (on the way home: their caches here, first, docs/design.md: "Pick up the caches left on the way out"; and what
+    // lies at the paths' ends, a cache someone else left, wild honey, as a player who went down the paths would)
+    if play_fetch_leg != leg_id:
         play_fetch_leg = leg_id
-        let pk = find(piles) p: p.food > 0
+        play_fetched = []
+    if not outbound() and room > 0:
+        // (twice at most: a fight on the way can take them off it)
+        let pk = find(piles) p: p.food > 0 and (filter(play_fetched) q: q == p).length < 2
         if pk >= 0:
+            play_fetched.push(piles[pk])
             packs_fetch(ids, pk)
-            play_busy = "fetching the cache ({piles[pk].food} portions)"
+            play_busy = "fetching {[ "the cache", "someone\'s cache", "the honey" ][piles[pk].kind]} ({piles[pk].food} portions)"
             play_busy_uh = clock_uh
             print "play: {leg_id} {play_busy} at {int(clock_s)} s"
             return true
@@ -2597,9 +2643,19 @@ def play_food_order(ids:[int]) -> bool:
 
 var tour_still = 0  // the tick the men were last seen moving (script:tour, script:play)
 
+// Whether the men's middle is more than a short walk (twenty-five tiles) from the gate they leave by.
+def gate_far(ids:[int]) -> bool:
+    let exits = gobj(leg_now(), "exits")
+    if not exits.keys.length: return true
+    let r = gate_rects[gate_index(exits.keys[0])]
+    let cx = sum(map(ids) id: u_x[index_of(id)]) / ids.length / TILE
+    let cy = sum(map(ids) id: u_y[index_of(id)]) / ids.length / TILE
+    return sq(cx - (r[0] + r[2]) / 2) + sq(cy - (r[1] + r[3]) / 2) > sq(25)
+
 def tour_tick():
     if (script != "tour" and script != "play") or run_over() or play_stuck: return
-    let ids = map(filter(men) m: m.alive) m: m.uid
+    // (alive and still on the map: a man killed this tick is gone from it before his record says so)
+    let ids = filter(map(filter(men) m: m.alive) m: m.uid) id: index_of(id) >= 0
     if not ids.length: return
     if not gates_armed: return
     if script == "play":
@@ -2630,11 +2686,19 @@ def tour_tick():
             return
         // (late in the day they stop where they are and wait for the evening, rather than walk on into the next place in
         // the dark and miss the meal and the sleep: a playthrough found them walking every night)
-        if hour_now() >= 16.0 and not play_camped:
+        // (not when the gate is near: they walk on into the next place and camp there, rather than lose the evening)
+        if hour_now() >= 16.0 and not play_camped and (play_held == leg_id or gate_far(ids)):
             if play_held != leg_id:
                 play_held = leg_id
                 march_off(ids)
-                issue_cmd(0, CMD_STOP, ids, 0, 0, 0, 0)
+                // (on the cold way home, a shepherds' hut within reach: the night in it, its fire unseen)
+                let cx = sum(map(ids) id: u_x[index_of(id)]) / ids.length
+                let cy = sum(map(ids) id: u_y[index_of(id)]) / ids.length
+                let hut = if outbound(): -1 else: hut_near(cx, cy, 30)
+                if hut >= 0:
+                    hut_order(ids, hut)
+                    print "play: {leg_id} to the shepherds\' hut for the night at {int(clock_s)} s"
+                else: issue_cmd(0, CMD_STOP, ids, 0, 0, 0, 0)
             return
         play_held = ""
         if play_camped:

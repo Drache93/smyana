@@ -403,6 +403,7 @@ def run_begin():
     forage_begin()
     hunt_begin()
     packs_begin()
+    finds_begin()
     knowledge_begin()
     trail_begin()
     enter_leg(gstr(route, "start", ""), gstr(route, "start_edge", "west"))
@@ -499,6 +500,8 @@ def enter_leg(id:string, edge:string):
         bear_spawn(ba[0], ba[1])
     // (the game that lives here, set down about the place: smyana/hunting.lobster)
     hunt_enter(place)
+    // (what lies at the ends of the side paths: a hut, a cache, wild honey; smyana/finds.lobster)
+    finds_enter(place)
     // (riders on the trail, and a chance meeting: docs/threats.md, riders)
     trail_enter()
     meet_roll()
@@ -614,18 +617,24 @@ def route_tick() -> string:
     hunt_tick()
     packs_tick()
     knowledge_tick()
+    finds_tick()
     // (the weather's pace on the men, and the water's on a man in a ford, and his needs')
     let pace = weather_pace()
+    // (on the trail the snow is trodden down, by the riders too: it takes only trail_snow hundredths of what it
+    // takes in the wood, so the trail is the quick way in winter, and the seen one)
+    let trail_pace = 100 - (100 - pace) * gint(gobj(route, "weather"), "trail_snow", 35) / 100
+    let trail_t = str_index(tr_names, "trail")
     let ford = str_index(tr_names, "ford")
     for(men) m:
         if m.alive:
             let i = index_of(m.uid)
             if i >= 0:
-                let wading = terrain[cell_of(u_x[i], u_y[i])] == ford
+                let ground = terrain[cell_of(u_x[i], u_y[i])]
+                let wading = ground == ford
                 // (all the shares at once, rounded once: at a march's slow pace, cut a share at a time, a loaded man
                 // in the snow came down to a crawl, D-109; and never under half his pace: hurt, hungry, loaded and in
                 // the snow, a man still walks)
-                let share = float(pace) * float(if wading: wade_pace(u_carry[i] > 0) else: 100) * float(wound_pace(i)) * float(needs_pace(m)) * float(load_pace(m, i)) / 10000000000.0
+                let share = float(if ground == trail_t: trail_pace else: pace) * float(if wading: wade_pace(u_carry[i] > 0) else: 100) * float(wound_pace(i)) * float(needs_pace(m)) * float(load_pace(m, i)) / 10000000000.0
                 u_speed[i] = max(1, int(float(t_speed[u_kind[i]]) * max(share, 0.5) + 0.5))
     let inside = map(gate_names): 0
     var alive = 0

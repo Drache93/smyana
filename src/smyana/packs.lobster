@@ -10,6 +10,7 @@ class Pile:
     y:int
     food:int
     goods:int
+    kind:int = 0  // 0 the men's own packs; a find (smyana/finds.lobster): PILE_CACHE, PILE_HONEY
 
 var piles = []::Pile
 let pile_memory = dictionary<string, [Pile]>(17)  // each place's piles while the men are away: its caches
@@ -71,6 +72,7 @@ def pile_near(x:int, y:int) -> int:
 class Fetch:
     id:int
     pile:Pile
+    since:int = 0  // the tick he was sent (his order reaches him a tick or two later)
 
 var fetchers = []::Fetch
 
@@ -79,7 +81,7 @@ def packs_fetch(ids:[int], k:int):
     fetchers = filter(fetchers) f: (find(ids) id: id == f.id) < 0
     for(ids) id, n:
         if man_of(id):
-            fetchers.push(Fetch { id, p })
+            fetchers.push(Fetch { id, p, since: tick })
             issue_cmd(0, CMD_MOVE, [ id ], p.x + (n % 3 - 1) * 400, p.y + (n / 3 % 3 - 1) * 400, 0, 0)
 
 // A man's pack where he fell (threats_on_death).
@@ -95,7 +97,7 @@ def packs_tick():
         let i = index_of(f.id)
         let m = man_of(f.id)
         if i < 0 or not m or (find(piles) p: p == f.pile) < 0: false
-        elif dist2(u_x[i], u_y[i], f.pile.x, f.pile.y) > r * r: u_moving[i] == 1 or dist2(u_tx[i], u_ty[i], f.pile.x, f.pile.y) <= r * r
+        elif dist2(u_x[i], u_y[i], f.pile.x, f.pile.y) > r * r: tick <= f.since + TICK_HZ or u_moving[i] == 1 or dist2(u_tx[i], u_ty[i], f.pile.x, f.pile.y) <= r * r
         else:
             let tf = min(f.pile.food, pack_room(m))
             m.food += tf

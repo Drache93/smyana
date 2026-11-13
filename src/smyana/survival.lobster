@@ -14,6 +14,7 @@ class Camp:
     lit_at:int = 0        // the tick the fire catches (it is being laid till then)
     empty_since:int = -1  // the tick the last man walked off from it (-1: men in it)
     meal_day:int = -1     // the evening it last fed the men
+    hut:bool = false      // made at a shepherds' hut: the fire on its hearth, inside (smyana/finds.lobster)
 
 var survival_cfg = jobj()
 var sv_camps = []::Camp
@@ -152,12 +153,14 @@ def camp_order(ids:[int]) -> bool:
         let i = index_of(id)
         cx += u_x[i] / here.length
         cy += u_y[i] / here.length
-    // (on the most open ground near them, where the men can lie round it)
-    let best = open_spot(cell_of(cx, cy))
+    // (at a hut near them: on its hearth, inside; else on the most open ground near them, where the men can lie
+    // round it)
+    let hut = hut_near(cx, cy, gint(c, "in_tiles", 5))
+    let best = if hut >= 0: hut else: open_spot(cell_of(cx, cy))
     cx = (best % W) * TILE + TILE / 2
     cy = (best / W) * TILE + TILE / 2
     sv_camps = filter(sv_camps) cp: cp.lit
-    let cp = Camp { cx, cy }
+    let cp = Camp { cx, cy, hut: hut >= 0 }
     sv_camps.push(cp)
     camp_light(cp, here)
     // each man to his place in a ring round the fire
@@ -258,8 +261,10 @@ def survival_tick():
         sv_hp.set(m.uid, u_hp[i])
         let sleeps = k >= 0 and night and u_moving[i] == 0 and u_task[i] != GATHER and u_task[i] != BUILD and tick >= woken_until and u_hp[i] >= was_hp and u_foe[i] == 0
         asleep.set(m.uid, if sleeps: 1 else: 0)
-        // the meal: at the first camp of the evening, one portion each, hot at a lit fire
-        if eating and ate_on.get(m.uid, -1) < ev and k >= 0 and sv_camps[k].lit_at <= tick:
+        // the meal: at the first camp of the evening, one portion each, hot at a lit fire; cold after midnight if the
+        // fire has still not caught (with no wood carried it is slow to lay, and the night's hours run fast: a
+        // playthrough found men camped at ten in the evening who never ate)
+        if eating and ate_on.get(m.uid, -1) < ev and k >= 0 and (sv_camps[k].lit_at <= tick or hour_now() < 12.0):
             ate = true
             ate_on.set(m.uid, ev)
             let hot = fire_burning(sv_camps[k])
@@ -280,6 +285,7 @@ def survival_tick():
         let fire = fire_near(i)
         if fire >= 0: to += gint(wm, "fire", 70)
         if sleeps and k >= 0: to += gint(wm, "huddle", 12)
+        if sleeps and k >= 0 and sv_camps[k].hut: to += gint(find_kind_cfg("hut"), "warm", 18)
         if terrain[cell_of(u_x[i], u_y[i])] == ford: to -= gint(wm, "wading", 40) * ford_cold() / 100
         let target = clamp(to, 0, 100) * 1000
         let rate = if m.warm > target: gint(wm, "fall", 18) elif fire >= 0: gint(wm, "fire_rise", 80) else: gint(wm, "rise", 30)
@@ -339,7 +345,9 @@ def survival_walk(hours:int):
 def fire_seen_from(x:int, y:int) -> int:
     let fs = sv_cfg("fire_seen")
     let r = gint(fs, if is_night(): "night_tiles" else: "day_tiles", 18) * TILE * sight_pct() / 100
-    return find(fires_lit()) cp: dist2(x, y, cp.x, cp.y) <= r * r
+    // (a fire on a hut's hearth: a glow at its door and smoke through its roof, from close by only)
+    let rh = gint(find_kind_cfg("hut"), "seen_tiles", 4) * TILE
+    return find(fires_lit()) cp: dist2(x, y, cp.x, cp.y) <= sq(if cp.hut: rh else: r)
 
 // How far wolves keep off any lit fire, sim units (0: no fire).
 def fire_keeps_off(x:int, y:int) -> bool:
