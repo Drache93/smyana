@@ -273,7 +273,7 @@ def beech(height, girth, bole, spread, limbs, seed, cling=0.4, skirt=0.0, split=
     r0 = girth * MAN / 2
     S = spread * MAN
     cx = cy = N / 2
-    zb = H * max(0.12, bole * 0.55)          # the crown's foot: its lowest limbs' leaves
+    zb = H * (0.44 if veteran else max(0.12, bole * 0.55))   # the crown's foot (a giant's high, over its great limbs)
     zw = zb + (H - zb) * 0.42               # where it is widest
     lo_ax, hi_ax = zw - zb, H - zw
 
@@ -310,9 +310,11 @@ def beech(height, girth, bole, spread, limbs, seed, cling=0.4, skirt=0.0, split=
         turn = rng.uniform(0, 6.28)
         for k in range(split):
             a = turn + 2 * math.pi * (k + rng.uniform(-0.12, 0.12)) / split
-            lean = S * rng.uniform(0.25, 0.4)
-            # (a great limb: up and out, then up again, a little crooked, as on the old Balkan beeches)
-            mid = low + np.array([math.cos(a) * lean * 0.7, math.sin(a) * lean * 0.7, (H - low[2]) * 0.3])
+            lean = S * (rng.uniform(0.4, 0.55) if veteran else rng.uniform(0.25, 0.4))
+            # (a great limb: up and out, then up again, a little crooked, as on the old Balkan beeches; a giant's
+            # crooked and kinked)
+            kink = rng.uniform(-0.35, 0.35) if veteran else 0.0
+            mid = low + np.array([math.cos(a + kink) * lean * 0.8, math.sin(a + kink) * lean * 0.8, (H - low[2]) * 0.3])
             top_k = np.array([cx + math.cos(a) * lean, cy + math.sin(a) * lean, H * rng.uniform(0.82, 0.92)])
             rk = r0 * (0.72 if split == 2 else 0.62)
             m.capsule(low, mid, rk, rk * 0.85, BARK)
@@ -418,7 +420,7 @@ def beech(height, girth, bole, spread, limbs, seed, cling=0.4, skirt=0.0, split=
             if dist[j] > S * 0.3: continue                   # (no branch near: a gap the sky shows through)
             if dist[j] > 2.5 * F: m.capsule(w[j], p, 0.5 * F, 0.42 * F, BARK)
             plate(m, p, rng.uniform(2.2, 3.6) * F, rng, rng.random() < cling, n=7)
-    if skirt > 0:
+    if skirt > 0 and not veteran:
         # leafy shoots up the trunk below the crown (D-112), short, as the photos have on the lower bole
         for stem in stems[:1]:
             z0, z1 = H * skirt, zb
@@ -632,13 +634,115 @@ def build(tag, kind, name, dims, seed):
     tag_now = tag
     h, g, b, s, n = VETERANS.get(tag, dims)
     m = make(kind, name, h, g, b, s, n, seed)
-    if tag in VETERANS and kind != "beech":
-        # (a giant's foot: its buttresses, and burrs and old wounds up its bole)
+    if tag in VETERANS:
         rng = random.Random(seed + 7)
         r0 = g * MAN / 2
-        buttresses(m, N / 2, N / 2, r0, rng, 6)
-        burrs(m, N / 2, N / 2, r0, h * MAN * 0.3, rng)
+        if kind != "beech":
+            # (a giant's foot: its buttresses, and burrs and old wounds up its bole)
+            buttresses(m, N / 2, N / 2, r0, rng, 6)
+            burrs(m, N / 2, N / 2, r0, h * MAN * 0.3, rng)
+        character(m, kind, h, g, b, s, seed, rng)
     return m
+
+
+# What an old giant has lived through (Dominic, 2026-11-13: "a little more character with old ones than just bigger...
+# They've survived a lot. They've maybe survived a lightning strike or two"). From the Woodland Trust's "What are
+# ancient trees?": a hollowing trunk with openings to the outside and holes where limbs broke away; a crown "growing
+# downwards", dead antler-like limbs standing out of it (stag-headed); in conifers a top flattened by storm or lightning
+# "with many new stems"; dead broken lower branches kept on the trunk. And from Alabama Extension on lightning: bark
+# "blown out along a narrow strip" that can "spiral down the trunk", a trunk split, the crown blown out.
+CHARACTER = {
+    "beech": ("strike", "hollow", "snags"),
+    "oak": ("hollow", "strike", "snags"),
+    "fir": ("broken", "strike"),
+    "spruce": ("broken", "hollow"),
+    "pine": ("strike", "snags", "hollow"),
+    "bpine": ("snags", "hollow"),
+}
+WOOD, DARK = 1, 4   # bare wood where the bark is gone (palette 1, the lightest), and the dark of a hollow or a wound
+
+
+def strike(m, kind, H, r0, a0, rng):
+    """one lightning scar down the trunk, from `H`'s top of the bole"""
+    cx = cy = N / 2
+    top = int(H * (0.55 if kind in ("fir", "spruce") else 0.45))
+    twist = rng.choice((-1, 1)) * 2 * math.pi * rng.uniform(0.4, 0.7) / max(1, top)
+    x0, x1 = int(cx - r0 * 2.5), int(cx + r0 * 2.5) + 1
+    sub = m.v[x0:x1, x0:x1, :top]
+    xs, ys, zs = np.nonzero((sub > 0) & (sub < 10))
+    ang = np.arctan2(ys + x0 + 0.5 - cy, xs + x0 + 0.5 - cx)
+    d = (ang - (a0 + zs * twist) + np.pi) % (2 * np.pi) - np.pi
+    half = 0.42 * (0.5 + 0.5 * zs / top)   # (narrowing to the ground)
+    sub[xs[np.abs(d) < half], ys[np.abs(d) < half], zs[np.abs(d) < half]] = WOOD
+    edge = (np.abs(d) >= half) & (np.abs(d) < half + 0.1)
+    sub[xs[edge], ys[edge], zs[edge]] = DARK
+
+
+def character(m, kind, h, g, b, s, seed, rng):
+    H = h * MAN
+    r0 = g * MAN / 2
+    cx = cy = N / 2
+    for what in CHARACTER.get(kind, ()):
+        if what == "strike":
+            # a lightning scar: a strip of bare wood an eighth of the trunk round, spiralling down it from high on the
+            # bole to the ground, its edges dark; struck twice ("a lightning strike or two"), on both sides
+            a0 = rng.uniform(0, 2 * math.pi)
+            strike(m, kind, H, r0, a0, rng)
+            strike(m, kind, H * 0.8, r0, a0 + math.pi + rng.uniform(-0.6, 0.6), rng)
+        elif what == "hollow":
+            # a hollow at the foot, open to one side: dark inside, its lips rolled
+            a = rng.uniform(0, 2 * math.pi)
+            c = np.array([cx + math.cos(a) * r0 * 0.7, cy + math.sin(a) * r0 * 0.7, r0 * 2.0])
+            rr = np.array([r0 * 0.7, r0 * 0.7, r0 * 2.2])
+            lo = np.maximum(np.floor(c - rr * 1.4).astype(int), 0)
+            hi = np.minimum(np.ceil(c + rr * 1.4).astype(int) + 1, N)
+            gr = np.stack(np.meshgrid(*[np.arange(lo[i], hi[i]) + 0.5 for i in range(3)], indexing="ij"), -1)
+            q = np.linalg.norm((gr - c) / rr, axis=-1)
+            sub = m.v[lo[0]:hi[0], lo[1]:hi[1], lo[2]:hi[2]]
+            wood = (sub > 0) & (sub < 10)
+            sub[(q < 1.0) & wood] = 0
+            sub[(q >= 1.0) & (q < 1.35) & wood] = DARK
+            # (and a hole higher up, where a limb broke away)
+            z = rng.uniform(0.25, 0.4) * H
+            c2 = np.array([cx + math.cos(a + 2.2) * r0 * 0.9, cy + math.sin(a + 2.2) * r0 * 0.9, z])
+            m.capsule(c2, c2 + [0, 0, r0 * 0.4], r0 * 0.3, r0 * 0.25, DARK, over=False)
+            x, y, zz = np.round(c2).astype(int)
+            m.v[x - 1:x + 2, y - 1:y + 2, zz - 1:zz + 3] = np.where(m.v[x - 1:x + 2, y - 1:y + 2, zz - 1:zz + 3] > 0, DARK, 0)
+        elif what == "snags":
+            # dead limbs standing out of the top of the crown, bare and grey, antler-like
+            for k in range(rng.randint(2, 4)):
+                a = rng.uniform(0, 2 * math.pi)
+                out = s * MAN * rng.uniform(0.15, 0.55)
+                start = np.array([cx + math.cos(a) * out * 0.5, cy + math.sin(a) * out * 0.5, H * rng.uniform(0.72, 0.85)])
+                end = np.array([cx + math.cos(a) * out, cy + math.sin(a) * out, H * rng.uniform(1.0, 1.1)])
+                m.capsule(start, end, 1.3 * F, 0.6 * F, 3, over=True)
+                for j in range(2):
+                    t = start + (end - start) * rng.uniform(0.4, 0.8)
+                    b2 = a + rng.uniform(-1.2, 1.2)
+                    m.capsule(t, t + np.array([math.cos(b2), math.sin(b2), 0.9]) * rng.uniform(3, 6) * F, 0.7 * F, 0.45 * F, 3, over=True)
+        elif what == "broken":
+            # the top snapped by storm or lightning: a jagged dead stub, and new tops grown up round it from the
+            # highest whorls left ("flattening and broadening of the crown... with many new stems")
+            zc = int(H * 0.66)
+            m.v[:, :, zc:] = 0
+            m.capsule((cx, cy, zc - 6 * F), (cx + 1.5 * F, cy, zc + 6 * F), r0 * 0.35, 0.8 * F, 3, over=True)
+            m.capsule((cx + 1.5 * F, cy, zc + 6 * F), (cx + 0.5 * F, cy + 1.0 * F, zc + 9 * F), 0.9 * F, 0.5 * F, 3, over=True)
+            maker = spruce if kind == "spruce" else fir
+            for k in range(3):
+                a = rng.uniform(0, 2 * math.pi) if k == 0 else a + 2 * math.pi / 3 + rng.uniform(-0.4, 0.4)
+                sub_h = h * rng.uniform(0.2, 0.3)
+                sm = maker(sub_h, g * 0.3, 0.05, s * 0.32, seed * 13 + k)
+                base = np.array([cx + math.cos(a) * s * MAN * 0.42, cy + math.sin(a) * s * MAN * 0.42, H * rng.uniform(0.5, 0.58)])
+                # (its stem bends up out of the whorl)
+                m.capsule((cx, cy, base[2] - 4 * F), base, r0 * 0.25, r0 * 0.18, BARK, over=True)
+                xs, ys, zs = np.nonzero(sm.v)
+                tx = xs - N // 2 + int(base[0])
+                ty = ys - N // 2 + int(base[1])
+                tz = zs + int(base[2])
+                ok = (tx >= 0) & (ty >= 0) & (tz >= 0) & (tx < N) & (ty < N) & (tz < N)
+                tx, ty, tz, vals = tx[ok], ty[ok], tz[ok], sm.v[xs[ok], ys[ok], zs[ok]]
+                free = m.v[tx, ty, tz] == 0
+                m.v[tx[free], ty[free], tz[free]] = vals[free]
 
 
 def main(only=None):

@@ -63,3 +63,26 @@ again.
 - `04`, `05`: the beech valley in autumn and in summer.
 - `06`, `07`: the beech models before and after, side on.
 - `08`: each kind's old tree and its giant, side on.
+
+## Later: the giants get their scars
+
+Dominic on the giants: "a little more character with old ones than just bigger... They've survived a lot. They've
+maybe survived a lightning strike or two." What old trees show, from the Woodland Trust's
+[What are ancient trees?](https://www.woodlandtrust.org.uk/media/1836/what-are-ancient-trees.pdf): a hollowing trunk
+"with one or more openings to the outside", cavities where limbs broke away, a crown "growing downwards" with dead
+antler-like limbs standing out of it, and in conifers a top flattened by storm or lightning "with many new stems". And
+lightning, from [Alabama Extension](https://www.aces.edu/blog/topics/forestry/caring-for-lightning-struck-trees/):
+bark "blown out along a narrow strip" that can "spiral down the trunk".
+
+So each giant now carries some of these (`character()` in `tools/tree_vox.py`):
+
+- **Beech:** the low fork into three great crooked limbs is on show now (its crown starts higher), two lightning
+  scars of bare pale wood spiralling down the bole, a hollow at its foot, dead limbs out of the top.
+- **Oak:** a big hollow at the foot, open to the side, two lightning scars, dead stag-head limbs.
+- **Silver fir:** its top snapped off, a dead stub, and three new tops grown up round it from the highest whorls; a
+  lightning scar.
+- **Spruce:** the same broken top, so it stands with two or three spires; a hollow.
+- **Scots pine:** lightning scars, a dead snag top, a hollow. **Black pine:** dead limbs out of its crown, a hollow.
+
+The game now draws the bark's tones from the model: bare wood pale, dead wood grey, wounds and hollows dark (before,
+all bark was one tone, so the old scar marks never showed). Trees 65. Pictures 09 to 11.

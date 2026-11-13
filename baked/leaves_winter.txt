@@ -1,4 +1,4 @@
-trees 64 135.7645 135.7645022156 sun 40.0 0.15 4.0 true 0.4 fall 996 86 elev 22.0
+trees 65 135.7645 135.7645022156 sun 40.0 0.15 4.0 true 0.4 fall 996 86 elev 22.0
 fern0.winter 1 1 147 82 86 51
 fern0.winter.shadow 150 1 147 82 86 51
 fern1.winter 299 1 159 75 68 50

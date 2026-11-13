@@ -5,8 +5,17 @@
 // the men's looks.
 
 let MEN_STEPS = 8
-let MEN_DRAW_K = 1.1 / vx_RES  // art px a baked px
-let MEN_BAKE = "men 3"         // (raise the number when the bake changes: the saved sheets are made again)
+// Baked a .vox voxel to a pixel. The men are drawn from .vox art (art/men/vox), a voxel half a body unit (Creel's
+// vx_VOX_RES) on a man 0.73 of a body (his size in data/voxel/bodies): at Creel's own 2 voxels a body unit, each art
+// voxel was squeezed into 0.73 of a baked one, so one in four was lost and the cloaks broke up into flecks of the coat
+// under them (Dominic, 2026-11-13: "a bit spotty ... reads as a bit low-res, a bit fuzzy").
+// Now a little over a voxel a pixel (exactly one put rows on the half pixel, and the coats showed holes), the shading
+// smoothed, and drawn smaller to the same size.
+let MEN_SIZE = 0.73
+let MEN_RES = vx_VOX_RES / MEN_SIZE * 1.15
+let MEN_DRAW_K = 1.1 / MEN_RES  // art px a baked px
+let BEAST_DRAW_K = 1.1 / vx_RES
+let MEN_BAKE = "men 4"  // (raise the number when the bake changes: the saved sheets are made again)
 
 // The poses past the walk (data/voxel/gear.json has the holds): the rifle brought up and fired (its kick), held aimed,
 // and the reload's two, the rifle stood upright and the rod up, then down the barrel.
@@ -31,6 +40,10 @@ def bake_look(look:int, key:string, between):
     let u = men_looks[look]
     vx_set_look(u, 0)
     vx_mat_cols[vx_mat_team] = float3 { 0.85, 0.12, 0.85 }  // (the sprite shader's key for the team colour: the sash)
+    let res_was = vx_RES
+    vx_set_res(MEN_RES)
+    vx_smooth_normals = 2  // (their shading evened out: Creel's own flecked the coats)
+    vx_despeckle = 1
     vx_pat_scale = vx_RES * vx_size_of(u)
     for(MEN_POSES) pose:
         vx_stand = pose == 0 or pose > MEN_STEPS
@@ -48,6 +61,9 @@ def bake_look(look:int, key:string, between):
         between()
     vx_stand = false
     vx_act = ""
+    vx_set_res(res_was)
+    vx_smooth_normals = 0
+    vx_despeckle = 0
     sheet_finish(s, MEN_DRAW_K, true)
     men_bake_s += seconds_elapsed() - t0
 
@@ -83,7 +99,7 @@ def cycle_of(name:string, key:string, u:vx_unit_def) -> float:
 
 def bake_men(between):
     vx_data_dirs = [ "../data/voxel" ]
-    let key = "{MEN_BAKE} {vx_RES} {sha256_text(vx_data_text() + men_vox_text())}"
+    let key = "{MEN_BAKE} {MEN_RES} {sha256_text(vx_data_text() + men_vox_text())}"
     for(append(gstrs(men_data, "looks"), gstrs(gobj(lib_data("threats.json"), "patrol"), "looks"))) id, look:
         men_looks.push(vx_unit_def { id, id, float3_0, float3_0, float3_0, [], "", false, float3_0, float3_0, float3_0, nil })
         bake_look(look, key, between)
@@ -136,7 +152,7 @@ def bake_beast(id:string, between):
     beast_defs.set(id, u)
     cycles.set(id, cycle_of(id, key, u))
     let s = sheet_new(id, key, 1024)
-    if sheet_load(s, MEN_DRAW_K): return
+    if sheet_load(s, BEAST_DRAW_K): return
     vx_need()
     vx_set_look(u, 0)
     vx_pat_scale = vx_RES * vx_size_of(u)
@@ -152,7 +168,7 @@ def bake_beast(id:string, between):
             if pose == 0: sheet_add_cell(s, beast_shadow_name(id, facing), vx_ground_shadow(sh, facing), vx_SCELL.x, vx_sbox, vx_SANCHOR)
         between()
     vx_stand = false
-    sheet_finish(s, MEN_DRAW_K, true)
+    sheet_finish(s, BEAST_DRAW_K, true)
 
 // How far a beast walks in one cycle of its steps, milli-tiles.
 def beast_cycle(id:string) -> float: return cycles.get(id, man_cycle())
