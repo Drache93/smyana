@@ -63,7 +63,7 @@
   "bear_smell_tiles": 16
  },
  "forage": {
-  "_doc": "What the wood gives, by its kind (the map's 'wood') and the season (docs/survival.md, #66). Each find shows on open ground as a patch ('look': how the view draws it) on 'per_mille' of the open cells, and a man gathers it in 'gather_s' seconds standing on it: 'food' portions into his pack, 'goods' to take home (herbs, honey). What is taken stays taken. A man's pack holds what packs.most allows. Right-click a patch with men chosen: each goes to the nearest one within 'reach_tiles' of it. Autumn's finds were raised on 2026-11-13 (Claude, from playthroughs: twenty men gathering a day brought in less than they ate, where in the Rhodopes wild mushrooms are still a living for whole villages, BNR 2021): a patch of mushrooms or ceps is four portions, wild pears three, beechnuts and lingonberries two.",
+  "_doc": "What the wood gives, by its kind (the map's 'wood') and the season (docs/survival.md, #66). Each find shows on open ground as a patch ('look': how the view draws it) on 'per_mille' of the open cells, and a man gathers it in 'gather_s' seconds standing on it: 'food' portions into his pack, 'goods' to take home (herbs, honey). What is taken stays taken. A man's pack holds what packs.most allows. Right-click a patch with men chosen: each goes to the nearest one within 'reach_tiles' of it. Autumn's finds were raised on 2026-11-13 (Claude, from playthroughs: twenty men gathering a day brought in less than they ate, where in the Rhodopes wild mushrooms are still a living for whole villages, BNR 2021): a patch of mushrooms or ceps is four portions, wild pears three, beechnuts and lingonberries two. Then (Dominic, 2026-11-13: no work and no pay, the season itself has to carry them) autumn's food finds stand twice as thick, for caches; and the dog rose's hips, which hang on the bush into the winter, are the winter wood's one find in the beech and oak woods, two portions a patch.",
   "gather_s": 6,
   "reach_tiles": 9,
   "woods": {
@@ -87,21 +87,21 @@
       "id": "beechnuts",
       "look": "nuts",
       "food": 2,
-      "per_mille": 24
+      "per_mille": 48
      },
      {
       "id": "mushrooms",
       "look": "mushrooms",
       "food": 4,
-      "per_mille": 15
+      "per_mille": 30
      }
     ],
     "winter": [
      {
       "id": "rosehips",
       "look": "berries_red",
-      "food": 1,
-      "per_mille": 3
+      "food": 2,
+      "per_mille": 10
      }
     ],
     "spring": [
@@ -133,16 +133,23 @@
       "id": "wild pears",
       "look": "pears",
       "food": 3,
-      "per_mille": 9
+      "per_mille": 18
      },
      {
       "id": "mushrooms",
       "look": "mushrooms",
       "food": 4,
-      "per_mille": 12
+      "per_mille": 24
      }
     ],
-    "winter": [],
+    "winter": [
+     {
+      "id": "rosehips",
+      "look": "berries_red",
+      "food": 2,
+      "per_mille": 8
+     }
+    ],
     "spring": [
      {
       "id": "wild garlic",
@@ -166,7 +173,7 @@
       "id": "ceps",
       "look": "mushrooms",
       "food": 4,
-      "per_mille": 18
+      "per_mille": 36
      }
     ],
     "winter": [],
@@ -192,7 +199,7 @@
       "id": "lingonberries",
       "look": "berries_red",
       "food": 2,
-      "per_mille": 12
+      "per_mille": 24
      },
      {
       "id": "mountain tea",

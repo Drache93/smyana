@@ -33,3 +33,12 @@ Text messages in the project, verbatim. Times UTC. Written after playing the bui
   Plan in `docs/off-the-path.md`.
 - Side paths into the woods, big and small. Patrols take or look down the bigger ones more often, so hiding on a path
   is worse than hiding in the trees.
+
+## Later the same day: there is no work
+
+**18:32**, answering Claude's proposal to pay the men in bread at the ridge ("the work") for the winter walk home:
+
+> But we previously agreed there isn't work. I know the whole original premise is kind of like, it's Mayana, like seasonal work, but we always agreed it's more of an adventure thing. They're not going somewhere to work and coming back. They're going out to collect things and then coming back. The whole point of the game is to safely go through the whole season, exploring and gathering and surviving, and coming back to your village with more knowledge and more things.
+
+What Claude took from it: no pay and no work stop. Winter food has to come from the season itself: what the
+autumn gives and is carried or cached, what is found on the way, and what is hunted.
