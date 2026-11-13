@@ -593,6 +593,14 @@ let left_after = fold(stands, 0) a, st: a + st.left
 print "gathering: {stands_n} stands, {left_before - left_after} gathered, food {food0} to {food1}"
 expect(food1 > food0 + 4 and left_after < left_before, "they gather it into their packs")
 expect(is_night() or (seen_stand >= 0 and seen_by >= 0), "a man near a stand calls it out, once ({seen_calls})")
+// (the season turning while they are here: the stands stay what they were, and gathering goes on)
+year_force = 2000
+forage_order(gatherers, nearest_stand)
+for(10 * TICK_HZ):
+    step()
+    route_tick()
+expect(forage_finds().length > 0, "the season turning leaves the stands as they were")
+year_force = 1000
 forage_leave(place_now())
 forage_enter(place_now())
 stands_grow()

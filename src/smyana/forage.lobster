@@ -23,18 +23,21 @@ class Forager:
 var stands = []::Stand
 var foragers = []::Forager
 var forage_key = ""                                // this place in this season: what its stands are kept under
+var forage_season = ""                             // the season the men came in (its stands stay that season's while they are here)
 let forage_memory = dictionary<string, [int]>(17)  // each place-and-season's stands' left, while the men are away
 var food_gathered = 0                              // portions gathered in the run (for the checks and the tally)
 var goods_gathered = 0
 
 def forage_cfg() -> JV: return gobj(survival_cfg, "forage")
 
-// What this place's wood gives now.
-def forage_finds() -> [JV]: return glist(gobj(gobj(forage_cfg(), "woods"), place_wood()), season_now())
+// What this place's wood gives in the season the men came in: a stand grown in the autumn stays autumn's when the
+// season turns while they are here (a playthrough crashed on autumn's ceps read from winter's bare list).
+def forage_finds() -> [JV]: return glist(gobj(gobj(forage_cfg(), "woods"), place_wood()), if forage_season != "": forage_season else: season_now())
 
 // The run from its start: nothing taken anywhere.
 def forage_begin():
     forage_memory.clear()
+    forage_season = ""
     food_gathered = 0
     goods_gathered = 0
 
@@ -42,7 +45,8 @@ def forage_begin():
 def forage_enter(place:string):
     foragers = []
     stands = []
-    forage_key = "{place}:{season_now()}"
+    forage_season = season_now()
+    forage_key = "{place}:{forage_season}"
 
 // The men walk off: the place remembers what is left of each stand.
 def forage_leave(place:string): if forage_key != "": forage_memory.set(forage_key, map(stands) s: s.left)
@@ -157,7 +161,7 @@ def forage_tick():
     foragers = filter(foragers) f:
         let i = index_of(f.id)
         let m = man_of(f.id)
-        if i < 0 or not m or f.stand >= stands.length: false
+        if i < 0 or not m or f.stand >= stands.length or stands[f.stand].kind >= finds.length: false
         else:
             let s = stands[f.stand]
             if s.left <= 0 or pack_room(m) <= 0 or (tick > f.since + TICK_HZ and dist2(u_tx[i], u_ty[i], f.x, f.y) > TILE * TILE): false
