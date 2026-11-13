@@ -29,6 +29,8 @@ and it is where you get caught.
   shepherd's path, a deer track. A patrol coming along may turn down one, more likely the bigger it is, or stop at its
   mouth and look down it. So a path is easy walking but a poor place to hide; the trees between the paths are the
   safe ground. The small paths lead to the finds below.
+- **In the snow the trail is the quick way (built 2026-11-13, D-132).** Snow trodden by the riders slows the men a third
+  as much as the snow in the wood, so in winter leaving the trail costs time as well as buying cover.
 - **Waiting them out.** A camp off the trail with a small fire is not seen from the trail by night; the men can sleep
   while a patrol rides by, and go on behind it. A camp on the trail is found.
 
@@ -42,7 +44,14 @@ The wood beside the trail is where the reasons are. Nothing is a fixed goal; wha
   sign points the way the herd went.
 - **The good gathering is deeper in.** Small patches by the trail, the rich ones (a ring of mushrooms, a stand of
   rose hips, a wild pear in fruit, a hollow tree with wild bees' honey) away from it.
-- **Things to find, one or two a place, by the seed:** a spring (water and a safe camp), a shepherd's hut with a hearth
+- **Finds at the paths' ends (built 2026-11-13, D-131):** up to two a place by the run's seed, no two alike, each at a
+  side path's end where no game is: an **empty shepherds' hut** (dry-stacked gneiss, a slab roof, one door; the flocks
+  have gone down by late October), where a camp's fire burns inside, seen only from four tiles, and the men sleep out
+  of the wind; **another band's cache** under stones, twelve to twenty-two portions, not seen from the trail; **wild
+  bees' honey** in a hollow old tree in the beech and oak woods, six to ten portions, which the bear smells too. The
+  path's mouth names a hut, and the bees outside winter. Right-click a hut to make camp in it; a cache or the honey to
+  take it. Sources in `data/survival.json` "finds".
+- **Still to find, by the seed:** a spring (water and a safe camp), a shepherd's hut with a hearth
   (a fire no one sees), an old cache left by other workers, a ruin or a mill worth studying. **Knowledge** comes from
   these, not only from the Roman drain: each is one thing the village can learn, and the ending shows it. What they
   are will come from sources on Rhodope villages and their builders, before any is made (the evidence rule).

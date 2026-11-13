@@ -224,3 +224,7 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-13:** No work and no pay (D-129): the winter is carried by a richer autumn, caches and hunting (D-130). The
   test bot now plays as a careful player: down the side paths after game, laying by in the autumn, caching, camping
   before dusk.
+- **2026-11-13:** Finds at the side paths' ends (D-131): an empty shepherds' hut to camp in unseen, another band's cache,
+  wild honey. The trodden trail is the quick way in the snow (D-132).
+- **2026-11-13:** Dominic plays: "telling them to make camp, i got no fire" (fixed, D-133), and the UI and gathering
+  need rethinking: a proposal comes before more UI.

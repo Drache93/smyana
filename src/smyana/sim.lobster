@@ -58,4 +58,5 @@ import smyana.hunting
 import smyana.packs
 import smyana.knowledge
 import smyana.woods
+import smyana.finds
 let SMYANA_VERSION = "0.1.0"

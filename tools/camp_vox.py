@@ -262,6 +262,98 @@ def woodpile():
     m.box((0.68, -0.4, 0.3), (0.82, -0.32, 0.4), IRON)
     return m
 
+# ---- the shepherds' hut ---------------------------------------------------------------------------------------
+def hut():
+    """An empty shepherds' hut at a side path's end (smyana/finds.lobster): walls of dry-stacked gneiss, no mortar,
+    a low gable roof of split gneiss slabs on poles, one low door with a wooden lintel and no window, its hearth in the
+    middle (summer-pasture huts of the Balkan mountains: dry-stacked stone, one door the only opening, the hearth in the
+    middle, parksdinarides.org; the slab roofs of the Rhodope villages). About 3.6 by 3 m, the walls 1.4 m high, the
+    ridge 2.3 m. The door is on -y, toward the camera."""
+    X, Y, Hw, Hr = 1.8, 1.5, 1.4, 2.3
+    m = Model(2.2, 1.9, 2.5)
+    rng = random.Random(17)
+    t = 0.32  # (the walls' thickness)
+    # the walls: courses of flat stones, each its own size and tone, laid long side out
+    z = 0.0
+    while z < Hw:
+        h = rng.uniform(0.09, 0.15)
+        for side in range(4):
+            along = X if side < 2 else Y
+            s = -along
+            while s < along:
+                w = rng.uniform(0.18, 0.42)
+                c = rng.choice([STONE, STONE2, STONE3, STONE, STONE2])
+                a, b = s, min(s + w, along)
+                if side == 0: lo, hi = (a, -Y, z), (b, -Y + t, z + h)
+                elif side == 1: lo, hi = (a, Y - t, z), (b, Y, z + h)
+                elif side == 2: lo, hi = (-X, a, z), (-X + t, b, z + h)
+                else: lo, hi = (X - t, a, z), (X, b, z + h)
+                # (a stone a little in or out of the face, the joints dark)
+                d = rng.uniform(-0.03, 0.03)
+                if side == 0: lo, hi = (lo[0], lo[1] + d, lo[2]), (hi[0] - 1.0 / M, hi[1], hi[2] - 1.0 / M)
+                elif side == 1: lo, hi = (lo[0], lo[1], lo[2]), (hi[0] - 1.0 / M, hi[1] + d, hi[2] - 1.0 / M)
+                elif side == 2: lo, hi = (lo[0] + d, lo[1], lo[2]), (hi[0], hi[1] - 1.0 / M, hi[2] - 1.0 / M)
+                else: lo, hi = (lo[0], lo[1], lo[2]), (hi[0] + d, hi[1] - 1.0 / M, hi[2] - 1.0 / M)
+                m.box(lo, hi, c)
+                s += w
+        z += h
+    # the joints behind the stones, dark (what shows between them)
+    for side in range(4):
+        if side == 0: m.box((-X + 0.02, -Y + 0.03, 0), (X - 0.02, -Y + t - 0.02, Hw - 0.02), ASH, over=False)
+        elif side == 1: m.box((-X + 0.02, Y - t + 0.02, 0), (X - 0.02, Y - 0.03, Hw - 0.02), ASH, over=False)
+        elif side == 2: m.box((-X + 0.03, -Y + 0.02, 0), (-X + t - 0.02, Y - 0.02, Hw - 0.02), ASH, over=False)
+        else: m.box((X - t + 0.02, -Y + 0.02, 0), (X - 0.03, Y - 0.02, Hw - 0.02), ASH, over=False)
+    # the gable ends, stone up to the ridge
+    for sx in (-1, 1):
+        x0 = sx * X
+        def gable(g, x0=x0):
+            x, y, zz = g[..., 0], g[..., 1], g[..., 2]
+            return (np.abs(x - x0 + sx * t / 2) <= t / 2) & (zz >= Hw) & (zz <= Hw + (Hr - Hw) * (1 - np.abs(y) / Y) - 0.05)
+        m.put((x0 - t if sx > 0 else x0, -Y, Hw), (x0 if sx > 0 else x0 + t, Y, Hr), gable, lambda g: np.where((np.floor(g[..., 2] * M / 4) + np.floor(g[..., 1] * M / 9)) % 3 == 0, STONE2, STONE))
+    # the door: a low dark gap in the front wall, a wooden lintel over it, a sill stone
+    m.box((-0.36, -Y - 0.05, 0.0), (0.36, -Y + t + 0.02, 1.15), 0)
+    m.box((-0.33, -Y + t - 0.01, 0.0), (0.33, -Y + t + 0.04, 1.12), INSIDE)
+    m.box((-0.52, -Y - 0.02, 1.15), (0.52, -Y + t, 1.26), WOOD2)
+    m.box((-0.4, -Y - 0.12, 0.0), (0.4, -Y + 0.02, 0.05), STONE3)
+    for sx in (-1, 1): m.box((sx * 0.36 - 0.03, -Y + 0.0, 0.0), (sx * 0.36 + 0.03, -Y + 0.06, 1.15), WOOD)
+    # the roof: slabs in rows, each row lapping the one below, the ridge capped, eaves out over the walls
+    ov = 0.22
+    rows = 6
+    for side in (-1, 1):
+        for r in range(rows):
+            y0 = side * (Y + ov) * (1 - r / rows)
+            y1 = side * (Y + ov) * (1 - (r + 1.25) / rows)
+            z0 = Hw - 0.05 + (Hr - Hw + 0.05) * r / rows
+            z1 = Hw - 0.05 + (Hr - Hw + 0.05) * (r + 1.25) / rows
+            x = -X - ov
+            while x < X + ov:
+                w = rng.uniform(0.35, 0.7)
+                c = rng.choice([STONE2, STONE3, STONE, STONE2, ASH2])
+                xa, xb = x, min(x + w, X + ov)
+                lift = rng.uniform(-0.01, 0.03)
+                def slab(g, y0=y0, y1=y1, z0=z0, z1=z1, xa=xa, xb=xb, lift=lift):
+                    xx, yy, zz = g[..., 0], g[..., 1], g[..., 2]
+                    f = (yy - y0) / (y1 - y0)
+                    want = z0 + (z1 - z0) * f + lift
+                    return (xx >= xa) & (xx <= xb - 1.0 / M) & (f >= 0) & (f <= 1) & (zz >= want - 0.07) & (zz <= want)
+                lo_y, hi_y = min(y0, y1), max(y0, y1)
+                m.put((xa, lo_y, z0 - 0.1), (xb, hi_y, z1 + 0.1), slab, c)
+                x += w
+    m.box((-X - ov, -0.12, Hr - 0.03), (X + ov, 0.12, Hr + 0.08), STONE3)
+    # (a gap at the ridge's middle for the smoke, sooted)
+    m.box((-0.25, -0.13, Hr - 0.05), (0.25, 0.13, Hr + 0.1), 0)
+    m.box((-0.25, -0.1, Hr - 0.08), (0.25, 0.1, Hr - 0.03), CHAR)
+    # the poles' ends under the eaves at the gables
+    for sx in (-1, 1):
+        for yy in (-0.9, 0.0, 0.9):
+            m.capsule((sx * (X + 0.05), yy * Y / 1.0, Hw + (Hr - Hw) * (1 - abs(yy)) - 0.08), (sx * (X + ov), yy * Y / 1.0, Hw + (Hr - Hw) * (1 - abs(yy)) - 0.08), 0.04, 0.04, POLE2)
+    # stones fallen from the wall, and a flat stone by the door to sit on
+    for k in range(4):
+        m.blob((rng.uniform(-X, X), -Y - rng.uniform(0.15, 0.45), 0.03), (rng.uniform(0.08, 0.14), rng.uniform(0.06, 0.1), 0.06), rng.choice([STONE, STONE2, STONE3]), turn=rng.uniform(0, 180))
+    m.box((0.75, -Y - 0.45, 0), (1.2, -Y - 0.15, 0.32), STONE)
+    return m
+
+
 # ---- the horses and mules --------------------------------------------------------------------------------------
 COATS = {
     # coat, its shade (belly, legs), mane and tail, lower legs, muzzle
@@ -436,7 +528,7 @@ MULES = [("mule", "sacks"), ("mule_dun", "kegs"), ("bay", "baskets"), ("mule", "
 
 
 def models():
-    out = [("tent_canvas", tent0()), ("tent_rugs", tent1()), ("fireplace", fireplace()), ("woodpile", woodpile())]
+    out = [("tent_canvas", tent0()), ("tent_rugs", tent1()), ("fireplace", fireplace()), ("woodpile", woodpile()), ("hut", hut())]
     for i, (coat, blanket) in enumerate(HORSES):
         m, s = animal(coat, False)
         riding_saddle(m, s, blanket)

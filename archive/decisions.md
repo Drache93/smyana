@@ -817,3 +817,25 @@ playthroughs, within D-129.) Autumn's food finds stand twice as thick and give m
 patch, wild pears three, beechnuts and lingonberries two); the dog rose's hips, which hang on into the winter, are the
 winter beech and oak woods' one find. Game runs from a man coming on only within two tiles of its flee distance, so a
 man who stops at a rifle's six tiles gets his shot.
+
+**D-131, 2026-11-13: Finds at the ends of the side paths: an empty shepherds' hut, another band's cache, wild honey.**
+(Dominic said "Yes" to Claude's next step: "more to find on the way home (an old hut, another gatherers' cache, wild
+bees' honey) and make the winter walk faster"; Claude built it.) Each place has up to two finds by the run's seed, no
+two alike, each at the end of a side path with no game at it. A hut is dry-stacked gneiss with a slab roof and one door:
+a camp made at it has its fire on the hearth inside, seen from four tiles instead of thirty-four at night, and the men
+sleep out of the wind (18 warmer). A cache is twelve to twenty-two portions another band put by under stones, not seen
+from the trail. Wild bees' honey, six to ten portions, is in the beech and oak woods only; the bear smells it. The
+path's mouth names a hut ("sheep droppings, a hut") and, outside winter, the bees. Sources: summer-pasture huts of the
+Balkan mountains (parksdinarides.org), the Sarakatsani leaving the mountains on St Demetrius' day (Wikipedia), wild bees
+in hollow oaks and walnuts (BNR). The hut's look is a reasoned guess from these and the village's own slab roofs, not a
+Rhodope photograph: to check.
+
+**D-132, 2026-11-13: In the snow the trail is the quick way.** (Claude, for Dominic's "make the winter walk faster",
+within D-125's "the trail is the dangerous way".) Lying snow takes up to a quarter off the men's pace; on the trail,
+trodden down by the riders, only 35 hundredths of that. Leaving the trail in winter is slower as well as safer.
+
+**D-133, 2026-11-13: A camp shows its fireplace at once.** (Dominic, playing: "telling them to make camp, i got no
+fire"; Claude fixed it.) The fire was being laid, fifty seconds with no wood carried, and nothing was drawn until it
+caught. Now the ring of stones, the logs and the tripod show as soon as camp is made, the flames come when it catches,
+laying it with no wood takes twelve seconds, and the order given again while it is laid no longer puts it out (the
+sign reads "Laying the fire"). Men who camp so late that the fire has not caught by midnight eat cold.
