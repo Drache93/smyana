@@ -722,3 +722,10 @@ and about twice as thick as an old tree of its kind, with buttresses, burrs and 
 (D-028), a giant blocks the way and can't be felled. Not the hornbeam (a smaller tree), and no plane trees yet (new
 kinds are on hold).
 
+**D-117, 2026-11-13: The giants show what they have lived through.** (From Dominic: "a little more character with old
+ones than just bigger... They've maybe survived a lightning strike or two"; the features from the Woodland Trust and a
+lightning damage guide, Claude.) Each kind's giant carries some of: lightning scars of bare wood spiralling down the
+bole, a hollow open at the foot and holes where limbs broke away, dead antler-like limbs out of the crown, and for the
+fir and the spruce a top snapped off and grown again as several. The beech giant forks low into three crooked great
+limbs, shown below a higher crown. The bark is drawn in its tones (bare wood, dead wood, wounds).
+

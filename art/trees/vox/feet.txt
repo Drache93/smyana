@@ -4,7 +4,7 @@ beech_young_1 43 58
 beech_mature_0 90 78
 beech_mature_1 85 86
 beech_old_0 103 108
-beech_old_1 143 144
+beech_old_1 141 128
 oak_mature_0 111 109
 oak_old_0 147 138
 oak_old_1 164 159

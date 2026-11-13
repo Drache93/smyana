@@ -29,3 +29,17 @@ pictures."). Not kept here: they are stock photographs with their makers' marks,
 ## 06:06 UTC
 
 > Not just beech right?
+
+## 06:27 UTC (on the giants, PR #116)
+
+> Looks pretty good. My main comment, I think, is for the older ones, more gnarled. You've made some sort of thicker,
+> but with the old ones you might have multiple trunks, or other things going on where it's, what am I trying to say,
+> there's a little more character with old ones than just bigger necessarily. There are obviously ones that are just
+> bigger, but yeah, a lot of them, there'll be a lot more happening. They've survived a lot. They've maybe survived a
+> lightning strike or two. There's a lot going on with them.
+
+## 06:28 UTC
+
+> Unrelated, now that we've done so much work on the art, I'm starting to feel like the men look a bit low-res almost,
+> like they look a bit spotty. There's some bits of pixels that are just kind of mixed in there, so it'll, like I said,
+> it kind of ends up reading as a bit low-res, a bit fuzzy.

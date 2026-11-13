@@ -7,7 +7,7 @@
 // seen. The leaves are baked once a season (their colour), behind the letter home, and kept in baked/.
 
 let TREE_K = 64.0  // voxels a tile for the load of wood (baked at twice this)
-let TREE_BAKE = "trees 64"
+let TREE_BAKE = "trees 65"
 // Voxels a tile in the trees, rocks and undergrowth: one voxel is one pixel of Creel's art (WB_PX at its art scale of
 // 3), as the men's are, so they are as crisp as the men (Dominic, 2026-11-10: "evryhting crisp and sharp").
 let VOX_K = 135.7645
@@ -255,7 +255,9 @@ def vox_tree(look:vglook, name:string, leaves:bool, cling:bool = false, whole:bo
             // (13, 14: the leaves that cling after leaf-fall; cling: only those, on the bare twigs)
             if whole: vg_set(g, vg_index(g, q.x, q.y, q.z), if idx < 10: VG_BARK else: VG_LEAF, if idx < 10: 0.0 elif idx == 10 or idx == 13: 0.5 elif idx == 11: 0.0 else: -0.6)
             elif leaves and idx >= (if cling: 13 else: 10): vg_set(g, vg_index(g, q.x, q.y, q.z), VG_LEAF, if idx == 10 or idx == 13: 0.5 elif idx == 11: 0.0 else: -0.6)
-            elif not leaves and idx < 10: vg_set(g, vg_index(g, q.x, q.y, q.z), VG_BARK, 0.0)
+            // (the bark's tones: 1 bare wood where the bark is gone (a lightning scar), 3 grey dead wood, 4 the dark of a
+            // wound or a hollow, D-117)
+            elif not leaves and idx < 10: vg_set(g, vg_index(g, q.x, q.y, q.z), VG_BARK, if idx == 1: 0.9 elif idx == 3: -0.25 elif idx == 4: -0.9 else: 0.0)
     return g
 
 // ------------------------------------------------------------------ the undergrowth (issue #8), grey-boxed
