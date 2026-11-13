@@ -67,7 +67,10 @@ Each man has three needs, each from 100 (fine) down to 0 (spent). They are the m
   spring). It shows in the world: a patch of mushrooms at a tree's foot, a scatter of fallen nuts, a fruiting bush.
   Right-click a patch with men chosen and they gather it into their packs. What is taken stays taken on the way home.
 - **Game.** Roe deer in the valleys and chamois on the ridge, shot with the rifles: a deer is several days' meat and a
-  hide to take home. A shot is a shot, though, and it is heard (D-085). (Built after the patches.)
+  hide to take home. A shot is a shot, though, and it is heard (D-085). Built 2026-11-13 (D-122): roe deer, wild boar
+  and chamois by place and season (`data/hunting.json`), set down by the trail; they look up at a man they can see and
+  run if he comes close or moves while they watch, and run from every shot; a boar takes two balls and charges. Right-
+  click the carcass to butcher it into the packs.
 - **Goods to take home** are found the same way: herbs, hides, wild honey. They feed nobody; they are what the
   families need.
 
@@ -113,7 +116,7 @@ learned. Shown by the homecoming and the ending (the frame, #51), not a score sc
 
 1. **The needs, camp, fire and night** (#65, #68, the reading of #73): the beat every day turns on. Built 2026-11-12
    (D-092 to D-094).
-2. **Food patches by place and season** (#66), then game with the rifle. Patches built 2026-11-12 (D-095); game not yet.
+2. **Food patches by place and season** (#66), then game with the rifle. Patches built 2026-11-12 (D-095); game 2026-11-13 (D-122).
 3. **Packs, weight and dropping them** (#67), then **caches** (#69). Built 2026-11-12 as one thing (D-096): X drops the
    packs in a pile, and any pile is a cache; no separate Ctrl order.
 4. **The drain at the ruins** (#70) and **the tally** (#72). Built 2026-11-12 (D-097, D-098): study by right-clicking

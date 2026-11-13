@@ -1,0 +1,287 @@
+{
+ "_doc": "A roe deer (Capreolus capreolus) of the Rhodope woods and meadows (hunting, docs/survival.md). From the sources (Animal Diversity Web; Acta Zoologica Bulgarica suppl. 15): 66 to 83 cm at the shoulder, 23 to 30 kg; slender, long-legged, a small head with big ears, almost no tail; reddish brown in summer, grey-brown in winter with a large white rump patch. Body units as the men's (a man is about 40 tall): about 16 at the shoulder. Summer coat.",
+ "skin": "#9a5b34",
+ "pale": "#c9a27a",
+ "mark": "#2a211b",
+ "size": 0.72,
+ "fur": 0.2,
+ "reach": 2.5,
+ "points": {
+  "hip": {
+   "at": [
+    0,
+    -6.5,
+    16.5
+   ],
+   "bob": 0.5
+  },
+  "chest": {
+   "at": [
+    0,
+    5.0,
+    17.0
+   ],
+   "bob": 0.5
+  },
+  "head": {
+   "at": [
+    0,
+    10.5,
+    24.0
+   ],
+   "bob": 0.7
+  }
+ },
+ "shapes": [
+  {
+   "cap": [
+    "hip",
+    0,
+    0,
+    0.3
+   ],
+   "to": [
+    "chest",
+    0,
+    0,
+    0.2
+   ],
+   "r": [
+    2.6,
+    2.7
+   ],
+   "mat": "skin"
+  },
+  {
+   "ball": [
+    "chest",
+    0,
+    0.3,
+    -0.5
+   ],
+   "r": 2.8,
+   "mat": "skin"
+  },
+  {
+   "ball": [
+    "hip",
+    0,
+    -0.8,
+    0.4
+   ],
+   "r": 2.7,
+   "mat": "skin"
+  },
+  {
+   "cap": [
+    "hip",
+    0,
+    1.5,
+    -1.3
+   ],
+   "to": [
+    "chest",
+    0,
+    -1.0,
+    -1.9
+   ],
+   "r": [
+    1.5,
+    1.6
+   ],
+   "mat": "pale"
+  },
+  {
+   "ball": [
+    "hip",
+    0,
+    -2.6,
+    0.5
+   ],
+   "r": 1.9,
+   "mat": "white"
+  },
+  {
+   "cap": [
+    "chest",
+    0,
+    1.6,
+    1.2
+   ],
+   "to": [
+    "head",
+    0,
+    -1.0,
+    -1.6
+   ],
+   "r": [
+    1.7,
+    1.1
+   ],
+   "mat": "skin"
+  },
+  {
+   "ball": [
+    "head",
+    0,
+    0,
+    0
+   ],
+   "r": 1.55,
+   "mat": "skin"
+  },
+  {
+   "cap": [
+    "head",
+    0,
+    0.8,
+    -0.2
+   ],
+   "to": [
+    "head",
+    0,
+    3.3,
+    -1.2
+   ],
+   "r": [
+    1.05,
+    0.6
+   ],
+   "mat": "skin"
+  },
+  {
+   "cap": [
+    "head",
+    0,
+    1.2,
+    -0.8
+   ],
+   "to": [
+    "head",
+    0,
+    3.0,
+    -1.5
+   ],
+   "r": [
+    0.7,
+    0.4
+   ],
+   "mat": "pale"
+  },
+  {
+   "bead": [
+    "head",
+    0,
+    3.6,
+    -1.2
+   ],
+   "r": 0.4,
+   "mat": "mark"
+  },
+  {
+   "bead": [
+    "head",
+    0.85,
+    0.9,
+    0.5
+   ],
+   "r": 0.26,
+   "mat": "mark",
+   "mirror": true
+  },
+  {
+   "cap": [
+    "head",
+    0.9,
+    -0.6,
+    1.0
+   ],
+   "to": [
+    "head",
+    1.7,
+    -1.2,
+    3.0
+   ],
+   "r": [
+    0.75,
+    0.35
+   ],
+   "mat": "skin",
+   "mirror": true
+  }
+ ],
+ "legs": [
+  {
+   "hip": [
+    "hip",
+    1.4,
+    0.2,
+    -0.8
+   ],
+   "foot": [
+    1.5,
+    -6.5,
+    0.8
+   ],
+   "stride": 5.0,
+   "lift": 2.6,
+   "phase": 0,
+   "bones": [
+    8.0,
+    8.0
+   ],
+   "pole": [
+    0,
+    1,
+    0
+   ],
+   "r": [
+    1.5,
+    0.75,
+    0.55,
+    0.45
+   ],
+   "mats": [
+    "skin",
+    "skin"
+   ],
+   "shapes": []
+  },
+  {
+   "hip": [
+    "chest",
+    1.4,
+    0.4,
+    -1.6
+   ],
+   "foot": [
+    1.5,
+    5.5,
+    0.8
+   ],
+   "stride": 5.0,
+   "lift": 2.8,
+   "phase": 180,
+   "bones": [
+    7.6,
+    7.6
+   ],
+   "pole": [
+    0,
+    -1,
+    0
+   ],
+   "r": [
+    1.1,
+    0.7,
+    0.55,
+    0.45
+   ],
+   "mats": [
+    "skin",
+    "skin"
+   ],
+   "shapes": []
+  }
+ ]
+}

@@ -183,6 +183,7 @@ def threats_on_hit(by:int, j:int, damage:int) -> int:
     let bk = bear_of(u_id[j])
     if bk >= 0: bear_provoked(bears[bk], by)
     if not hit: return 0
+    game_hit(j, by)
     if bk >= 0: return gint(bear_cfg(), "hit_damage", 25)
     if t_hp[u_kind[j]] > 100000: return damage
     let m = man_of(u_id[j])
@@ -206,6 +207,8 @@ def threats_on_death(i:int, killer:int):
     if pk >= 0: fallen.push(Fallen { u_id[i], u_x[i], u_y[i], gstrs(men_data, "looks").length + pk, true, bx, by })
     if is_wolf(u_id[i]): fallen.push(Fallen { u_id[i], u_x[i], u_y[i], -1, true, bx, by, beast: "wolf" })
     if bear_of(u_id[i]) >= 0: fallen.push(Fallen { u_id[i], u_x[i], u_y[i], -1, true, bx, by, beast: "bear" })
+    let body = game_body(u_id[i])
+    if game_died(i): fallen.push(Fallen { u_id[i], u_x[i], u_y[i], -1, true, bx, by, beast: body })
 
 // How fast this unit walks for its wounds, in hundredths: slowly once a ball has hit him.
 def wound_pace(i:int) -> int:
@@ -537,6 +540,7 @@ def threats_after_step(fired:[int]):
         shot_seen.set(id, tick)
         let i = index_of(id)
         if i >= 0:
+            game_heard_shot(u_x[i], u_y[i])
             for(packs) pk:
                 let near = find(pack_alive(pk)) wid: dist2(u_x[index_of(wid)], u_y[index_of(wid)], u_x[i], u_y[i]) <= hearing * hearing
                 if near >= 0: pack_hear(pk, u_x[i], u_y[i])
@@ -712,7 +716,7 @@ def men_fight():
         var best = -1
         var best_d = 1 << 62
         for(u_x.length) j:
-            if u_owner[j] == 1 and t_hp[u_kind[j]] < 100000:
+            if u_owner[j] == 1 and t_hp[u_kind[j]] < 100000 and game_of(u_id[j]) < 0:
                 let d = dist2(u_x[i], u_y[i], u_x[j], u_y[j])
                 if d < best_d and sees(i, j, sight):
                     best = j
@@ -747,7 +751,7 @@ def bear_rearing(uid:int) -> bool:
     return k >= 0 and bears[k].state == B_REAR
 
 // The beast this unit is, for the view: "wolf", "bear" or "".
-def beast_kind(uid:int) -> string: return if is_wolf(uid): "wolf" elif bear_of(uid) >= 0: "bear" elif is_horse(uid): "horse" else: ""
+def beast_kind(uid:int) -> string: return if is_wolf(uid): "wolf" elif bear_of(uid) >= 0: "bear" elif is_horse(uid): "horse" else: game_body(uid)
 
 // The cries since the view last took them.
 def threats_cries() -> [Cry]:

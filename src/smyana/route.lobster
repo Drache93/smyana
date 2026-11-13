@@ -52,6 +52,7 @@ def route_load():
     route = lib_data("route.json")
     men_data = lib_data("men.json")
     threats_load()
+    hunting_load()
     survival_load()
 
 def leg_of(id:string) -> JV: return at(at(route, "legs"), id)
@@ -400,6 +401,7 @@ def run_begin():
     place_memory.clear()
     survival_begin()
     forage_begin()
+    hunt_begin()
     packs_begin()
     knowledge_begin()
     trail_begin()
@@ -452,6 +454,7 @@ def enter_leg(id:string, edge:string):
         theirs.push(shallow_copy(at(riders_cfg(), "horse")))
     if with_wolves or has(leg_now(), "wolves"): theirs.push(shallow_copy(at(wolf_cfg(), "unit")))
     if with_bear or has(leg_now(), "bear"): theirs.push(shallow_copy(at(bear_cfg(), "unit")))
+    if not gbool(leg_now(), "end", false): for(game_units()) u: theirs.push(u)  // (the game that lives here: smyana/hunting.lobster)
     if theirs.length:
         for(theirs) u: set(u, "line", jarr([ shallow_copy(u) ]))
         let other = jobj()
@@ -494,6 +497,8 @@ def enter_leg(id:string, edge:string):
     if has(leg_now(), "bear"):
         let ba = map(glist(gobj(leg_now(), "bear"), "at")) v: as_int(v) * TILE + TILE / 2
         bear_spawn(ba[0], ba[1])
+    // (the game that lives here, set down about the place: smyana/hunting.lobster)
+    hunt_enter(place)
     // (riders on the trail, and a chance meeting: docs/threats.md, riders)
     trail_enter()
     meet_roll()
@@ -606,6 +611,7 @@ def route_tick() -> string:
     if tick % 200 == 0: unstick_men()
     survival_tick()
     forage_tick()
+    hunt_tick()
     packs_tick()
     knowledge_tick()
     // (the weather's pace on the men, and the water's on a man in a ford, and his needs')
@@ -641,6 +647,8 @@ def route_tick() -> string:
     if not gates_armed:
         if in_any == 0 and alive > 0: gates_armed = true
         return ""
+    // (a camp made in the gate at night: they stay the night there, and go on in the morning)
+    if is_night() and camps_made(): return ""
     let exits = gobj(leg_now(), "exits")
     for(gate_names) name, g:
         if alive > 0 and inside[g] == alive and has(exits, name): return name
@@ -654,6 +662,7 @@ def route_leave(edge:string):
     trail_leave()
     let place = place_now()
     forage_leave(place)
+    hunt_leave(place)
     packs_leave(place)
     let was = place_memory.get(place)
     place_memory.set(place, PlaceMemory { copy(terrain), copy(amount), copy(wear), if was: was.visits + 1 else: 1, copy(br_up) })

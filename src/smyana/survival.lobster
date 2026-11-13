@@ -20,7 +20,11 @@ var sv_camps = []::Camp
 var needs_uh = 0     // the clock (clock_uh) when the needs were last brought up to it
 var woken_until = 0  // a shot in the night: the men stay up till then
 var meal_day = -1    // the evening the men last ate
-var meals_hot = 0    // how many meals have been eaten, hot or cold (for the checks)
+// Each man's last evening's meal (2026-11-13: the evening's meal used to end with the first man to eat, so a man still
+// walking into the camp went without, and a playthrough's band starved with food in its packs)
+let ate_on = dictionary<int, int>(32)
+var meal_log = false  // (script:play: each meal printed)
+var meals_hot = 0     // how many meals have been eaten, hot or cold (for the checks)
 var meals_cold = 0
 var needs_kept = false                 // (for the walk check: nobody gets hungry, cold or tired)
 let asleep = dictionary<int, int>(32)  // a man's id: 1 while he sleeps
@@ -41,6 +45,7 @@ def survival_begin():
         m.rested = NEED_FULL
         m.food = gint(survival_cfg, "start_food", 4)
     meal_day = -1
+    ate_on.clear()
     meals_hot = 0
     meals_cold = 0
     needs_uh = clock_uh
@@ -80,6 +85,9 @@ def fire_near(i:int) -> int:
     return find(sv_camps) cp: cp.lit and dist2(u_x[i], u_y[i], cp.x, cp.y) <= r * r
 
 // The camp this man is in, or -1.
+// Whether there is a camp in this place (made or being made).
+def camps_made() -> bool: return sv_camps.length > 0
+
 def camp_of(i:int) -> int:
     let r = gint(sv_cfg("camp"), "in_tiles", 5) * TILE
     return find(sv_camps) cp: dist2(u_x[i], u_y[i], cp.x, cp.y) <= r * r
@@ -237,7 +245,7 @@ def survival_tick():
     // (who is in a camp, and its meal)
     for(sv_camps) cp: cp.empty_since = if cp.empty_since < 0: tick else: cp.empty_since
     let ev = evening_now()
-    let eating = meal_time() and ev > meal_day
+    let eating = meal_time()
     var ate = false
     for(men) m:
         if not m.alive: continue
@@ -251,13 +259,16 @@ def survival_tick():
         let sleeps = k >= 0 and night and u_moving[i] == 0 and u_task[i] != GATHER and u_task[i] != BUILD and tick >= woken_until and u_hp[i] >= was_hp and u_foe[i] == 0
         asleep.set(m.uid, if sleeps: 1 else: 0)
         // the meal: at the first camp of the evening, one portion each, hot at a lit fire
-        if eating and k >= 0 and sv_camps[k].lit_at <= tick:
+        if eating and ate_on.get(m.uid, -1) < ev and k >= 0 and sv_camps[k].lit_at <= tick:
             ate = true
+            ate_on.set(m.uid, ev)
             let hot = fire_burning(sv_camps[k])
-            if take_portion(m):
+            let had = take_portion(m)
+            if had:
                 m.fed = if hot: NEED_FULL else: need_set(m.fed + gint(fd, "cold_meal", 50) * 1000)
                 if hot: meals_hot++ else: meals_cold++
-        let working = u_task[i] == GATHER or u_task[i] == BUILD or foraging(m.uid) or studying(m.uid)
+            if meal_log: print "play: meal: {m.name} {if not had: "nothing left" elif hot: "hot" else: "cold"}, fed {m.fed / 1000}"
+        let working = u_task[i] == GATHER or u_task[i] == BUILD or foraging(m.uid) or butchering(m.uid) or studying(m.uid)
         let loaded = u_carry[i] > 0
         // hunger
         var hunger = sv_milli(fd, if sleeps: "asleep" else: "per_hour", 2.5)

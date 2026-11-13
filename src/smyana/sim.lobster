@@ -53,6 +53,7 @@ import smyana.guns
 import smyana.threats
 import smyana.survival
 import smyana.forage
+import smyana.hunting
 import smyana.packs
 import smyana.knowledge
 import smyana.woods

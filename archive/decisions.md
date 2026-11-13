@@ -749,3 +749,38 @@ has a brisk time, and daylight spent in it past that brings them nearer. When th
 by the men's own edge. Beaten, the trail goes cold. In any place but the village edge, a patrol may already be there
 by a chance fixed for the run (`seed:<n>`): camped, resting, or guarding the ruins, on foot, horses tied near. Patrols
 get down off their horses to fight. The riders are baked like the men (D-118).
+
+**D-120, 2026-11-13: Our men always show, whatever stands in front of them.** (From Dominic: "need to ensure we can
+always see our guys"; how, Claude.) After everything is drawn, each of our men is drawn once more, faintly (42%), on
+top. Where he is in plain sight his ghost lands on himself and changes nothing; behind a crown or a trunk he shows
+through it. An old tree over a man also thins out its trunk and limbs (to 45%), not only its crown as before. Not done:
+cutting whole trees away, which would leave holes in the wood.
+
+**D-121, 2026-11-13: The pointer says what is under it and what a right-click will do.** (From Dominic: "i cant click
+on trees to see what they have or right click them"; Claude.) By the mouse, a name ("Old beech", "Mushrooms", "Roe
+deer", "Your packs", "Roman ruins", a man's name) and, with men chosen, the order ("right click: gather", "shoot it for
+meat (the shot is heard)", "too big to fell: young trees give the wood"). The only writing in the world, and only where
+the mouse is. Felling stays with young trees: the old trees and the giants can't be felled.
+
+**D-122, 2026-11-13: Game to hunt: roe deer, wild boar and Balkan chamois, where the sources put them.** (From
+Dominic: "Foraging and hunting needed yeh", keeping the four days' food; the kinds and their ways, Claude, from Animal
+Diversity Web on the roe deer, Acta Zoologica Bulgarica suppl. 15 on the Rhodopes' game, and wilddocu.de on the Balkan
+chamois, a forest dweller in the Western Rhodopes above about 1,000 m.) Roe deer in the beech, oak and fir woods (red
+in summer, grey with a white rump in winter), wild boar in the beech and fir woods (the beechnut months most), chamois
+in the gorge, the pass and on the ridge (brown in summer, near black in winter). Herds are set down by the trail. They
+graze, look up at a man they can see (cover hides him, as from the patrol), run if he comes close or moves while they
+watch, and run from any shot they hear. A ball kills a deer or a chamois; a boar takes two and charges whoever hit it.
+A carcass is butchered by right-clicking it: a day's meat for twelve men from a deer, thirty from a boar, fifteen from a chamois (about a kilo a man a day, from their weights), and a hide
+to take home. The shot is heard by any patrol, as every shot is (D-085). What is shot stays shot. Numbers in
+`data/hunting.json`. Not done: red deer (the same paper has them once near extinction in Bulgaria; left for later) and hares.
+
+**D-123, 2026-11-13: A long march is a column two abreast.** (From Dominic: "long march they should walk in a column
+not wide"; Claude.) Sent more than 14 tiles, the men set off one pair after another, the man nearest the goal first,
+each to his place in a column; when the head is nearly there the column is given one move together and stands round
+the spot as before. A short move is still a group's.
+
+**D-124, 2026-11-13: The letter between places stays as long as it takes to read; the music plays on.** (From Dominic:
+"how come loading next map is slower than game start?" and "music should play in a loop for now"; Claude.) The next
+place loads in about a second behind the letter; the letter itself held the screen twenty seconds. Now it is up for its
+reading time (at most twenty seconds), and "click to go on" shows as soon as the place is ready. The calm music's gap
+between tracks is 1 second instead of 90, until the music work.

@@ -1,8 +1,8 @@
 {
- "_doc": "Which music plays when (src/smyana/music.lobster; the plan is docs/music-tracks.md). The game swaps whole tracks (D-042): a calm track for the season and the hour plays through once, then the forest is left alone for 'gap_s' seconds before the next. Danger cuts straight to its loop; when it ends one of the 'end_strokes' is played over the cut, and 'after_danger_s' later the calm music starts again. 'db' is the whole score's volume (the player's music volume is on top). 'first_wait_s': how long after a place opens the first track starts. 'leave_fade_s': the fade as the men leave a place. Tracks are assets/audio/music/<name>.ogg, made by music/pieces/set_03_score.py; a track named here that has no file is silence.",
+ "_doc": "Which music plays when (src/smyana/music.lobster; the plan is docs/music-tracks.md). The game swaps whole tracks (D-042): a calm track for the season and the hour plays through once, then the forest is left alone for 'gap_s' seconds before the next (1 for now: the music plays on, track after track, till the music work is done; Dominic, 2026-11-13: \"music should play in a loop for now\"). Danger cuts straight to its loop; when it ends one of the 'end_strokes' is played over the cut, and 'after_danger_s' later the calm music starts again. 'db' is the whole score's volume (the player's music volume is on top). 'first_wait_s': how long after a place opens the first track starts. 'leave_fade_s': the fade as the men leave a place. Tracks are assets/audio/music/<name>.ogg, made by music/pieces/set_03_score.py; a track named here that has no file is silence.",
  "db": -3,
  "first_wait_s": 3,
- "gap_s": 90,
+ "gap_s": 1,
  "after_danger_s": 6,
  "leave_fade_s": 2.5,
  "calm": {

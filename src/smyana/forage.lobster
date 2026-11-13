@@ -6,9 +6,10 @@
 // the way home too. Sim side only.
 
 class Forager:
-    id:int    // the man
-    cell:int  // the patch he is gathering
-    work:int  // ticks he has stood at it
+    id:int         // the man
+    cell:int       // the patch he is gathering
+    work:int       // ticks he has stood at it
+    since:int = 0  // the tick he was sent (his order reaches him a tick or two later)
 
 var foragers = []::Forager
 let forage_taken = dictionary<int, int>(64)        // this place's patches already gathered: cell -> 1
@@ -71,7 +72,7 @@ def forage_order(ids:[int], c:int) -> bool:
             for(near) p, k: if dist2((p % W) * TILE, (p / W) * TILE, u_x[i], u_y[i]) < dist2((near[best] % W) * TILE, (near[best] / W) * TILE, u_x[i], u_y[i]): best = k
             let p = near[best]
             near.remove(best)
-            foragers.push(Forager { id, p, 0 })
+            foragers.push(Forager { id, p, 0, since: tick })
             issue_cmd(0, CMD_MOVE, [ id ], (p % W) * TILE + TILE / 2, (p / W) * TILE + TILE / 2, 0, 0)
             sent = true
     return sent
@@ -90,7 +91,7 @@ def forage_tick():
         let k = patch_at(f.cell)
         let px = (f.cell % W) * TILE + TILE / 2
         let py = (f.cell / W) * TILE + TILE / 2
-        if i < 0 or not m or k < 0 or dist2(u_tx[i], u_ty[i], px, py) > TILE * TILE: false
+        if i < 0 or not m or k < 0 or (tick > f.since + TICK_HZ and dist2(u_tx[i], u_ty[i], px, py) > TILE * TILE): false
         elif u_moving[i] == 1 or dist2(u_x[i], u_y[i], px, py) > TILE * TILE: true
         else:
             f.work += 10  // (it is called every ten ticks)

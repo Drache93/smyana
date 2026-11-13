@@ -65,6 +65,7 @@ guns_load()
 // the end)
 needs_kept = true
 meets_off = true  // (a patrol met by chance would upset the script; script:play meets them)
+game_off = true   // (and so would the game; it has its own check at the end)
 run_begin()
 leg_loads.push(last_load_s)
 expect(place_now() == "village_edge" and u_x.length == 20, "the run starts at the village edge with twenty men ({u_x.length})")
@@ -639,4 +640,40 @@ let said = tally_lines()
 print "tally: {said}"
 expect((find(said) l: find_string(l, "Romans") >= 0) >= 0, "the tally says what they learned")
 expect(men_alive() == men.length or (find(said) l: find_string(l, " lies in ") >= 0) >= 0, "and names the fallen")
+// game (D-122): the beech valley in autumn has its deer and boar by the trail; a deer shot from close falls, and the
+// men butcher it into their packs; a shot sends the rest running
+game_off = false
+year_force = 1000
+enter_leg("beech_valley_out", "west")
+for(40): step()
+expect(game.length >= 3, "the beech valley has its game ({game.length})")
+let deer = find(game) g: g.kind == "roe"
+expect(deer >= 0, "among it a roe deer")
+if deer >= 0:
+    let di = index_of(game[deer].id)
+    let hunters = slice(ids_alive(), 0, 4)
+    // (the hunters set down three tiles from it, as if they had stalked it)
+    for(hunters) id, n:
+        let hi = index_of(id)
+        u_x[hi] = u_x[di] - 3 * TILE + n * 300
+        u_y[hi] = u_y[di]
+    let food_was = (fold(men, 0) a, m: a + m.food)
+    guns_order(hunters, game[deer].id)
+    for(60 * TICK_HZ):
+        step()
+        threats_after_step(guns_after_step())
+        route_tick()
+        if game[deer].state == G_DEAD: break
+    expect(game[deer].state == G_DEAD and carcasses.length > 0, "the deer is shot and lies there")
+    expect((find(game) g: g.state == G_FLEE) >= 0 or game.length == 1, "the rest run from the shot")
+    if carcasses.length:
+        expect(butcher_order(hunters, 0), "the men go to butcher it")
+        for(60 * TICK_HZ):
+            step()
+            route_tick()
+            if not butchers.length: break
+        let food_now = (fold(men, 0) a, m: a + m.food)
+        print "game: the deer gave {food_now - food_was} portions"
+        expect(food_now > food_was, "and carry its meat in their packs")
+year_force = -1
 print (if failed: "run_check: {failed} FAILED" else: "run_check: ok")

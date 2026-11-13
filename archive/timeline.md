@@ -214,3 +214,7 @@ One line per moment worth remembering. Newest at the bottom.
   (D-118, Creel's `vx_smooth_normals` and `vx_despeckle`).
 - **2026-11-13:** The patrol rides: riders on the men's trail home from the ridge, and patrols met by chance, camped,
   resting or at the ruins (D-119).
+- **2026-11-13:** Playing it, Dominic found the men hidden and the game unclear. The men now show through the trees
+  (D-120), the pointer says what can be done (D-121), there is game to hunt (D-122), marches go in a column (D-123),
+  the letter between places is short and the music plays on (D-124). A proposal for teaching the game:
+  `docs/clarity.md`.
