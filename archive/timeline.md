@@ -228,3 +228,5 @@ One line per moment worth remembering. Newest at the bottom.
   wild honey. The trodden trail is the quick way in the snow (D-132).
 - **2026-11-13:** Dominic plays: "telling them to make camp, i got no fire" (fixed, D-133), and the UI and gathering
   need rethinking: a proposal comes before more UI.
+- **2026-11-13:** Dominic agrees the gathering proposal ("go ahead"): no words under the mouse, no felling, a few big
+  stands the men call out, goods for home by kind, drawn order signs and loaves (D-134 to D-137).

@@ -348,8 +348,8 @@ def build_props():
     // the horses and the mules; the fireplace comes with the fire): nothing grows under it
     let camp = glist(su_map, "camp")
     if camp.length:
-        let stands = map(camp) e: gp(as_float(e.a[1]), as_float(e.a[2]))
-        props = filter(props) pr: pr.kind != 5 or not exists(stands) q: abs(pr.at.x - q.x) < 60.0 and abs(pr.at.y - q.y) < 34.0
+        let standing = map(camp) e: gp(as_float(e.a[1]), as_float(e.a[2]))
+        props = filter(props) pr: pr.kind != 5 or not exists(standing) q: abs(pr.at.x - q.x) < 60.0 and abs(pr.at.y - q.y) < 34.0
         // (nor round the fire, where the men tread: "fire", x and y in milli-tiles)
         let hearth = glist(su_map, "fire")
         if hearth.length:
@@ -357,7 +357,7 @@ def build_props():
             props = filter(props) pr: pr.kind != 5 or abs(pr.at.x - f.x) > 46.0 or abs(pr.at.y - f.y) > 26.0
         // (a fourth "far": seen far off, as the ridge's patrol on the far road is, and not marked like the men: a dark
         // shape in the fog, not a figure kept bright, D-084)
-        for(camp) e, i: props.push(Prop { 4, 0, as_str(e.a[0]), if e.a.length > 3: as_str(e.a[3]) else: "", stands[i],
+        for(camp) e, i: props.push(Prop { 4, 0, as_str(e.a[0]), if e.a.length > 3: as_str(e.a[3]) else: "", standing[i],
                                           (as_int(e.a[2]) / 1000) * W + as_int(e.a[1]) / 1000 })
 
     // the Roman ruins (#17), where the place has them ("ruins": [name, x, y in milli-tiles] each): the undergrowth
@@ -365,7 +365,7 @@ def build_props():
     // or buried, and not in its drain
     let ruins = glist(su_map, "ruins")
     if ruins.length:
-        let stands = map(ruins) e: gp(as_float(e.a[1]), as_float(e.a[2]))
+        let standing = map(ruins) e: gp(as_float(e.a[1]), as_float(e.a[2]))
         let cells = map(ruins) e: (as_int(e.a[2]) / 1000) * W + as_int(e.a[1]) / 1000
         props = filter(props) pr: pr.kind != 5 or not exists(ruins) e, i:
             let name = as_str(e.a[0])
@@ -374,8 +374,8 @@ def build_props():
                 let c = ROAD_PLAN[n]
                 let d = ROAD_DRAIN[n]
                 pr.cell == cells[i] and (c == 'w' or c == 'h') or pr.cell == cells[i] + W and (d == 'd' or d == 'c')
-            else: abs(pr.at.x - stands[i].x) < 34.0 and abs(pr.at.y - stands[i].y) < 18.0
-        for(ruins) e, i: props.push(Prop { 3, 0, as_str(e.a[0]), "", stands[i], cells[i] })
+            else: abs(pr.at.x - standing[i].x) < 34.0 and abs(pr.at.y - standing[i].y) < 18.0
+        for(ruins) e, i: props.push(Prop { 3, 0, as_str(e.a[0]), "", standing[i], cells[i] })
     build_canopy()
 
 // The trail is a path a man or two wide, not a road a tile wide (the mock-ups: a thin tan line through the leaves).
@@ -858,9 +858,7 @@ class Breath:
     phase:float  // his own breathing, seconds
     every:float  // a breath every so many seconds: the colder the more often it shows
 var breaths = []::Breath
-let PATCH_LOOKS = [ "mushrooms", "nuts", "berries_blue", "berries_red", "herbs", "greens", "pears" ]
-var patch_cells = []::int  // the patches of what the wood gives (smyana/forage.lobster), looked for again now and then
-var patch_tick = -1000
+let PATCH_LOOKS = [ "mushrooms", "nuts", "berries_blue", "berries_red", "herbs", "greens", "pears", "rosehips" ]
 var view_lo = float2_0
 var view_hi = float2_0
 
@@ -1366,7 +1364,11 @@ def draw_world(alpha:float):
                         b_sheet = -1
                     elif d.f == -8:
                         flush_sprites()
-                        draw_patch(d.x, d.ay, int(d.col.x), int(d.col.y))
+                        if d.col.x >= 0.0:
+                            // (a stand's item, drawn bigger than life so it is seen from a way off: docs/gathering.md)
+                            gl.translate(float(floor(float2 { d.x, d.ay }))):
+                                gl.scale(if d.col.x == 7.0: 1.4 else: 2.0): draw_patch(0.0, 0.0, int(d.col.x), int(d.col.y))
+                        else: draw_patch(d.x, d.ay, int(d.col.x), int(d.col.y))
                         b_sheet = -1
                     elif d.f == -9:
                         flush_sprites()
@@ -1536,21 +1538,24 @@ def draw_breaths():
 // The patches the wood gives (docs/survival.md, #66): drawn on the ground among everything else, so the light and the
 // season's dark fall on them too.
 def collect_patches():
-    if tick - patch_tick >= 40 or tick < patch_tick:
-        patch_cells = forage_patches()
-        patch_tick = tick
     for(piles) pl:
         let p = gp(float(pl.x), float(pl.y))
         if p.x > view_lo.x and p.x < view_hi.x and p.y > view_lo.y and p.y < view_hi.y:
-            draws.push(Drawable { p.y + 1.0, draws.length, -8, p.x, p.y, float4 { -1.0 - float(pl.kind), float(pl.food + pl.goods), 0.0, 0.0 }, 1.0, 3, 0.0, 0.0 })
+            draws.push(Drawable { p.y + 1.0, draws.length, -8, p.x, p.y, float4 { -1.0 - float(pl.kind), float(pl.food + pl.wares.length), 0.0, 0.0 }, 1.0, 3, 0.0, 0.0 })
+    // (each stand as its items, each sorted on its own foot: a rose bush stands up among the men, ceps lie under them;
+    // fewer of them the less is left)
     let finds = forage_finds()
-    for(patch_cells) c:
-        let k = patch_at(c)
-        if k >= 0:
-            let p = gp(float((c % W) * 1000 + 500), float((c / W) * 1000 + 500))
-            if p.x > view_lo.x and p.x < view_hi.x and p.y > view_lo.y and p.y < view_hi.y:
-                let look = find(PATCH_LOOKS) l: l == gstr(finds[k], "look", "")
-                draws.push(Drawable { p.y + 6.0, draws.length, -8, p.x, p.y, float4 { float(look), float(c), 0.0, 0.0 }, 1.0, 3, 0.0, 0.0 })
+    for(stands) st:
+        if st.left > 0 and st.kind < finds.length:
+            let look = find(PATCH_LOOKS) l: l == gstr(finds[st.kind], "look", "")
+            let n = if look == 7: clamp((st.left + 3) / 4, 1, 3) else: clamp(st.left, 3, 16)
+            for(n) j:
+                // (spread over the stand's ground, each item a hash of its own for its bearing and its distance out)
+                let a = float(cell_hash(st.cell * 31 + j * 7 + 5) % 628) / 100.0
+                let r = (if look == 7: 0.6 else: 2.2) * sqrt(float(cell_hash(st.cell * 53 + j * 11 + 9) % 1000) / 1000.0) * 1000.0
+                let p = gp(float((st.cell % W) * 1000 + 500) + cos(a) * r, float((st.cell / W) * 1000 + 500) + sin(a) * r)
+                if p.x > view_lo.x - 40.0 and p.x < view_hi.x + 40.0 and p.y > view_lo.y and p.y < view_hi.y + 60.0:
+                    draws.push(Drawable { p.y + 1.0, draws.length, -8, p.x, p.y, float4 { float(look), float(st.cell * 64 + j), float(st.left), 0.0 }, 1.0, 3, 0.0, 0.0 })
 
 // One patch, a few pixels of the art about its foot (x, y art px): pale mushroom caps, fallen nuts and husks, a
 // fruiting tuft, flowering sprigs. Spread over a stretch of ground and pale against the litter, so it can be found.
@@ -1558,7 +1563,6 @@ def draw_patch(x:float, y:float, look:int, cell:int):
     gl.set_shader("color")
     def px(dx:float, dy:float, w:float, h:float, c:float4):
         gl.color(c): gl.translate(float2 { floor(x) + dx, floor(y) + dy }): gl.rect(float2 { w, h })
-    def spot(n:int) -> float2: return float2 { float(cell_hash(cell * 7 + n) % 29) - 14.0, float(cell_hash(cell * 13 + n) % 13) - 6.0 }
     let leaf = float4 { 0.22, 0.36, 0.17, 1.0 }
     let shade = float4 { 0.08, 0.06, 0.04, 0.6 }
     if look == -2:  // another band's cache: a low heap of flat stones, a sack's corner showing under them
@@ -1588,42 +1592,79 @@ def draw_patch(x:float, y:float, look:int, cell:int):
             px(o.x, o.y - 6.0, 1.0, 1.0, float4 { 0.3, 0.2, 0.12, 1.0 })
             px(o.x - 2.0, o.y - 2.0, 5.0, 1.0, float4 { 0.42, 0.33, 0.22, 1.0 })
         return
-    if look == 0:  // mushrooms: pale stems under cream and brown caps, in a ring
+    // (one item of a stand: a cell's worth of it, bigger than life so it is seen from a way off, docs/gathering.md)
+    let h = cell
+    def r(n:int, m:int) -> float: return float(cell_hash(h * 13 + n) % m)
+    if look == 0:  // ceps: one to three together, stout pale stems under broad red-brown caps (Boletus edulis)
+        for(1 + h % 3) n:
+            let o = float2 { r(n, 15) - 7.0, r(n + 5, 7) - 3.0 }
+            let w = 7.0 + r(n + 9, 4)
+            px(o.x - w / 2.0 - 1.0, o.y + 1.0, w + 3.0, 2.0, shade)
+            px(o.x - 2.0, o.y - 5.0, 4.0, 6.0, float4 { 0.9, 0.86, 0.74, 1.0 })
+            px(o.x - 1.0, o.y - 4.0, 1.0, 4.0, float4 { 0.78, 0.72, 0.6, 1.0 })
+            px(o.x - w / 2.0, o.y - 8.0, w, 3.0, float4 { 0.52, 0.3, 0.16, 1.0 })
+            px(o.x - w / 2.0 + 1.0, o.y - 9.0, w - 2.0, 1.0, float4 { 0.62, 0.38, 0.2, 1.0 })
+            px(o.x - w / 2.0 + 2.0, o.y - 9.0, 2.0, 1.0, float4 { 0.74, 0.5, 0.3, 1.0 })
+            px(o.x - w / 2.0, o.y - 5.0, w, 1.0, float4 { 0.86, 0.8, 0.6, 1.0 })
+    elif look == 1:  // beechnuts: split four-lobed husks and the dark three-sided nuts on the litter, a good fall of them
         for(7) n:
-            let o = spot(n)
-            px(o.x - 1.0, o.y, 4.0, 1.0, shade)
-            px(o.x, o.y - 2.0, 2.0, 2.0, float4 { 0.94, 0.91, 0.82, 1.0 })
-            px(o.x - 1.0, o.y - 4.0, 4.0, 2.0, if n % 3 == 0: float4 { 0.62, 0.4, 0.22, 1.0 } else: float4 { 0.9, 0.84, 0.68, 1.0 })
-            px(o.x, o.y - 5.0, 2.0, 1.0, float4 { 0.7, 0.5, 0.3, 1.0 })
-    elif look == 1:  // nuts: split pale husks and dark nuts scattered on the litter
-        for(12) n:
-            let o = spot(n)
-            px(o.x, o.y + 1.0, 3.0, 1.0, shade)
-            px(o.x, o.y - 1.0, 3.0, 2.0, float4 { 0.86, 0.76, 0.55, 1.0 })
-            px(o.x + 1.0, o.y - 1.0, 1.0, 1.0, float4 { 0.3, 0.18, 0.09, 1.0 })
-    elif look == 2 or look == 3:  // a fruiting tuft: low leaves, dark blue or red berries
-        let berry = if look == 2: float4 { 0.24, 0.26, 0.56, 1.0 } else: float4 { 0.85, 0.14, 0.1, 1.0 }
-        for(3) t:
-            let o = spot(t + 20)
-            px(o.x - 5.0, o.y + 1.0, 11.0, 1.0, shade)
-            px(o.x - 5.0, o.y - 2.0, 11.0, 3.0, leaf)
-            px(o.x - 3.0, o.y - 4.0, 7.0, 2.0, leaf)
-            for(5) n: px(o.x + float(cell_hash(cell + n + t * 9) % 10) - 5.0, o.y + float(cell_hash(cell * 3 + n + t) % 4) - 4.0, 1.0, 1.0, berry)
-    elif look == 4:  // herbs: green sprigs with white flower heads
+            let o = float2 { r(n, 23) - 11.0, r(n + 7, 11) - 5.0 }
+            px(o.x - 1.0, o.y + 1.0, 4.0, 1.0, shade)
+            if n % 2 == 0:
+                px(o.x - 1.0, o.y - 1.0, 4.0, 2.0, float4 { 0.62, 0.46, 0.26, 1.0 })
+                px(o.x, o.y - 2.0, 2.0, 1.0, float4 { 0.72, 0.56, 0.32, 1.0 })
+            else:
+                px(o.x, o.y - 1.0, 2.0, 2.0, float4 { 0.34, 0.2, 0.1, 1.0 })
+                px(o.x, o.y - 1.0, 1.0, 1.0, float4 { 0.5, 0.32, 0.16, 1.0 })
+    elif look == 2 or look == 3:  // a low fruiting tuft: leaves, blue-black bilberries or red berries thick on it
+        let berry = if look == 2: float4 { 0.2, 0.22, 0.46, 1.0 } else: float4 { 0.86, 0.14, 0.1, 1.0 }
+        let shine = if look == 2: float4 { 0.5, 0.54, 0.78, 1.0 } else: float4 { 1.0, 0.6, 0.5, 1.0 }
+        px(-9.0, 1.0, 19.0, 2.0, shade)
+        px(-9.0, -3.0, 19.0, 4.0, leaf)
+        px(-6.0, -6.0, 13.0, 3.0, float4 { 0.28, 0.44, 0.2, 1.0 })
+        px(-3.0, -8.0, 7.0, 2.0, leaf)
         for(9) n:
-            let o = spot(n)
-            px(o.x, o.y - 4.0, 1.0, 4.0, float4 { 0.36, 0.52, 0.24, 1.0 })
-            px(o.x - 1.0, o.y - 6.0, 3.0, 2.0, float4 { 0.95, 0.93, 0.84, 1.0 })
-    elif look == 5:  // greens: low bright tufts
-        for(4) n:
-            let o = spot(n)
-            px(o.x - 4.0, o.y - 2.0, 9.0, 2.0, float4 { 0.4, 0.62, 0.22, 1.0 })
-            px(o.x - 2.0, o.y - 4.0, 5.0, 2.0, float4 { 0.5, 0.72, 0.3, 1.0 })
-    elif look == 6:  // pears: small yellow fruit fallen under the tree
+            let o = float2 { r(n, 17) - 8.0, r(n + 3, 8) - 7.0 }
+            px(o.x, o.y, 2.0, 2.0, berry)
+            px(o.x, o.y, 1.0, 1.0, shine)
+    elif look == 4:  // mountain tea and herbs: upright woolly silver-green stems, pale yellow flower spikes
+        for(5) n:
+            let o = float2 { r(n, 17) - 8.0, r(n + 4, 7) - 3.0 }
+            let tall = 9.0 + r(n + 8, 5)
+            px(o.x - 1.0, o.y, 3.0, 1.0, shade)
+            px(o.x, o.y - tall, 1.0, tall, float4 { 0.62, 0.68, 0.56, 1.0 })
+            px(o.x - 2.0, o.y - 3.0, 2.0, 1.0, float4 { 0.7, 0.76, 0.64, 1.0 })
+            px(o.x + 1.0, o.y - 5.0, 2.0, 1.0, float4 { 0.7, 0.76, 0.64, 1.0 })
+            px(o.x - 1.0, o.y - tall - 4.0, 3.0, 5.0, float4 { 0.92, 0.86, 0.48, 1.0 })
+            px(o.x, o.y - tall - 5.0, 1.0, 1.0, float4 { 0.96, 0.92, 0.6, 1.0 })
+    elif look == 5:  // greens: low bright tufts, nettles or wild garlic
+        px(-8.0, 1.0, 17.0, 1.0, shade)
+        px(-8.0, -3.0, 17.0, 4.0, float4 { 0.36, 0.58, 0.2, 1.0 })
+        px(-5.0, -6.0, 11.0, 3.0, float4 { 0.46, 0.7, 0.28, 1.0 })
+        px(-2.0, -8.0, 5.0, 2.0, float4 { 0.56, 0.8, 0.34, 1.0 })
+    elif look == 6:  // wild pears fallen in the grass: small, green flushed red, the ripest gone brown (Pyrus pyraster)
         for(6) n:
-            let o = spot(n)
-            px(o.x, o.y - 2.0, 3.0, 2.0, float4 { 0.84, 0.76, 0.28, 1.0 })
-            px(o.x + 1.0, o.y - 3.0, 1.0, 1.0, float4 { 0.36, 0.24, 0.12, 1.0 })
+            let o = float2 { r(n, 21) - 10.0, r(n + 6, 9) - 4.0 }
+            let c = [ float4 { 0.62, 0.7, 0.26, 1.0 }, float4 { 0.7, 0.62, 0.24, 1.0 }, float4 { 0.66, 0.4, 0.2, 1.0 }, float4 { 0.46, 0.32, 0.16, 1.0 } ][(h + n) % 4]
+            px(o.x - 1.0, o.y + 1.0, 5.0, 1.0, shade)
+            px(o.x - 1.0, o.y - 2.0, 5.0, 3.0, c)
+            px(o.x, o.y - 3.0, 3.0, 1.0, c)
+            px(o.x, o.y - 2.0, 1.0, 1.0, float4 { 0.78, 0.36, 0.2, 1.0 })
+            px(o.x + 1.0, o.y - 4.0, 1.0, 1.0, float4 { 0.3, 0.2, 0.1, 1.0 })
+    elif look == 7:  // a dog rose: arching dark stems, bare in winter, hung thick with red hips (Rosa canina)
+        let wide = 22.0 + r(1, 10)
+        px(-wide / 2.0, 1.0, wide, 3.0, shade)
+        for(9) n:
+            let a = (float(n) / 8.0 - 0.5) * 2.4
+            let len = 22.0 + r(n + 2, 12)
+            for(int(len)) k:
+                let t = float(k) / len
+                let sx = sin(a) * len * t * 0.8 + sin(t * 3.0) * float(n % 3 - 1)
+                let sy = -cos(a * 0.6) * len * t + t * t * len * 0.35
+                px(floor(sx), floor(sy), 1.0, 1.0, float4 { 0.3, 0.16, 0.12, 1.0 })
+                if k % 4 == 3 and cell_hash(h + n * 17 + k) % 3 != 0:
+                    px(floor(sx) - 1.0, floor(sy), 2.0, 3.0, float4 { 0.8, 0.12, 0.08, 1.0 })
+                    px(floor(sx) - 1.0, floor(sy), 1.0, 1.0, float4 { 0.96, 0.42, 0.3, 1.0 })
 
 // The mark on the range: a pale board with a dark ring, nailed to a post (art px, its foot at x, y).
 def draw_mark(x:float, y:float):
@@ -1839,34 +1880,32 @@ def draw_one_man():
         gl.translate(float2 { floor(ws.y * 0.03), floor(ws.y - float(size) * 1.9) }): gl.text(man_state(m))
 
 // ------------------------------------------------------------------ the order signs (Dominic, 2026-11-13: "teaching
-// them to press C is pretty bad. This is where we need a minimal level of UI somehow")
-// With men chosen, a short row of words at the foot of the screen, in the letter's hand: what they can be told to do
-// where they stand, and how many days' bread the men have. Nothing shows when no one is chosen. The keys still work.
-let SIGN_FONT = "../data/fonts/OldStandard/OldStandard-Regular.ttf"
+// them to press C is pretty bad. This is where we need a minimal level of UI somehow"; "The UI youve done i pretty bad.
+// You went for minimal, but it just looks like placholder")
+// With men chosen, a few small pictures drawn in the game's own hand just under their feet, no words: a fire (make
+// camp, light it, or put it out), a pack (put the packs down), an open hand (halt); and beside them a row of loaves, one
+// for each day the bread will last. Nothing shows when no one is chosen. The keys still work. docs/gathering.md.
 
 // The chosen men who are men (not game or a patrol someone clicked).
 def chosen_men() -> [int]: return filter(selected) id: man_of(id) != nil and index_of(id) >= 0
 
-// The signs for the chosen men now: their words, and what each does (0 camp, 1 packs down, 2 halt).
-def signs() -> [string], [int]:
+// The signs for the chosen men now: what each does (0 camp, 1 packs down, 2 halt), and the camp's state for the fire's
+// picture (0 no camp, 1 a camp with its fire out, 2 the fire being laid, 3 the fire lit).
+def signs() -> [int], int:
     let ids = chosen_men()
-    if not ids.length: return [], []
-    var camp = "Make camp"
+    if not ids.length: return [], 0
+    var camp = 0
     for(ids) id:
         let k = camp_of(index_of(id))
-        if k >= 0: camp = if sv_camps[k].lit and tick < sv_camps[k].lit_at: "Laying the fire" elif sv_camps[k].lit: "Put the fire out" else: "Light the fire"
-    let words = [ camp ]
+        if k >= 0: camp = if sv_camps[k].lit and tick < sv_camps[k].lit_at: 2 elif sv_camps[k].lit: 3 else: 1
     let what = [ 0 ]
     var carrying = false
     for(ids) id:
         let m = man_of(id)
-        if m and (m.food > 1 or m.goods > 0): carrying = true
-    if carrying:
-        words.push("Put the packs down")
-        what.push(1)
-    words.push("Halt")
+        if m and (m.food > 1 or m.wares.length > 0): carrying = true
+    if carrying: what.push(1)
     what.push(2)
-    return words, what
+    return what, camp
 
 // The bread the men have, in days for each man (all of them share it at a meal).
 def bread_days() -> int:
@@ -1878,38 +1917,37 @@ def bread_days() -> int:
             n++
     return if n: food / n else: 0
 
-def bread_words() -> string:
-    let d = bread_days()
-    return if d <= 0: "No bread left" elif d == 1: "Bread for a day" else: "Bread for {d} days"
+// The size of a pixel of the signs' art, in screen pixels (a sign is 16 of them square).
+def sign_px() -> float: return float(max(2, gl.window_size().y / 360))
 
-def sign_size() -> int: return int(float(gl.window_size().y) / 40.0)
-
-// Where each sign sits on the screen: its left edge and width, on one line at the foot.
-def sign_boxes(words:[string]) -> [float2]:
+// Where the signs sit on the screen, each a square (x, y, side) in a row centred under the chosen men's feet, kept on
+// the screen; and where the loaves start.
+def sign_boxes(n:int) -> [float3], float2:
+    let k = sign_px()
+    let side = 16.0 * k
+    let gap = 5.0 * k
     let ws = float(gl.window_size())
-    gl.set_font_name(SIGN_FONT)
-    gl.set_font_size(sign_size())
-    let gap = float(sign_size()) * 1.6
-    let widths = map(words) w: float(gl.text_size(w).x)
-    var total = gap * float(max(0, words.length - 1))
-    for(widths) w: total += w
-    var x = float(int(ws.x / 2.0 - total / 2.0))
-    return map(widths) w:
-        let b = float2 { x, w }
-        x += w + gap
-        b
-
-def sign_y() -> float: return float(int(float(gl.window_size().y) - float(sign_size()) * 2.4))
+    var men_foot = 0.0
+    var sx = 0.0
+    let ids = chosen_men()
+    for(ids) id:
+        let p = to_screen(gp(float(u_x[index_of(id)]), float(u_y[index_of(id)])))
+        sx += p.x
+        men_foot = max(men_foot, p.y)
+    let loaves_w = 9.0 * k * float(clamp(bread_days(), 1, 8)) + gap
+    let total = float(n) * side + float(max(0, n - 1)) * gap + gap * 2.0 + loaves_w
+    let x0 = clamp(sx / float(max(1, ids.length)) - total / 2.0, ws.y * 0.03, ws.x - ws.y * 0.03 - total)
+    let y0 = clamp(men_foot + 10.0 * k, ws.y * 0.08, ws.y - side - ws.y * 0.04)
+    let boxes = map(n) j: float3 { floor(x0 + float(j) * (side + gap)), floor(y0), side }
+    return boxes, float2 { floor(x0 + float(n) * (side + gap) + gap), floor(y0 + side - 7.0 * k) }
 
 // The sign under the mouse, or -1.
 def sign_under() -> int:
-    let words, what = signs()
-    if not words.length: return -1
+    let what = signs()
+    if not what.length: return -1
     let m = mouse_px()
-    let y = sign_y()
-    let pad = float(sign_size()) * 0.5
-    if m.y < y - pad or m.y > y + float(sign_size()) * 1.3 + pad: return -1
-    for(sign_boxes(words)) b, k: if m.x >= b.x - pad and m.x <= b.x + b.y + pad: return what[k]
+    let boxes = sign_boxes(what.length)
+    for(boxes) b, j: if m.x >= b.x and m.x < b.x + b.z and m.y >= b.y and m.y < b.y + b.z: return what[j]
     return -1
 
 // A sign clicked: its order.
@@ -1923,39 +1961,100 @@ def sign_order(what:int):
     elif what == 1: packs_drop(ids)
     elif what == 2: issue_cmd(0, CMD_STOP, ids, 0, 0, 0, 0)
 
+// One sign's picture on its square (x, y, side), k screen pixels to the art's pixel; lit when under the mouse.
+def draw_sign(b:float3, k:float, what:int, camp:int, lit:bool):
+    def px(x:float, y:float, w:float, h:float, c:float4):
+        gl.color(c): gl.translate(float2 { b.x + x * k, b.y + y * k }): gl.rect(float2 { w * k, h * k })
+    // (a dark round under it, so it reads over the brightest crowns; paler when the mouse is on it)
+    let under = if lit: float4 { 0.26, 0.22, 0.16, 0.85 } else: float4 { 0.05, 0.04, 0.03, 0.6 }
+    px(3.0, 0.0, 10.0, 16.0, under)
+    px(1.0, 2.0, 14.0, 12.0, under)
+    px(0.0, 4.0, 16.0, 8.0, under)
+    px(2.0, 1.0, 12.0, 14.0, under)
+    let wood = float4 { 0.45, 0.3, 0.17, 1.0 }
+    let wood_lit = float4 { 0.62, 0.44, 0.26, 1.0 }
+    let cut = float4 { 0.82, 0.68, 0.46, 1.0 }
+    if what == 0:  // a fire: two crossed logs, flames on them (none while it is laid, embers and smoke when it is lit)
+        px(3.0, 11.0, 10.0, 2.0, wood)
+        px(3.0, 11.0, 10.0, 1.0, wood_lit)
+        px(2.0, 11.0, 1.0, 2.0, cut)
+        px(13.0, 11.0, 1.0, 2.0, cut)
+        px(5.0, 9.0, 2.0, 2.0, wood)
+        px(7.0, 10.0, 2.0, 2.0, wood_lit)
+        px(9.0, 9.0, 2.0, 2.0, wood)
+        if camp == 3:  // lit: put it out, a glow of embers and a grey thread of smoke
+            px(5.0, 10.0, 6.0, 1.0, float4 { 0.9, 0.36, 0.1, 1.0 })
+            px(7.0, 9.0, 2.0, 1.0, float4 { 1.0, 0.6, 0.2, 1.0 })
+            for([ [ 8.0, 7.0 ], [ 7.0, 6.0 ], [ 7.0, 5.0 ], [ 8.0, 4.0 ], [ 9.0, 3.0 ], [ 9.0, 2.0 ] ]) s, n:
+                px(s[0], s[1], 2.0, 1.0, float4 { 0.72, 0.7, 0.66, 0.9 - float(n) * 0.12 })
+        elif camp != 2:
+            px(5.0, 6.0, 6.0, 4.0, float4 { 0.86, 0.28, 0.08, 1.0 })
+            px(6.0, 3.0, 4.0, 3.0, float4 { 0.86, 0.28, 0.08, 1.0 })
+            px(7.0, 1.0, 2.0, 2.0, float4 { 0.86, 0.28, 0.08, 1.0 })
+            px(6.0, 6.0, 4.0, 4.0, float4 { 0.98, 0.58, 0.14, 1.0 })
+            px(7.0, 4.0, 2.0, 2.0, float4 { 0.98, 0.58, 0.14, 1.0 })
+            px(7.0, 7.0, 2.0, 3.0, float4 { 1.0, 0.88, 0.44, 1.0 })
+    elif what == 1:  // a pack set down: a tied sack, its strap, a bedroll rolled on top
+        let sack = float4 { 0.6, 0.5, 0.34, 1.0 }
+        px(4.0, 6.0, 8.0, 8.0, sack)
+        px(3.0, 8.0, 10.0, 5.0, sack)
+        px(5.0, 5.0, 6.0, 1.0, float4 { 0.7, 0.6, 0.42, 1.0 })
+        px(4.0, 13.0, 8.0, 1.0, float4 { 0.42, 0.34, 0.22, 1.0 })
+        px(10.0, 7.0, 1.0, 6.0, float4 { 0.36, 0.24, 0.14, 1.0 })
+        px(4.0, 2.0, 8.0, 3.0, float4 { 0.5, 0.18, 0.14, 1.0 })
+        px(4.0, 2.0, 8.0, 1.0, float4 { 0.64, 0.26, 0.2, 1.0 })
+        px(3.0, 3.0, 1.0, 1.0, float4 { 0.36, 0.12, 0.1, 1.0 })
+        px(12.0, 3.0, 1.0, 1.0, float4 { 0.36, 0.12, 0.1, 1.0 })
+    else:  // halt: an open hand held up, its palm to you
+        let skin = float4 { 0.84, 0.66, 0.5, 1.0 }
+        let shade = float4 { 0.66, 0.48, 0.36, 1.0 }
+        for(4) f:
+            let tall = [ 5.0, 6.0, 6.0, 5.0 ][f]
+            px(4.0 + float(f) * 2.0, 8.0 - tall + (if f == 0 or f == 3: 1.0 else: 0.0), 2.0, tall, skin)
+            px(5.0 + float(f) * 2.0, 8.0 - tall + (if f == 0 or f == 3: 1.0 else: 0.0), 1.0, tall, shade)
+        px(4.0, 8.0, 8.0, 5.0, skin)
+        px(2.0, 7.0, 2.0, 2.0, skin)
+        px(3.0, 9.0, 2.0, 2.0, skin)
+        px(5.0, 13.0, 6.0, 2.0, skin)
+        px(5.0, 11.0, 5.0, 1.0, shade)
+        px(6.0, 15.0, 4.0, 1.0, float4 { 0.42, 0.3, 0.2, 1.0 })
+
+// A loaf at (x, y) screen px, k to the art's pixel: a round country loaf with its crust scored; a grey crust when it
+// is the last crumbs.
+def draw_loaf(x:float, y:float, k:float, gone:bool):
+    def px(dx:float, dy:float, w:float, h:float, c:float4):
+        gl.color(c): gl.translate(float2 { x + dx * k, y + dy * k }): gl.rect(float2 { w * k, h * k })
+    let dark = if gone: float4 { 0.2, 0.19, 0.17, 0.8 } else: float4 { 0.26, 0.14, 0.06, 1.0 }
+    let crust = if gone: float4 { 0.42, 0.4, 0.37, 0.8 } else: float4 { 0.72, 0.46, 0.2, 1.0 }
+    let top = if gone: float4 { 0.5, 0.48, 0.45, 0.8 } else: float4 { 0.86, 0.62, 0.3, 1.0 }
+    let low = if gone: float4 { 0.34, 0.32, 0.3, 0.8 } else: float4 { 0.56, 0.32, 0.12, 1.0 }
+    // (a dome: narrow at the top, its full width low down, flat on the board)
+    px(2.0, -1.0, 4.0, 1.0, dark)
+    px(1.0, 0.0, 6.0, 1.0, dark)
+    px(0.0, 1.0, 8.0, 4.0, dark)
+    px(1.0, 5.0, 6.0, 1.0, dark)
+    px(2.0, 0.0, 4.0, 1.0, crust)
+    px(1.0, 1.0, 6.0, 3.0, crust)
+    px(1.0, 4.0, 6.0, 1.0, low)
+    // (its scoring, pale across the top)
+    px(2.0, 1.0, 1.0, 1.0, top)
+    px(3.0, 2.0, 1.0, 1.0, top)
+    px(4.0, 1.0, 1.0, 1.0, top)
+    px(5.0, 2.0, 1.0, 1.0, top)
+
 def draw_signs():
-    let words, what = signs()
-    if not words.length: return
+    let what, camp = signs()
+    if not what.length: return
     let under = sign_under()
-    let y = sign_y()
     gl.set_shader("color")
-    gl.set_font_name(SIGN_FONT)
-    gl.set_font_size(sign_size())
-    // (a soft dark band behind the row, so it reads over the brightest crowns)
-    let boxes = sign_boxes(words)
-    let sz = float(sign_size())
-    let left = boxes[0].x - sz * 1.5
-    let right = boxes[boxes.length - 1].x + boxes[boxes.length - 1].y + sz * 1.5
-    gl.color(float4 { 0.03, 0.03, 0.02, 0.5 }):
-        gl.translate(float2 { left, y - sz * 0.45 }): gl.rect(float2 { right - left, sz * 2.75 })
-    for(boxes) b, k:
-        let lit = what[k] == under
-        for([ 1.0, 0.0 ]) shade:
-            gl.color(if shade > 0.0: float4 { 0.0, 0.0, 0.0, 0.7 } elif lit: float4 { 1.0, 0.97, 0.86, 1.0 } else: float4 { 0.93, 0.89, 0.78, 0.8 }):
-                gl.translate(float2 { b.x + shade, y + shade }): gl.text(words[k])
-        if lit:
-            let ly = y + float(sign_size()) * 1.25
-            ui_batch(): ui_line(float2 { b.x, ly }, float2 { b.x + b.y, ly }, 1.2, float4 { 0.95, 0.91, 0.79, 0.7 })
-            gl.set_shader("color")
-            gl.set_font_name(SIGN_FONT)
-            gl.set_font_size(sign_size())
-    // (the bread, smaller, under the row)
-    let bw = bread_words()
-    gl.set_font_size(int(float(sign_size()) * 0.72))
-    let w = float(gl.text_size(bw).x)
-    let ws = float(gl.window_size())
-    gl.color(float4 { 0.88, 0.84, 0.72, if bread_days() <= 1: 1.0 else: 0.8 }):
-        gl.translate(float2 { floor(ws.x / 2.0 - w / 2.0), floor(y + float(sign_size()) * 1.45) }): gl.text(bw)
+    let k = sign_px()
+    let boxes, loaves = sign_boxes(what.length)
+    for(boxes) b, j: draw_sign(b, k, what[j], camp, what[j] == under)
+    // (the bread: a loaf for each day it will last, the last of them grey when it is gone)
+    let days = bread_days()
+    if days <= 0: draw_loaf(loaves.x, loaves.y, k, true)
+    else:
+        for(min(days, 8)) n: draw_loaf(loaves.x + float(n) * 9.0 * k, loaves.y, k, false)
 
 // ------------------------------------------------------------------ on the march (Dominic, 2026-11-13: "long march they
 // should walk in a column not wide")
@@ -2037,82 +2136,69 @@ def march_off(ids:[int]):
 
 // ------------------------------------------------------------------ what the mouse is on (Dominic, 2026-11-13: "i cant
 // click on trees to see what they have or right click them")
-// A word or two by the pointer: what is under it, and with men chosen what a right click would have them do. The only
-// writing in the world, and only where the mouse is.
-let TREE_KINDS = [ "beech", "bpine", "fir", "hornbeam", "oak", "pine", "spruce", "tall" ]
-let TREE_NAMES = [ "Old beech", "Black pine", "Silver fir", "Hornbeam", "Old oak", "Scots pine", "Spruce", "Old spruce" ]
-let prop_cells = dictionary<int, int>(1024)  // an old or young tree's cell -> its index in props
-var prop_cells_for = -2
+// Under the mouse (Dominic, 2026-11-13: "The over over trees to see if we can cut is just lots of text instead of
+// visual"): no words, but a man's name when the mouse is on him; everything else is said by the cursor, a picture of
+// what a right-click on it would have the chosen men do (smyana/cursors.lobster).
 
-def prop_on(c:int) -> int:
-    if prop_cells_for != props_version:
-        prop_cells.clear()
-        for(props) pr, k: if pr.kind <= 1: prop_cells.set(pr.cell, k)
-        prop_cells_for = props_version
-    return prop_cells.get(c, -1)
+// Whether a bridge here is down (felling is for mending one, and nothing else).
+def bridge_down() -> bool: return (find(br_up) up: up == 0) >= 0
 
-// The old tree the mouse is on (it is drawn far up from its foot, so the cells down the screen from the mouse too).
-def old_tree_at(mm:float2) -> int:
-    let old = str_index(tr_names, "tree")
-    for(6) n:
-        let x = int(mm.x / 1000.0) + n
-        let y = int(mm.y / 1000.0) + n
-        if x >= 0 and y >= 0 and x < W and y < H and terrain[y * W + x] == old: return y * W + x
-    return -1
-
-def capital(t:string) -> string: return if t.length: unicode_to_string([ t[0] - (if t[0] >= 'a' and t[0] <= 'z': 32 else: 0) ]) + substring(t, 1, -1) else: t
-
-// What is under the mouse, and the order a right click gives the chosen men ("" for none).
-def hover_words() -> string, string:
-    let chosen = selected.length > 0
-    let mp = mouse_px()
-    let u = unit_at_screen(mp)
-    if u >= 0:
-        let m = man_of(u_id[u])
-        if m: return m.name, ""
-        let g = game_of(u_id[u])
-        if g >= 0: return game_name(g), if chosen: "shoot it for meat (the shot is heard)" else: ""
-        let bk = beast_kind(u_id[u])
-        if bk == "horse": return "A horse", ""
-        if bk != "": return capital(bk), if chosen: "fire on it" else: ""
-        return "Ottoman patrol", if chosen: "fire on them" else: ""
+// The cursor for what is under the mouse, with men chosen, in the order a right click takes them.
+def hover_cursor() -> int:
+    let u = unit_at_screen(mouse_px())
+    if u >= 0: return if man_of(u_id[u]): CURSOR_POINT elif beast_kind(u_id[u]) == "horse": CURSOR_GO else: CURSOR_SHOOT
     let mm = mouse_milli()
-    let carcass = carcass_near(int(mm.x), int(mm.y))
-    if carcass >= 0: return carcass_name(carcass), if chosen: "butcher it for meat" else: ""
     let mc = clamp(int(mm.y / 1000.0), 0, H - 1) * W + clamp(int(mm.x / 1000.0), 0, W - 1)
-    if at_ruin(mc): return "Roman ruins", if chosen: "study how they drained the road" else: ""
-    let pn = pile_near(int(mm.x), int(mm.y))
-    if pn >= 0:
-        let kind = piles[pn].kind
-        if kind == PILE_CACHE: return "Someone\'s cache under the stones", if chosen: "take it" else: ""
-        if kind == PILE_HONEY: return "Wild bees in a hollow tree", if chosen: "take the honey" else: ""
-        return "Your packs", if chosen: "pick them up" else: ""
-    let hn = hut_near(int(mm.x), int(mm.y), 1)
-    if hn >= 0: return "A shepherds\' hut, empty", if chosen: "make camp in it: a fire inside is not seen" else: ""
-    let pc = patch_under(mm)
-    if pc >= 0: return capital(gstr(forage_finds()[patch_at(pc)], "id", "")), if chosen: "gather" else: ""
-    // (a side path: what it is, and the signs of game at its end, docs/off-the-path.md)
-    let pk = path_of(mc)
-    if pk >= 0:
-        let sp = side_paths[pk]
-        let name = [ "A deer track", "A shepherd\'s path", "A cart track" ][sp.size]
-        let end = sp.cells[sp.cells.length - 1]
-        let near = find(game) g: g.state != G_DEAD and index_of(g.id) >= 0 and dist2(u_x[index_of(g.id)], u_y[index_of(g.id)], (end % W) * TILE, (end / W) * TILE) < sq(8 * TILE)
-        let signs = if near < 0: find_signs(end) elif game[near].kind == "boar": ": the ground rooted up, boar" elif game[near].kind == "roe": ": fresh slots, roe deer" else: ": fresh tracks"
-        return name + signs, if chosen: "follow it into the wood" else: ""
+    if carcass_near(int(mm.x), int(mm.y)) >= 0: return CURSOR_KNIFE
+    if at_ruin(mc): return CURSOR_STUDY
+    if hut_near(int(mm.x), int(mm.y), 1) >= 0: return CURSOR_CAMP
+    if pile_near(int(mm.x), int(mm.y)) >= 0: return CURSOR_TAKE
+    if patch_under(mm) >= 0: return CURSOR_GATHER
     let yt = young_tree_at(mm)
-    if yt >= 0: return (if terrain[yt] == str_index(tr_names, "rubble"): "Fallen rock" else: "Young tree"), if chosen: (if terrain[yt] == str_index(tr_names, "rubble"): "dig it away" else: "fell it for firewood") else: ""
-    let ot = old_tree_at(mm)
-    if ot >= 0:
-        let k = prop_on(ot)
-        let kk = if k >= 0: str_index(TREE_KINDS, props[k].sp) else: -1
-        let name = if kk >= 0: TREE_NAMES[kk] else: "Old tree"
-        return name, "too big to fell: young trees give the wood"
-    return "", ""
+    if yt >= 0 and terrain[yt] == str_index(tr_names, "rubble"): return CURSOR_DIG
+    if yt >= 0 and bridge_down(): return CURSOR_FELL
+    return CURSOR_GO
 
+// The men speak (Dominic, 2026-11-13: "i love your men saying \"i cant feel my hands\""): a short line over a man's
+// head for a few seconds, said once when the moment comes, never as a lesson. The first is a man calling out a stand
+// of what the wood gives as he comes near it ("Pears, there."), so it is found by the men, not by the mouse.
+class Speech:
+    id:int
+    text:string
+    until:float
+
+var speech = []::Speech
+
+def man_says(uid:int, text:string):
+    speech = filter(speech) sp: sp.id != uid
+    speech.push(Speech { uid, text, gl.time() + 4.0 })
+
+def draw_speech():
+    let k, uid = stand_seen()
+    if k >= 0: man_says(uid, gstr(forage_finds()[stands[k].kind], "call", ""))
+    let now = gl.time()
+    speech = filter(speech) sp: sp.until > now and sp.text != "" and index_of(sp.id) >= 0
+    if not speech.length: return
+    let ws = float(gl.window_size())
+    let size = int(ws.y / 46.0)
+    gl.set_shader("color")
+    gl.set_font_name("../data/fonts/OldStandard/OldStandard-Regular.ttf")
+    gl.set_font_size(size)
+    for(speech) sp:
+        let i = index_of(sp.id)
+        let a = clamp((sp.until - now) / 0.6, 0.0, 1.0)
+        let tw = float(gl.text_size(sp.text))
+        let p = float(floor(to_screen(gp(float(u_x[i]), float(u_y[i])) - float2 { 0.0, 62.0 }) - float2 { tw.x / 2.0, tw.y }))
+        for([ 1.0, 0.0 ]) shade:
+            gl.color(if shade > 0.0: float4 { 0.0, 0.0, 0.0, 0.7 * a } else: float4 { 0.97, 0.93, 0.82, a }):
+                gl.translate(p + float2 { shade, shade }): gl.text(sp.text)
+
+// A man's name by the pointer when it is on him.
 def draw_hover():
-    let name, order = hover_words()
-    if name == "": return
+    let u = unit_at_screen(mouse_px())
+    if u < 0: return
+    let m = man_of(u_id[u])
+    if not m: return
     let ws = float(gl.window_size())
     let size = int(ws.y / 38.0)
     let p = mouse_px() + float2 { 20.0, 16.0 }
@@ -2122,13 +2208,7 @@ def draw_hover():
     for([ 1.0, 0.0 ]) shade:
         let o = float2 { shade, shade }
         gl.color(if shade > 0.0: float4 { 0.0, 0.0, 0.0, 0.75 } else: float4 { 0.97, 0.93, 0.82, 1.0 }):
-            gl.translate(floor(p + o)): gl.text(name)
-    if order != "":
-        gl.set_font_size(int(float(size) * 0.75))
-        for([ 1.0, 0.0 ]) shade:
-            let o = float2 { shade, shade + float(size) * 1.25 }
-            gl.color(if shade > 0.0: float4 { 0.0, 0.0, 0.0, 0.6 } else: float4 { 0.93, 0.85, 0.66, 1.0 }):
-                gl.translate(floor(p + o)): gl.text("right click: " + order)
+            gl.translate(floor(p + o)): gl.text(m.name)
 
 // ------------------------------------------------------------------ the menu (#86)
 // Dominic: "Game start is slow, we want very minimal loader. The game menu should show the village (once ready - just
@@ -2257,10 +2337,10 @@ def young_tree_at(mm:float2) -> int:
 
 // The patch the mouse is on, or the one just below it (a patch is drawn a little up from its foot), or -1.
 def patch_under(mm:float2) -> int:
-    for(2) n:
+    for(3) n:
         let x = int(mm.x / 1000.0) + n
         let y = int(mm.y / 1000.0) + n
-        if x >= 0 and y >= 0 and x < W and y < H and patch_at(y * W + x) >= 0: return y * W + x
+        if x >= 0 and y >= 0 and x < W and y < H and stand_at(y * W + x) >= 0: return y * W + x
     return -1
 
 // The music turns with the threats (docs/threats.md): wary, then the hunting threat's own loop; when it is over, the
@@ -2363,7 +2443,9 @@ def order_tick():
         if br_up[k] == 0 and under >= 0: broken = k
     if broken >= 0:
         if mend_bridge(ids, broken): mark_at = gp(mm.x, mm.y)
-    elif tree >= 0:
+    elif tree >= 0 and (terrain[tree] == str_index(tr_names, "rubble") or bridge_down()):
+        // (fallen rock dug away; a young tree felled only for the timber to mend a bridge, Dominic 2026-11-13: "Im
+        // not sure yet actually how or why we would cut trees")
         issue_cmd(0, CMD_GATHER, ids, tree, 0, 0, 0)
         mark_at = gp(float((tree % W) * 1000 + 500), float((tree / W) * 1000 + 500))
     else:
@@ -2515,7 +2597,9 @@ def play_food_order(ids:[int]) -> bool:
     let food = sum(map(alive) m: m.food)
     let room = sum(map(alive) m: pack_room(m))
     if play_busy != "":
-        if (butchers.length or foragers.length) and clock_uh - play_busy_uh < 2 * 1000000: return true
+        if butchers.length and clock_uh - play_busy_uh < 2 * 1000000: return true
+        // (a stand can be forty tiles off: the walk there and the gathering)
+        if foragers.length and clock_uh - play_busy_uh < 5 * 1000000: return true
         // (a cache or the honey can be far down a path: six hours to walk there, a playthrough found two hours too few)
         if fetchers.length and clock_uh - play_busy_uh < 6 * 1000000: return true
         // (scouts on their way down a path: till one is there, or four hours; then what they see is hunted)
@@ -2633,14 +2717,12 @@ def play_food_order(ids:[int]) -> bool:
         let cy = sum(map(ids) id: u_y[index_of(id)]) / ids.length
         let c = cell_of(cx, cy)
         var pc = -1
-        // (the nearest within twenty tiles not tried yet: the wood off the trail is where most of it is)
-        var pd = 1 << 30
-        for(41 * 41) n:
-            let x = c % W + n % 41 - 20
-            let y = c / W + n / 41 - 20
-            let d = sq(n % 41 - 20) + sq(n / 41 - 20)
-            if d < pd and x >= 0 and y >= 0 and x < W and y < H and patch_at(y * W + x) >= 0 and play_tried.get(y * W + x, 0) == 0:
-                pc = y * W + x
+        // (the nearest stand within forty tiles not tried yet: the wood off the trail is where most of it is)
+        var pd = sq(40)
+        for(stands) st:
+            let d = sq(st.cell % W - c % W) + sq(st.cell / W - c / W)
+            if st.left > 0 and d < pd and play_tried.get(st.cell, 0) == 0:
+                pc = st.cell
                 pd = d
         if play_tried_leg != leg_id:
             play_tried.clear()
@@ -2691,9 +2773,9 @@ def tour_tick():
             play_leg_uh = clock_uh
             play_camped = false  // (a camp made as they went out of the last place is not one here: a playthrough found them a night unfed)
             print "play: into {leg_id} at {int(clock_s)} s ({season_now()}), men {men_alive()}"
-        // (three days in one place and not out of it: stuck; say where everyone is and stop)
-        if clock_uh - play_leg_uh > 72 * 1000000:
-            print "play: STUCK in {leg_id} for three days, the bridges {br_up}"
+        // (five days in one place and not out of it: stuck; say where everyone is and stop. Three was too few once the bot hunted and cached through two days in the fir woods, 2026-11-13)
+        if clock_uh - play_leg_uh > 120 * 1000000:
+            print "play: STUCK in {leg_id} for five days, the bridges {br_up}"
             for(ids) id:
                 let i = index_of(id)
                 print "play:   man {id} at tile {u_x[i] / TILE},{u_y[i] / TILE}, going to {u_tx[i] / TILE},{u_ty[i] / TILE}, moving {u_moving[i]}, stuck {u_stuck[i]}, speed {u_speed[i]} pace {u_pace[i]} block {u_block[i]} group {u_group[i]} foe {u_foe[i]} task {u_task[i]} hp {u_hp[i]}"
@@ -2735,8 +2817,9 @@ def tour_tick():
         if clock_s >= play_next_status:
             play_next_status = clock_s + 300.0
             print "play: {leg_id} at {int(clock_s)} s, {int(hour_now())}h, {play_status()}"
-    // one man fells the first young tree he finds, once, on the way out
-    if not tour_cut and leg_id == gstr(route, "start", ""):
+    // (script:tour) one man fells the first young tree he finds, once, on the way out, to see felling work; the
+    // playthrough doesn't: felling is only for mending a bridge now (2026-11-13)
+    if script == "tour" and not tour_cut and leg_id == gstr(route, "start", ""):
         tour_cut = true
         let young = str_index(tr_names, "young_tree")
         var best = -1
@@ -3065,7 +3148,7 @@ if has_s(args, "makecamp"):
 // droppacks: the men put their packs down where they stand as the place opens and walk on a little (#67, for a look)
 if has_s(args, "droppacks"):
     let ids = filter(u_id) id: man_of(id) != nil
-    for(men) m: if m.alive: m.goods = 2
+    for(men) m: if m.alive: m.wares = [ WARE_HERBS, WARE_HIDES ]
     packs_drop(ids)
     cam = gp(float(piles[0].x), float(piles[0].y))
     for(ids) id, n: issue_cmd(0, CMD_MOVE, [ id ], piles[0].x + 3000 + (n % 4) * 700, piles[0].y + (n / 4) * 700 - 1500, 0, 0)
@@ -3234,7 +3317,7 @@ while gl.frame():
     let ws = float(gl.window_size())
     let mp = mouse_px()
     let in_window = mp.x >= 0.0 and mp.y >= 0.0 and mp.x < ws.x and mp.y < ws.y
-    cursor_show(if phase != "play" or not selected.length or not in_window: CURSOR_POINT elif young_tree_at(mouse_milli()) >= 0: CURSOR_FELL else: CURSOR_GO)
+    cursor_show(if phase != "play" or not selected.length or not in_window: CURSOR_POINT else: hover_cursor())
     if drawing():
         gl.clear(float4 { 0.035, 0.055, 0.04, 1.0 })
         gl.blend(1)
@@ -3262,6 +3345,7 @@ while gl.frame():
                 if selected.length: cam = sum / float(selected.length)
             draw_one_man()
             draw_signs()
+            draw_speech()
             if not dragging and sign_under() < 0: draw_hover()
         if debug_line:
             gl.set_shader("color")

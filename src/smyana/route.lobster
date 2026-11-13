@@ -19,10 +19,18 @@ class Man:
     warm:int = 100000
     rested:int = 100000
     food:int = 0         // portions of food in his pack, one a day
-    goods:int = 0        // goods in his pack to take home: herbs, hides (smyana/forage.lobster)
+    wares:[int] = []     // the goods in his pack to take home, each a kind of them (WARES: herbs, wax, hides, wool)
     fell_in:string = ""  // the place he died in (the tally: smyana/knowledge.lobster)
     hurt_uh:int = 0      // health owed to cold and hunger, and back to sleep, in millionths of a point
     heal_uh:int = 0
+
+// The kinds of goods the men take home (data/survival.json "wares", docs/gathering.md), an index each in a pack's
+// wares.
+let WARES = [ "herbs", "wax", "hides", "wool" ]
+let WARE_HERBS = 0
+let WARE_WAX = 1
+let WARE_HIDES = 2
+let WARE_WOOL = 3
 
 // What a place keeps while the men are away (per map id).
 class PlaceMemory:
@@ -502,6 +510,8 @@ def enter_leg(id:string, edge:string):
     hunt_enter(place)
     // (what lies at the ends of the side paths: a hut, a cache, wild honey; smyana/finds.lobster)
     finds_enter(place)
+    // (the stands of what the wood gives, by the seed: smyana/forage.lobster)
+    stands_grow()
     // (riders on the trail, and a chance meeting: docs/threats.md, riders)
     trail_enter()
     meet_roll()

@@ -107,13 +107,18 @@ def tally_lines() -> [string]:
         return fell
     let said = [ "Home.", "{home.length} of {men.length} men came back." ]
     for(gone) m: said.push("{m.name} lies in {if m.fell_in != "": m.fell_in else: "the forest"}.")
-    var goods = 0
+    // (what they bring the village, kind by kind: data/survival.json "wares")
+    let count = map(WARES) _: 0
     var food = 0
     for(home) m:
-        goods += m.goods
+        for(m.wares) w: count[w]++
         food += m.food
-    if goods > 0 and food > 0: said.push("They carry home {goods} loads of goods, and {food} portions of food left.")
-    elif goods > 0: said.push("They carry home {goods} loads of goods.")
+    let kinds = glist(gobj(survival_cfg, "wares"), "kinds")
+    let goods = fold(count, 0) a, n: a + n
+    if goods > 0:
+        said.push("They carry home:")
+        for(count) n, w: if n > 0 and w < kinds.length: said.push(if n == 1: gstr(kinds[w], "one", "") else: replace_string(gstr(kinds[w], "line", "%"), "%", string(n)))
+        if food > 0: said.push("And {food} portions of food left.")
     elif food > 0: said.push("They come home with nothing but {food} portions of food.")
     else: said.push("They come home with nothing.")
     let knowers = filter(home) m: knows_drain(m)

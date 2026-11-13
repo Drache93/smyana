@@ -79,24 +79,16 @@ def finds_enter(place:string):
                     let o = camp_ground_near(c, -1)
                     tx = (o % W) * TILE + TILE / 2
                     ty = (o / W) * TILE + TILE / 2
-            if first: piles.push(Pile { tx, ty, pick_in(glist(find_kind_cfg("honey"), "food"), h), 0, kind: PILE_HONEY })
+            if first: piles.push(Pile { tx, ty, pick_in(glist(find_kind_cfg("honey"), "food"), h), map(pick_in(glist(find_kind_cfg("honey"), "wax"), h / 7)): WARE_WAX, kind: PILE_HONEY })
         elif first:
             let cc = find_kind_cfg("cache")
-            piles.push(Pile { ex, ey, pick_in(glist(cc, "food"), h), pick_in(glist(cc, "goods"), h / 5), kind: PILE_CACHE })
+            piles.push(Pile { ex, ey, pick_in(glist(cc, "food"), h), map(pick_in(glist(cc, "goods"), h / 5)): WARE_WOOL, kind: PILE_CACHE })
         print "find: {place} {kind} at {end % W},{end / W}, down the {[ "deer track", "sheep path", "cart track" ][sp.size]}"
         placed++
 
 // The hut at or next to cell c (within `tiles`), or -1.
 def hut_near(x:int, y:int, tiles:int) -> int:
     return find(huts) c: dist2((c % W) * TILE + TILE / 2, (c / W) * TILE + TILE / 2, x, y) <= sq(tiles * TILE)
-
-// What a find at a path's end shows at its mouth, for the mouse ("" for nothing: a cache is not seen from the trail).
-def find_signs(end:int) -> string:
-    if (find(huts) c: c == end) >= 0: return ": sheep droppings, a hut"
-    let ex = (end % W) * TILE + TILE / 2
-    let ey = (end / W) * TILE + TILE / 2
-    if season_now() != "winter" and (find(piles) p: p.kind == PILE_HONEY and dist2(p.x, p.y, ex, ey) < sq(5 * TILE)) >= 0: return ": wild bees"
-    return ""
 
 // Right-click a hut with men chosen: they walk to it and make camp in it when the first of them is at its door.
 var hut_goers = []::int

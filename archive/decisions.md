@@ -839,3 +839,24 @@ fire"; Claude fixed it.) The fire was being laid, fifty seconds with no wood car
 caught. Now the ring of stones, the logs and the tripod show as soon as camp is made, the flames come when it catches,
 laying it with no wood takes twelve seconds, and the order given again while it is laid no longer puts it out (the
 sign reads "Laying the fire"). Men who camp so late that the fire has not caught by midnight eat cold.
+
+**D-134, 2026-11-13: No words under the mouse, and no felling.** (Dominic agreed Claude's gathering proposal: "go
+ahead".) The cursor turns into a small drawn picture over what a right-click will use (a basket, a hand, a knife, a
+sight, a fire, a book, a spade) and stays plain over anything else; only a man's name shows when you point at him.
+Felling goes: making camp sends two men a few tiles out for dead wood while the fire is laid, and axes only clear what
+is in the way. Narrows D-126.
+
+**D-135, 2026-11-13: Gathering is a few big stands the men call out.** (Dominic agreed; Claude built it.) Two to five
+stands a place instead of dozens of patches, each holding ten to twenty, drawn bigger than life over a few tiles of
+ground: light finds at the side paths' clearings and glades, ceps deep under the old trees, mountain tea on open stony
+ground. The first man to come within eight tiles by day says so once ("Ceps. Look."). Up to four men gather a stand.
+What is taken stays taken.
+
+**D-136, 2026-11-13: The goods for home are kinds, named at home.** (Dominic agreed; Claude chose the kinds.) A pack's
+goods are herbs (from herbs and mountain tea), wax (with wild bees' honey), hides (from game) and wool (in another
+band's cache). The tally at home names each kind. The ending will show them in the village.
+
+**D-137, 2026-11-13: The order signs are drawn, with a row of loaves.** (Dominic: the word signs "just looks like
+placholder"; he agreed the proposal.) With men chosen, a fire, a pack and an open hand sit under their feet in the
+game's own pixel hand, and beside them a loaf for each day the bread will last. No words. Supersedes the word row of
+D-126.

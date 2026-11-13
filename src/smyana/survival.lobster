@@ -16,6 +16,15 @@ class Camp:
     meal_day:int = -1     // the evening it last fed the men
     hut:bool = false      // made at a shepherds' hut: the fire on its hearth, inside (smyana/finds.lobster)
 
+// Two men gone for dead wood while a fire is laid: each back to his place round it when it catches.
+class WoodGoer:
+    id:int
+    x:int
+    y:int
+    camp:Camp
+
+var wood_goers = []::WoodGoer
+
 var survival_cfg = jobj()
 var sv_camps = []::Camp
 var needs_uh = 0     // the clock (clock_uh) when the needs were last brought up to it
@@ -54,6 +63,7 @@ def survival_begin():
 // A place set up (enter_leg): no camp in it yet, and nobody asleep.
 def survival_enter():
     sv_camps = []
+    wood_goers = []
     asleep.clear()
     sv_hp.clear()
     woken_until = 0
@@ -180,8 +190,23 @@ def camp_order(ids:[int]) -> bool:
             let oc = camp_ground_near(tc, cell_of(cx, cy))
             tx = (oc % W) * TILE + 200 + (n * 137) % 600
             ty = (oc / W) * TILE + 200 + (n * 251) % 600
-        issue_cmd(0, CMD_MOVE, [ id ], tx, ty, 0, 0)
+        // (no wood carried: the first two go off a few tiles for dead wood while it is laid, and come back to their
+        // places when it catches; docs/gathering proposal, 2026-11-13: "Making camp sends two men for dead wood")
+        if n < 2 and tick < cp.lit_at and tick + gint(c, "lay_s", 4) * TICK_HZ < cp.lit_at:
+            let wa = a + 180.0 + float(n) * 50.0
+            let wc = camp_ground_near(cell_of(clamp(cx + int(cos(wa) * float(TILE * 4)), TILE, (W - 1) * TILE), clamp(cy + int(sin(wa) * float(TILE * 4)), TILE, (H - 1) * TILE)), cell_of(cx, cy))
+            issue_cmd(0, CMD_MOVE, [ id ], (wc % W) * TILE + TILE / 2, (wc / W) * TILE + TILE / 2, 0, 0)
+            wood_goers.push(WoodGoer { id, tx, ty, cp })
+        else: issue_cmd(0, CMD_MOVE, [ id ], tx, ty, 0, 0)
     return true
+
+// Each of the two gone for dead wood back to his place when the fire catches.
+def wood_goers_tick():
+    wood_goers = filter(wood_goers) w:
+        if fire_burning(w.camp) or not w.camp.lit:
+            if w.camp.lit and index_of(w.id) >= 0: issue_cmd(0, CMD_MOVE, [ w.id ], w.x, w.y, 0, 0)
+            false
+        else: true
 
 // The fire laid and lit: two bundles of wood off the men's backs, quick; with none, slow.
 def camp_light(cp:Camp, ids:[int]):
@@ -314,6 +339,7 @@ def survival_tick():
             remove_unit(i)
             m.alive = false
     if ate: meal_day = ev
+    wood_goers_tick()
     // (a camp nobody has been in for a while is struck, its fire left to die)
     sv_camps = filter(sv_camps) cp: cp.empty_since < 0 or tick - cp.empty_since < gint(cc, "struck_s", 30) * TICK_HZ
 
