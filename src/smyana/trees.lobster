@@ -4,7 +4,7 @@
 // an old tree is five or six men tall with a trunk a quarter to a third of a man wide; a young tree is two or three
 // men tall. The whole trees are .vox models (art/trees/vox/, made by tools/tree_vox.py). An old tree is three
 // pictures: its wood, its shadow on the ground, and its leaves, which fade when a man is under them so he can be
-// seen. The leaves are baked once a season (their colour), behind the letter home, and kept in bake_cache/.
+// seen. The leaves are baked once a season (their colour), behind the letter home, and kept in baked/.
 
 let TREE_K = 64.0  // voxels a tile for the load of wood (baked at twice this)
 let TREE_BAKE = "trees 63"
@@ -22,7 +22,7 @@ let CRAG_KINDS = 4
 let SLAB_KINDS = 2
 var tree_draw_k = 1.0  // art px a baked px (set at the bake: Creel's art scale decides)
 def vox_draw_k() -> float: return WB_PX / ART_K / VOX_K
-var trees_bake_s = 0.0  // how long the last bake took (0: read from bake_cache/)
+var trees_bake_s = 0.0  // how long the last bake took (0: read from baked/)
 var trees_season = ""   // the season whose crowns are loaded
 
 // The Rhodopes' trees (D-012, and Dominic's list of 2026-11-10). Broadleaves of the valleys: beech (smooth silver-grey
@@ -214,12 +214,23 @@ def vox_pieces(name:string) -> [string], [int3]:
             offs.push(int3 { x, y, z } * 256)
     return files, offs
 
+// (read and hashed once a run: every tree sheet's key has it, and it is 28 MB of models; each sheet hashing it again
+// made the start take seconds longer, 2026-11-12)
+var vox_tree_hash = ""
+
 def vox_tree_text() -> string:
+    if vox_tree_hash != "": return vox_tree_hash
+    vox_tree_hash = vox_tree_text_now()
+    return vox_tree_hash
+
+def vox_tree_text_now() -> string:
     var t = read_file("../art/trees/vox/feet.txt") or ""
     let names = tokenize(t, " \n", "")
     for(names.length / 3) i:
         let files = vox_pieces(names[i * 3])
-        for(files) f: t += sha256_text(f)
+        // (each model's length and its last bytes, not a hash of all 28 MB: that took 0.7 s of every start; the tool
+        // writes whole new files, so a changed tree changes these)
+        for(files) f: t += "{f.length} {substring(f, max(0, f.length - 4096), min(4096, f.length))}"
     return sha256_text(t)
 
 // leaves: the model's leaves alone, or its wood alone; whole: both (a sapling, one picture).

@@ -128,3 +128,16 @@ His photo (not ours, and personal: not committed): a forest track in autumn thro
 trunks with leafy side branches all the way up them, gold and orange, some forking low into two or three stems; a few
 birches; firs and pines dark further along. The ground on both sides and on the track itself is a thick, unbroken
 carpet of copper-brown beech leaves, with nothing growing through it but a little green at the far edge.
+
+## 20:47 to 20:48 UTC (text)
+
+> The beech trees, the problem is the shape of the foliage. It should be rounder. Right now you seem to sort of be
+> focusing on covering the top part of the tree rather than the whole of the tree.
+
+> Check some real pictures.
+
+> Stop guessing. Any more trees or foliage or greens and stuff, always get some evidence before you do it.
+
+## 21:12 UTC (text)
+
+> what is tree_vox.py? are we using .vox for the trees? why we using python?

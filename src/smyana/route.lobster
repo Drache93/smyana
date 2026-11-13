@@ -561,6 +561,28 @@ def mend_bridge(ids:[int], k:int) -> bool:
     issue_cmd(0, CMD_HELP_BUILD, ids, br_id[k], 0, 0, 0)
     return true
 
+// A man walking with the others who has not moved for half a minute, far from where he was sent, is sent on by himself.
+// (2026-11-12, a playthrough: after the bear came into a night's camp, the man it mauled stood waiting on his block
+// and his block waited on him, so nobody could leave by the gate. Creel's block steering, sim side; this is the safety
+// net while that is found.) Every 200 ticks.
+let unstick_d = dictionary<int, int>(32)      // a man's id: how far he was from where he was sent at the last look (tenths of a tile)
+let unstick_looks = dictionary<int, int>(32)  // how many looks running he has come no nearer
+def unstick_men():
+    for(men) m:
+        if not m.alive: continue
+        let i = index_of(m.uid)
+        if i < 0: continue
+        let d = isqrt(dist2(u_x[i], u_y[i], u_tx[i], u_ty[i])) / 100
+        if u_moving[i] == 1 and d > 30 and u_foe[i] == 0 and d >= unstick_d.get(m.uid, 1 << 30) - 5:
+            let n = unstick_looks.get(m.uid, 0) + 1
+            unstick_looks.set(m.uid, n)
+            if n >= 3:
+                unstick_looks.set(m.uid, 0)
+                print "(unstick: man {m.uid} {d / 10} tiles from where he was sent and no nearer: sent on by himself)"
+                issue_cmd(0, CMD_MOVE, [ m.uid ], u_tx[i], u_ty[i], 0, 0)
+        else: unstick_looks.set(m.uid, 0)
+        unstick_d.set(m.uid, d)
+
 def route_tick() -> string:
     run_ticks++
     clock_tick()
@@ -571,6 +593,7 @@ def route_tick() -> string:
     for(u_carry) n, i:
         if n > 0 and u_carry_kind[i] == spoil: u_carry[i] = 0
     if tick % 10 != 0 or run_over(): return ""
+    if tick % 200 == 0: unstick_men()
     survival_tick()
     forage_tick()
     packs_tick()

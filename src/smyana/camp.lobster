@@ -24,7 +24,7 @@ let CAMP_TURNS = [ 3, 1 ]
 // rides along the men's own path, 12..15 up it to the left)
 let CAMP_RIDER_TURNS = [ 3, 1, 0, 2 ]
 var camp_feet = []::string
-var camp_bake_s = 0.0  // how long the last bake took (0: read from bake_cache/)
+var camp_bake_s = 0.0  // how long the last bake took (0: read from baked/)
 
 // A model as a grid: every voxel solid (VG_BARK), its tone the palette index; the palette, 0xRRGGBB. Turned by `turn`
 // quarter turns about its foot.
@@ -126,7 +126,7 @@ def camp_vox_text() -> string:
     t += read_file("{CAMP_DIR}/{CAMP_BANNER}.vox") or ""
     return sha256_text(t)
 
-// The camp's sheet, baked (or read back from bake_cache/). between(): so the window can draw.
+// The camp's sheet, baked (or read back from baked/). between(): so the window can draw.
 def bake_camp(between):
     let s = sheet_new("camp", "{CAMP_BAKE} {VOX_K} {WB_PX} {camp_vox_text()}", 2048)
     if sheet_load(s, vox_draw_k()): return

@@ -100,6 +100,11 @@ def knows_drain(m:Man) -> bool: return drain_knows.get(m.name, 0) == 1
 def tally_lines() -> [string]:
     let home = filter(men) m: m.alive
     let gone = filter(men) m: not m.alive
+    // (all of them dead on the road: the run ends there, and nobody comes home)
+    if not home.length:
+        let fell = [ "Nobody came home.", "All {men.length} men died on the road." ]
+        for(gone) m: fell.push("{m.name} lies in {if m.fell_in != "": m.fell_in else: "the forest"}.")
+        return fell
     let said = [ "Home.", "{home.length} of {men.length} men came back." ]
     for(gone) m: said.push("{m.name} lies in {if m.fell_in != "": m.fell_in else: "the forest"}.")
     var goods = 0
@@ -107,9 +112,9 @@ def tally_lines() -> [string]:
     for(home) m:
         goods += m.goods
         food += m.food
-    if goods > 0 and food > 0: said.push("They carry home {goods} loads of goods, and {food} days of food left.")
+    if goods > 0 and food > 0: said.push("They carry home {goods} loads of goods, and {food} portions of food left.")
     elif goods > 0: said.push("They carry home {goods} loads of goods.")
-    elif food > 0: said.push("They come home with nothing but {food} days of food.")
+    elif food > 0: said.push("They come home with nothing but {food} portions of food.")
     else: said.push("They come home with nothing.")
     let knowers = filter(home) m: knows_drain(m)
     if knowers.length: said.push("{knowers.length} of them know how the Romans drained the land.")
