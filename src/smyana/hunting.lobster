@@ -232,8 +232,10 @@ def game_think(g:Game):
     if g.state == G_ALERT:
         // (a man who stands still while it watches: it puts its head down again in a while. One who moves: it runs)
         if tick - g.since > (if seen < 0: 2 else: 3) * gint(c, "alert_s", 4) * TICK_HZ: game_set(g, G_GRAZE)
-        // (one who comes on while it watches, past halfway in from where it saw him: it runs)
-        elif seen >= 0 and tick - g.since > gint(c, "alert_s", 4) * TICK_HZ and u_moving[seen] == 1 and seen_d * 4 <= sq(notice + flee): herd_flee(g.herd, u_x[seen], u_y[seen])
+        // (one who comes on while it watches, to within two tiles of where it would run anyway: it runs. A careful
+        // man who stops at a rifle's range, and keeps still, gets his shot; a playthrough found the old line, halfway
+        // in from where it saw him, inside the rifle's range, so no stalk ever came to a shot)
+        elif seen >= 0 and tick - g.since > gint(c, "alert_s", 4) * TICK_HZ and u_moving[seen] == 1 and seen_d <= sq(flee + 2 * TILE): herd_flee(g.herd, u_x[seen], u_y[seen])
         return
     if seen >= 0:
         game_set(g, G_ALERT)

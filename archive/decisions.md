@@ -806,3 +806,14 @@ less good"; Claude built it.) Each wooded place cuts a cart track, shepherd's pa
 each ending in a small clearing. A patrol on its road looks down each path it passes and sees a man on it at twice
 its sight; it turns down a cart track about half the time, a shepherd's path one time in five, a deer track one in
 twenty (`data/woods.json`). The plan for reasons to leave the trail: `docs/off-the-path.md`.
+
+**D-129, 2026-11-13: There is no work and no pay; the season itself carries the men home.** (Dominic: "we always
+agreed it's more of an adventure thing. They're not going somewhere to work and coming back. They're going out to
+collect things and then coming back.") Claude had proposed four days' bread paid at the ridge; it was turned down and
+taken out. Winter food comes from what the autumn gives and is carried or cached, what is found, and what is hunted.
+
+**D-130, 2026-11-13: A richer autumn, rose hips in winter, and game a still man can shoot.** (Claude, from
+playthroughs, within D-129.) Autumn's food finds stand twice as thick and give more (mushrooms and ceps four portions a
+patch, wild pears three, beechnuts and lingonberries two); the dog rose's hips, which hang on into the winter, are the
+winter beech and oak woods' one find. Game runs from a man coming on only within two tiles of its flee distance, so a
+man who stops at a rifle's six tiles gets his shot.

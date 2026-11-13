@@ -221,3 +221,6 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-13:** Off the path: one goal for the run (D-125), a row of order words when men are chosen (D-126), a wider
   see-through (D-127), side paths into the wood that patrols look down and turn down (D-128). Plan:
   `docs/off-the-path.md`.
+- **2026-11-13:** No work and no pay (D-129): the winter is carried by a richer autumn, caches and hunting (D-130). The
+  test bot now plays as a careful player: down the side paths after game, laying by in the autumn, caching, camping
+  before dusk.
