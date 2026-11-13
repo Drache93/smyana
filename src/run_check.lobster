@@ -453,6 +453,11 @@ var swiped_in_bluff = false
 for(90 * TICK_HZ * WALK_SLOW):
     step()
     route_tick()
+    // (it wanders: they keep walking up to where it is now, till it has seen them)
+    if not reared and tick % (8 * TICK_HZ) == 0:
+        let bi = index_of(bears[0].id)
+        let here = men_here()
+        if bi >= 0: for(here) mi: issue_cmd(0, CMD_MOVE, [ u_id[mi] ], u_x[bi] + 5 * TILE, u_y[bi], 0, 0)
     if bears[0].state == B_REAR: reared = true
     if bears[0].state == B_BLUFF: bluffed = true
     for(threats_landed()) l: if bear_of(l.by) >= 0: swiped_in_bluff = true
@@ -675,5 +680,20 @@ if deer >= 0:
         let food_now = (fold(men, 0) a, m: a + m.food)
         print "game: the deer gave {food_now - food_was} portions"
         expect(food_now > food_was, "and carry its meat in their packs")
+// side paths off the trail (docs/off-the-path.md): the place has them; a patrol coming by a path's mouth sees a man
+// on it a long way down, and may turn down it
+expect(side_paths.length >= 2, "the beech valley has paths off the trail into the wood ({side_paths.length})")
+if side_paths.length:
+    let sp = side_paths[0]
+    let mouth = sp.cells[0]
+    let on = sp.cells[min(sp.cells.length - 1, 10)]
+    let mi = men_here()[0]
+    u_x[mi] = (on % W) * TILE + TILE / 2
+    u_y[mi] = (on / W) * TILE + TILE / 2
+    let seen, walk_a = patrol_by_path(9999, (mouth % W) * TILE + TILE / 2, (mouth / W) * TILE + TILE / 2, 10 * TILE)
+    expect(seen == mi and not walk_a.length, "a patrol at the mouth of a path sees a man down it")
+    let again, walk_b = patrol_by_path(9999, (mouth % W) * TILE + TILE / 2, (mouth / W) * TILE + TILE / 2, 10 * TILE)
+    expect(again < 0 and not walk_b.length, "and only looks once as it passes")
+    expect(path_walk(0).length >= 6, "a path down it and back for a patrol that turns down it")
 year_force = -1
 print (if failed: "run_check: {failed} FAILED" else: "run_check: ok")

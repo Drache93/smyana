@@ -1,5 +1,5 @@
 {
- "_doc": "How the woods grow when a place is loaded (docs/woods.md, D-100): the map's trees say where the wood is, and the wood is grown out from them by these rules. 'reach': tiles round a tile read for how wooded the map draws it; a tile at least 'wood_at' of whose neighbours are drawn as trees is in the wood, and one at 'closed_at' is deep in it. In the wood, 'closed' of the tiles hold an old tree, more or less by a clumping field 'clump_tiles' across that varies it by 'clump' (some patches thick, some thinner, a gap here and there); 'young' of the rest a young tree. At the wood's edge, the 'edge_tiles' toward the open, 'edge_young' young trees and 'edge_old' old ones (the wood's mantle). Out in the open, 'groups' of the tiles start a group of 'group_size' trees round them. The rim beyond play (the map's 'rim') is wood at 'rim'. Nothing grows within 'keep_trail' tiles of the trail or a ford, 'keep_gate' of a gate, 'keep_set' of a camp, a ruin, a bridge or the start, nor on a cliff's edge. A place can override any of these under 'places'.",
+ "_doc": "How the woods grow when a place is loaded (docs/woods.md, D-100): the map's trees say where the wood is, and the wood is grown out from them by these rules. 'reach': tiles round a tile read for how wooded the map draws it; a tile at least 'wood_at' of whose neighbours are drawn as trees is in the wood, and one at 'closed_at' is deep in it. In the wood, 'closed' of the tiles hold an old tree, more or less by a clumping field 'clump_tiles' across that varies it by 'clump' (some patches thick, some thinner, a gap here and there); 'young' of the rest a young tree. At the wood's edge, the 'edge_tiles' toward the open, 'edge_young' young trees and 'edge_old' old ones (the wood's mantle). Out in the open, 'groups' of the tiles start a group of 'group_size' trees round them. The rim beyond play (the map's 'rim') is wood at 'rim'. Nothing grows within 'keep_trail' tiles of the trail or a ford, 'keep_gate' of a gate, 'keep_set' of a camp, a ruin, a bridge or the start, nor on a cliff's edge. A place can override any of these under 'places'. 'side_paths': how many paths are cut from the trail into the wood once it has grown (smyana/paths.lobster; docs/off-the-path.md): the first a cart track, then shepherd's paths and deer tracks by turns. 'patrol_down_path': in a hundred, how likely a patrol on its road that comes by a path's mouth turns down it and back, by the path's size (it always looks down it).",
  "reach": 3,
  "wood_at": 0.06,
  "closed_at": 0.16,
@@ -16,8 +16,19 @@
  "keep_trail": 1,
  "keep_gate": 3,
  "keep_set": 4,
+ "side_paths": 4,
+ "patrol_down_path": {
+  "deer": 5,
+  "sheep": 20,
+  "track": 45
+ },
  "places": {
-  "camp_clearing": { "off": 1 },
-  "pass": { "rim": 0.3, "closed": 0.35 }
+  "camp_clearing": {
+   "off": 1
+  },
+  "pass": {
+   "rim": 0.3,
+   "closed": 0.35
+  }
  }
 }

@@ -31,7 +31,9 @@ def woods_grow():
     let own = gobj(gobj(cfg, "places"), place_now())
     def num(k:string, d:float) -> float: return if has(own, k): as_float(at(own, k)) elif has(cfg, k): as_float(at(cfg, k)) else: d
     woods_grown = 0
-    if num("off", 0.0) > 0.0: return
+    if num("off", 0.0) > 0.0:
+        paths_cut(0, 0)
+        return
     let old = str_index(tr_names, "tree")
     let young = str_index(tr_names, "young_tree")
     let grass = str_index(tr_names, "grass")
@@ -184,6 +186,8 @@ def woods_grow():
         if opened == 0: break
     woods_grown = 0
     for(was_grown) g: if g: woods_grown++
+    // the side paths into it (smyana/paths.lobster)
+    paths_cut(int(num("side_paths", 4.0)), seed)
 
 def woods_smooth(a:float, b:float, x:float) -> float:
     let t = clamp((x - a) / max(b - a, 0.0001), 0.0, 1.0)

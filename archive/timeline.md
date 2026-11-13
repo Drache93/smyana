@@ -218,3 +218,6 @@ One line per moment worth remembering. Newest at the bottom.
   (D-120), the pointer says what can be done (D-121), there is game to hunt (D-122), marches go in a column (D-123),
   the letter between places is short and the music plays on (D-124). A proposal for teaching the game:
   `docs/clarity.md`.
+- **2026-11-13:** Off the path: one goal for the run (D-125), a row of order words when men are chosen (D-126), a wider
+  see-through (D-127), side paths into the wood that patrols look down and turn down (D-128). Plan:
+  `docs/off-the-path.md`.

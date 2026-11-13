@@ -934,7 +934,7 @@ var eyes = []::float2                        // where the men are on the picture
 // where a man is in sight his ghost lands on himself and changes nothing; behind a crown or a trunk it shows him
 // through it. Each is his foot (art px, as drawn) and his frame.
 var ghosts = []::float3
-let GHOST = 0.42  // how strongly a hidden man shows through
+let GHOST = 0.55  // how strongly a hidden man shows through
 
 // The patrol's sash (data/threats.json), where the men wear red.
 def patrol_sash() -> float4:
@@ -1049,7 +1049,7 @@ def crown_fade(foot:float2, sp:string) -> float:
     var least = 1.0
     for(eyes) e:
         let d = magnitude(float2 { (e.x - c.x) / r, (e.y - c.y) / (r * (if leafy(sp): 0.8 else: 1.6)) })
-        least = min(least, clamp((d - 0.8) / 0.45, 0.07, 1.0))
+        least = min(least, clamp((d - 1.05) / 0.55, 0.04, 1.0))
     return least
 
 def collect_props():
@@ -1068,7 +1068,7 @@ def collect_props():
                 let dim = float4 { 1.0, 1.0, 1.0, 1.0 - canopy_dim * (if pidx < canopy.length: canopy[pidx] else: 0.0) }
                 add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -40000.0, float4_1)
                 // (its trunk and limbs thin out over a man too, as its crown does, but less: the tree stays a tree)
-                add(snow_frame(pr.name, pr.cell), pr.at.x, pr.at.y, pr.at.y, dim, max(0.45, crown_fade(pr.at, pr.sp)))
+                add(snow_frame(pr.name, pr.cell), pr.at.x, pr.at.y, pr.at.y, dim, max(0.3, crown_fade(pr.at, pr.sp)))
                 foot_at(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, trunk_half(pr.sp))
                 let crown = if pr.sp == "tall": "spruce{pr.pick}.crown.ever" else: pr.name + ".crown." + (if leafy(pr.sp): season else: "ever")
                 if pr.sp == "tall":
@@ -1805,6 +1805,125 @@ def draw_one_man():
     gl.color(float4 { 0.85, 0.81, 0.7, 0.75 }):
         gl.translate(float2 { floor(ws.y * 0.03), floor(ws.y - float(size) * 1.9) }): gl.text(man_state(m))
 
+// ------------------------------------------------------------------ the order signs (Dominic, 2026-11-13: "teaching
+// them to press C is pretty bad. This is where we need a minimal level of UI somehow")
+// With men chosen, a short row of words at the foot of the screen, in the letter's hand: what they can be told to do
+// where they stand, and how many days' bread the men have. Nothing shows when no one is chosen. The keys still work.
+let SIGN_FONT = "../data/fonts/OldStandard/OldStandard-Regular.ttf"
+
+// The chosen men who are men (not game or a patrol someone clicked).
+def chosen_men() -> [int]: return filter(selected) id: man_of(id) != nil and index_of(id) >= 0
+
+// The signs for the chosen men now: their words, and what each does (0 camp, 1 packs down, 2 halt).
+def signs() -> [string], [int]:
+    let ids = chosen_men()
+    if not ids.length: return [], []
+    var camp = "Make camp"
+    for(ids) id:
+        let k = camp_of(index_of(id))
+        if k >= 0: camp = if sv_camps[k].lit or tick < sv_camps[k].lit_at: "Put the fire out" else: "Light the fire"
+    let words = [ camp ]
+    let what = [ 0 ]
+    var carrying = false
+    for(ids) id:
+        let m = man_of(id)
+        if m and (m.food > 1 or m.goods > 0): carrying = true
+    if carrying:
+        words.push("Put the packs down")
+        what.push(1)
+    words.push("Halt")
+    what.push(2)
+    return words, what
+
+// The bread the men have, in days for each man (all of them share it at a meal).
+def bread_days() -> int:
+    var food = 0
+    var n = 0
+    for(men) m:
+        if m.alive:
+            food += m.food
+            n++
+    return if n: food / n else: 0
+
+def bread_words() -> string:
+    let d = bread_days()
+    return if d <= 0: "No bread left" elif d == 1: "Bread for a day" else: "Bread for {d} days"
+
+def sign_size() -> int: return int(float(gl.window_size().y) / 40.0)
+
+// Where each sign sits on the screen: its left edge and width, on one line at the foot.
+def sign_boxes(words:[string]) -> [float2]:
+    let ws = float(gl.window_size())
+    gl.set_font_name(SIGN_FONT)
+    gl.set_font_size(sign_size())
+    let gap = float(sign_size()) * 1.6
+    let widths = map(words) w: float(gl.text_size(w).x)
+    var total = gap * float(max(0, words.length - 1))
+    for(widths) w: total += w
+    var x = float(int(ws.x / 2.0 - total / 2.0))
+    return map(widths) w:
+        let b = float2 { x, w }
+        x += w + gap
+        b
+
+def sign_y() -> float: return float(int(float(gl.window_size().y) - float(sign_size()) * 2.4))
+
+// The sign under the mouse, or -1.
+def sign_under() -> int:
+    let words, what = signs()
+    if not words.length: return -1
+    let m = mouse_px()
+    let y = sign_y()
+    let pad = float(sign_size()) * 0.5
+    if m.y < y - pad or m.y > y + float(sign_size()) * 1.3 + pad: return -1
+    for(sign_boxes(words)) b, k: if m.x >= b.x - pad and m.x <= b.x + b.y + pad: return what[k]
+    return -1
+
+// A sign clicked: its order.
+def sign_order(what:int):
+    let ids = chosen_men()
+    if not ids.length: return
+    march_off(ids)
+    if what == 0:
+        camp_order(ids)
+        selected = []
+    elif what == 1: packs_drop(ids)
+    elif what == 2: issue_cmd(0, CMD_STOP, ids, 0, 0, 0, 0)
+
+def draw_signs():
+    let words, what = signs()
+    if not words.length: return
+    let under = sign_under()
+    let y = sign_y()
+    gl.set_shader("color")
+    gl.set_font_name(SIGN_FONT)
+    gl.set_font_size(sign_size())
+    // (a soft dark band behind the row, so it reads over the brightest crowns)
+    let boxes = sign_boxes(words)
+    let sz = float(sign_size())
+    let left = boxes[0].x - sz * 1.5
+    let right = boxes[boxes.length - 1].x + boxes[boxes.length - 1].y + sz * 1.5
+    gl.color(float4 { 0.03, 0.03, 0.02, 0.5 }):
+        gl.translate(float2 { left, y - sz * 0.45 }): gl.rect(float2 { right - left, sz * 2.75 })
+    for(boxes) b, k:
+        let lit = what[k] == under
+        for([ 1.0, 0.0 ]) shade:
+            gl.color(if shade > 0.0: float4 { 0.0, 0.0, 0.0, 0.7 } elif lit: float4 { 1.0, 0.97, 0.86, 1.0 } else: float4 { 0.93, 0.89, 0.78, 0.8 }):
+                gl.translate(float2 { b.x + shade, y + shade }): gl.text(words[k])
+        if lit:
+            let ly = y + float(sign_size()) * 1.25
+            ui_batch(): ui_line(float2 { b.x, ly }, float2 { b.x + b.y, ly }, 1.2, float4 { 0.95, 0.91, 0.79, 0.7 })
+            gl.set_shader("color")
+            gl.set_font_name(SIGN_FONT)
+            gl.set_font_size(sign_size())
+    // (the bread, smaller, under the row)
+    let bw = bread_words()
+    gl.set_font_size(int(float(sign_size()) * 0.72))
+    let w = float(gl.text_size(bw).x)
+    let ws = float(gl.window_size())
+    gl.color(float4 { 0.88, 0.84, 0.72, if bread_days() <= 1: 1.0 else: 0.8 }):
+        gl.translate(float2 { floor(ws.x / 2.0 - w / 2.0), floor(y + float(sign_size()) * 1.45) }): gl.text(bw)
+
 // ------------------------------------------------------------------ on the march (Dominic, 2026-11-13: "long march they
 // should walk in a column not wide")
 // Sent far, the men go in a column two abreast: the one nearest where they are going sets off first and each of the
@@ -1932,6 +2051,15 @@ def hover_words() -> string, string:
     if pile_near(int(mm.x), int(mm.y)) >= 0: return "Your packs", if chosen: "pick them up" else: ""
     let pc = patch_under(mm)
     if pc >= 0: return capital(gstr(forage_finds()[patch_at(pc)], "id", "")), if chosen: "gather" else: ""
+    // (a side path: what it is, and the signs of game at its end, docs/off-the-path.md)
+    let pk = path_of(mc)
+    if pk >= 0:
+        let sp = side_paths[pk]
+        let name = [ "A deer track", "A shepherd\'s path", "A cart track" ][sp.size]
+        let end = sp.cells[sp.cells.length - 1]
+        let near = find(game) g: g.state != G_DEAD and index_of(g.id) >= 0 and dist2(u_x[index_of(g.id)], u_y[index_of(g.id)], (end % W) * TILE, (end / W) * TILE) < sq(8 * TILE)
+        let signs = if near < 0: "" elif game[near].kind == "boar": ": the ground rooted up, boar" elif game[near].kind == "roe": ": fresh slots, roe deer" else: ": fresh tracks"
+        return name + signs, if chosen: "follow it into the wood" else: ""
     let yt = young_tree_at(mm)
     if yt >= 0: return (if terrain[yt] == str_index(tr_names, "rubble"): "Fallen rock" else: "Young tree"), if chosen: (if terrain[yt] == str_index(tr_names, "rubble"): "dig it away" else: "fell it for firewood") else: ""
     let ot = old_tree_at(mm)
@@ -2051,6 +2179,11 @@ var last_click = -10.0
 
 def select_tick():
     let m = mouse_px()
+    if gl.button("mouse1") == 1 and not dragging:
+        let sg = sign_under()
+        if sg >= 0:
+            sign_order(sg)
+            return
     if gl.button("mouse1") == 1:
         drag_from = m
         dragging = true
@@ -2395,6 +2528,7 @@ def tour_tick():
         if play_log_leg != leg_id:
             play_log_leg = leg_id
             play_leg_uh = clock_uh
+            play_camped = false  // (a camp made as they went out of the last place is not one here: a playthrough found them a night unfed)
             print "play: into {leg_id} at {int(clock_s)} s ({season_now()}), men {men_alive()}"
         // (three days in one place and not out of it: stuck; say where everyone is and stop)
         if clock_uh - play_leg_uh > 72 * 1000000:
@@ -2402,6 +2536,8 @@ def tour_tick():
             for(ids) id:
                 let i = index_of(id)
                 print "play:   man {id} at tile {u_x[i] / TILE},{u_y[i] / TILE}, going to {u_tx[i] / TILE},{u_ty[i] / TILE}, moving {u_moving[i]}, stuck {u_stuck[i]}, speed {u_speed[i]} pace {u_pace[i]} block {u_block[i]} group {u_group[i]} foe {u_foe[i]} task {u_task[i]} hp {u_hp[i]}"
+            for(u_x.length) j:
+                if not man_of(u_id[j]): print "play:   other {u_id[j]} {beast_kind(u_id[j])} side {u_owner[j]} at tile {u_x[j] / TILE},{u_y[j] / TILE}"
             play_stuck = true
             return
         if play_fight(ids): return
@@ -2445,7 +2581,12 @@ def tour_tick():
         let exits = gobj(leg_now(), "exits")
         if exits.keys.length:
             let r = gate_rects[gate_index(exits.keys[0])]
-            issue_cmd(0, CMD_MOVE, ids, (r[0] + r[2] + 1) * TILE / 2, (r[1] + r[3] + 1) * TILE / 2, 0, 0)
+            // (each man still short of the gate to a spot of his own in it: sent together to its middle, a few
+            // jammed at its mouth for days, a playthrough found)
+            for(ids) id, n:
+                let i = index_of(id)
+                if not in_rect(r, u_x[i] / TILE, u_y[i] / TILE):
+                    issue_cmd(0, CMD_MOVE, [ id ], (r[0] + n % (r[2] - r[0] + 1)) * TILE + TILE / 2, (r[1] + n / (r[2] - r[0] + 1) % (r[3] - r[1] + 1)) * TILE + TILE / 2, 0, 0)
     if tour_sent != leg_id and not waiting:
         tour_sent = leg_id
         tour_still = tick
@@ -2918,8 +3059,14 @@ while gl.frame():
             if phase != "menu": menu_alpha = max(0.0, menu_alpha - dt / 1.2)
             menu_hover = draw_title(menu_alpha, if phase == "menu": clamp((phase_t - 1.0) / 1.0, 0.0, 1.0) else: menu_alpha)
         if phase == "play":
+            if arg_of("chosen") == "all" and shot != "":  // (for a picture: chosen, and in view)
+                selected = filter(u_id) id: man_of(id) != nil
+                var sum = float2_0
+                for(selected) id: sum += gp(float(u_x[index_of(id)]), float(u_y[index_of(id)]))
+                if selected.length: cam = sum / float(selected.length)
             draw_one_man()
-            if not dragging: draw_hover()
+            draw_signs()
+            if not dragging and sign_under() < 0: draw_hover()
         if debug_line:
             gl.set_shader("color")
             gl.set_font_name(FONT)
