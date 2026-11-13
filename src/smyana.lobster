@@ -2528,6 +2528,7 @@ def tour_tick():
         if play_log_leg != leg_id:
             play_log_leg = leg_id
             play_leg_uh = clock_uh
+            play_camped = false  // (a camp made as they went out of the last place is not one here: a playthrough found them a night unfed)
             print "play: into {leg_id} at {int(clock_s)} s ({season_now()}), men {men_alive()}"
         // (three days in one place and not out of it: stuck; say where everyone is and stop)
         if clock_uh - play_leg_uh > 72 * 1000000:
@@ -2535,6 +2536,8 @@ def tour_tick():
             for(ids) id:
                 let i = index_of(id)
                 print "play:   man {id} at tile {u_x[i] / TILE},{u_y[i] / TILE}, going to {u_tx[i] / TILE},{u_ty[i] / TILE}, moving {u_moving[i]}, stuck {u_stuck[i]}, speed {u_speed[i]} pace {u_pace[i]} block {u_block[i]} group {u_group[i]} foe {u_foe[i]} task {u_task[i]} hp {u_hp[i]}"
+            for(u_x.length) j:
+                if not man_of(u_id[j]): print "play:   other {u_id[j]} {beast_kind(u_id[j])} side {u_owner[j]} at tile {u_x[j] / TILE},{u_y[j] / TILE}"
             play_stuck = true
             return
         if play_fight(ids): return
@@ -2578,7 +2581,12 @@ def tour_tick():
         let exits = gobj(leg_now(), "exits")
         if exits.keys.length:
             let r = gate_rects[gate_index(exits.keys[0])]
-            issue_cmd(0, CMD_MOVE, ids, (r[0] + r[2] + 1) * TILE / 2, (r[1] + r[3] + 1) * TILE / 2, 0, 0)
+            // (each man still short of the gate to a spot of his own in it: sent together to its middle, a few
+            // jammed at its mouth for days, a playthrough found)
+            for(ids) id, n:
+                let i = index_of(id)
+                if not in_rect(r, u_x[i] / TILE, u_y[i] / TILE):
+                    issue_cmd(0, CMD_MOVE, [ id ], (r[0] + n % (r[2] - r[0] + 1)) * TILE + TILE / 2, (r[1] + n / (r[2] - r[0] + 1) % (r[3] - r[1] + 1)) * TILE + TILE / 2, 0, 0)
     if tour_sent != leg_id and not waiting:
         tour_sent = leg_id
         tour_still = tick

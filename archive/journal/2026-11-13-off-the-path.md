@@ -27,4 +27,17 @@ more often. Keeping them away from the gates mattered: a cart track ending by th
 the camp check's cold men were sent, and they never got clear of the fire. The bear check had to follow the bear, which
 now wandered off from where the men were sent.
 
+## Playing it through
+
+The fast playthrough found two things in the bot and the route: a camp the bot made as the men walked out of a place
+at dusk counted as a camp in the next one, so they spent the night there unfed; and a few men could jam at a gate's
+mouth for days when all were sent to its middle (now each goes to a spot of his own in it). Both fixed. A camp made
+in a gate now holds the men from six in the evening, not only after dark.
+
+The last run, with no help: twenty out, none home; 40 portions gathered, no game shot. The deer and boar are now at
+the side paths' clearings, out of the bot's sight from the trail, and the bot does not yet read the signs and go down
+a path after them (a try at it got the bot lost chasing wolves in the fir woods, so it was taken out). A player who
+follows the signs will eat; the bot shows what happens to one who keeps to the trail. Food and the winter's cold
+together are the next balance to look at.
+
 Next from the plan: game deeper in the wood with signs at the trail's edge, and finds at the paths' ends.

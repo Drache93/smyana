@@ -647,8 +647,8 @@ def route_tick() -> string:
     if not gates_armed:
         if in_any == 0 and alive > 0: gates_armed = true
         return ""
-    // (a camp made in the gate at night: they stay the night there, and go on in the morning)
-    if is_night() and camps_made(): return ""
+    // (a camp made in the gate in the evening or at night: they stay the night there, and go on in the morning)
+    if (is_night() or hour_now() >= 18.0) and camps_made(): return ""
     let exits = gobj(leg_now(), "exits")
     for(gate_names) name, g:
         if alive > 0 and inside[g] == alive and has(exits, name): return name
