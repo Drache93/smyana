@@ -7,7 +7,7 @@ Palette: 1..4 bark, light to dark (4: the scars); 10 leaves lit from above, 11 m
 dark inside; 13 and 14 the leaves that still cling after leaf-fall (the game draws only these in autumn, on the twigs). The game reads the
 index as the material and its tone, and colours the leaves by the season; the colours stored here are summer's, so the
 file looks right in a voxel editor. Run from the repo's root: python3 tools/tree_vox.py   (numpy)"""
-import math, random, struct
+import glob, math, os, random, struct
 import numpy as np
 
 K = 64 / 3.0     # voxels a metre
@@ -62,6 +62,7 @@ class Model:
         def chunk(name, data): return name.encode() + struct.pack("<ii", len(data), 0) + data
         rgba = b"".join(struct.pack("<4B", (COLOURS.get(i, 0) >> 16) & 255, (COLOURS.get(i, 0) >> 8) & 255, COLOURS.get(i, 0) & 255, 255) for i in range(1, 257))
         piece = pts // 256
+        for old in glob.glob(path[:-4] + ".c[0-9][0-9][0-9].vox"): os.remove(old)   # (a smaller tree needs fewer pieces)
         for c in np.unique(piece, axis=0):
             sel = (piece == c).all(axis=1)
             local = pts[sel] - c * 256
@@ -95,7 +96,7 @@ def dabs(m, tip, reach, count, cling, rng):
         sub[inside & ~up & (sub == 0)] = CLING_LOW if cling else UNDER
 
 
-def broadleaf(height, girth, bole, spread, boughs, seed, cling=0.4, stout=1.0, fill=16, body=0.0, skirt=0.0, split=0):
+def broadleaf(height, girth, bole, spread, boughs, seed, cling=0.4, stout=1.0, fill=16, body=0.0, skirt=0.0, split=0, dead=0.0):
     """As on the sheet and in the target picture: a flared foot, one clean slim silver bole, boughs that rise steeply
     from the fork and then spread, each breaking into branches and fine twigs that can be seen, and the leaves in
     clusters of dabs at the twigs' ends. Sizes in men: height, the trunk's width, how far up the clean bole goes (of the
@@ -152,6 +153,14 @@ def broadleaf(height, girth, bole, spread, boughs, seed, cling=0.4, stout=1.0, f
         end = start + d * out + [0, 0, up]
         m.capsule(start, mid, r, r * 0.7, BARK)
         m.capsule(mid, end, r * 0.7, 0.8 * F, BARK)
+        if rng.random() < dead:
+            # (an old oak's dead limb, "stag-headed": bare grey wood standing out of the top of the crown, a stub or two)
+            m.capsule(end, end + [rng.uniform(-2, 2) * F, rng.uniform(-2, 2) * F, up * 0.35], 1.0 * F, 0.6 * F, BARK)
+            for k in range(2):
+                at = mid + (end - mid) * rng.uniform(0.3, 0.9)
+                a2 = az + rng.uniform(-1.2, 1.2)
+                m.capsule(at, at + np.array([math.cos(a2), math.sin(a2), 0.6]) * S * 0.15, 0.8 * F, 0.55 * F, BARK)
+            return
         for k in range(2 if small else 4):               # branches off it, out and up
             t = rng.uniform(0.25, 1.0)
             at = mid + (end - mid) * t
@@ -218,6 +227,210 @@ def broadleaf(height, girth, bole, spread, boughs, seed, cling=0.4, stout=1.0, f
             # (only near the twigs: the dome is leaves on branches, not a ball)
             if np.min(np.linalg.norm(t - p, axis=1)) < rx * 0.45:
                 dabs(m, p, 2.8 * F, 9, False, rng)
+    return m
+
+
+def plate(m, c, w, rng, cling, n=None):
+    """A spray of beech leaves: a flat, level plate of leaf dabs w across and a third as deep, lit on top and dark
+    beneath, as a beech holds its leaves out in layers along a branch (Dominic's photos, 2026-11-13)."""
+    for i in range(n or max(4, int(w / F * 1.6))):
+        a = rng.uniform(0, 2 * math.pi)
+        r = w * math.sqrt(rng.random())
+        p = c + np.array([math.cos(a) * r, math.sin(a) * r, rng.gauss(0, w * 0.12) - r * r / (w * 4.0)])
+        dabs(m, p, 0.35 * F, 2, cling, rng)
+
+
+def buttresses(m, cx, cy, r0, rng, n):
+    """the root flare: buttresses running out from the foot of the trunk into the ground"""
+    for k in range(n):
+        a = 2 * math.pi * (k + rng.uniform(-0.2, 0.2)) / n
+        out = r0 * rng.uniform(1.7, 2.3)
+        m.capsule((cx, cy, r0 * 1.8), (cx + math.cos(a) * out, cy + math.sin(a) * out, 0), r0 * 0.55, r0 * 0.22, BARK)
+
+
+def burrs(m, cx, cy, r0, top, rng):
+    """an old trunk's burrs and wounds: lumps of bark and darker scars up to `top`"""
+    for i in range(6):
+        z = rng.uniform(0.25, 1.0) * top
+        a = rng.uniform(0, 2 * math.pi)
+        c = np.array([cx + math.cos(a) * r0 * 0.85, cy + math.sin(a) * r0 * 0.85, z])
+        m.capsule(c, c + [0, 0, rng.uniform(1, 4) * F], r0 * rng.uniform(0.2, 0.35), r0 * 0.18, BARK if i % 2 else SCAR)
+
+
+def beech(height, girth, bole, spread, limbs, seed, cling=0.4, skirt=0.0, split=0, veteran=False):
+    """A beech as in Dominic's photos (2026-11-13: an open-grown beech, and old beeches of the Balkan beech woods): one
+    crown shaped like an egg, widest a little below its middle, from low on the tree to the top, and round over all of
+    it, not a cap on a pole. The trunk runs up through it as a leader, and the limbs leave it all the way up: the low
+    ones long, reaching out near level and drooping at their ends, the high ones short and steep, each just reaching
+    the egg's shell. The leaves lie in flat layered sprays along every limb and branch from near the trunk out, so the
+    crown is leafy through its depth, with the sky and the grey limbs showing between the layers. split: the trunk
+    forks low into that many great limbs, each its own leader (the old forest's beeches). veteran: an old giant of the
+    forest, a thick fluted bole on a wide root flare, burrs and old wounds, and dead stubs in the crown. Sizes in men,
+    as broadleaf's."""
+    rng = random.Random(seed)
+    m = Model()
+    H = height * MAN
+    r0 = girth * MAN / 2
+    S = spread * MAN
+    cx = cy = N / 2
+    zb = H * max(0.12, bole * 0.55)          # the crown's foot: its lowest limbs' leaves
+    zw = zb + (H - zb) * 0.42               # where it is widest
+    lo_ax, hi_ax = zw - zb, H - zw
+
+    ph = [rng.uniform(0, 6.28) for _ in range(4)]
+
+    def shell(z, a=0.0):
+        """the egg's half width at height z, toward a: not a smooth egg but lobed, as the big limbs each carry their
+        own mass of leaves"""
+        t = (z - zw) / (lo_ax if z < zw else hi_ax)
+        lobes = 1.0 + 0.11 * math.sin(3 * a + ph[0] + z / (9 * F)) + 0.07 * math.sin(5 * a + ph[1] - z / (6 * F)) + 0.05 * math.sin(z / (5 * F) + ph[2])
+        return S * math.sqrt(max(0.0, 1 - t * t)) * lobes
+
+    def inside(p, k=1.0):
+        d = math.hypot(p[0] - cx, p[1] - cy)
+        a = math.atan2(p[1] - cy, p[0] - cx)
+        return d <= shell(min(max(p[2], zb), H), a) * k + 1e-6 and zb * 0.85 <= p[2] <= H * 1.02
+
+    def reach_out(start, d):
+        """how far along d from start before the shell"""
+        lo, hi = 0.0, 2.5 * S + H
+        for _ in range(24):
+            mid = (lo + hi) / 2
+            if inside(start + d * mid): lo = mid
+            else: hi = mid
+        return lo
+
+    # the foot: the root flare, wide and low, in buttresses
+    m.capsule((cx, cy, 0), (cx, cy, r0 * 2.6), r0 * (1.35 if veteran else 1.6), r0 * 1.02, BARK)
+    buttresses(m, cx, cy, r0, rng, 7 if veteran else 5)
+    stems = []
+    if split > 1:
+        low = np.array([cx, cy, H * rng.uniform(0.14, 0.22)])
+        m.capsule((cx, cy, r0), low, r0, r0 * 0.92, BARK)
+        turn = rng.uniform(0, 6.28)
+        for k in range(split):
+            a = turn + 2 * math.pi * (k + rng.uniform(-0.12, 0.12)) / split
+            lean = S * rng.uniform(0.25, 0.4)
+            # (a great limb: up and out, then up again, a little crooked, as on the old Balkan beeches)
+            mid = low + np.array([math.cos(a) * lean * 0.7, math.sin(a) * lean * 0.7, (H - low[2]) * 0.3])
+            top_k = np.array([cx + math.cos(a) * lean, cy + math.sin(a) * lean, H * rng.uniform(0.82, 0.92)])
+            rk = r0 * (0.72 if split == 2 else 0.62)
+            m.capsule(low, mid, rk, rk * 0.85, BARK)
+            m.capsule(mid, top_k, rk * 0.85, 0.9 * F, BARK)
+            stems.append((low, mid, top_k, a, rk))
+    else:
+        top_k = np.array([cx + rng.uniform(-0.03, 0.03) * S, cy + rng.uniform(-0.03, 0.03) * S, H * 0.9])
+        mid = np.array([cx, cy, H * 0.5])
+        m.capsule((cx, cy, r0), mid, r0, r0 * 0.7, BARK)
+        m.capsule(mid, top_k, r0 * 0.7, 0.9 * F, BARK)
+        stems.append((np.array([cx, cy, r0 * 2.6]), mid, top_k, None, r0 * 0.7))
+    for i in range(int(H * 0.4 / 7 / F) * (2 if veteran else 1)):                       # scars across the bark
+        z = r0 * 2.6 + rng.random() * max(1.0, H * 0.35 - r0 * 3)
+        a = rng.uniform(0, 2 * math.pi)
+        for da in np.linspace(-0.6, 0.6, max(3, int(r0 * 1.5))):
+            x, y = int(cx + math.cos(a + da) * (r0 * 0.9)), int(cy + math.sin(a + da) * (r0 * 0.9))
+            if m.v[x, y, int(z)] == BARK: m.v[x, y, int(z)] = SCAR
+    if veteran: burrs(m, cx, cy, r0, H * 0.3, rng)
+
+    def along(stem, z):
+        """the point on a stem's axis at height z"""
+        low, mid, top_k = stem[0], stem[1], stem[2]
+        a, b = (low, mid) if z <= mid[2] else (mid, top_k)
+        t = min(1.0, max(0.0, (z - a[2]) / max(1e-6, b[2] - a[2])))
+        return a + (b - a) * t
+
+    def leafy(at, d, length, r, depth):
+        """a limb or branch from `at` along d, `length` long and r thick at its foot: out, its end drooping if it
+        is near level, the branches off it, and its leaves in sprays along it"""
+        n = max(2, int(length / (3.0 * F)))
+        level = 1.0 - min(1.0, max(0.0, d[2] / 0.7))      # (a near-level limb droops at its end)
+        pts = [at]
+        for k in range(n):
+            u = (k + 1) / n
+            p = at + d * length * u + np.array([0, 0, -level * length * 0.18 * u * u])
+            pts.append(p)
+        for k in range(n):
+            u = k / n
+            m.capsule(pts[k], pts[k + 1], max(0.55 * F, r * (1 - u * 0.8)), max(0.5 * F, r * (1 - (k + 1) / n * 0.8)), BARK)
+            if u > 0.2: wood.append(pts[k + 1])
+        if depth == 0 and veteran and rng.random() < 0.25:
+            return                                         # (a dead limb: bare grey wood, no leaves)
+        for k in range(1, n + 1):
+            p = pts[k]
+            u = k / n
+            if depth < 2:
+                # branches off it to either side, level or a little up, shorter toward the end
+                for side in (-1, 1):
+                    if rng.random() < (0.75 if depth == 0 else 0.5) and u > 0.12:
+                        az = math.atan2(d[1], d[0]) + side * rng.uniform(0.6, 1.3)
+                        dd = np.array([math.cos(az), math.sin(az), rng.uniform(-0.05, 0.35)])
+                        dd /= np.linalg.norm(dd)
+                        ln = min(reach_out(p, dd) * 0.95, length * rng.uniform(0.25, 0.45) * (1.1 - u * 0.5))
+                        if ln > 2.5 * F: leafy(p, dd, ln, max(0.6 * F, r * 0.45 * (1 - u * 0.6)), depth + 1)
+            # its leaves: flat sprays along it from a third of the way out, and a fuller one at its end
+            if u > 0.3 or depth > 0:
+                q = p + np.array([rng.gauss(0, 1.0), rng.gauss(0, 1.0), rng.uniform(0.3, 1.5)]) * F
+                if inside(q, 1.06): plate(m, q, (2.6 + 2.2 * u) * F * (1.0 if depth else 1.2), rng, rng.random() < cling)
+        end = pts[-1] + np.array([0, 0, 0.8 * F])
+        if inside(end, 1.08): plate(m, end, 4.5 * F, rng, rng.random() < cling, n=14)
+        # (bare twiglets at its end: the bristle that shows after leaf-fall)
+        for q in range(2):
+            az = math.atan2(d[1], d[0]) + rng.uniform(-1.4, 1.4)
+            t3 = pts[-1] + np.array([math.cos(az), math.sin(az), rng.uniform(0.0, 0.8)]) * rng.uniform(2, 4) * F
+            m.capsule(pts[-1], t3, 0.5 * F, 0.42 * F, BARK)
+
+    wood = []   # (points along the branches, where the shell's sprays below grow from)
+
+    # the limbs, up each stem in a spiral (a beech's leaves and limbs alternate round it), from the crown's foot up
+    for stem in stems:
+        low, mid, top_k, a_out, rk = stem
+        z0 = max(zb, low[2] + 2 * F)
+        nl = int(limbs * 4 * (1.0 if split <= 1 else 0.6))
+        turn = rng.uniform(0, 6.28)
+        for i in range(nl):
+            u = (i + rng.uniform(0.1, 0.9)) / nl
+            z = z0 + (top_k[2] - z0) * u ** 0.9
+            at = along(stem, z)
+            az = turn + i * 2.39996 + rng.uniform(-0.3, 0.3)       # (the golden angle)
+            if a_out is not None:                                  # (on a forked tree, mostly to the outer side)
+                da = (az - a_out + math.pi) % (2 * math.pi) - math.pi
+                az = a_out + da * 0.65
+            rise = 0.05 + 0.95 * u ** 1.3 + rng.uniform(-0.08, 0.08)   # (low ones near level, high ones steep)
+            d = np.array([math.cos(az), math.sin(az), rise * 1.4])
+            d /= np.linalg.norm(d)
+            ln = reach_out(at, d) * rng.uniform(0.8, 0.95)
+            if ln > 3 * F: leafy(at, d, ln, max(0.8 * F, rk * (0.5 - 0.3 * u)), 0)
+        # its top: a short leafy leader
+        plate(m, top_k + [0, 0, 2 * F], 4 * F, rng, False, n=16)
+    if wood:
+        # the round of it: sprays out to the egg's shell all over, under as well as on top, each on a twig from the
+        # nearest branch, so the outline is the egg and not the limbs' ends
+        w = np.array(wood)
+        for i in range(int(520 * (height / 5.5) ** 2)):
+            a = rng.uniform(0, 2 * math.pi)
+            t = rng.uniform(-1.0, 1.0)
+            if t < -0.5 and rng.random() < 0.5: continue   # (a little thinner underneath)
+            z = zw + t * (lo_ax if t < 0 else hi_ax)
+            k = rng.uniform(0.82, 1.0) if rng.random() < 0.85 else rng.uniform(0.5, 0.82)
+            p = np.array([cx + math.cos(a) * shell(z, a) * k, cy + math.sin(a) * shell(z, a) * k, z])
+            dist = np.linalg.norm(w - p, axis=1)
+            j = int(np.argmin(dist))
+            if dist[j] > S * 0.3: continue                   # (no branch near: a gap the sky shows through)
+            if dist[j] > 2.5 * F: m.capsule(w[j], p, 0.5 * F, 0.42 * F, BARK)
+            plate(m, p, rng.uniform(2.2, 3.6) * F, rng, rng.random() < cling, n=7)
+    if skirt > 0:
+        # leafy shoots up the trunk below the crown (D-112), short, as the photos have on the lower bole
+        for stem in stems[:1]:
+            z0, z1 = H * skirt, zb
+            n = int((z1 - z0) / (1.6 * F))
+            for i in range(max(0, n)):
+                z = z0 + (z1 - z0) * (i + rng.random()) / max(1, n)
+                at = along(stem, z)
+                az = rng.uniform(0, 6.28)
+                ln = (1.5 + rng.random() * 3.0) * F
+                tw = at + np.array([math.cos(az) * (r0 + ln), math.sin(az) * (r0 + ln), rng.uniform(0, 1.5) * F])
+                m.capsule(at, tw, 0.55 * F, 0.45 * F, BARK)
+                plate(m, tw, 2.2 * F, rng, rng.random() < cling + 0.25, n=6)
     return m
 
 
@@ -364,16 +577,27 @@ def make(kind, name, h, g, b, s, n, seed):
     if kind == "spruce": return spruce(h, g, b, s, seed)
     if kind == "fir": return fir(h, g, b, s, seed)
     if kind == "bpine": return black_pine(h, g, b, s, n, seed)
-    if kind == "oak": return broadleaf(h, g, b, s, n, seed, cling=0.65, stout=1.3, fill=20, body=1.0)        # holds its russet leaves
+    if kind == "oak": return broadleaf(h, g, b, s, n, seed, cling=0.65, stout=1.3, fill=20, body=1.0, dead=0.25 if tag_now in VETERANS else 0.0)        # holds its russet leaves
     if kind == "hornbeam": return broadleaf(h, g, b, s, n, seed, cling=0.35, stout=0.9, fill=14, body=0.9, skirt=0.2, split=2 if tag_now == "hornbeam_old_1" else 0)
     if kind == "pine": return broadleaf(h, g, b, s, n, seed, cling=0.0, stout=1.0, fill=10)        # a bare bole, a high flat crown
-    if kind == "beech": return broadleaf(h, g, b, s, n, seed, body=1.0, skirt=SKIRT.get(name, 0.0), split=SPLIT.get(tag_now, 0))
+    if kind == "beech": return beech(h, g, b, s, n, seed, skirt=SKIRT.get(name, 0.0), split=SPLIT.get(tag_now, 0), veteran=tag_now in VETERANS)
     return broadleaf(h, g, b, s, n, seed, body=1.0)
 
 
 # (Dominic's beech wood, 2026-11-12: leafy shoots from this far up the trunk, of the height; these beeches fork low)
 SKIRT = {"sapling": 0.2, "young": 0.14, "mature": 0.18, "old": 0.22}
 SPLIT = {"beech_young_1": 2, "beech_mature_1": 2, "beech_old_1": 3}
+# (Dominic, 2026-11-13: "The forest is old, likely they've be some really big/thick ones": each kind's second old
+# model is a giant of the old forest, which the men can't fell)
+# (a real one: an ancient beech is over 4.5 m round, a metre and a half across, and old Balkan beeches fork low into
+# great crooked limbs, Dominic's photos; sizes as KINDS's, in men)
+# Others from field sources (2026-11-13): an ancient oak over 6 m round, the Rhodope-ish oaks of Velichka 5 m round
+# and 18 to 22 m tall, their crowns holding dead wood; an old silver fir 2 to 2.5 m across, its top gone flat or
+# stag-headed; an old Norway spruce 1 to 1.5 m across, tapering fast; the Scots pine of Pchelarovo in the Rhodopes,
+# 500 years old, 25 m tall and 3.5 m round. The game's trees are a third of their real height, so the giants read
+# stout. Hornbeam has no giant: it stays a smaller tree.
+VETERANS = {"beech_old_1": (6.2, 0.7, 0.3, 2.5, 6), "oak_old_1": (5.4, 0.9, 0.24, 2.4, 7), "fir_old_1": (7.2, 0.75, 0.2, 1.45, 0),
+            "spruce_old_1": (7.4, 0.62, 0.16, 1.35, 0), "pine_old_1": (6.2, 0.62, 0.62, 1.6, 6), "bpine_old_1": (5.8, 0.7, 0.45, 2.5, 7)}
 tag_now = ""
 
 
@@ -388,22 +612,50 @@ KINDS = {
     "fir": {"mature": (5.0, 0.22, 0.14, 1.0, 0), "old": (6.2, 0.3, 0.2, 1.25, 0)},
     "bpine": {"mature": (4.6, 0.24, 0.5, 1.6, 5), "old": (5.4, 0.32, 0.5, 2.1, 6)},
 }
-lines = []
-for kind, sizes in KINDS.items():
-    for name, (h, g, b, s, n) in sizes.items():
-        for variant in range(2 if name in ("old", "young") or (kind == "beech" and name == "mature") else 1):
-            tag = "%s_%s_%d" % (kind, name, variant)
-            tag_now = tag
-            size, foot, count = make(kind, name, h, g, b, s, n, 100 + len(lines)).save("art/trees/vox/%s.vox" % tag)
-            lines.append("%s %d %d" % (tag, foot[0], foot[1]))
-            print("%s: %s voxels %d, foot %s" % (tag, size, count, foot))
-# saplings of the other kinds (#98): a stem, a few twigs, a tuft of leaves or needles; made after the rest so the
-# others keep their seeds
-SAPLINGS = {"oak": (1.0, 0.07, 0.3, 0.45, 3), "hornbeam": (0.9, 0.05, 0.3, 0.36, 3), "spruce": (0.95, 0.05, 0.04, 0.3, 0), "fir": (0.85, 0.05, 0.05, 0.33, 0)}
-for i, (kind, (h, g, b, s, n)) in enumerate(SAPLINGS.items()):
-    tag = "%s_sapling_0" % kind
-    size, foot, count = make(kind, "sapling", h, g, b, s, n, 900 + i).save("art/trees/vox/%s.vox" % tag)
-    lines.append("%s %d %d" % (tag, foot[0], foot[1]))
-    print("%s: %s voxels %d, foot %s" % (tag, size, count, foot))
-# (where each trunk's foot is in its model: x y, voxels from the model's corner)
-open("art/trees/vox/feet.txt", "w").write("\n".join(lines) + "\n")
+def models():
+    """Every model in order: its name, and how to make it (each with its own seed, whichever are made)."""
+    out = []
+    for kind, sizes in KINDS.items():
+        for name, (h, g, b, s, n) in sizes.items():
+            for variant in range(2 if name in ("old", "young") or (kind == "beech" and name == "mature") else 1):
+                out.append(("%s_%s_%d" % (kind, name, variant), kind, name, (h, g, b, s, n), 100 + len(out)))
+    # saplings of the other kinds (#98): a stem, a few twigs, a tuft of leaves or needles; made after the rest so the
+    # others keep their seeds
+    SAPLINGS = {"oak": (1.0, 0.07, 0.3, 0.45, 3), "hornbeam": (0.9, 0.05, 0.3, 0.36, 3), "spruce": (0.95, 0.05, 0.04, 0.3, 0), "fir": (0.85, 0.05, 0.05, 0.33, 0)}
+    for i, (kind, dims) in enumerate(SAPLINGS.items()):
+        out.append(("%s_sapling_0" % kind, kind, "sapling", dims, 900 + i))
+    return out
+
+
+def build(tag, kind, name, dims, seed):
+    global tag_now
+    tag_now = tag
+    h, g, b, s, n = VETERANS.get(tag, dims)
+    m = make(kind, name, h, g, b, s, n, seed)
+    if tag in VETERANS and kind != "beech":
+        # (a giant's foot: its buttresses, and burrs and old wounds up its bole)
+        rng = random.Random(seed + 7)
+        r0 = g * MAN / 2
+        buttresses(m, N / 2, N / 2, r0, rng, 6)
+        burrs(m, N / 2, N / 2, r0, h * MAN * 0.3, rng)
+    return m
+
+
+def main(only=None):
+    """Writes every model, or only those whose name starts with one of `only`; feet.txt keeps the others' lines."""
+    old = dict(l.split(" ", 1) for l in open("art/trees/vox/feet.txt").read().split("\n") if l)
+    lines = []
+    for tag, kind, name, dims, seed in models():
+        if only and not any(tag.startswith(o) for o in only):
+            lines.append("%s %s" % (tag, old[tag]))
+            continue
+        size, foot, count = build(tag, kind, name, dims, seed).save("art/trees/vox/%s.vox" % tag)
+        lines.append("%s %d %d" % (tag, foot[0], foot[1]))
+        print("%s: %s voxels %d, foot %s" % (tag, size, count, foot))
+    # (where each trunk's foot is in its model: x y, voxels from the model's corner)
+    open("art/trees/vox/feet.txt", "w").write("\n".join(lines) + "\n")
+
+
+if __name__ == "__main__":
+    import sys
+    main(sys.argv[1:] or None)

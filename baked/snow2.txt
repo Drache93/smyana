@@ -1,7 +1,7 @@
-trees 63 135.7645 135.7645022156 883a56bd1b2fd0eeb4b4452cc4ac7293bf2aecd0f12788dd49ef8b731cc93f91 sun 40.0 0.15 4.0 true 0.4 fall 996 86 elev 22.0
+trees 64 135.7645 135.7645022156 443b2e1f3052095dd389101e6795ac11b97d5473fa1f8ba5d9eadb7b364afb43 sun 40.0 0.15 4.0 true 0.4 fall 996 86 elev 22.0
 fir0.crown.ever.snow 1 1 144 236 71 267
-fir1.crown.ever.snow 147 1 136 231 69 266
-fir2.crown.ever.snow 285 1 114 221 56 231
-bpine0.crown.ever.snow 401 1 223 133 110 258
-bpine1.crown.ever.snow 626 1 190 137 83 253
-bpine2.crown.ever.snow 818 1 162 125 83 221
+fir1.crown.ever.snow 147 1 164 270 83 313
+fir2.crown.ever.snow 313 1 114 221 56 231
+bpine0.crown.ever.snow 429 1 223 133 110 258
+bpine1.crown.ever.snow 654 1 238 162 98 274
+bpine2.crown.ever.snow 894 1 162 125 83 221

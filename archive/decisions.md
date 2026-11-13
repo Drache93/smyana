@@ -705,3 +705,20 @@ writes it there, to be committed with the change. The start also stopped re-read
 are read only when something must be baked; the walk cycles are kept beside the sheets) and re-hashing the 28 MB of
 tree models for each of seven sheets (the key is now each model's length and tail). A start with everything baked: 8 s
 to about 1.5 s, here.
+
+**D-115, 2026-11-13: A beech's crown is one egg from low on the tree to the top.** (From Dominic: "It should be
+rounder... covering the top part of the tree rather than the whole of the tree", and his photographs; Claude.) Made
+from the photos of an open-grown beech and of old Balkan beeches, not guessed: the trunk runs up through the crown as
+a leader; limbs leave it all the way up, low ones long, near level and drooping at their ends, high ones short and
+steep; the leaves lie in flat layered sprays along every limb out to an egg-shaped, lobed shell, widest a little below
+its middle, leafy underneath and at the sides as on top, with gaps where the limbs and the sky show. Supersedes the
+domed beech crown of D-102 (other broadleaves keep it).
+
+**D-116, 2026-11-13: The old forest has giants of every kind, which the men can't fell.** (From Dominic: "The forest
+is old, likely they've be some really big/thick ones. We had planned some that can't be cut down because of size", and
+"Not just beech right?"; sizes from field sources, Claude.) One old tree in six is a giant: a beech forking low into
+great limbs, an oak with dead limbs in its crown, a silver fir, a spruce, a Scots pine and a black pine, each taller
+and about twice as thick as an old tree of its kind, with buttresses, burrs and old wounds. Like every old tree
+(D-028), a giant blocks the way and can't be felled. Not the hornbeam (a smaller tree), and no plane trees yet (new
+kinds are on hold).
+

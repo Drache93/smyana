@@ -211,7 +211,9 @@ def species_pick(c:int) -> int:
     let h = cell_hash(c) / 7
     let f = woods_field(c % W, c / W, 5.0, 4111) * 0.85 + float(cell_hash(c + 77) % 100) / 100.0 * 0.15
     let r = clamp(int(f * 9.0) - 1, 0, 7)  // (the field is rarely at its ends: stretched to reach every kind)
-    return h % 3 + 3 * r + 24 * ((h / 24) % 2)
+    // (its model: 0 and 2 an old tree, 1 a giant of the old forest, one in six, Dominic 2026-11-13: "some really
+    // big/thick ones")
+    return [ 0, 2, 0, 2, 0, 1 ][h % 6] + 3 * r + 24 * ((h / 24) % 2)
 
 // Which old tree stands in a wood of this kind (the map's "wood": beech, conifer or deep, the high dark woods where
 // the trunks run up out of sight).
