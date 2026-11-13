@@ -67,6 +67,9 @@ def pile_near(x:int, y:int) -> int:
     let r = TILE * 3 / 2
     return find(piles) p: dist2(p.x, p.y, x, y) <= r * r
 
+// Whether any pile lies within `tiles` of (x, y).
+def pile_within(x:int, y:int, tiles:int) -> bool: return (find(piles) p: dist2(p.x, p.y, x, y) <= sq(tiles * TILE)) >= 0
+
 // The chosen men pick up pile k, sharing it out into their packs as far as they have room; what is left stays.
 // They walk to it first (pile_tick gives it out when they are there).
 class Fetch:

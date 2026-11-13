@@ -502,6 +502,8 @@ def enter_leg(id:string, edge:string):
     hunt_enter(place)
     // (what lies at the ends of the side paths: a hut, a cache, wild honey; smyana/finds.lobster)
     finds_enter(place)
+    // (the stands of what the wood gives, by the seed: smyana/forage.lobster)
+    stands_grow()
     // (riders on the trail, and a chance meeting: docs/threats.md, riders)
     trail_enter()
     meet_roll()

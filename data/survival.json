@@ -63,53 +63,106 @@
   "bear_smell_tiles": 16
  },
  "forage": {
-  "_doc": "What the wood gives, by its kind (the map's 'wood') and the season (docs/survival.md, #66). Each find shows on open ground as a patch ('look': how the view draws it) on 'per_mille' of the open cells, and a man gathers it in 'gather_s' seconds standing on it: 'food' portions into his pack, 'goods' to take home (herbs, honey). What is taken stays taken. A man's pack holds what packs.most allows. Right-click a patch with men chosen: each goes to the nearest one within 'reach_tiles' of it. Autumn's finds were raised on 2026-11-13 (Claude, from playthroughs: twenty men gathering a day brought in less than they ate, where in the Rhodopes wild mushrooms are still a living for whole villages, BNR 2021): a patch of mushrooms or ceps is four portions, wild pears three, beechnuts and lingonberries two. Then (Dominic, 2026-11-13: no work and no pay, the season itself has to carry them) autumn's food finds stand twice as thick, for caches; and the dog rose's hips, which hang on the bush into the winter, are the winter wood's one find in the beech and oak woods, two portions a patch.",
-  "gather_s": 6,
-  "reach_tiles": 9,
+  "_doc": "What the wood gives, by its kind (the map's 'wood') and the season (docs/survival.md, #66; docs/gathering.md). Since 2026-11-13 (Dominic, playing: \"gameplay is moving my mouse over everything to find something\"; the gathering proposal he agreed: fewer, bigger finds you see, the men calling them out) a find is a STAND: 'stands' of them a place (from, to, by the run's seed), each holding 'amount' (from, to) of what it 'gives', food portions for the road or goods to take home. 'where' is where it grows: 'light' at the side paths' clearings and open glades (wild pears, dog rose and the berries fruit in the light, in deep shade the rose fails to fruit: Wikipedia, Rosa canina; the wild pear needs a lot of light, Pyrus pyraster), 'shade' deep under the old trees, eight tiles or more from the trail (ceps grow under spruce, fir, beech and oak, singly or two or three together: Wikipedia, Boletus edulis), 'high' on open stony ground (mountain tea, Sideritis scardica, grows above 1,500 m in the Rhodopes above Trigrad and is picked by hand in flower in July and August). A man at a stand gathers one a 'gather_s' seconds into his pack, up to 'most_men' men at once; right-click it with men chosen. 'call' is what the first man to come within 'call_tiles' of it says, once. What is taken stays taken.",
+  "gather_s": 4,
   "woods": {
    "beech": {
     "summer": [
      {
       "id": "bilberries",
       "look": "berries_blue",
-      "food": 1,
-      "per_mille": 15
+      "gives": "food",
+      "stands": [
+       1,
+       2
+      ],
+      "amount": [
+       6,
+       10
+      ],
+      "where": "light",
+      "call": "Bilberries here."
      },
      {
       "id": "herbs",
       "look": "herbs",
-      "goods": 1,
-      "per_mille": 9
+      "gives": "goods",
+      "stands": [
+       1,
+       2
+      ],
+      "amount": [
+       3,
+       5
+      ],
+      "where": "light",
+      "call": "Herbs, for home."
      }
     ],
     "autumn": [
      {
       "id": "beechnuts",
       "look": "nuts",
-      "food": 2,
-      "per_mille": 48
+      "gives": "food",
+      "stands": [
+       2,
+       3
+      ],
+      "amount": [
+       12,
+       20
+      ],
+      "where": "shade",
+      "call": "Beechnuts under these."
      },
      {
-      "id": "mushrooms",
+      "id": "ceps",
       "look": "mushrooms",
-      "food": 4,
-      "per_mille": 30
+      "gives": "food",
+      "stands": [
+       2,
+       3
+      ],
+      "amount": [
+       10,
+       18
+      ],
+      "where": "shade",
+      "call": "Ceps. Look."
      }
     ],
     "winter": [
      {
-      "id": "rosehips",
-      "look": "berries_red",
-      "food": 2,
-      "per_mille": 10
+      "id": "rose hips",
+      "look": "rosehips",
+      "gives": "food",
+      "stands": [
+       2,
+       3
+      ],
+      "amount": [
+       6,
+       10
+      ],
+      "where": "light",
+      "call": "Rose hips, still on the bush."
      }
     ],
     "spring": [
      {
       "id": "nettles",
       "look": "greens",
-      "food": 1,
-      "per_mille": 12
+      "gives": "food",
+      "stands": [
+       2,
+       3
+      ],
+      "amount": [
+       4,
+       8
+      ],
+      "where": "light",
+      "call": "Young nettles."
      }
     ]
    },
@@ -118,44 +171,98 @@
      {
       "id": "wild strawberries",
       "look": "berries_red",
-      "food": 1,
-      "per_mille": 12
+      "gives": "food",
+      "stands": [
+       1,
+       2
+      ],
+      "amount": [
+       5,
+       8
+      ],
+      "where": "light",
+      "call": "Strawberries!"
      },
      {
       "id": "herbs",
       "look": "herbs",
-      "goods": 1,
-      "per_mille": 12
+      "gives": "goods",
+      "stands": [
+       1,
+       2
+      ],
+      "amount": [
+       3,
+       5
+      ],
+      "where": "light",
+      "call": "Herbs, for home."
      }
     ],
     "autumn": [
      {
       "id": "wild pears",
       "look": "pears",
-      "food": 3,
-      "per_mille": 18
+      "gives": "food",
+      "stands": [
+       2,
+       3
+      ],
+      "amount": [
+       12,
+       20
+      ],
+      "where": "light",
+      "call": "Pears, there."
      },
      {
-      "id": "mushrooms",
+      "id": "ceps",
       "look": "mushrooms",
-      "food": 4,
-      "per_mille": 24
+      "gives": "food",
+      "stands": [
+       1,
+       2
+      ],
+      "amount": [
+       10,
+       16
+      ],
+      "where": "shade",
+      "call": "Ceps. Look."
      }
     ],
     "winter": [
      {
-      "id": "rosehips",
-      "look": "berries_red",
-      "food": 2,
-      "per_mille": 8
+      "id": "rose hips",
+      "look": "rosehips",
+      "gives": "food",
+      "stands": [
+       2,
+       3
+      ],
+      "amount": [
+       6,
+       10
+      ],
+      "where": "light",
+      "call": "Rose hips, still on the bush."
      }
     ],
     "spring": [
      {
       "id": "wild garlic",
       "look": "greens",
-      "food": 1,
-      "per_mille": 18
+      "gives": "food",
+      "stands": [
+       2,
+       3
+      ],
+      "amount": [
+       5,
+       8
+      ],
+      "where": "shade",
+      "call": "Wild garlic. Smell it."
      }
     ]
    },
@@ -164,16 +271,34 @@
      {
       "id": "bilberries",
       "look": "berries_blue",
-      "food": 1,
-      "per_mille": 12
+      "gives": "food",
+      "stands": [
+       1,
+       2
+      ],
+      "amount": [
+       6,
+       10
+      ],
+      "where": "light",
+      "call": "Bilberries here."
      }
     ],
     "autumn": [
      {
       "id": "ceps",
       "look": "mushrooms",
-      "food": 4,
-      "per_mille": 36
+      "gives": "food",
+      "stands": [
+       3,
+       4
+      ],
+      "amount": [
+       12,
+       20
+      ],
+      "where": "shade",
+      "call": "Ceps under the firs."
      }
     ],
     "winter": [],
@@ -184,34 +309,72 @@
      {
       "id": "bilberries",
       "look": "berries_blue",
-      "food": 1,
-      "per_mille": 18
+      "gives": "food",
+      "stands": [
+       1,
+       2
+      ],
+      "amount": [
+       6,
+       10
+      ],
+      "where": "light",
+      "call": "Bilberries here."
      },
      {
       "id": "mountain tea",
       "look": "herbs",
-      "goods": 1,
-      "per_mille": 12
+      "gives": "goods",
+      "stands": [
+       1,
+       2
+      ],
+      "amount": [
+       4,
+       6
+      ],
+      "where": "high",
+      "call": "Mountain tea, in flower."
      }
     ],
     "autumn": [
      {
       "id": "lingonberries",
       "look": "berries_red",
-      "food": 2,
-      "per_mille": 24
+      "gives": "food",
+      "stands": [
+       2,
+       3
+      ],
+      "amount": [
+       8,
+       12
+      ],
+      "where": "light",
+      "call": "Lingonberries."
      },
      {
       "id": "mountain tea",
       "look": "herbs",
-      "goods": 1,
-      "per_mille": 6
+      "gives": "goods",
+      "stands": [
+       1,
+       1
+      ],
+      "amount": [
+       2,
+       4
+      ],
+      "where": "high",
+      "call": "Mountain tea, gone to seed."
      }
     ],
     "winter": [],
     "spring": []
    }
-  }
+  },
+  "most_men": 4,
+  "call_tiles": 8
  },
  "packs": {
   "_doc": "A man's pack (docs/survival.md, #67, #69): it holds 'most' of food portions and goods together; a bundle of wood on top weighs 'wood'. A full pack takes 'slow' hundredths off his pace (in proportion as it fills). X: the chosen men drop their packs where they stand, keeping 'keep_food' portions each; a pile left at the foot of an old tree is a cache. A pile is found by a patrol passing that sees it (the cover over it hides it as it hides a man: the leaves falling, the tree felled) and taken; the bear smells food in one from 'bear_smell_tiles' and eats it. Right-click a pile with men chosen and they share it out into their packs.",

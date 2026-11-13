@@ -561,28 +561,43 @@ expect(came_to_look, "a patrol sees the fire at night and comes to look")
 // put out, the fire is not seen
 camp_order(ids_alive())
 expect(not fires_lit().length, "the fire is put out")
-// gathering (#66): in the autumn beeches there are nuts and mushrooms to find; men sent to a patch gather it into their
-// packs, and it stays taken when they come back
+// gathering (#66, docs/gathering.md): in the autumn beeches there are a few stands of beechnuts and ceps, deep in
+// the wood; men sent to one gather it into their packs, and what they take stays taken when they come back
 year_force = 1000
 enter_leg("beech_valley_out", "west")
 for(60): step()
-let patches_before = forage_patches().length
+let stands_n = stands.length
+let left_before = fold(stands, 0) a, st: a + st.left
 let gatherers = slice(ids_alive(), 0, 4)
 let food0 = fold(men, 0) a, m: a + m.food
 let gi = index_of(gatherers[0])
-var nearest_patch = -1
-for(forage_patches()) c: if nearest_patch < 0 or dist2((c % W) * TILE, (c / W) * TILE, u_x[gi], u_y[gi]) < dist2((nearest_patch % W) * TILE, (nearest_patch / W) * TILE, u_x[gi], u_y[gi]): nearest_patch = c
-expect(patches_before > 10 and forage_order(gatherers, nearest_patch), "autumn beeches give patches to gather ({patches_before}), and men go to them")
-for(60 * TICK_HZ):
+var nearest_stand = -1
+for(stands) st: if nearest_stand < 0 or dist2((st.cell % W) * TILE, (st.cell / W) * TILE, u_x[gi], u_y[gi]) < dist2((nearest_stand % W) * TILE, (nearest_stand / W) * TILE, u_x[gi], u_y[gi]): nearest_stand = st.cell
+expect(stands_n >= 3 and stands_n <= 8 and left_before >= 40, "autumn beeches have a few rich stands ({stands_n}, {left_before} in all)")
+expect((find(stands) st: gstr(forage_finds()[st.kind], "id", "") == "ceps") >= 0, "among them ceps")
+expect(forage_order(gatherers, nearest_stand), "men go to one")
+var seen_stand = -1
+var seen_by = -1
+var seen_calls = 0
+for(90 * TICK_HZ):
     step()
     route_tick()
+    let k, by = stand_seen()
+    if k >= 0:
+        seen_calls++
+        if seen_stand < 0:
+            seen_stand = k
+            seen_by = by
 let food1 = fold(men, 0) a, m: a + m.food
-let patches_after = forage_patches().length
-print "gathering: {patches_before} patches, {patches_before - patches_after} gathered, food {food0} to {food1}"
-expect(food1 > food0 and patches_after < patches_before, "they gather it into their packs")
+let left_after = fold(stands, 0) a, st: a + st.left
+print "gathering: {stands_n} stands, {left_before - left_after} gathered, food {food0} to {food1}"
+expect(food1 > food0 + 4 and left_after < left_before, "they gather it into their packs")
+expect(is_night() or (seen_stand >= 0 and seen_by >= 0), "a man near a stand calls it out, once ({seen_calls})")
 forage_leave(place_now())
 forage_enter(place_now())
-expect(forage_patches().length == patches_after, "what is taken stays taken")
+stands_grow()
+let left_again = fold(stands, 0) a, st: a + st.left
+expect(left_again == left_after, "what is taken stays taken")
 year_force = -1
 // packs (#67, #69): a full pack slows a man; the men drop their packs and pick them up again; a pile in the open is
 // found by a patrol that passes
