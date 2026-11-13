@@ -1,5 +1,8 @@
 # Making the game clear: what to do, and why
 
+*Superseded in part, 2026-11-13: Dominic wants no goals per place and no keys to teach (see `docs/off-the-path.md`).
+What follows is kept as written.*
+
 *Claude's proposal, 2026-11-13, after Dominic played and wrote: "how to make fires? Game is look great but the gameplay
 is missing and unclear atm. I know we were focusing on env. But we'll need to figure out a balance to ensure players
 dont just walk through the path waiting for something to happen with no clarity on what or why". Everything here is a
