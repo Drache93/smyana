@@ -5,7 +5,18 @@ the game). The game hands them to the OS (src/smyana/cursors.lobster), so they n
 
   point  the plain pointer: an arrow, in the parchment of the game's few marks (the rings round the chosen men)
   go     the men are chosen and the ground under the mouse is where they would walk: the arrow and the ring an order leaves
-  fell   the men are chosen and a young tree is under the mouse: a felling axe
+  fell   the men are chosen and a young tree is under the mouse where a bridge is down: a felling axe (2026-11-13:
+         felling only for mending a bridge)
+  gather a find the wood gives: a wicker basket
+  take   a pile (a cache, the honey, the men's own packs): an open hand
+  knife  a carcass to butcher: a knife
+  shoot  game or a foe: a front sight's ring
+  camp   a shepherds' hut to camp in: a small flame
+  study  the Roman ruins to study: an open book
+  dig    fallen rock to clear: a spade
+
+(Dominic, 2026-11-13: no words under the mouse, "lots of text instead of visual"; the cursor alone says what a
+right-click will do.)
 
 Each is drawn as a mask of fill, shade and edge pixels; a dark outline is put round it all, so it reads on the light
 grass and in the dark wood alike. Run from the repo's root: python3 tools/make_cursors.py   (Pillow)"""
@@ -21,7 +32,13 @@ IRON2 = (104, 108, 112, 255)
 STEEL = (226, 230, 232, 255)  # its ground edge
 HAFT = (150, 104, 60, 255)    # the haft: beech wood
 HAFT2 = (108, 72, 40, 255)
-COLOURS = {"o": FILL, "s": SHADE, "i": IRON, "j": IRON2, "e": STEEL, "h": HAFT, "g": HAFT2, "#": EDGE}
+WICKER = (196, 150, 84, 255)  # the basket: peeled willow
+WICKER2 = (140, 100, 50, 255)
+FLAME = (240, 160, 50, 255)   # the hut's fire
+FLAME2 = (250, 220, 120, 255)
+EMBER = (190, 70, 30, 255)
+COLOURS = {"o": FILL, "s": SHADE, "i": IRON, "j": IRON2, "e": STEEL, "h": HAFT, "g": HAFT2, "#": EDGE,
+           "w": WICKER, "v": WICKER2, "f": FLAME, "y": FLAME2, "r": EMBER}
 
 ARROW = """
 o
@@ -65,6 +82,96 @@ AXE = """
 """
 
 
+BASKET = """
+   vvvvvv
+  v      v
+ v        v
+wwwwwwwwwwww
+wvwvwvwvwvwv
+ wwwwwwwwww
+ wvwvwvwvwv
+  wwwwwwww
+  vvvvvvvv
+"""
+
+HAND = """
+    o o o
+  o o o o
+  o o o o
+  o o o o o
+  ooooooo o
+  oooooooo
+o ooooooo
+ oooooooo
+  oooooos
+   ooooss
+    ssss
+"""
+
+KNIFE = """
+          e
+         ei
+        eij
+       eij
+      eij
+     eij
+    eij
+   gg
+  hhg
+ hhg
+hhg
+gg
+"""
+
+SIGHT = """
+    ooo
+  oo   oo
+ o       o
+ o   s   o
+o   sss   o
+ o   s   o
+ o       o
+  oo   oo
+    ooo
+"""
+
+FLAMES = """
+    y
+   yf
+   yff
+  fyyf
+  fyyff
+ ffyyyf
+ ffyyyff
+ rfyyyfr
+  rfffr
+ hhhhhhh
+"""
+
+BOOK = """
+ sooo ooos
+soooo oooos
+soooo oooos
+soooo oooos
+soooo oooos
+soooo oooos
+ssssshsssss
+"""
+
+SPADE = """
+         gg
+        hhg
+       hhg
+      hhg
+     hhg
+ ee hhg
+eiijhg
+eiiij
+eiiij
+ ejj
+"""
+
+
 def parse(art, at=(0, 0)):
     """The pixels of a piece of art as {(x, y): colour}, its top left at `at`."""
     px = {}
@@ -104,3 +211,19 @@ os.makedirs(OUT, exist_ok=True)
 cursor("point", [(ARROW, (0, 0))], 20, (0, 0))
 cursor("go", [(ARROW, (0, 0)), (RING, (8, 11))], 20, (0, 0))
 cursor("fell", [(AXE, (0, 0))], 20, (5, 3))
+# (the rest: the arrow small at the top left, so the hot spot is still its tip, and the picture beside it)
+ARROW_S = """
+o
+oo
+ooo
+oooo
+oos
+os
+"""
+cursor("gather", [(ARROW_S, (0, 0)), (BASKET, (5, 7))], 20, (0, 0))
+cursor("take", [(ARROW_S, (0, 0)), (HAND, (6, 6))], 20, (0, 0))
+cursor("knife", [(ARROW_S, (0, 0)), (KNIFE, (6, 5))], 20, (0, 0))
+cursor("shoot", [(SIGHT, (0, 0))], 20, (5, 4))
+cursor("camp", [(ARROW_S, (0, 0)), (FLAMES, (6, 6))], 20, (0, 0))
+cursor("study", [(ARROW_S, (0, 0)), (BOOK, (5, 8))], 20, (0, 0))
+cursor("dig", [(ARROW_S, (0, 0)), (SPADE, (6, 6))], 20, (0, 0))

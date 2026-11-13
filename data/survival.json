@@ -45,7 +45,7 @@
   "most": 12
  },
  "camp": {
-  "_doc": "Making camp (C): the men stand round the fire, the nearest 'ring_tiles' from it, and lay a fire: it costs 'wood' off their backs and takes 'lay_s' seconds, or 'lay_bare_s' if none of them carries wood, while they pick up dead wood round about (50 until 2026-11-13: Dominic, playing, \"telling them to make camp, i got no fire\"; the fireplace now shows while it is laid). A man within 'in_tiles' of it is in the camp; at night he sleeps there. The camp is struck when no man has been within 'in_tiles' for 'struck_s'. Woken by a shot, a man stays up 'woken_s'. The meal is at the first camp after 'meal_hour'.",
+  "_doc": "Making camp (C): the men stand round the fire, the nearest 'ring_tiles' from it, and lay a fire: it costs 'wood' off their backs and takes 'lay_s' seconds, or 'lay_bare_s' if none of them carries wood, while two of them go off for dead wood (50 until 2026-11-13: Dominic, playing, \"telling them to make camp, i got no fire\"; the fireplace now shows while it is laid). A man within 'in_tiles' of it is in the camp; at night he sleeps there. The camp is struck when no man has been within 'in_tiles' for 'struck_s'. Woken by a shot, a man stays up 'woken_s'. The meal is at the first camp after 'meal_hour'.",
   "ring_tiles": 1.1,
   "wood": 2,
   "lay_s": 4,

@@ -2037,82 +2037,35 @@ def march_off(ids:[int]):
 
 // ------------------------------------------------------------------ what the mouse is on (Dominic, 2026-11-13: "i cant
 // click on trees to see what they have or right click them")
-// A word or two by the pointer: what is under it, and with men chosen what a right click would have them do. The only
-// writing in the world, and only where the mouse is.
-let TREE_KINDS = [ "beech", "bpine", "fir", "hornbeam", "oak", "pine", "spruce", "tall" ]
-let TREE_NAMES = [ "Old beech", "Black pine", "Silver fir", "Hornbeam", "Old oak", "Scots pine", "Spruce", "Old spruce" ]
-let prop_cells = dictionary<int, int>(1024)  // an old or young tree's cell -> its index in props
-var prop_cells_for = -2
+// Under the mouse (Dominic, 2026-11-13: "The over over trees to see if we can cut is just lots of text instead of
+// visual"): no words, but a man's name when the mouse is on him; everything else is said by the cursor, a picture of
+// what a right-click on it would have the chosen men do (smyana/cursors.lobster).
 
-def prop_on(c:int) -> int:
-    if prop_cells_for != props_version:
-        prop_cells.clear()
-        for(props) pr, k: if pr.kind <= 1: prop_cells.set(pr.cell, k)
-        prop_cells_for = props_version
-    return prop_cells.get(c, -1)
+// Whether a bridge here is down (felling is for mending one, and nothing else).
+def bridge_down() -> bool: return (find(br_up) up: up == 0) >= 0
 
-// The old tree the mouse is on (it is drawn far up from its foot, so the cells down the screen from the mouse too).
-def old_tree_at(mm:float2) -> int:
-    let old = str_index(tr_names, "tree")
-    for(6) n:
-        let x = int(mm.x / 1000.0) + n
-        let y = int(mm.y / 1000.0) + n
-        if x >= 0 and y >= 0 and x < W and y < H and terrain[y * W + x] == old: return y * W + x
-    return -1
-
-def capital(t:string) -> string: return if t.length: unicode_to_string([ t[0] - (if t[0] >= 'a' and t[0] <= 'z': 32 else: 0) ]) + substring(t, 1, -1) else: t
-
-// What is under the mouse, and the order a right click gives the chosen men ("" for none).
-def hover_words() -> string, string:
-    let chosen = selected.length > 0
-    let mp = mouse_px()
-    let u = unit_at_screen(mp)
-    if u >= 0:
-        let m = man_of(u_id[u])
-        if m: return m.name, ""
-        let g = game_of(u_id[u])
-        if g >= 0: return game_name(g), if chosen: "shoot it for meat (the shot is heard)" else: ""
-        let bk = beast_kind(u_id[u])
-        if bk == "horse": return "A horse", ""
-        if bk != "": return capital(bk), if chosen: "fire on it" else: ""
-        return "Ottoman patrol", if chosen: "fire on them" else: ""
+// The cursor for what is under the mouse, with men chosen, in the order a right click takes them.
+def hover_cursor() -> int:
+    let u = unit_at_screen(mouse_px())
+    if u >= 0: return if man_of(u_id[u]): CURSOR_POINT elif beast_kind(u_id[u]) == "horse": CURSOR_GO else: CURSOR_SHOOT
     let mm = mouse_milli()
-    let carcass = carcass_near(int(mm.x), int(mm.y))
-    if carcass >= 0: return carcass_name(carcass), if chosen: "butcher it for meat" else: ""
     let mc = clamp(int(mm.y / 1000.0), 0, H - 1) * W + clamp(int(mm.x / 1000.0), 0, W - 1)
-    if at_ruin(mc): return "Roman ruins", if chosen: "study how they drained the road" else: ""
-    let pn = pile_near(int(mm.x), int(mm.y))
-    if pn >= 0:
-        let kind = piles[pn].kind
-        if kind == PILE_CACHE: return "Someone\'s cache under the stones", if chosen: "take it" else: ""
-        if kind == PILE_HONEY: return "Wild bees in a hollow tree", if chosen: "take the honey" else: ""
-        return "Your packs", if chosen: "pick them up" else: ""
-    let hn = hut_near(int(mm.x), int(mm.y), 1)
-    if hn >= 0: return "A shepherds\' hut, empty", if chosen: "make camp in it: a fire inside is not seen" else: ""
-    let pc = patch_under(mm)
-    if pc >= 0: return capital(gstr(forage_finds()[patch_at(pc)], "id", "")), if chosen: "gather" else: ""
-    // (a side path: what it is, and the signs of game at its end, docs/off-the-path.md)
-    let pk = path_of(mc)
-    if pk >= 0:
-        let sp = side_paths[pk]
-        let name = [ "A deer track", "A shepherd\'s path", "A cart track" ][sp.size]
-        let end = sp.cells[sp.cells.length - 1]
-        let near = find(game) g: g.state != G_DEAD and index_of(g.id) >= 0 and dist2(u_x[index_of(g.id)], u_y[index_of(g.id)], (end % W) * TILE, (end / W) * TILE) < sq(8 * TILE)
-        let signs = if near < 0: find_signs(end) elif game[near].kind == "boar": ": the ground rooted up, boar" elif game[near].kind == "roe": ": fresh slots, roe deer" else: ": fresh tracks"
-        return name + signs, if chosen: "follow it into the wood" else: ""
+    if carcass_near(int(mm.x), int(mm.y)) >= 0: return CURSOR_KNIFE
+    if at_ruin(mc): return CURSOR_STUDY
+    if hut_near(int(mm.x), int(mm.y), 1) >= 0: return CURSOR_CAMP
+    if pile_near(int(mm.x), int(mm.y)) >= 0: return CURSOR_TAKE
+    if patch_under(mm) >= 0: return CURSOR_GATHER
     let yt = young_tree_at(mm)
-    if yt >= 0: return (if terrain[yt] == str_index(tr_names, "rubble"): "Fallen rock" else: "Young tree"), if chosen: (if terrain[yt] == str_index(tr_names, "rubble"): "dig it away" else: "fell it for firewood") else: ""
-    let ot = old_tree_at(mm)
-    if ot >= 0:
-        let k = prop_on(ot)
-        let kk = if k >= 0: str_index(TREE_KINDS, props[k].sp) else: -1
-        let name = if kk >= 0: TREE_NAMES[kk] else: "Old tree"
-        return name, "too big to fell: young trees give the wood"
-    return "", ""
+    if yt >= 0 and terrain[yt] == str_index(tr_names, "rubble"): return CURSOR_DIG
+    if yt >= 0 and bridge_down(): return CURSOR_FELL
+    return CURSOR_GO
 
+// A man's name by the pointer when it is on him.
 def draw_hover():
-    let name, order = hover_words()
-    if name == "": return
+    let u = unit_at_screen(mouse_px())
+    if u < 0: return
+    let m = man_of(u_id[u])
+    if not m: return
     let ws = float(gl.window_size())
     let size = int(ws.y / 38.0)
     let p = mouse_px() + float2 { 20.0, 16.0 }
@@ -2122,13 +2075,7 @@ def draw_hover():
     for([ 1.0, 0.0 ]) shade:
         let o = float2 { shade, shade }
         gl.color(if shade > 0.0: float4 { 0.0, 0.0, 0.0, 0.75 } else: float4 { 0.97, 0.93, 0.82, 1.0 }):
-            gl.translate(floor(p + o)): gl.text(name)
-    if order != "":
-        gl.set_font_size(int(float(size) * 0.75))
-        for([ 1.0, 0.0 ]) shade:
-            let o = float2 { shade, shade + float(size) * 1.25 }
-            gl.color(if shade > 0.0: float4 { 0.0, 0.0, 0.0, 0.6 } else: float4 { 0.93, 0.85, 0.66, 1.0 }):
-                gl.translate(floor(p + o)): gl.text("right click: " + order)
+            gl.translate(floor(p + o)): gl.text(m.name)
 
 // ------------------------------------------------------------------ the menu (#86)
 // Dominic: "Game start is slow, we want very minimal loader. The game menu should show the village (once ready - just
@@ -2363,7 +2310,9 @@ def order_tick():
         if br_up[k] == 0 and under >= 0: broken = k
     if broken >= 0:
         if mend_bridge(ids, broken): mark_at = gp(mm.x, mm.y)
-    elif tree >= 0:
+    elif tree >= 0 and (terrain[tree] == str_index(tr_names, "rubble") or bridge_down()):
+        // (fallen rock dug away; a young tree felled only for the timber to mend a bridge, Dominic 2026-11-13: "Im
+        // not sure yet actually how or why we would cut trees")
         issue_cmd(0, CMD_GATHER, ids, tree, 0, 0, 0)
         mark_at = gp(float((tree % W) * 1000 + 500), float((tree / W) * 1000 + 500))
     else:
@@ -2735,8 +2684,9 @@ def tour_tick():
         if clock_s >= play_next_status:
             play_next_status = clock_s + 300.0
             print "play: {leg_id} at {int(clock_s)} s, {int(hour_now())}h, {play_status()}"
-    // one man fells the first young tree he finds, once, on the way out
-    if not tour_cut and leg_id == gstr(route, "start", ""):
+    // (script:tour) one man fells the first young tree he finds, once, on the way out, to see felling work; the
+    // playthrough doesn't: felling is only for mending a bridge now (2026-11-13)
+    if script == "tour" and not tour_cut and leg_id == gstr(route, "start", ""):
         tour_cut = true
         let young = str_index(tr_names, "young_tree")
         var best = -1
@@ -3234,7 +3184,7 @@ while gl.frame():
     let ws = float(gl.window_size())
     let mp = mouse_px()
     let in_window = mp.x >= 0.0 and mp.y >= 0.0 and mp.x < ws.x and mp.y < ws.y
-    cursor_show(if phase != "play" or not selected.length or not in_window: CURSOR_POINT elif young_tree_at(mouse_milli()) >= 0: CURSOR_FELL else: CURSOR_GO)
+    cursor_show(if phase != "play" or not selected.length or not in_window: CURSOR_POINT else: hover_cursor())
     if drawing():
         gl.clear(float4 { 0.035, 0.055, 0.04, 1.0 })
         gl.blend(1)
