@@ -1880,34 +1880,32 @@ def draw_one_man():
         gl.translate(float2 { floor(ws.y * 0.03), floor(ws.y - float(size) * 1.9) }): gl.text(man_state(m))
 
 // ------------------------------------------------------------------ the order signs (Dominic, 2026-11-13: "teaching
-// them to press C is pretty bad. This is where we need a minimal level of UI somehow")
-// With men chosen, a short row of words at the foot of the screen, in the letter's hand: what they can be told to do
-// where they stand, and how many days' bread the men have. Nothing shows when no one is chosen. The keys still work.
-let SIGN_FONT = "../data/fonts/OldStandard/OldStandard-Regular.ttf"
+// them to press C is pretty bad. This is where we need a minimal level of UI somehow"; "The UI youve done i pretty bad.
+// You went for minimal, but it just looks like placholder")
+// With men chosen, a few small pictures drawn in the game's own hand just under their feet, no words: a fire (make
+// camp, light it, or put it out), a pack (put the packs down), an open hand (halt); and beside them a row of loaves, one
+// for each day the bread will last. Nothing shows when no one is chosen. The keys still work. docs/gathering.md.
 
 // The chosen men who are men (not game or a patrol someone clicked).
 def chosen_men() -> [int]: return filter(selected) id: man_of(id) != nil and index_of(id) >= 0
 
-// The signs for the chosen men now: their words, and what each does (0 camp, 1 packs down, 2 halt).
-def signs() -> [string], [int]:
+// The signs for the chosen men now: what each does (0 camp, 1 packs down, 2 halt), and the camp's state for the fire's
+// picture (0 no camp, 1 a camp with its fire out, 2 the fire being laid, 3 the fire lit).
+def signs() -> [int], int:
     let ids = chosen_men()
-    if not ids.length: return [], []
-    var camp = "Make camp"
+    if not ids.length: return [], 0
+    var camp = 0
     for(ids) id:
         let k = camp_of(index_of(id))
-        if k >= 0: camp = if sv_camps[k].lit and tick < sv_camps[k].lit_at: "Laying the fire" elif sv_camps[k].lit: "Put the fire out" else: "Light the fire"
-    let words = [ camp ]
+        if k >= 0: camp = if sv_camps[k].lit and tick < sv_camps[k].lit_at: 2 elif sv_camps[k].lit: 3 else: 1
     let what = [ 0 ]
     var carrying = false
     for(ids) id:
         let m = man_of(id)
         if m and (m.food > 1 or m.wares.length > 0): carrying = true
-    if carrying:
-        words.push("Put the packs down")
-        what.push(1)
-    words.push("Halt")
+    if carrying: what.push(1)
     what.push(2)
-    return words, what
+    return what, camp
 
 // The bread the men have, in days for each man (all of them share it at a meal).
 def bread_days() -> int:
@@ -1919,38 +1917,37 @@ def bread_days() -> int:
             n++
     return if n: food / n else: 0
 
-def bread_words() -> string:
-    let d = bread_days()
-    return if d <= 0: "No bread left" elif d == 1: "Bread for a day" else: "Bread for {d} days"
+// The size of a pixel of the signs' art, in screen pixels (a sign is 16 of them square).
+def sign_px() -> float: return float(max(2, gl.window_size().y / 360))
 
-def sign_size() -> int: return int(float(gl.window_size().y) / 40.0)
-
-// Where each sign sits on the screen: its left edge and width, on one line at the foot.
-def sign_boxes(words:[string]) -> [float2]:
+// Where the signs sit on the screen, each a square (x, y, side) in a row centred under the chosen men's feet, kept on
+// the screen; and where the loaves start.
+def sign_boxes(n:int) -> [float3], float2:
+    let k = sign_px()
+    let side = 16.0 * k
+    let gap = 5.0 * k
     let ws = float(gl.window_size())
-    gl.set_font_name(SIGN_FONT)
-    gl.set_font_size(sign_size())
-    let gap = float(sign_size()) * 1.6
-    let widths = map(words) w: float(gl.text_size(w).x)
-    var total = gap * float(max(0, words.length - 1))
-    for(widths) w: total += w
-    var x = float(int(ws.x / 2.0 - total / 2.0))
-    return map(widths) w:
-        let b = float2 { x, w }
-        x += w + gap
-        b
-
-def sign_y() -> float: return float(int(float(gl.window_size().y) - float(sign_size()) * 2.4))
+    var men_foot = 0.0
+    var sx = 0.0
+    let ids = chosen_men()
+    for(ids) id:
+        let p = to_screen(gp(float(u_x[index_of(id)]), float(u_y[index_of(id)])))
+        sx += p.x
+        men_foot = max(men_foot, p.y)
+    let loaves_w = 9.0 * k * float(clamp(bread_days(), 1, 8)) + gap
+    let total = float(n) * side + float(max(0, n - 1)) * gap + gap * 2.0 + loaves_w
+    let x0 = clamp(sx / float(max(1, ids.length)) - total / 2.0, ws.y * 0.03, ws.x - ws.y * 0.03 - total)
+    let y0 = clamp(men_foot + 10.0 * k, ws.y * 0.08, ws.y - side - ws.y * 0.04)
+    let boxes = map(n) j: float3 { floor(x0 + float(j) * (side + gap)), floor(y0), side }
+    return boxes, float2 { floor(x0 + float(n) * (side + gap) + gap), floor(y0 + side - 7.0 * k) }
 
 // The sign under the mouse, or -1.
 def sign_under() -> int:
-    let words, what = signs()
-    if not words.length: return -1
+    let what = signs()
+    if not what.length: return -1
     let m = mouse_px()
-    let y = sign_y()
-    let pad = float(sign_size()) * 0.5
-    if m.y < y - pad or m.y > y + float(sign_size()) * 1.3 + pad: return -1
-    for(sign_boxes(words)) b, k: if m.x >= b.x - pad and m.x <= b.x + b.y + pad: return what[k]
+    let boxes = sign_boxes(what.length)
+    for(boxes) b, j: if m.x >= b.x and m.x < b.x + b.z and m.y >= b.y and m.y < b.y + b.z: return what[j]
     return -1
 
 // A sign clicked: its order.
@@ -1964,39 +1961,100 @@ def sign_order(what:int):
     elif what == 1: packs_drop(ids)
     elif what == 2: issue_cmd(0, CMD_STOP, ids, 0, 0, 0, 0)
 
+// One sign's picture on its square (x, y, side), k screen pixels to the art's pixel; lit when under the mouse.
+def draw_sign(b:float3, k:float, what:int, camp:int, lit:bool):
+    def px(x:float, y:float, w:float, h:float, c:float4):
+        gl.color(c): gl.translate(float2 { b.x + x * k, b.y + y * k }): gl.rect(float2 { w * k, h * k })
+    // (a dark round under it, so it reads over the brightest crowns; paler when the mouse is on it)
+    let under = if lit: float4 { 0.26, 0.22, 0.16, 0.85 } else: float4 { 0.05, 0.04, 0.03, 0.6 }
+    px(3.0, 0.0, 10.0, 16.0, under)
+    px(1.0, 2.0, 14.0, 12.0, under)
+    px(0.0, 4.0, 16.0, 8.0, under)
+    px(2.0, 1.0, 12.0, 14.0, under)
+    let wood = float4 { 0.45, 0.3, 0.17, 1.0 }
+    let wood_lit = float4 { 0.62, 0.44, 0.26, 1.0 }
+    let cut = float4 { 0.82, 0.68, 0.46, 1.0 }
+    if what == 0:  // a fire: two crossed logs, flames on them (none while it is laid, embers and smoke when it is lit)
+        px(3.0, 11.0, 10.0, 2.0, wood)
+        px(3.0, 11.0, 10.0, 1.0, wood_lit)
+        px(2.0, 11.0, 1.0, 2.0, cut)
+        px(13.0, 11.0, 1.0, 2.0, cut)
+        px(5.0, 9.0, 2.0, 2.0, wood)
+        px(7.0, 10.0, 2.0, 2.0, wood_lit)
+        px(9.0, 9.0, 2.0, 2.0, wood)
+        if camp == 3:  // lit: put it out, a glow of embers and a grey thread of smoke
+            px(5.0, 10.0, 6.0, 1.0, float4 { 0.9, 0.36, 0.1, 1.0 })
+            px(7.0, 9.0, 2.0, 1.0, float4 { 1.0, 0.6, 0.2, 1.0 })
+            for([ [ 8.0, 7.0 ], [ 7.0, 6.0 ], [ 7.0, 5.0 ], [ 8.0, 4.0 ], [ 9.0, 3.0 ], [ 9.0, 2.0 ] ]) s, n:
+                px(s[0], s[1], 2.0, 1.0, float4 { 0.72, 0.7, 0.66, 0.9 - float(n) * 0.12 })
+        elif camp != 2:
+            px(5.0, 6.0, 6.0, 4.0, float4 { 0.86, 0.28, 0.08, 1.0 })
+            px(6.0, 3.0, 4.0, 3.0, float4 { 0.86, 0.28, 0.08, 1.0 })
+            px(7.0, 1.0, 2.0, 2.0, float4 { 0.86, 0.28, 0.08, 1.0 })
+            px(6.0, 6.0, 4.0, 4.0, float4 { 0.98, 0.58, 0.14, 1.0 })
+            px(7.0, 4.0, 2.0, 2.0, float4 { 0.98, 0.58, 0.14, 1.0 })
+            px(7.0, 7.0, 2.0, 3.0, float4 { 1.0, 0.88, 0.44, 1.0 })
+    elif what == 1:  // a pack set down: a tied sack, its strap, a bedroll rolled on top
+        let sack = float4 { 0.6, 0.5, 0.34, 1.0 }
+        px(4.0, 6.0, 8.0, 8.0, sack)
+        px(3.0, 8.0, 10.0, 5.0, sack)
+        px(5.0, 5.0, 6.0, 1.0, float4 { 0.7, 0.6, 0.42, 1.0 })
+        px(4.0, 13.0, 8.0, 1.0, float4 { 0.42, 0.34, 0.22, 1.0 })
+        px(10.0, 7.0, 1.0, 6.0, float4 { 0.36, 0.24, 0.14, 1.0 })
+        px(4.0, 2.0, 8.0, 3.0, float4 { 0.5, 0.18, 0.14, 1.0 })
+        px(4.0, 2.0, 8.0, 1.0, float4 { 0.64, 0.26, 0.2, 1.0 })
+        px(3.0, 3.0, 1.0, 1.0, float4 { 0.36, 0.12, 0.1, 1.0 })
+        px(12.0, 3.0, 1.0, 1.0, float4 { 0.36, 0.12, 0.1, 1.0 })
+    else:  // halt: an open hand held up, its palm to you
+        let skin = float4 { 0.84, 0.66, 0.5, 1.0 }
+        let shade = float4 { 0.66, 0.48, 0.36, 1.0 }
+        for(4) f:
+            let tall = [ 5.0, 6.0, 6.0, 5.0 ][f]
+            px(4.0 + float(f) * 2.0, 8.0 - tall + (if f == 0 or f == 3: 1.0 else: 0.0), 2.0, tall, skin)
+            px(5.0 + float(f) * 2.0, 8.0 - tall + (if f == 0 or f == 3: 1.0 else: 0.0), 1.0, tall, shade)
+        px(4.0, 8.0, 8.0, 5.0, skin)
+        px(2.0, 7.0, 2.0, 2.0, skin)
+        px(3.0, 9.0, 2.0, 2.0, skin)
+        px(5.0, 13.0, 6.0, 2.0, skin)
+        px(5.0, 11.0, 5.0, 1.0, shade)
+        px(6.0, 15.0, 4.0, 1.0, float4 { 0.42, 0.3, 0.2, 1.0 })
+
+// A loaf at (x, y) screen px, k to the art's pixel: a round country loaf with its crust scored; a grey crust when it
+// is the last crumbs.
+def draw_loaf(x:float, y:float, k:float, gone:bool):
+    def px(dx:float, dy:float, w:float, h:float, c:float4):
+        gl.color(c): gl.translate(float2 { x + dx * k, y + dy * k }): gl.rect(float2 { w * k, h * k })
+    let dark = if gone: float4 { 0.2, 0.19, 0.17, 0.8 } else: float4 { 0.26, 0.14, 0.06, 1.0 }
+    let crust = if gone: float4 { 0.42, 0.4, 0.37, 0.8 } else: float4 { 0.72, 0.46, 0.2, 1.0 }
+    let top = if gone: float4 { 0.5, 0.48, 0.45, 0.8 } else: float4 { 0.86, 0.62, 0.3, 1.0 }
+    let low = if gone: float4 { 0.34, 0.32, 0.3, 0.8 } else: float4 { 0.56, 0.32, 0.12, 1.0 }
+    // (a dome: narrow at the top, its full width low down, flat on the board)
+    px(2.0, -1.0, 4.0, 1.0, dark)
+    px(1.0, 0.0, 6.0, 1.0, dark)
+    px(0.0, 1.0, 8.0, 4.0, dark)
+    px(1.0, 5.0, 6.0, 1.0, dark)
+    px(2.0, 0.0, 4.0, 1.0, crust)
+    px(1.0, 1.0, 6.0, 3.0, crust)
+    px(1.0, 4.0, 6.0, 1.0, low)
+    // (its scoring, pale across the top)
+    px(2.0, 1.0, 1.0, 1.0, top)
+    px(3.0, 2.0, 1.0, 1.0, top)
+    px(4.0, 1.0, 1.0, 1.0, top)
+    px(5.0, 2.0, 1.0, 1.0, top)
+
 def draw_signs():
-    let words, what = signs()
-    if not words.length: return
+    let what, camp = signs()
+    if not what.length: return
     let under = sign_under()
-    let y = sign_y()
     gl.set_shader("color")
-    gl.set_font_name(SIGN_FONT)
-    gl.set_font_size(sign_size())
-    // (a soft dark band behind the row, so it reads over the brightest crowns)
-    let boxes = sign_boxes(words)
-    let sz = float(sign_size())
-    let left = boxes[0].x - sz * 1.5
-    let right = boxes[boxes.length - 1].x + boxes[boxes.length - 1].y + sz * 1.5
-    gl.color(float4 { 0.03, 0.03, 0.02, 0.5 }):
-        gl.translate(float2 { left, y - sz * 0.45 }): gl.rect(float2 { right - left, sz * 2.75 })
-    for(boxes) b, k:
-        let lit = what[k] == under
-        for([ 1.0, 0.0 ]) shade:
-            gl.color(if shade > 0.0: float4 { 0.0, 0.0, 0.0, 0.7 } elif lit: float4 { 1.0, 0.97, 0.86, 1.0 } else: float4 { 0.93, 0.89, 0.78, 0.8 }):
-                gl.translate(float2 { b.x + shade, y + shade }): gl.text(words[k])
-        if lit:
-            let ly = y + float(sign_size()) * 1.25
-            ui_batch(): ui_line(float2 { b.x, ly }, float2 { b.x + b.y, ly }, 1.2, float4 { 0.95, 0.91, 0.79, 0.7 })
-            gl.set_shader("color")
-            gl.set_font_name(SIGN_FONT)
-            gl.set_font_size(sign_size())
-    // (the bread, smaller, under the row)
-    let bw = bread_words()
-    gl.set_font_size(int(float(sign_size()) * 0.72))
-    let w = float(gl.text_size(bw).x)
-    let ws = float(gl.window_size())
-    gl.color(float4 { 0.88, 0.84, 0.72, if bread_days() <= 1: 1.0 else: 0.8 }):
-        gl.translate(float2 { floor(ws.x / 2.0 - w / 2.0), floor(y + float(sign_size()) * 1.45) }): gl.text(bw)
+    let k = sign_px()
+    let boxes, loaves = sign_boxes(what.length)
+    for(boxes) b, j: draw_sign(b, k, what[j], camp, what[j] == under)
+    // (the bread: a loaf for each day it will last, the last of them grey when it is gone)
+    let days = bread_days()
+    if days <= 0: draw_loaf(loaves.x, loaves.y, k, true)
+    else:
+        for(min(days, 8)) n: draw_loaf(loaves.x + float(n) * 9.0 * k, loaves.y, k, false)
 
 // ------------------------------------------------------------------ on the march (Dominic, 2026-11-13: "long march they
 // should walk in a column not wide")
