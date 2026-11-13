@@ -42,3 +42,19 @@ Text messages in the project, verbatim. Times UTC. Written after playing the bui
 
 What Claude took from it: no pay and no work stop. Winter food has to come from the season itself: what the
 autumn gives and is carried or cached, what is found on the way, and what is hunted.
+
+## Evening: "Yes", and a playtest
+
+**18:52**, to Claude's next step ("more to find on the way home (an old hut, another gatherers' cache, wild bees'
+honey) and make the winter walk faster"):
+
+> Yes
+
+**19:41**, after playing, with a screenshot (`archive/images/2026-11-13/25-dominic-playing-make-camp-and-no-fire.jpg`):
+
+> telling them to make camp, i got no fire. The UI youve done i pretty bad. You went for minimal, but it just looks like placholder. The over over trees to see if we can cut is just lots of text instead of visual, and majority of trees cant be done, so gameplay is moving my mouse over everything to find something. Im not sure yet actually how or why we would cut trees, just to make a cart to carry other stuff? I think the collecting stuff gameplay needs some thought so we can make it enjoyable
+
+What Claude took from it: the fire was being laid (fifty seconds with no wood carried) and nothing showed until it
+caught, so it looked like no fire; fixed (D-133). The rest is a design question, not a fix: what is worth collecting,
+why, how it shows without words under the mouse, and whether felling stays. Claude is to bring a short proposal before
+building more UI.

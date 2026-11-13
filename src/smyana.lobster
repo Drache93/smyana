@@ -1199,6 +1199,14 @@ def draw_world(alpha:float):
         add(frame_at.get("fireplace.shadow", -1), p.x, p.y, -39997.0, float4_1)
         add(frame_at.get("fireplace", -1), p.x, p.y, p.y, float4_1, 1.0, 2)
         draws.push(Drawable { p.y + 0.05, draws.length, -5, float(i), 0.0, float4_1, 1.0, 3, 0.0, 0.0 })
+    // (a fire still being laid: its ring of stones and its logs already, so the camp shows at once; the flames come when
+    // it catches. Dominic, 2026-11-13: "telling them to make camp, i got no fire")
+    if not fires_look:
+        for(sv_camps) cp:
+            if not cp.hut and not fire_burning(cp):
+                let p = gp(float(cp.x), float(cp.y))
+                add(frame_at.get("fireplace.shadow", -1), p.x, p.y, -39997.0, float4_1)
+                add(frame_at.get("fireplace", -1), p.x, p.y, p.y, float4_1, 1.0, 2)
     // (the shepherds' huts at the side paths' ends, smyana/finds.lobster)
     for(huts) c:
         let p = gp(float((c % W) * TILE + TILE / 2), float((c / W) * TILE + TILE / 2))
@@ -1846,7 +1854,7 @@ def signs() -> [string], [int]:
     var camp = "Make camp"
     for(ids) id:
         let k = camp_of(index_of(id))
-        if k >= 0: camp = if sv_camps[k].lit or tick < sv_camps[k].lit_at: "Put the fire out" else: "Light the fire"
+        if k >= 0: camp = if sv_camps[k].lit and tick < sv_camps[k].lit_at: "Laying the fire" elif sv_camps[k].lit: "Put the fire out" else: "Light the fire"
     let words = [ camp ]
     let what = [ 0 ]
     var carrying = false
@@ -2548,8 +2556,11 @@ def play_food_order(ids:[int]) -> bool:
         play_fetch_leg = leg_id
         play_fetched = []
     if not outbound() and room > 0:
-        // (twice at most: a fight on the way can take them off it)
-        let pk = find(piles) p: p.food > 0 and (filter(play_fetched) q: q == p).length < 2
+        // (twice at most: a fight on the way can take them off it; and one they can walk to: a pack fallen on a
+        // ledge below the road was walked at for days, a playthrough found)
+        let i0 = index_of(ids[0])
+        let reach = if piles.length: men_reach(i0) else: []
+        let pk = find(piles) p: p.food > 0 and (filter(play_fetched) q: q == p).length < 2 and reach[cell_of(p.x, p.y)] == 1
         if pk >= 0:
             play_fetched.push(piles[pk])
             packs_fetch(ids, pk)
@@ -2642,6 +2653,22 @@ def play_food_order(ids:[int]) -> bool:
     return false
 
 var tour_still = 0  // the tick the men were last seen moving (script:tour, script:play)
+
+// The cells man i can walk to from where he stands (threats' reach_from, on the men's own lanes).
+def men_reach(i:int) -> [int]:
+    let ln = lane_base[0] + t_mclass[u_kind[i]]
+    let c = cell_of(u_x[i], u_y[i])
+    let seen = map(W * H): 0
+    seen[c] = 1
+    let todo = [ c ]
+    while todo.length:
+        let n = todo.pop()
+        for([ 1, -1, W, -W ]) d:
+            let v = n + d
+            if v >= 0 and v < W * H and abs(v % W - n % W) <= 1 and seen[v] == 0 and walks[ln][v] == 1:
+                seen[v] = 1
+                todo.push(v)
+    return seen
 
 // Whether the men's middle is more than a short walk (twenty-five tiles) from the gate they leave by.
 def gate_far(ids:[int]) -> bool:

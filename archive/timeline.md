@@ -226,3 +226,5 @@ One line per moment worth remembering. Newest at the bottom.
   before dusk.
 - **2026-11-13:** Finds at the side paths' ends (D-131): an empty shepherds' hut to camp in unseen, another band's cache,
   wild honey. The trodden trail is the quick way in the snow (D-132).
+- **2026-11-13:** Dominic plays: "telling them to make camp, i got no fire" (fixed, D-133), and the UI and gathering
+  need rethinking: a proposal comes before more UI.

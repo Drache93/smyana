@@ -833,3 +833,9 @@ Rhodope photograph: to check.
 **D-132, 2026-11-13: In the snow the trail is the quick way.** (Claude, for Dominic's "make the winter walk faster",
 within D-125's "the trail is the dangerous way".) Lying snow takes up to a quarter off the men's pace; on the trail,
 trodden down by the riders, only 35 hundredths of that. Leaving the trail in winter is slower as well as safer.
+
+**D-133, 2026-11-13: A camp shows its fireplace at once.** (Dominic, playing: "telling them to make camp, i got no
+fire"; Claude fixed it.) The fire was being laid, fifty seconds with no wood carried, and nothing was drawn until it
+caught. Now the ring of stones, the logs and the tripod show as soon as camp is made, the flames come when it catches,
+laying it with no wood takes twelve seconds, and the order given again while it is laid no longer puts it out (the
+sign reads "Laying the fire"). Men who camp so late that the fire has not caught by midnight eat cold.

@@ -142,7 +142,10 @@ def camp_order(ids:[int]) -> bool:
         let k = camp_of(index_of(id))
         if k >= 0:
             let cp = sv_camps[k]
-            if cp.lit or tick < cp.lit_at:
+            // (still being laid: the order again leaves it be, not puts it out; a player who saw no fire yet asked
+            // again, 2026-11-13)
+            if cp.lit and tick < cp.lit_at: return false
+            if cp.lit:
                 cp.lit = false
                 cp.lit_at = 0
             else: camp_light(cp, here)
