@@ -729,3 +729,14 @@ bole, a hollow open at the foot and holes where limbs broke away, dead antler-li
 fir and the spruce a top snapped off and grown again as several. The beech giant forks low into three crooked great
 limbs, shown below a higher crown. The bark is drawn in its tones (bare wood, dead wood, wounds).
 
+
+**D-118, 2026-11-13: The men are baked at a little over one of their art's voxels a pixel, their shading smoothed.**
+(From Dominic: "the men look a bit low-res almost, like they look a bit spotty... it kind of ends up reading as a bit
+low-res, a bit fuzzy"; the cause and the fix, Claude.) The men's `.vox` art has a voxel half a body unit, and a man is
+0.73 of a body, so Creel's usual bake (2 voxels a body unit) squeezed each art voxel into 0.73 of a pixel: one row in
+four was lost, the thin cloaks broke up into flecks of the coat under them, and the voxels' stairs lit in flecks. They
+are now baked at 1.15 pixels an art voxel (`MEN_RES`; exactly 1 put rows on the half pixel and opened holes) and drawn
+smaller to stay the same size. Two new Creel settings even out the shading: normals and occlusion averaged over each
+surface (`vx_smooth_normals` 2) and a pass softening each material's pixels (`vx_despeckle` 1), which keeps lines and
+seams sharp. Rejected: baking them at one art pixel a pixel (stash, Claude: crisp but blocky, the detail lost). The
+wolf and the bear are unchanged.

@@ -210,3 +210,5 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-13:** Beech crowns remade from Dominic's photographs: one egg from low on the tree to the top (D-115). One
   old tree in six is a giant of the old forest, of every kind but the hornbeam (D-116).
 - **2026-11-13:** The giants get character: lightning scars, hollows, dead limbs, snapped tops grown again (D-117).
+- **2026-11-13:** The men are no longer spotty: baked at a little over one art voxel a pixel, their shading smoothed
+  (D-118, Creel's `vx_smooth_normals` and `vx_despeckle`).
