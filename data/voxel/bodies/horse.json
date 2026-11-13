@@ -1,0 +1,332 @@
+{
+ "_doc": "A Balkan mountain horse for the Ottoman patrol (docs/threats.md, riders, 2026-11-13): Creel's voxel rig with two pairs of legs, walking, in the camp horses' proportions (tools/camp_vox.py, D-045: its back at a man's chest). Body units as the men's (a man is about 40 tall here): about 33 at the withers and 52 from nose to tail. skin: its coat (a rider's look gives each horse its own); pale: the muzzle; mark: the mane, the tail and the lower legs and hooves. seat: where its rider sits (Creel's mount).",
+ "skin": "#7a5236",
+ "pale": "#9a7458",
+ "mark": "#2a1f18",
+ "size": 0.73,
+ "fur": 0.15,
+ "reach": 3.0,
+ "points": {
+  "hip": {
+   "at": [
+    0,
+    -11.0,
+    27.0
+   ],
+   "bob": 0.5
+  },
+  "chest": {
+   "at": [
+    0,
+    9.0,
+    27.5
+   ],
+   "bob": 0.6
+  },
+  "head": {
+   "at": [
+    0,
+    19.0,
+    41.0
+   ],
+   "bob": 0.8
+  }
+ },
+ "legs": [
+  {
+   "hip": [
+    "hip",
+    3.6,
+    0.0,
+    -2.0
+   ],
+   "foot": [
+    3.6,
+    -12.0,
+    1.3
+   ],
+   "stride": 7.5,
+   "lift": 3.2,
+   "phase": 0,
+   "bones": [
+    12.6,
+    12.6
+   ],
+   "pole": [
+    0,
+    -1,
+    0
+   ],
+   "r": [
+    3.4,
+    1.5,
+    1.1,
+    1.5
+   ],
+   "mats": [
+    "skin",
+    "mark"
+   ],
+   "shapes": []
+  },
+  {
+   "hip": [
+    "chest",
+    3.4,
+    0.5,
+    -3.0
+   ],
+   "foot": [
+    3.4,
+    10.5,
+    1.3
+   ],
+   "stride": 7.5,
+   "lift": 3.2,
+   "phase": 180,
+   "bones": [
+    12.0,
+    12.0
+   ],
+   "pole": [
+    0,
+    1,
+    0
+   ],
+   "r": [
+    3.0,
+    1.5,
+    1.1,
+    1.5
+   ],
+   "mats": [
+    "skin",
+    "mark"
+   ],
+   "shapes": []
+  }
+ ],
+ "shapes": [
+  {
+   "cap": [
+    "hip",
+    0,
+    0,
+    1.0
+   ],
+   "to": [
+    "chest",
+    0,
+    0,
+    0.5
+   ],
+   "r": [
+    7.0,
+    7.4
+   ],
+   "mat": "skin"
+  },
+  {
+   "ball": [
+    "hip",
+    0,
+    -1.5,
+    1.5
+   ],
+   "r": 7.0,
+   "mat": "skin"
+  },
+  {
+   "ball": [
+    "chest",
+    0,
+    1.0,
+    0.5
+   ],
+   "r": 7.2,
+   "mat": "skin"
+  },
+  {
+   "cap": [
+    "chest",
+    0,
+    3.0,
+    3.0
+   ],
+   "to": [
+    "head",
+    0,
+    -2.5,
+    -1.5
+   ],
+   "r": [
+    4.4,
+    2.6
+   ],
+   "mat": "skin"
+  },
+  {
+   "cap": [
+    "head",
+    0,
+    -1.5,
+    0.5
+   ],
+   "to": [
+    "head",
+    0,
+    7.5,
+    -6.5
+   ],
+   "r": [
+    2.7,
+    1.8
+   ],
+   "mat": "skin"
+  },
+  {
+   "ball": [
+    "head",
+    0,
+    7.8,
+    -6.5
+   ],
+   "r": 1.9,
+   "mat": "pale"
+  },
+  {
+   "cap": [
+    "chest",
+    0,
+    0.5,
+    7.2
+   ],
+   "to": [
+    "head",
+    0,
+    -3.0,
+    1.8
+   ],
+   "r": [
+    1.5,
+    1.1
+   ],
+   "mat": "mark"
+  },
+  {
+   "cap": [
+    "head",
+    1.1,
+    -0.8,
+    2.6
+   ],
+   "to": [
+    "head",
+    1.3,
+    -1.2,
+    4.6
+   ],
+   "r": [
+    0.7,
+    0.4
+   ],
+   "mat": "skin",
+   "mirror": true
+  },
+  {
+   "bead": [
+    "head",
+    1.7,
+    1.5,
+    -0.6
+   ],
+   "r": 0.45,
+   "mat": "mark",
+   "mirror": true
+  },
+  {
+   "cap": [
+    "hip",
+    0,
+    -7.5,
+    3.0
+   ],
+   "to": [
+    "hip",
+    0,
+    -10.0,
+    -8.0
+   ],
+   "r": [
+    1.8,
+    1.3
+   ],
+   "mat": "mark"
+  },
+  {
+   "cap": [
+    "hip",
+    0,
+    -10.0,
+    -8.0
+   ],
+   "to": [
+    "hip",
+    0,
+    -9.6,
+    -15.0
+   ],
+   "r": [
+    1.3,
+    0.8
+   ],
+   "mat": "mark"
+  },
+  {
+   "cap": [
+    "chest",
+    0,
+    -3.5,
+    6.6
+   ],
+   "to": [
+    "hip",
+    0,
+    4.0,
+    6.6
+   ],
+   "r": [
+    3.0,
+    3.0
+   ],
+   "mat": "leather"
+  },
+  {
+   "cap": [
+    "chest",
+    6.6,
+    -3.0,
+    0.0
+   ],
+   "to": [
+    "chest",
+    -6.6,
+    -3.0,
+    0.0
+   ],
+   "r": [
+    0.5,
+    0.5
+   ],
+   "mat": "leather"
+  }
+ ],
+ "seat": {
+  "at": [
+   0,
+   0.0,
+   36.0
+  ],
+  "wide": 6.0
+ }
+}

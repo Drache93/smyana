@@ -43,3 +43,10 @@ pictures."). Not kept here: they are stock photographs with their makers' marks,
 > Unrelated, now that we've done so much work on the art, I'm starting to feel like the men look a bit low-res almost,
 > like they look a bit spotty. There's some bits of pixels that are just kind of mixed in there, so it'll, like I said,
 > it kind of ends up reading as a bit low-res, a bit fuzzy.
+
+## 07:29 UTC
+
+(Answering whether the men should start with more food, or rely on foraging: they keep about four nights' food at the
+start.)
+
+> Sounds fair. Foraging and hunting needed yeh

@@ -12,6 +12,7 @@ let P_WARY = 1      // a shot was heard: going to look
 let P_HUNT = 2      // a man was seen: fighting
 let P_FALLBACK = 3  // too many down: back the way they came
 let P_GONE = 4      // off the map, or all dead
+let P_GUARD = 5     // met by chance: camped, resting or guarding, standing where they are and looking out
 
 class Patrol:
     ids:[int]
@@ -21,7 +22,10 @@ class Patrol:
     state:int = P_ROAD
     goal_x:int = 0  // where they go to look (the shot heard) or to close in (the man last seen)
     goal_y:int = 0
-    since:int = 0  // the tick a man was last seen (hunting), or the search began (wary)
+    since:int = 0         // the tick a man was last seen (hunting), or the search began (wary)
+    mounted:bool = false  // riding (docs/threats.md, riders): they get down to fight
+    kind:string = ""      // "trail": the riders on the men's track; "camp", "rest", "ruins": a chance meeting
+    until:int = 0         // resting: the tick they mount and ride on
 
 let W_FOLLOW = 0   // shadowing the men at a distance
 let W_HUNT = 1     // rushing a man on his own
@@ -92,12 +96,27 @@ var men_killed = 0        // men killed in this place
 var patrol_due = []::int  // a patrol's road, due to set out on it at patrol_due_at (patrol_later)
 var patrol_due_n = 0
 var patrol_due_at = 0
+var patrol_due_mounted = false
+var patrol_due_trail = false
+// (riders on the men's trail, and chance meetings: the end of this file)
+var trail_on = false                         // a mounted patrol is on the men's track
+var trail_mh = 0                             // how far behind they are, thousandths of an hour
+var trail_day_mh = 0                         // the daylight the men have spent in this place, thousandths of an hour
+var trail_clock = 0                          // the clock (clock_uh) when trail_tick last looked
+var trail_rode = -1                          // the riders, come up with the men in this place (an index into patrols), or -1
+var met_last = false                         // a chance meeting in the last place (never two running)
+var meets_off = false                        // no chance meetings (run_check: its men walk a set script)
+var meets = 0                                // how many chance meetings this run
+var run_seed = 0                             // the chance meetings' seed for the run (seed:<n>)
 let shot_seen = dictionary<int, int>(32)     // a rifleman's id: the tick he last fired
 let patrol_looks = dictionary<int, int>(32)  // a patrolman's id: his look among the patrol's
 let hurt_units = dictionary<int, int>(32)    // a patrolman's or a beast's id: 1 if a ball has hit him
 let wolf_ids = dictionary<int, int>(32)      // a wolf's id: 1
 var bears = []::Bear
+var loose_horses = []::int2  // where a rider fell: his horse is set standing there after the tick
 var cries = []::Cry
+let riding = dictionary<int, int>(32)      // a rider's id: 1 (a patrolman on his horse)
+let horse_ids = dictionary<int, int>(32)   // a horse's id: its coat (a horse standing, its rider down)
 let men_firing = dictionary<int, int>(32)  // a man told to fire (guns_order): 1 till he is told to walk somewhere
 let aim_seen = dictionary<int, int>(32)    // a rifleman's id: the tick he last saw the one he is firing at
 
@@ -121,6 +140,9 @@ def threats_clear():
     cries = []
     men_firing.clear()
     aim_seen.clear()
+    riding.clear()
+    horse_ids.clear()
+    loose_horses = []
 
 def threat_hash(a:int, b:int, c:int) -> int: return (((a * 2654435761) ^ (b * 40503 + 977) ^ (c * 69069 + 12345)) >> 7) & 0xFFFF
 
@@ -180,6 +202,7 @@ def threats_on_death(i:int, killer:int):
         fallen.push(Fallen { u_id[i], u_x[i], u_y[i], m.look, false, bx, by })
         men_killed++
     let pk = patrol_look(u_id[i])
+    if is_riding(u_id[i]): loose_horses.push(int2 { u_x[i], u_y[i] })  // (his horse stands where he fell)
     if pk >= 0: fallen.push(Fallen { u_id[i], u_x[i], u_y[i], gstrs(men_data, "looks").length + pk, true, bx, by })
     if is_wolf(u_id[i]): fallen.push(Fallen { u_id[i], u_x[i], u_y[i], -1, true, bx, by, beast: "wolf" })
     if bear_of(u_id[i]) >= 0: fallen.push(Fallen { u_id[i], u_x[i], u_y[i], -1, true, bx, by, beast: "bear" })
@@ -224,9 +247,9 @@ def road_on_open(road:[int]) -> [int]:
                 out[k * 2 + 1] = (best / W) * TILE + TILE / 2
     return out
 
-def patrol_spawn(road_given:[int], n:int) -> int:
+def patrol_spawn(road_given:[int], n:int, mounted:bool = false, go:bool = true) -> int:
     let road = road_on_open(road_given)
-    let k = type_of_slot(1, "patrol")
+    let k = type_of_slot(1, if mounted: "rider" else: "patrol")
     if k < 0 or road.length < 4: return -1
     let ids = []::int
     let dx = road[2] - road[0]
@@ -244,10 +267,11 @@ def patrol_spawn(road_given:[int], n:int) -> int:
         u_posture[i] = PASSIVE  // (they fire at what they see, not at all Creel's sight finds: patrol_think)
         ids.push(u_id[i])
         patrol_looks.set(u_id[i], (m * 7 + 3) % max(1, nlooks))
+        if mounted: riding.set(u_id[i], 1)
     grow_scratch()
-    let p = Patrol { ids, road, n }
+    let p = Patrol { ids, road, n, mounted: mounted }
     patrols.push(p)
-    patrol_walk(p, road[2], road[3])
+    if go: patrol_walk(p, road[2], road[3])
     return patrols.length - 1
 
 // The tiles a unit of kind k of the patrol's side can walk to from cell c (1), and those it can't (0).
@@ -322,7 +346,7 @@ def seen_by(i:int) -> int:
 
 // A shot heard at (x, y): a patrol on its road, or searching, comes to look.
 def patrol_hear(p:Patrol, by:int, x:int, y:int):
-    if p.state != P_ROAD and p.state != P_WARY: return
+    if p.state != P_ROAD and p.state != P_WARY and p.state != P_GUARD: return
     let spread = gint(patrol_cfg(), "heard_spread", 3) * TILE
     p.state = P_WARY
     p.since = tick
@@ -343,6 +367,8 @@ def patrol_think(p:Patrol):
     // too many down: back the way they came, and off the map there
     if p.state != P_FALLBACK and alive.length * 100 < p.start * gint(pc, "break_share", 50):
         p.state = P_FALLBACK
+        // (riders break off on their horses)
+        if not p.mounted and p.kind != "": patrol_mount(p)
         patrol_walk(p, p.road[0], p.road[1])
         return
     let lead = index_of(alive[0])
@@ -364,6 +390,23 @@ def patrol_think(p:Patrol):
             p.goal_y = u_y[j]
             p.since = tick
             p.state = P_HUNT
+    // (riders: a man seen, or near where they are going to look, and they get down to fight on foot)
+    if p.mounted and p.state == P_WARY and p.kind == "trail":
+        let cx, cy = men_middle()
+        if cx >= 0:
+            p.goal_x = cx
+            p.goal_y = cy
+            if tick % 40 == 0: patrol_walk(p, cx, cy)
+    if p.mounted and (p.state == P_HUNT or (p.state == P_WARY and dist2(u_x[lead], u_y[lead], p.goal_x, p.goal_y) < sq(gint(riders_cfg(), "dismount_tiles", 9) * TILE))):
+        patrol_dismount(p)
+        return
+    if p.mounted and p.state == P_HUNT: return
+    if p.state == P_GUARD:
+        if p.kind == "rest" and tick >= p.until:
+            patrol_mount(p)
+            p.state = P_ROAD
+            patrol_walk(p, p.road[2], p.road[3])
+        return
     if p.state == P_HUNT:
         for(alive) id, n:
             let i = index_of(id)
@@ -386,9 +429,15 @@ def patrol_think(p:Patrol):
             p.since = tick
             patrol_walk(p, p.goal_x, p.goal_y)
     elif p.state == P_WARY:
-        if tick - p.since > gint(pc, "search_s", 25) * TICK_HZ:
-            p.state = P_ROAD
-            patrol_walk(p, p.road[p.next * 2], p.road[p.next * 2 + 1])
+        if tick - p.since > gint(pc, "search_s", 25) * TICK_HZ and p.kind != "trail":
+            // (a camp or a guard goes back to where it was; a patrol on its road walks on)
+            if p.kind == "camp" or p.kind == "ruins" or (p.kind == "rest" and tick < p.until):
+                p.state = P_GUARD
+                patrol_walk(p, p.road[0], p.road[1])
+            else:
+                p.state = P_ROAD
+                if p.kind != "" and not p.mounted: patrol_mount(p)
+                patrol_walk(p, p.road[p.next * 2], p.road[p.next * 2 + 1])
     elif p.state == P_ROAD:
         // (a camp's fire seen, its light at night or its smoke by day: they come to look, as for a shot)
         let f = fire_seen_from(u_x[lead], u_y[lead])
@@ -399,6 +448,86 @@ def patrol_think(p:Patrol):
         if dist2(u_x[lead], u_y[lead], p.road[p.next * 2], p.road[p.next * 2 + 1]) < 2 * TILE * 2 * TILE:
             p.next++
             if p.next * 2 < p.road.length: patrol_walk(p, p.road[p.next * 2], p.road[p.next * 2 + 1])
+
+def sq(v:int) -> int: return v * v
+
+// The middle of the men alive in the place (sim units), or -1, -1.
+def men_middle() -> int, int:
+    let here = men_here()
+    if not here.length: return -1, -1
+    var x = 0
+    var y = 0
+    for(here) i:
+        x += u_x[i]
+        y += u_y[i]
+    return x / here.length, y / here.length
+
+// A patrol gets down off its horses: each rider is a patrolman on foot where he was, and his horse stands beside him.
+def patrol_dismount(p:Patrol):
+    let foot = type_of_slot(1, "patrol")
+    let hk = type_of_slot(1, "horse")
+    if foot < 0 or hk < 0: return
+    let was = []::int
+    for(patrol_alive(p)) id:
+        let i = index_of(id)
+        was.push(i)
+    qsort_in_place(was) a, b: a > b  // (remove from the end, so the others' indexes hold)
+    let ids = []::int
+    for(was) i:
+        let x = u_x[i]
+        let y = u_y[i]
+        let hp = u_hp[i]
+        let id = u_id[i]
+        let look = patrol_look(id)
+        remove_unit(i)
+        riding.del(id)
+        let j = add_unit(1, foot, x, y)
+        u_posture[j] = PASSIVE
+        u_hp[j] = min(hp, u_hp[j])
+        patrol_looks.set(u_id[j], look)
+        ids.push(u_id[j])
+        let h = add_unit(1, hk, x + 600, y + 300)
+        u_posture[h] = PASSIVE
+        horse_ids.set(u_id[h], look)
+    grow_scratch()
+    p.ids = ids
+    p.mounted = false
+
+// A patrol gets up on its horses again: each patrolman takes the nearest standing horse and rides.
+def patrol_mount(p:Patrol):
+    let rk = type_of_slot(1, "rider")
+    if rk < 0: return
+    let ids = []::int
+    for(patrol_alive(p)) id:
+        let i = index_of(id)
+        let x = u_x[i]
+        let y = u_y[i]
+        let hp = u_hp[i]
+        let look = patrol_look(id)
+        // (his horse: the nearest left standing, taken away; one with no horse rides one led by the others)
+        var best = -1
+        var bd = 1 << 62
+        for(horse_ids.get_keys()) hid:
+            let h = index_of(hid)
+            if h >= 0 and dist2(u_x[h], u_y[h], x, y) < bd:
+                bd = dist2(u_x[h], u_y[h], x, y)
+                best = hid
+        if best >= 0:
+            horse_ids.del(best)
+            remove_unit(index_of(best))
+        remove_unit(index_of(id))
+        let j = add_unit(1, rk, x, y)
+        u_posture[j] = PASSIVE
+        u_hp[j] = min(hp, u_hp[j])
+        patrol_looks.set(u_id[j], look)
+        riding.set(u_id[j], 1)
+        ids.push(u_id[j])
+    grow_scratch()
+    p.ids = ids
+    p.mounted = true
+
+def is_horse(uid:int) -> bool: return horse_ids.get(uid, -1) >= 0
+def is_riding(uid:int) -> bool: return riding.get(uid, 0) == 1
 
 // After each sim tick, with the riflemen who fired in it: the patrols hear the men's shots.
 def threats_after_step(fired:[int]):
@@ -419,8 +548,22 @@ def threats_after_step(fired:[int]):
 // Every sim tick of the run (route_tick): a patrol due on its road sets out, and now and then they all think.
 def threats_tick():
     if patrol_due.length and tick >= patrol_due_at:
-        patrol_spawn(patrol_due, patrol_due_n)
+        let k = patrol_spawn(patrol_due, patrol_due_n, patrol_due_mounted)
+        if patrol_due_trail and k >= 0:
+            // (the pass's patrol is the riders on the trail, D-089: what happens to them is what happens to it)
+            patrols[k].kind = "trail"
+            trail_rode = k
         patrol_due = []
+    if loose_horses.length:
+        let hk = type_of_slot(1, "horse")
+        for(loose_horses) at:
+            if hk >= 0:
+                let h = add_unit(1, hk, at.x + 500, at.y)
+                u_posture[h] = PASSIVE
+                horse_ids.set(u_id[h], 0)
+        loose_horses = []
+        grow_scratch()
+    trail_tick()
     if tick % 5 == 0:
         for(patrols) p: patrol_think(p)
         for(packs) p: pack_think(p)
@@ -428,13 +571,12 @@ def threats_tick():
         men_fight()
 
 // A patrol that sets out on its road after so many seconds in the place (a leg's "patrol": "after_s").
-def patrol_later(road:[int], n:int, after_s:int):
-    if after_s <= 0:
-        patrol_spawn(road, n)
-        return
+def patrol_later(road:[int], n:int, after_s:int, mounted:bool = false, trail:bool = false):
     patrol_due = road
     patrol_due_n = n
-    patrol_due_at = tick + after_s * TICK_HZ
+    patrol_due_at = tick + max(0, after_s) * TICK_HZ
+    patrol_due_mounted = mounted
+    patrol_due_trail = trail
 
 // ---- the wolves (#60)
 
@@ -605,7 +747,7 @@ def bear_rearing(uid:int) -> bool:
     return k >= 0 and bears[k].state == B_REAR
 
 // The beast this unit is, for the view: "wolf", "bear" or "".
-def beast_kind(uid:int) -> string: return if is_wolf(uid): "wolf" elif bear_of(uid) >= 0: "bear" else: ""
+def beast_kind(uid:int) -> string: return if is_wolf(uid): "wolf" elif bear_of(uid) >= 0: "bear" elif is_horse(uid): "horse" else: ""
 
 // The cries since the view last took them.
 def threats_cries() -> [Cry]:
@@ -734,3 +876,163 @@ def bear_think(b:Bear):
         let a = float(threat_hash(b.id, tick, 3) % 360)
         let tx, ty = reachable_near(b.reach, clamp(b.home_x + int(cos(a) * float(r)), TILE, (W - 1) * TILE), clamp(b.home_y + int(sin(a) * float(r)), TILE, (H - 1) * TILE))
         issue_cmd(1, CMD_MOVE, [ b.id ], tx, ty, 0, 0)
+
+// ---- riders on the men's trail, and chance meetings (docs/threats.md, riders; Dominic, 2026-11-13: "they could just
+// always be behind you and if you are too slow for a day or 2 they catch up and fight. Equally you might come across
+// them somewhere camping or resting (dismounted) or guarding ruins. Real goal is random.encounters")
+
+def riders_cfg() -> JV: return gobj(threats_cfg, "riders")
+def meet_cfg() -> JV: return gobj(threats_cfg, "meet")
+
+// The run begins: no one on the trail.
+def trail_begin():
+    trail_on = false
+    trail_mh = 0
+    met_last = false
+    meets = 0
+
+// How long men who keep going take to cross this place, thousandths of an hour (the leg's "brisk_h", or the data's).
+def brisk_mh() -> int: return gint(leg_now(), "brisk_h", gint(riders_cfg(), "brisk_h", 6)) * 1000
+
+// A new place: the daylight count starts again; the riders start out on the trail here if this is where they do.
+def trail_enter():
+    trail_day_mh = 0
+    trail_clock = clock_uh
+    trail_rode = -1
+    if not trail_on and leg_id == gstr(riders_cfg(), "from", ""):
+        trail_on = true
+        trail_mh = gint(riders_cfg(), "start_h", 36) * 1000
+        print "(riders: on the men\'s trail, {trail_mh / 1000} hours behind)"
+
+// Every tick: the men's daylight here counted, and once it is past the brisk time it brings the riders nearer. When
+// they are no hours behind, they ride in by the men's own edge.
+def trail_tick():
+    let d = clock_uh - trail_clock
+    trail_clock = clock_uh
+    if d <= 0 or is_night(): return
+    trail_day_mh += d / 1000
+    if not trail_on or trail_rode >= 0 or trail_day_mh <= brisk_mh(): return
+    trail_mh -= d / 1000
+    if trail_mh <= 0: riders_come()
+
+// The riders come in by the edge the men came in by, on their track, to where the men are.
+def riders_come():
+    let g = gate_index(arrived_by)
+    let cx, cy = men_middle()
+    if g < 0 or cx < 0: return
+    let r = gate_rects[g]
+    let gx = (r[0] + r[2] + 1) * TILE / 2
+    let gy = (r[1] + r[3] + 1) * TILE / 2
+    let k = patrol_spawn([ gx, gy, cx, cy ], gint(riders_cfg(), "men", 6), true)
+    if k < 0: return
+    let p = patrols[k]
+    p.kind = "trail"
+    p.state = P_WARY
+    p.since = tick
+    p.goal_x = cx
+    p.goal_y = cy
+    trail_rode = k
+    print "(riders: they have caught up, in {leg_id} by the {arrived_by} edge)"
+
+// The men leave the place: how far behind the riders are now. Beaten, they give it up; met and left behind, they are
+// close; not met, the men gained what they didn't waste (never more than the riders' start).
+def trail_leave():
+    if not trail_on: return
+    if trail_rode >= 0:
+        let p = patrols[trail_rode]
+        if p.state == P_FALLBACK or patrol_alive(p).length * 100 < p.start * gint(patrol_cfg(), "break_share", 50):
+            trail_on = false
+            print "(riders: beaten, the trail goes cold)"
+        else: trail_mh = gint(riders_cfg(), "close_h", 6) * 1000
+    else: trail_mh = min(gint(riders_cfg(), "start_h", 36) * 1000, trail_mh + max(0, brisk_mh() - trail_day_mh))
+
+// A chance meeting in this place (after the men are put down): a patrol camped, resting by the trail or guarding the
+// ruins, by a chance fixed for the run.
+def meet_roll():
+    let mc = meet_cfg()
+    let was = met_last
+    met_last = false
+    if meets_off or was or has(leg_now(), "patrol") or (find(gstrs(mc, "never")) n: n == place_now()) >= 0: return
+    if trail_on and trail_mh < gint(riders_cfg(), "close_h", 6) * 1000: return
+    let roll = threat_hash(run_seed + 31, leg_hash(leg_id), 7) % 100
+    if roll >= gint(mc, "chance", 25): return
+    let ruins = glist(su_map, "ruins")
+    let at_ruins = ruins.length > 0 and (gint(mc, "ruins_always", 1) == 1 or roll % 2 == 0)
+    let kind = if at_ruins: "ruins" elif roll % 3 == 0: "rest" else: "camp"
+    var x = 0
+    var y = 0
+    if kind == "ruins":
+        var n = 0
+        for(ruins) r:
+            if not starts_with(as_str(r.a[0]), "road"):
+                x += as_int(r.a[1])
+                y += as_int(r.a[2])
+                n++
+        if n == 0: return
+        x /= n
+        y /= n
+    else:
+        let c = meet_spot(kind == "camp", roll)
+        if c < 0: return
+        x = (c % W) * TILE + TILE / 2
+        y = (c / W) * TILE + TILE / 2
+    // (where they go when they ride on: out by the edge the men did not come in by)
+    var ox = x
+    var oy = y
+    for(gate_names) name, g:
+        if name != arrived_by:
+            let r = gate_rects[g]
+            ox = (r[0] + r[2] + 1) * TILE / 2
+            oy = (r[1] + r[3] + 1) * TILE / 2
+    let span = glist(mc, "men")
+    let n = if span.length == 2: as_int(span[0]) + roll % max(1, as_int(span[1]) - as_int(span[0]) + 1) else: 5
+    let k = patrol_spawn([ x, y, ox, oy ], n, false, false)
+    if k < 0: return
+    let p = patrols[k]
+    p.kind = kind
+    p.state = P_GUARD
+    let rh = glist(mc, "rest_h")
+    if kind == "rest": p.until = tick + (if rh.length == 2: as_int(rh[0]) * 1000 + roll * 37 % max(1, (as_int(rh[1]) - as_int(rh[0])) * 1000) else: 1500) * ticks_per_hour() / 1000
+    // (their horses, tied a little way off; at the ruins they stand by the road)
+    let hk = type_of_slot(1, "horse")
+    let reach = reach_from(type_of_slot(1, "patrol"), cell_of(x, y))
+    if hk >= 0:
+        for(n) m:
+            let hx, hy = reachable_near(reach, x + 2500 + (m % 3) * 800, y - 1500 + (m / 3) * 900)
+            let h = add_unit(1, hk, hx, hy)
+            u_posture[h] = PASSIVE
+            horse_ids.set(u_id[h], m)
+        grow_scratch()
+    met_last = true
+    meets++
+    print "(meet: a patrol of {n} {kind} in {leg_id} at tile {x / TILE},{y / TILE})"
+
+def leg_hash(id:string) -> int:
+    var h = 0
+    for(id) ch: h = (h * 31 + ch) & 0xFFFFFF
+    return h
+
+// Where a patrol stops: on the trail (resting) or off it in the open (camped), well away from the gates, by the roll.
+def meet_spot(off:bool, roll:int) -> int:
+    let trail = str_index(tr_names, "trail")
+    let grass = str_index(tr_names, "grass")
+    let k = type_of_slot(1, "patrol")
+    let pick = []::int
+    for(W * H) c:
+        if walks[0][c] == 1 and (if off: terrain[c] == grass and near_terrain(c, trail, 9) and not near_terrain(c, trail, 5) else: terrain[c] == trail):
+            var far = true
+            for(gate_rects) r: if sq(c % W - (r[0] + r[2]) / 2) + sq(c / W - (r[1] + r[3]) / 2) < sq(24): far = false
+            if far: pick.push(c)
+    if not pick.length or k < 0: return -1
+    return pick[(roll * 7919 + run_seed) % pick.length]
+
+// Whether a tile of terrain t lies within r tiles of cell c.
+def near_terrain(c:int, t:int, r:int) -> bool:
+    let x = c % W
+    let y = c / W
+    for(r * 2 + 1) j:
+        for(r * 2 + 1) i:
+            let u = x + i - r
+            let v = y + j - r
+            if u >= 0 and v >= 0 and u < W and v < H and terrain[v * W + u] == t: return true
+    return false

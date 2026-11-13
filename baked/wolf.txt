@@ -1,4 +1,4 @@
-beasts 2 2.0 [-7.5, 15.0, 55.0, 6.1, 13.3] c667a8cb6ce0e31ee0e06a95ae0b0c18054799e45851c89952124efadb45d0de sun 40.0 0.15 4.0 true 0.4 fall 996 86 elev 22.0
+beasts 2 2.0 [-7.5, 15.0, 55.0, 6.1, 13.3] 2517c54d2f9f806cbd9b2f0bd483507e0887c39aba16d91cd463ef2f6d09b705 sun 40.0 0.15 4.0 true 0.4 fall 996 86 elev 22.0
 wolf.0.0 1 1 14 41 7 36
 wolf.shadow.0 17 1 48 18 10 8
 wolf.0.1 67 1 37 39 17 35

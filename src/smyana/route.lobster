@@ -402,6 +402,7 @@ def run_begin():
     forage_begin()
     packs_begin()
     knowledge_begin()
+    trail_begin()
     enter_leg(gstr(route, "start", ""), gstr(route, "start_edge", "west"))
 
 // Why this place is over the size budget ("" if it isn't): checked when it's loaded.
@@ -444,7 +445,11 @@ def enter_leg(id:string, edge:string):
     // (a second side: the mark on the range, and the patrol where this leg has one, or on the fight: bench)
     let theirs = []::JV
     if with_mark: theirs.push(shallow_copy(at(lib_data("guns.json"), "mark")))
-    if with_patrol or has(leg_now(), "patrol"): theirs.push(shallow_copy(at(patrol_cfg(), "unit")))
+    // (the patrol may be met anywhere, on foot or riding, docs/threats.md: their horses too)
+    if with_patrol or has(leg_now(), "patrol") or not gbool(leg_now(), "end", false):
+        theirs.push(shallow_copy(at(patrol_cfg(), "unit")))
+        theirs.push(shallow_copy(at(riders_cfg(), "unit")))
+        theirs.push(shallow_copy(at(riders_cfg(), "horse")))
     if with_wolves or has(leg_now(), "wolves"): theirs.push(shallow_copy(at(wolf_cfg(), "unit")))
     if with_bear or has(leg_now(), "bear"): theirs.push(shallow_copy(at(bear_cfg(), "unit")))
     if theirs.length:
@@ -479,7 +484,7 @@ def enter_leg(id:string, edge:string):
     // (a patrol on its road through this place, #62: "patrol": { "road": [ x, y, ... tiles ], "men": n, "after_s": s })
     if has(leg_now(), "patrol"):
         let pl = gobj(leg_now(), "patrol")
-        patrol_later(map(glist(pl, "road")) v: as_int(v) * TILE + TILE / 2, gint(pl, "men", 7), gint(pl, "after_s", 0))
+        patrol_later(map(glist(pl, "road")) v: as_int(v) * TILE + TILE / 2, gint(pl, "men", 7), gint(pl, "after_s", 0), gbool(pl, "mounted", false), gbool(pl, "trail", false))
     // (a pack of wolves, #60: "wolves": { "at": [ x, y tiles ], "n": n, "bold": winter's })
     if has(leg_now(), "wolves"):
         let wl = gobj(leg_now(), "wolves")
@@ -489,6 +494,9 @@ def enter_leg(id:string, edge:string):
     if has(leg_now(), "bear"):
         let ba = map(glist(gobj(leg_now(), "bear"), "at")) v: as_int(v) * TILE + TILE / 2
         bear_spawn(ba[0], ba[1])
+    // (riders on the trail, and a chance meeting: docs/threats.md, riders)
+    trail_enter()
+    meet_roll()
     last_load_s = seconds_elapsed() - t0
 
 def gate_index(edge:string) -> int: return find(gate_names) n: n == edge
@@ -643,6 +651,7 @@ def exit_by(edge:string) -> JV: return at(at(leg_now(), "exits"), edge)
 // The men walk off by `edge`: what they carry is read, and the place remembers how they left it.
 def route_leave(edge:string):
     men_read()
+    trail_leave()
     let place = place_now()
     forage_leave(place)
     packs_leave(place)

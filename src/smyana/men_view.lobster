@@ -31,6 +31,13 @@ var men_bake_s = 0.0  // how long the bake took (0: read from baked/)
 def man_frame_name(look:int, pose:int, facing:int) -> string: return "man{look}.{pose}.{facing}"  // pose 0: standing, 1..8: the walk, then POSE_*
 def man_shadow_name(look:int, facing:int) -> string: return "man{look}.shadow.{facing}"
 
+// The men's bake (and the riders'): at MEN_RES, their shading evened out (Creel's own flecked the coats); off, Creel's
+// own again.
+def men_bake_look(on:bool):
+    vx_set_res(if on: MEN_RES else: 2.0)
+    vx_smooth_normals = if on: 2 else: 0
+    vx_despeckle = if on: 1 else: 0
+
 // One look's sheet, baked (or read back). between(): called now and then, so the window can draw.
 def bake_look(look:int, key:string, between):
     let s = sheet_new("man{look}", key, 1024)
@@ -40,10 +47,7 @@ def bake_look(look:int, key:string, between):
     let u = men_looks[look]
     vx_set_look(u, 0)
     vx_mat_cols[vx_mat_team] = float3 { 0.85, 0.12, 0.85 }  // (the sprite shader's key for the team colour: the sash)
-    let res_was = vx_RES
-    vx_set_res(MEN_RES)
-    vx_smooth_normals = 2  // (their shading evened out: Creel's own flecked the coats)
-    vx_despeckle = 1
+    men_bake_look(true)
     vx_pat_scale = vx_RES * vx_size_of(u)
     for(MEN_POSES) pose:
         vx_stand = pose == 0 or pose > MEN_STEPS
@@ -61,9 +65,7 @@ def bake_look(look:int, key:string, between):
         between()
     vx_stand = false
     vx_act = ""
-    vx_set_res(res_was)
-    vx_smooth_normals = 0
-    vx_despeckle = 0
+    men_bake_look(false)
     sheet_finish(s, MEN_DRAW_K, true)
     men_bake_s += seconds_elapsed() - t0
 
@@ -172,3 +174,40 @@ def bake_beast(id:string, between):
 
 // How far a beast walks in one cycle of its steps, milli-tiles.
 def beast_cycle(id:string) -> float: return cycles.get(id, man_cycle())
+
+// ---- the patrol's riders (docs/threats.md, riders): each patrolman's look on a horse (data/voxel/bodies/horse.json,
+// Creel's mount: he sits astride, his legs down its sides), its coat by his look. Baked as the men are: standing and
+// eight steps of the horse's walk, from eight sides, and the shadow. The horse alone is a beast (bake_beast).
+let RIDER_BAKE = "riders 2"
+let RIDER_COATS = [ float3 { 0.45, 0.29, 0.18 }, float3 { 0.74, 0.72, 0.68 }, float3 { 0.55, 0.30, 0.15 }, float3 { 0.22, 0.16, 0.12 } ]
+let rider_defs = []::vx_unit_def
+
+def rider_frame_name(look:int, pose:int, facing:int) -> string: return "rider{look}.{pose}.{facing}"
+def rider_shadow_name(look:int, facing:int) -> string: return "rider{look}.shadow.{facing}"
+
+def bake_riders(between):
+    vx_data_dirs = [ "../data/voxel" ]
+    let ids = gstrs(gobj(lib_data("threats.json"), "patrol"), "looks")
+    let key = "{RIDER_BAKE} {MEN_RES} {RIDER_COATS} {sha256_text(vx_data_text() + men_vox_text())}"
+    for(ids) id, look:
+        let c = RIDER_COATS[look % RIDER_COATS.length]
+        rider_defs.push(vx_unit_def { id, id, float3_0, float3_0, float3_0, [ "rifle" ], "horse", false, c, float3 { 0.16, 0.12, 0.1 }, c * 1.3, nil })
+    let s = sheet_new("riders", key, 1024)
+    if sheet_load(s, MEN_DRAW_K): return
+    vx_need()
+    men_bake_look(true)
+    for(rider_defs) u, look:
+        vx_set_look(u, 0)
+        vx_mat_cols[vx_mat_team] = float3 { 0.85, 0.12, 0.85 }
+        vx_pat_scale = vx_RES * vx_size_of(u)
+        for(MEN_STEPS + 1) pose:
+            vx_stand = pose == 0
+            let ph = if pose == 0: 0.0 else: float(pose - 1) * 360.0 / float(MEN_STEPS)
+            let sh = vx_fill(vx_unit_prims(u, ph), vx_size_of(u), false)
+            for(8) facing:
+                sheet_add_cell(s, rider_frame_name(look, pose, facing), vx_cell(sh, facing), vx_CELL.x, vx_box, vx_ANCHOR)
+                if pose == 0: sheet_add_cell(s, rider_shadow_name(look, facing), vx_ground_shadow(sh, facing), vx_SCELL.x, vx_sbox, vx_SANCHOR)
+            between()
+    vx_stand = false
+    men_bake_look(false)
+    sheet_finish(s, MEN_DRAW_K, true)
