@@ -712,7 +712,7 @@ from the photos of an open-grown beech and of old Balkan beeches, not guessed: t
 a leader; limbs leave it all the way up, low ones long, near level and drooping at their ends, high ones short and
 steep; the leaves lie in flat layered sprays along every limb out to an egg-shaped, lobed shell, widest a little below
 its middle, leafy underneath and at the sides as on top, with gaps where the limbs and the sky show. Supersedes the
-domed beech crown of D-101 (other broadleaves keep it).
+domed beech crown of D-102 (other broadleaves keep it).
 
 **D-116, 2026-11-13: The old forest has giants of every kind, which the men can't fell.** (From Dominic: "The forest
 is old, likely they've be some really big/thick ones. We had planned some that can't be cut down because of size", and
