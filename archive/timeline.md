@@ -207,3 +207,5 @@ One line per moment worth remembering. Newest at the bottom.
 - **2026-11-12:** A fast playthrough (`script:play fast:40`) plays the whole route; it found a run that never ended
   and a ford two men wedged in, both fixed (D-113). Nothing bakes at load: the pictures ship in baked/, and a start
   takes about 1.5 s (D-114).
+- **2026-11-13:** Beech crowns remade from Dominic's photographs: one egg from low on the tree to the top (D-115). One
+  old tree in six is a giant of the old forest, of every kind but the hornbeam (D-116).
