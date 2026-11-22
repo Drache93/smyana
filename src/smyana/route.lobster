@@ -608,6 +608,33 @@ def unstick_men():
                 unstick_looks.set(m.uid, 0)
                 print "(unstick: man {m.uid} {d / 10} tiles from where he was sent and no nearer: sent on by himself)"
                 issue_cmd(0, CMD_MOVE, [ m.uid ], u_tx[i], u_ty[i], 0, 0)
+        elif u_moving[i] == 0 and d > 50 and u_stuck[i] >= STUCK_LIMIT and u_foe[i] == 0 and not is_asleep(m.uid):
+            // (2026-11-22, a playthrough: a man wedged on the first tile of the gorge's ford gave up every order to
+            // walk on, and the other twelve waited five days at the gate for him and starved. Given up on his way
+            // three looks running, he is stood on the tile beside him that is nearest where he was going, and sent
+            // again. The cause is in Creel's steering, not found yet: D-146.)
+            let n = unstick_looks.get(m.uid, 0) + 1
+            unstick_looks.set(m.uid, n)
+            if n >= 3:
+                unstick_looks.set(m.uid, 0)
+                let cx = u_x[i] / TILE
+                let cy = u_y[i] / TILE
+                var best = -1
+                var best_d = dist2(u_x[i], u_y[i], u_tx[i], u_ty[i])
+                for(9) k:
+                    let x = cx + k % 3 - 1
+                    let y = cy + k / 3 - 1
+                    if x >= 0 and y >= 0 and x < W and y < H and walks[lane(i)][y * W + x] == 1:
+                        let far = dist2(x * TILE + TILE / 2, y * TILE + TILE / 2, u_tx[i], u_ty[i])
+                        if far < best_d:
+                            best_d = far
+                            best = y * W + x
+                if best >= 0:
+                    print "(unstick: man {m.uid} given up at {cx},{cy}, {d / 10} tiles from where he was sent: stood on {best % W},{best / W} and sent again)"
+                    u_x[i] = (best % W) * TILE + TILE / 2
+                    u_y[i] = (best / W) * TILE + TILE / 2
+                    u_stuck[i] = 0
+                    issue_cmd(0, CMD_MOVE, [ m.uid ], u_tx[i], u_ty[i], 0, 0)
         else: unstick_looks.set(m.uid, 0)
         unstick_d.set(m.uid, d)
 
