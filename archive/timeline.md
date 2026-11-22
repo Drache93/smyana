@@ -236,3 +236,4 @@ One line per moment worth remembering. Newest at the bottom.
   laid where nobody could reach it. Fixed, with a volley that takes more than one beast (D-140), twice the meat
   (D-141) and slower hunger: 11 and 12 of 20 men home on two seeds, the third stuck at a gate.
 - 2026-11-22 (evening): two agent playtests quit before ten minutes; first clarity fixes in (the men say the goal, Paused, sign labels, a mark toward the men), D-144.
+- 2026-11-23: the forest has a sound: wind, birds, crickets, rain, stream and fire beds, and five bird calls (D-147).

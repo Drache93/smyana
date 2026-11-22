@@ -49,6 +49,7 @@ import smyana.trees
 import smyana.cliff
 import smyana.camp
 import smyana.music
+import smyana.ambience
 import smyana.cursors
 
 // ------------------------------------------------------------------ what it was started with
@@ -3443,6 +3444,52 @@ def draw_guide(dt:float):
             let w = float(gl.text_size("The men").x)
             shaded_text("The men", float2 { clamp(p.x - w / 2.0, 4.0, ws.x - w - 4.0), p.y + (if p.y > ws.y * 0.8: -r * 3.2 else: r * 1.4) }, 1.0)
 
+// ------------------------------------------------------------------ the forest's sound, from what is on the screen
+// (smyana/ambience.lobster, D-147)
+var amb_water = 0.0  // how near water is to the middle of the view, 0..1 (looked for twice a second)
+var amb_look = 0.0
+
+def ambience_tick(dt:float):
+    let fc = forest_cfg()
+    let season = season_now()
+    let kind, hard = weather_now()
+    let night = is_night()
+    let h = hour_now()
+    let raining = kind == "rain" and hard > 150
+    // the wind: a little always, more as it blows, more over snow and bare boughs
+    bed_want(BED_WIND, 0.3 + float(wind_now()) / 1000.0 * 0.7 + (if season == "winter": 0.2 else: 0.0))
+    // small birds: by day, a chorus at first light, quiet by dusk; most in spring, few in winter, none in hard rain
+    let by_season = if season == "spring": 1.0 elif season == "summer": 0.8 elif season == "autumn": 0.4 else: 0.12
+    let by_hour = if night: 0.0 elif h < 8.0: 1.0 elif h < 17.0: 0.7 elif h < 20.0: 0.45 else: 0.15
+    bed_want(BED_BIRDS, by_season * by_hour * (if raining: 0.15 elif kind == "snow": 0.3 else: 1.0))
+    // crickets: warm nights and evenings
+    let warm = if season == "summer": 1.0 elif season == "autumn" and year_here() % 4000 < 1500: 0.5 else: 0.0
+    bed_want(BED_NIGHT, if raining: 0.0 elif night: warm elif h >= 19.0: warm * 0.6 else: 0.0)
+    bed_want(BED_RAIN, if kind == "rain": float(hard) / 700.0 else: 0.0)
+    // the stream: water or a ford near the middle of the view (frozen quiet in deep winter)
+    amb_look -= dt
+    if amb_look <= 0.0:
+        amb_look = 0.5
+        let reach = gint(fc, "stream_tiles", 12)
+        let t = iso_inv(cam) / 1000.0
+        let water = str_index(tr_names, "water")
+        let ford = str_index(tr_names, "ford")
+        var best = 1000.0
+        for(reach * 2 + 1) dy:
+            for(reach * 2 + 1) dx:
+                let x = int(t.x) + dx - reach
+                let y = int(t.y) + dy - reach
+                if x >= 0 and y >= 0 and x < W and y < H and (terrain[y * W + x] == water or terrain[y * W + x] == ford):
+                    best = min(best, magnitude(float2 { float(x) + 0.5 - t.x, float(y) + 0.5 - t.y }))
+        amb_water = clamp(1.0 - (best - 2.0) / float(reach - 2), 0.0, 1.0)
+    bed_want(BED_STREAM, amb_water * (if season == "winter" and snow_lying() > 600: 0.35 else: 1.0))
+    // the fire: a lit one near the middle of the view
+    var fire = 0.0
+    for(fires) fp: fire = max(fire, clamp(1.0 - magnitude(iso_inv(cam - fp)) / 1000.0 / float(gint(fc, "fire_tiles", 10)), 0.0, 1.0))
+    bed_want(BED_FIRE, fire)
+    beds_tick(dt)
+    if not paused: calls_tick(dt, season, night, raining, float(cell_hash(frame_no * 7 + 13) % 1000) / 1000.0)
+
 score_load()
 score_on = music_arg != "off"
 if music_arg != "" and music_arg != "off":
@@ -3526,6 +3573,8 @@ while gl.frame():
         mood_tick()
         if phase != "leaving": score_tick(dt, season_now(), mood_now(), fires.length > 0)
         danger_tick()
+        if phase == "leaving": beds_hush()
+        if phase != "menu" or menu_alpha > 0.0: ambience_tick(dt)
         heard_tick()
         if not paused: howl_tick(dt)
         if debug_line: score_keys()

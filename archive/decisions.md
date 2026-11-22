@@ -920,3 +920,11 @@ begins (data/music.json "turn_min_s", "turn_fade_s", "turn_gap_s"). Still a swap
 Claude: a man standing far from where he was sent, with Creel's stuck count at its limit three looks running, is stood
 on the walkable tile beside him nearest his goal and sent again (src/smyana/route.lobster, unstick_men). A safety net
 for a wedge on the gorge's ford that held a whole band for five days; the cause, in Creel's steering, is not found.
+
+## D-147: the forest has a sound (2026-11-23)
+
+Dominic, 2026-11-22: "I think biggest gap is music and sounds". Claude: six beds made from noise and sine waves like
+the guns (sound/forest.py: wind, small birds, crickets, rain, a stream, a fire), each a loop faded up and down by the
+season, the hour, the weather and what is in view, and five calls heard now and then (cuckoo in spring, woodpecker in
+summer, jay in autumn, raven in winter, an owl at night). Levels and timings in data/audio.json "forest". Made without
+being heard (a cloud session has no ears): measured and looked at as spectrograms only, so Dominic's ear is the test.

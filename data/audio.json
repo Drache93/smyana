@@ -1,6 +1,6 @@
 {
- "_doc": "The game's sounds (Creel's game/audio: sounds_load). Each is assets/audio/sfx/<name>_<take>.wav, takes played in turn; gap: seconds it won't play again within; bus: a volume in dB over it (buses). Made by sound/flintlock.py, sound/wolves.py and sound/bear.py. The music is apart: data/music.json.",
- "buses": { "Guns": 0.0, "Reload": -4.0, "Beasts": -2.0 },
+ "_doc": "The game's sounds (Creel's game/audio: sounds_load). Each is assets/audio/sfx/<name>_<take>.wav, takes played in turn; gap: seconds it won't play again within; bus: a volume in dB over it (buses). Made by sound/flintlock.py, sound/wolves.py, sound/bear.py and sound/forest.py (the forest's beds and bird calls: 'forest' below). The music is apart: data/music.json.",
+ "buses": { "Guns": 0.0, "Reload": -4.0, "Beasts": -2.0, "Forest": -6.0, "Birds": -8.0 },
  "sounds": {
   "pan": { "takes": 3, "bus": "Guns" },
   "boom_wood": { "takes": 3, "bus": "Guns" },
@@ -21,6 +21,20 @@
   "yelp": { "takes": 3, "bus": "Beasts", "gap": 0.3 },
   "bear_huff": { "takes": 3, "bus": "Beasts", "gap": 1.5 },
   "bear_roar": { "takes": 3, "bus": "Beasts", "gap": 1.5 },
-  "bear_swipe": { "takes": 3, "bus": "Beasts", "gap": 0.4 }
+  "bear_swipe": { "takes": 3, "bus": "Beasts", "gap": 0.4 },
+  "cuckoo": { "takes": 3, "bus": "Birds", "gap": 20 },
+  "woodpecker": { "takes": 3, "bus": "Birds", "gap": 12 },
+  "jay": { "takes": 3, "bus": "Birds", "gap": 12 },
+  "raven": { "takes": 3, "bus": "Birds", "gap": 15 },
+  "owl": { "takes": 3, "bus": "Birds", "gap": 25 }
+ },
+ "forest": {
+  "_doc": "The forest's own sound (src/smyana/ambience.lobster, D-147; made by sound/forest.py). 'beds' are loops (assets/audio/sfx/amb_<name>_1.wav), each with its own level in dB under the Forest bus, faded up and down over 'fade_s' seconds by what is on the screen: the wind always, more in rain, snow and winter; small birds by day, most in spring, hardly any in winter; crickets on summer and early autumn nights; rain with the rain; the stream within 'stream_tiles' of water in view; the fire within 'fire_tiles' of a lit one. 'calls' is the bird heard now and then by day in each season (an owl at night), one every 'call_s' (from, to) seconds.",
+  "fade_s": 4,
+  "beds": { "wind": -4, "birds": -3, "night": -6, "rain": 0, "stream": -2, "fire": 0 },
+  "stream_tiles": 12,
+  "fire_tiles": 10,
+  "calls": { "spring": "cuckoo", "summer": "woodpecker", "autumn": "jay", "winter": "raven" },
+  "call_s": [ 25, 70 ]
  }
 }
