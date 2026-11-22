@@ -2452,6 +2452,17 @@ def order_tick():
     // (a patch of what the wood gives under the mouse: gather it)
     let pc = patch_under(mm)
     if pc >= 0 and forage_order(ids, pc):
+        // (the rest go with the pickers when the stand is a way off, and wait a few tiles short of it: the band
+        // stays one band, the third agent playtest's did not, 2026-11-22)
+        let rest = filter(ids) id: not foraging(id)
+        let px = (pc % W) * TILE + TILE / 2
+        let py = (pc / W) * TILE + TILE / 2
+        if rest.length:
+            let r0 = index_of(rest[0])
+            let far = sqrt(float(dist2(u_x[r0], u_y[r0], px, py)))
+            if far > float(8 * TILE):
+                let k = (far - float(4 * TILE)) / far
+                march(rest, u_x[r0] + int(float(px - u_x[r0]) * k), u_y[r0] + int(float(py - u_y[r0]) * k))
         mark_at = gp(float((pc % W) * 1000 + 500), float((pc / W) * 1000 + 500))
         mark_t = seen_s
         return

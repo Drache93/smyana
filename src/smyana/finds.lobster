@@ -100,8 +100,31 @@ def hut_order(ids:[int], hut:int) -> bool:
     hut_goers = copy(ids)
     hut_goal = hut
     hut_sent = tick
+    // (to the open ground by the hut on the men's own side of it: the first open tile found beside it could be one
+    // behind it that nobody can walk to, and the third agent playtest was shown the flame and then told "No way
+    // through there", 2026-11-22; and each man to a tile of his own round it, not all to one)
+    var mx = 0
+    var my = 0
+    var n_here = 0
+    for(ids) id:
+        let i = index_of(id)
+        if i >= 0:
+            mx += u_x[i]
+            my += u_y[i]
+            n_here++
+    if not n_here: return false
+    mx /= n_here
+    my /= n_here
+    let spots = []::int
+    for(25) k:
+        let x = hut % W + k % 5 - 2
+        let y = hut / W + k / 5 - 2
+        if x >= 0 and y >= 0 and x < W and y < H and y * W + x != hut and walks[0][y * W + x] == 1: spots.push(y * W + x)
+    if not spots.length: spots.push(camp_ground_near(hut, hut))
+    insertion_sort(spots) a, b: dist2((a % W) * TILE, (a / W) * TILE, mx, my) < dist2((b % W) * TILE, (b / W) * TILE, mx, my)
+    let near = spots.slice(0, min(spots.length, 6))
     for(ids) id, n:
-        let o = camp_ground_near(hut, hut)
+        let o = near[n % near.length]
         issue_cmd(0, CMD_MOVE, [ id ], (o % W) * TILE + 200 + (n * 137) % 600, (o / W) * TILE + 200 + (n * 251) % 600, 0, 0)
     return true
 
@@ -115,6 +138,6 @@ def finds_tick():
     if not here.length or tick - hut_sent > 60 * TICK_HZ or (find(huts) c: c == hut_goal) < 0:
         hut_goal = -1
         return
-    if (find(here) id: dist2(u_x[index_of(id)], u_y[index_of(id)], hx, hy) <= sq(2 * TILE)) >= 0:
+    if (find(here) id: dist2(u_x[index_of(id)], u_y[index_of(id)], hx, hy) <= sq(3 * TILE)) >= 0:
         hut_goal = -1
         camp_order(here)

@@ -20,3 +20,12 @@ Not done: footsteps, the men's voices, sounds for gathering and butchering and o
 `sound/men.py`: footsteps on leaves and snow and wading as beds, and an order's "hm", gathering, the knife, packs
 set down and a fire being lit as single sounds (D-148). A volley is thinned so seventeen guns are not seventeen booms
 in a second. Seen working in the playtest harness's log: ack on an order, pack_down, fire_light, the fire coming up.
+
+## The hut and the scattering band (from the third agent playtest)
+
+- The hut showed the flame cursor and then "No way through there": the men were all sent to the first open tile
+  found beside it, which could be one behind it that nobody can walk to. Now each goes to one of the six open tiles
+  round it nearest the men, and the camp is made when the first is within three tiles. Not yet seen in a played run
+  (the test bot did not go to a hut in the run tried).
+- A gathering order on a far stand sent four pickers off and left the rest, and the band was in pieces. Now the rest
+  walk with them and wait four tiles short of the stand, and a picker who is done walks back to the others.

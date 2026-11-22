@@ -152,6 +152,21 @@ def forage_order(ids:[int], c:int) -> bool:
 // Whether this man is gathering (he works: his hunger falls faster).
 def foraging(uid:int) -> bool: return (find(foragers) f: f.id == uid) >= 0
 
+// A picker who is done walks back to where most of the others are, if that is more than six tiles off.
+def forage_back(uid:int):
+    let i = index_of(uid)
+    if i < 0: return
+    var cx = 0
+    var cy = 0
+    var n = 0
+    for(men) m:
+        let j = index_of(m.uid)
+        if m.alive and j >= 0 and m.uid != uid and not foraging(m.uid):
+            cx += u_x[j]
+            cy += u_y[j]
+            n++
+    if n > 0 and dist2(u_x[i], u_y[i], cx / n, cy / n) > sq(6 * TILE): issue_cmd(0, CMD_MOVE, [ uid ], cx / n, cy / n, 0, 0)
+
 // Every ten sim ticks (route_tick): a man at his spot gathers one a gather_s into his pack, till the stand is bare or
 // his pack full; one sent elsewhere gives up.
 def forage_tick():
@@ -164,7 +179,12 @@ def forage_tick():
         if i < 0 or not m or f.stand >= stands.length or stands[f.stand].kind >= finds.length: false
         else:
             let s = stands[f.stand]
-            if s.left <= 0 or pack_room(m) <= 0 or (tick > f.since + TICK_HZ and dist2(u_tx[i], u_ty[i], f.x, f.y) > TILE * TILE): false
+            if s.left <= 0 or pack_room(m) <= 0:
+                // (done: back to the others, if they are a way off; the third agent playtest's pickers stayed where
+                // the stand had been and the band was in pieces, 2026-11-22)
+                forage_back(f.id)
+                false
+            elif tick > f.since + TICK_HZ and dist2(u_tx[i], u_ty[i], f.x, f.y) > TILE * TILE: false
             elif u_moving[i] == 1 or dist2(u_x[i], u_y[i], f.x, f.y) > TILE * TILE * 2: true
             else:
                 f.work += 10  // (it is called every ten ticks)
