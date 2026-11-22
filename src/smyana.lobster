@@ -3369,7 +3369,7 @@ def guide_tick():
     if day < 3 and hour_now() >= 17.5 and hour_now() < 20.0 and not camps_made(): one_says("dusk {day}", say_cfg("dusk"), 3)
     // the bread gone; a man hungry; a man starving
     if bread_days() <= 0 and clock_s > 30.0: one_says("last bread {day / 3}", say_cfg("last_bread"), 5)
-    for(men) m, k:
+    for(men) m:
         if m.alive and index_of(m.uid) >= 0 and not is_asleep(m.uid):
             // (only with the bread gone: a man is hungry every evening before the meal, and the third agent playtest
             // was told of empty bellies beside four loaves, 2026-11-22)
