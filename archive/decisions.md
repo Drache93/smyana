@@ -896,3 +896,14 @@ by the man nearest their middle, on open ground at his own height.
 **D-143, 2026-11-22: Hunger kills in about two days, not one.** (Claude, from the playthroughs; within D-129, no pay.)
 A man with nothing to eat loses 0.8 health an hour, not 1.5: he is slow and weak for about two days and mends when he
 is fed. At the old rate a band that reached the pass with no bread was dead before it could hunt or reach a cache.
+
+## D-144: what a first-time player is told (2026-11-22)
+
+Two agent playtests (archive/playtests/) quit before ten minutes: no goal, a pause with no sign, orders that failed
+without a word, the men lost off the screen, hunger unseen, three signs never understood. Dominic, on the card: "Clarity
+fixes first, then sound". Claude's choices, kept as small as the game's look asks: the men say it (data/survival.json
+"says": where the lane goes and what the year is for at the start, camp at dusk on the first evenings, the last of the
+bread, hungry, starving, "No way through there." when an order can't be followed); one faint line at the foot of the
+screen until the first order is given; the word Paused; a word under a sign the mouse is on; a small ring at the
+screen's edge toward the men when none is in view (a click on it, Tab or F goes to them). The men's words are bigger and
+nearer their heads. All the words are Claude's placeholders and Dominic's to change.

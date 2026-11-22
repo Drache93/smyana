@@ -1,6 +1,16 @@
 {
  "_doc": "The men's needs, the camp and the fire (docs/survival.md, #65, #68; src/smyana/survival.lobster). Needs run from 100 (fine) to 0 (spent), per man. Rates are a game hour's worth (the clock: route.json's day_minutes, a night faster). start_food: portions each man leaves the village with, one a man a day.",
  "start_food": 4,
+ "says": {
+  "_doc": "What the men say aloud when the moment comes, a line over one man's head, each once (the dusk and hunger lines once a day). PLACEHOLDERS written by Claude, 2026-11-22, after two agent playtests found no goal, no word on hunger and no sign of an order that can't be followed: the words are Dominic's to change. 'opening' are said in turn at the start of the run, 'opening_s' seconds apart. '' says nothing.",
+  "opening": ["Which way? The lane runs east, down to the beeches.", "A long road. Out over the ridge, and home by spring."],
+  "opening_s": 7,
+  "dusk": "The light is going. We should make camp.",
+  "last_bread": "That is the last of the bread.",
+  "hungry": "My belly is empty. The wood has food, if we look.",
+  "starving": "I can't go much further without food.",
+  "no_way": "No way through there."
+ },
  "fed": {
   "_doc": "Hunger. 'per_hour' is how much a man awake loses an hour, more by 'work' hundredths while he fells or digs and 'loaded' while he carries; 'asleep' asleep. A hot meal at a lit fire fills him, a cold one gives 'cold_meal'. At 0 he loses 'starving_hp' health an hour (0.8: a man with nothing to eat lasts about two days more, slow and weak, and mends when he is fed; it was 1.5, a day, until 2026-11-22, when playthroughs lost whole bands in one foodless day on the pass).",
   "per_hour": 2.5,

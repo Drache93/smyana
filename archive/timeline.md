@@ -235,3 +235,4 @@ One line per moment worth remembering. Newest at the bottom.
   (D-139). Played through, every man starved before the turn for home: the scouts walked past the game, a camp was
   laid where nobody could reach it. Fixed, with a volley that takes more than one beast (D-140), twice the meat
   (D-141) and slower hunger: 11 and 12 of 20 men home on two seeds, the third stuck at a gate.
+- 2026-11-22 (evening): two agent playtests quit before ten minutes; first clarity fixes in (the men say the goal, Paused, sign labels, a mark toward the men), D-144.

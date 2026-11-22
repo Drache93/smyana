@@ -1,7 +1,7 @@
 #!/bin/sh
 # Plays Smyana by hand with no screen, for an agent that plays as a first-time player (D-139, docs/final-push.md).
 # It sends real mouse and key input to the game's window and gets back a picture and what a player would have heard.
-#   tools/playtest.sh start [game args]     the game in a hidden 1280x720 window, frozen till the first step
+#   tools/playtest.sh start [game args]     the game in a hidden 1600x900 window (the size the game opens at: on a smaller screen its foot and right side were cut off), frozen till the first step
 #   tools/playtest.sh step <seconds> [actions...]
 #        the game runs <seconds> of its own clock with the actions done at the start, then freezes; prints the picture's path and the
 #        log since the last step (music, sounds, the men's words)
@@ -18,7 +18,7 @@ start)
 	shift
 	mkdir -p "$DIR"
 	rm -f "$DIR"/*.png "$DIR/game.log" "$DIR/seen" "$DIR/n"
-	setsid Xvfb :77 -screen 0 1280x720x24 >/dev/null 2>&1 </dev/null &
+	setsid Xvfb :77 -screen 0 1600x900x24 >/dev/null 2>&1 </dev/null &
 	echo $! >"$DIR/xvfb.pid"
 	sleep 1
 	(cd "$ROOT/src" && exec setsid stdbuf -oL "$LOBSTER" smyana.lobster -- windowed heard "$@" >"$DIR/game.log" 2>&1 </dev/null) &

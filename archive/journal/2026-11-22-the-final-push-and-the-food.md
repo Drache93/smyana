@@ -87,3 +87,20 @@ too, or only the test player, is the first question for tomorrow.
 
 The same evening: `tools/playtest.sh`, the harness for the agent that plays as a first-time player (D-139), and the
 game's `heard` log of what a player would hear and read. Its first run is under way.
+
+## Evening: the second playtest, and the first clarity fixes
+
+The second agent play reached the beech valley at 37 minutes and would have quit at nine
+(archive/playtests/2026-11-22-02-first-time-player.md). Dominic chose clarity fixes before sound. Done tonight (D-144):
+opening, dusk and hunger lines, "No way through there.", the Paused word, labels on the signs, a hint line until the
+first order, a mark toward the men off screen (pictures 03 and 04).
+
+The harness had two faults of its own, found while trying the fixes. Its screen was 1280x720 and the game's window is
+1600x900, so both players saw the picture with its foot and right side cut off (the chosen man's name and state among
+them). And the men's words and the order's ring ran on the wall's clock, so the freeze between steps ate them: that is
+why neither player saw a ring where an order landed, and one missed "Strawberries!". Both fixed. Some of the reports'
+findings are therefore the harness's, not the game's: the missing order ring and the missing drag box. The cursor's
+picture (a basket over a find) never shows in a screenshot either, so the harness now tells the player what it is.
+
+Still open from the reports: music cues late or missing, no sound effects, nothing to meet in the first two places,
+the long wait at night, arriving in the dark, and stretches where orders were ignored that were not yet explained.

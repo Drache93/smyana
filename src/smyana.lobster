@@ -82,7 +82,10 @@ let capture = shot != "" or script != "" or arg_of("shots") != ""
 // ------------------------------------------------------------------ the camera (art px: a tile is 96 x 48)
 
 var cam = float2_0  // art px at the middle of the window
-var zoom = 1.5      // screen px an art px
+// The seconds the player has watched, a frame at a time (not the wall's clock: a playtest frozen between its steps,
+// tools/playtest.sh, lost the men's words and the order's ring to the wait).
+var seen_s = 0.0
+var zoom = 1.5  // screen px an art px
 
 // The zoom (#86) in steps of the window's own height, so a view is the same on any screen (a Retina display has twice
 // the pixels) and the wheel always comes back to where it started. 1 is the window 325 art px high (a man about a
@@ -1150,7 +1153,7 @@ def draw_rings(alpha:float):
             if i >= 0:
                 let px, py = prev_pos(i)
                 draw_ring(gp(float(px) + float(u_x[i] - px) * alpha, float(py) + float(u_y[i] - py) * alpha), 9.0, float4 { 0.95, 0.91, 0.79, 0.85 })
-        let since = gl.time() - mark_t
+        let since = seen_s - mark_t
         if since < 0.7: draw_ring(mark_at, 6.0 + since * 14.0, float4 { 0.95, 0.91, 0.79, 0.8 * (1.0 - since / 0.7) })
 
 def draw_world(alpha:float):
@@ -2052,6 +2055,17 @@ def draw_signs():
     let k = sign_px()
     let boxes, loaves = sign_boxes(what.length)
     for(boxes) b, j: draw_sign(b, k, what[j], camp, what[j] == under)
+    // (a word under the one the mouse is on: two agent playtests, 2026-11-22, never learned what the pack and the hand
+    // do; D-144)
+    for(boxes) b, j:
+        if what[j] == under:
+            let word = if under == 1: "Set the packs down" elif under == 2: "Halt" elif camp == 3: "Put the fire out" elif camp == 2: "Laying the fire" elif camp == 1: "Light the fire" else: "Make camp"
+            gl.set_font_name("../data/fonts/OldStandard/OldStandard-Regular.ttf")
+            gl.set_font_size(int(float(gl.window_size().y) / 46.0))
+            let at = float2 { b.x, b.y + b.z + 3.0 * k }
+            for([ 1.0, 0.0 ]) shade:
+                gl.color(if shade > 0.0: float4 { 0.0, 0.0, 0.0, 0.75 } else: float4 { 0.97, 0.93, 0.82, 1.0 }):
+                    gl.translate(at + float2 { shade, shade }): gl.text(word)
     // (the bread: a loaf for each day it will last, the last of them grey when it is gone)
     let days = bread_days()
     if days <= 0: draw_loaf(loaves.x, loaves.y, k, true)
@@ -2176,16 +2190,16 @@ def man_says(uid:int, text:string):
         let who = man_of(uid)
         heard_line("said", "{if who: who.name else: "a man"}: \"{text}\"")
     speech = filter(speech) sp: sp.id != uid
-    speech.push(Speech { uid, text, gl.time() + 4.0 })
+    speech.push(Speech { uid, text, seen_s + 5.0 })
 
 def draw_speech():
     let k, uid = stand_seen()
     if k >= 0: man_says(uid, gstr(forage_finds()[stands[k].kind], "call", ""))
-    let now = gl.time()
+    let now = seen_s
     speech = filter(speech) sp: sp.until > now and sp.text != "" and index_of(sp.id) >= 0
     if not speech.length: return
     let ws = float(gl.window_size())
-    let size = int(ws.y / 46.0)
+    let size = int(ws.y / 36.0)  // (was a 46th: two agent playtests missed the one line said, 2026-11-22)
     gl.set_shader("color")
     gl.set_font_name("../data/fonts/OldStandard/OldStandard-Regular.ttf")
     gl.set_font_size(size)
@@ -2193,7 +2207,7 @@ def draw_speech():
         let i = index_of(sp.id)
         let a = clamp((sp.until - now) / 0.6, 0.0, 1.0)
         let tw = float(gl.text_size(sp.text))
-        let p = float(floor(to_screen(gp(float(u_x[i]), float(u_y[i])) - float2 { 0.0, 62.0 }) - float2 { tw.x / 2.0, tw.y }))
+        let p = float(floor(to_screen(gp(float(u_x[i]), float(u_y[i])) - float2 { 0.0, 46.0 }) - float2 { tw.x / 2.0, tw.y }))
         for([ 1.0, 0.0 ]) shade:
             gl.color(if shade > 0.0: float4 { 0.0, 0.0, 0.0, 0.7 * a } else: float4 { 0.97, 0.93, 0.82, a }):
                 gl.translate(p + float2 { shade, shade }): gl.text(sp.text)
@@ -2406,38 +2420,38 @@ def order_tick():
     let foe = unit_at_screen(mouse_px())
     if foe >= 0 and not man_of(u_id[foe]):
         hunt_order(ids, u_id[foe])
-        mark_t = gl.time()
+        mark_t = seen_s
         mark_at = gp(float(u_x[foe]), float(u_y[foe]))
         return
     // (the ruins under the mouse, off the road: study the Romans' drain beside it, #70)
     let mc0 = clamp(int(mm.y / 1000.0), 0, H - 1) * W + clamp(int(mm.x / 1000.0), 0, W - 1)
     if at_ruin(mc0) and study_order(ids):
         mark_at = gp(mm.x, mm.y)
-        mark_t = gl.time()
+        mark_t = seen_s
         return
     // (a carcass under the mouse: butcher it into their packs)
     let carcass = carcass_near(int(mm.x), int(mm.y))
     if carcass >= 0 and butcher_order(ids, carcass):
         mark_at = gp(float(carcasses[carcass].x), float(carcasses[carcass].y))
-        mark_t = gl.time()
+        mark_t = seen_s
         return
     // (a shepherds' hut under the mouse: make camp in it, smyana/finds.lobster)
     if hut_order(ids, hut_near(int(mm.x), int(mm.y), 1)):
         mark_at = gp(mm.x, mm.y)
-        mark_t = gl.time()
+        mark_t = seen_s
         return
     // (a pile of packs under the mouse: pick it up)
     let pile = pile_near(int(mm.x), int(mm.y))
     if pile >= 0:
         packs_fetch(ids, pile)
         mark_at = gp(float(piles[pile].x), float(piles[pile].y))
-        mark_t = gl.time()
+        mark_t = seen_s
         return
     // (a patch of what the wood gives under the mouse: gather it)
     let pc = patch_under(mm)
     if pc >= 0 and forage_order(ids, pc):
         mark_at = gp(float((pc % W) * 1000 + 500), float((pc / W) * 1000 + 500))
-        mark_t = gl.time()
+        mark_t = seen_s
         return
     let tree = young_tree_at(mm)
     // (a broken bridge under the mouse: mend it, if the chosen men carry the wood for it)
@@ -2458,7 +2472,7 @@ def order_tick():
         let y = clamp(int(mm.y), 0, H * TILE - 1)
         march(ids, x, y)
         mark_at = gp(float(x), float(y))
-    mark_t = gl.time()
+    mark_t = seen_s
 
 // The camera stays over the place, far enough in from its edge that the view never runs off the map (the place has a
 // rim of forest that deep: the map's "rim").
@@ -3253,6 +3267,7 @@ var heard_track = ""
 var heard_phase = ""
 var heard_next = 0.0
 var heard_sec = -1
+var heard_cursor = -1
 
 def heard_tick():
     if not heard_on: return
@@ -3265,6 +3280,10 @@ def heard_tick():
     if score_track != heard_track:
         heard_track = score_track
         heard_line("heard", if score_track != "": "music begins: {score_track} ({score_kind})" else: "the music ends, and the wood is left quiet")
+    if cursor_now != heard_cursor and phase == "play":
+        heard_cursor = cursor_now
+        let pictures = [ "an arrow", "an arrow with a ring (a right click sends the men here)", "an axe (fell it)", "a basket (a right click gathers this)", "a hand (pick these up)", "a knife (butcher it)", "a sight (shoot it)", "a flame (camp here)", "a book (study this)", "a spade (dig it away)" ]
+        if cursor_now >= 0: heard_line("clock", "the picture at the pointer is now: " + pictures[cursor_now])
     if phase != heard_phase:
         heard_phase = phase
         heard_line("clock", "the screen now: {phase}")
@@ -3285,6 +3304,130 @@ def load_next():
     view_load_s = seconds_elapsed() - t0
     print "loaded {leg_id} in {view_load_s} s (the world {last_load_s} s, crowns baked {trees_bake_s} s), behind a letter of {gint(route, "letter_seconds", 20)} s"
 
+// ------------------------------------------------------------------ what a first-time player is told (D-144)
+// Two agent playtests, 2026-11-22: no goal, a pause with no sign, orders that fail without a word, the men lost off the
+// screen, hunger unseen. Dominic: "guiding player through first 5-10mins probably needed". Kept small: the men say it
+// (data/survival.json "says"), one faint line at the foot of the screen until the first order is given, the word
+// Paused, and a mark at the screen's edge toward the men when none of them is in view.
+let said = []::string
+var hint_stage = 0  // 0 choose them, 1 send them, 2 done
+var hint_t = 0.0
+var open_n = 0
+var order_seen = -10.0
+var order_ids = []::int
+var order_from = float2_0
+var order_tick_no = 0
+
+def say_cfg(k:string) -> string: return gstr(sv_cfg("says"), k, "")
+
+// One of the men says it: the first of `ids` who is there, else any man.
+def one_says(key:string, text:string, n:int):
+    if text == "" or (find(said): _ == key) >= 0: return
+    said.push(key)
+    let there = filter(men) m: m.alive and index_of(m.uid) >= 0
+    if there.length: man_says(there[n % there.length].uid, text)
+
+def men_in_view() -> bool:
+    let ws = float(gl.window_size())
+    for(u_x.length) i:
+        if man_of(u_id[i]):
+            let s = to_screen(gp(float(u_x[i]), float(u_y[i])))
+            if s.x > 0.0 and s.y > 0.0 and s.x < ws.x and s.y < ws.y: return true
+    return false
+
+// Where the men's mark sits on the screen's edge, toward them.
+def men_mark() -> float2:
+    let ws = float(gl.window_size())
+    var sum = float2_0
+    var n = 0
+    for(u_x.length) i:
+        if man_of(u_id[i]):
+            sum += to_screen(gp(float(u_x[i]), float(u_y[i])))
+            n++
+    if not n: return ws / 2.0
+    let d = sum / float(n) - ws / 2.0
+    let pad = ws.y * 0.06
+    let k = min((ws.x / 2.0 - pad) / max(abs(d.x), 1.0), (ws.y / 2.0 - pad) / max(abs(d.y), 1.0))
+    return ws / 2.0 + d * min(k, 1.0)
+
+def guide_tick():
+    if phase != "play" or script != "": return
+    let day = (gint(route, "start_hour", 7) * 1000000 + clock_uh) / 24000000
+    // the opening: where the road goes, and what the year is for
+    let opening = gstrs(sv_cfg("says"), "opening")
+    if open_n < opening.length and phase_t > 2.0 + float(open_n * gint(sv_cfg("says"), "opening_s", 7)) and leg_id == gstr(route, "start", ""):
+        one_says("opening {open_n}", opening[open_n], open_n * 7)
+        open_n++
+    // dusk, the first evenings, with no camp made
+    if day < 3 and hour_now() >= 17.5 and hour_now() < 20.0 and not camps_made(): one_says("dusk {day}", say_cfg("dusk"), 3)
+    // the bread gone; a man hungry; a man starving
+    if bread_days() <= 0 and clock_s > 30.0: one_says("last bread {day / 3}", say_cfg("last_bread"), 5)
+    for(men) m, k:
+        if m.alive and index_of(m.uid) >= 0 and not is_asleep(m.uid):
+            if m.fed < 15000: one_says("starving {day}", say_cfg("starving"), k)
+            elif m.fed < 40000: one_says("hungry {day}", say_cfg("hungry"), k)
+    // an order that can't be followed: three seconds on, nobody has moved and they are nowhere near it
+    if mark_t != order_seen:
+        order_seen = mark_t
+        order_ids = filter(selected) id: man_of(id) != nil and index_of(id) >= 0
+        order_tick_no = tick
+        order_from = float2_0
+        for(order_ids) id: order_from += float2 { float(u_x[index_of(id)]), float(u_y[index_of(id)]) } / float(order_ids.length)
+        if hint_stage == 1: hint_stage = 2
+    elif order_ids.length and tick > order_tick_no + 3 * TICK_HZ:
+        let ids = filter(order_ids) id: index_of(id) >= 0
+        var now = float2_0
+        var moving = false
+        for(ids) id:
+            now += float2 { float(u_x[index_of(id)]), float(u_y[index_of(id)]) } / float(ids.length)
+            if u_moving[index_of(id)] == 1: moving = true
+        if ids.length and not moving and magnitude(now - order_from) < 1000.0 and magnitude(mark_at - gp(now.x, now.y)) > 90.0 and not camps_made():
+            said.remove_obj("no way")
+            one_says("no way", say_cfg("no_way"), find(men) m: m.uid == ids[0])
+        order_ids = []
+    if hint_stage == 0 and chosen_men().length > 1: hint_stage = 1
+    // Tab, or a click on the men's mark: the view goes to them
+    if gl.button("tab") == 1: cam = men_centre()
+    if not men_in_view() and gl.button("mouse1") == 1 and magnitude(mouse_px() - men_mark()) < float(gl.window_size().y) * 0.05: cam = men_centre()
+
+def shaded_text(t:string, at:float2, a:float):
+    for([ 1.0, 0.0 ]) shade:
+        gl.color(if shade > 0.0: float4 { 0.0, 0.0, 0.0, 0.7 * a } else: float4 { 0.97, 0.93, 0.82, a }):
+            gl.translate(floor(at + float2 { shade, shade })): gl.text(t)
+
+def draw_guide(dt:float):
+    if phase != "play" or script != "" or shot != "": return
+    let ws = float(gl.window_size())
+    gl.set_shader("color")
+    gl.set_font_name("../data/fonts/OldStandard/OldStandard-Regular.ttf")
+    if paused:
+        veil(0.3)
+        gl.set_shader("color")
+        gl.set_font_size(int(ws.y / 22.0))
+        let w = float(gl.text_size("Paused").x)
+        shaded_text("Paused", float2 { ws.x / 2.0 - w / 2.0, ws.y * 0.4 }, 0.95)
+    if hint_stage < 2 and menu_alpha <= 0.0:
+        hint_t += dt
+        gl.set_font_size(int(ws.y / 40.0))
+        let l = if hint_stage == 0: "Drag across the men to choose them" else: "Right click to send them"
+        let w = float(gl.text_size(l).x)
+        shaded_text(l, float2 { ws.x / 2.0 - w / 2.0, ws.y * 0.9 }, clamp(hint_t - 1.0, 0.0, 1.0) * 0.8)
+    if not men_in_view():
+        // (a small pale ring with a dot, where the signs' hand would be: the men are that way; a click on it goes there)
+        let p = men_mark()
+        let near = magnitude(mouse_px() - p) < ws.y * 0.05
+        let r = ws.y * 0.016
+        for(12) k:
+            let a0 = 30.0 * float(k)
+            let a1 = a0 + 30.0
+            gl.color(float4 { 0.95, 0.91, 0.79, if near: 1.0 else: 0.75 }):
+                gl.line(p + float2 { cos(a0), sin(a0) } * r, p + float2 { cos(a1), sin(a1) } * r, 2.0)
+        gl.color(float4 { 0.95, 0.91, 0.79, 0.9 }): gl.translate(floor(p - float2 { 2.0, 2.0 })): gl.rect(float2 { 4.0, 4.0 })
+        if near:
+            gl.set_font_size(int(ws.y / 46.0))
+            let w = float(gl.text_size("The men").x)
+            shaded_text("The men", float2 { clamp(p.x - w / 2.0, 4.0, ws.x - w - 4.0), p.y + (if p.y > ws.y * 0.8: -r * 3.2 else: r * 1.4) }, 1.0)
+
 score_load()
 score_on = music_arg != "off"
 if music_arg != "" and music_arg != "off":
@@ -3303,6 +3446,7 @@ while gl.frame():
     if prebake: break
     let dt = min(gl.delta_time(), 0.1)
     frame_no++
+    seen_s += dt
     phase_t += dt
     if zoom_fixed <= 0.0: zoom = zoom_of(zoom_step)  // (the window may have changed size)
     if phase == "menu":
@@ -3317,6 +3461,7 @@ while gl.frame():
     elif gl.button("space") == 1: paused = not paused
     if phase == "menu" or phase == "play" or phase == "arriving" or phase == "leaving":
         if phase == "play":
+            guide_tick()
             select_tick()
             order_tick()
         if phase != "menu": camera_tick()
@@ -3426,6 +3571,7 @@ while gl.frame():
             draw_signs()
             draw_speech()
             if not dragging and sign_under() < 0: draw_hover()
+            draw_guide(dt)
         if debug_line:
             gl.set_shader("color")
             gl.set_font_name(FONT)

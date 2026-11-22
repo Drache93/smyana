@@ -36,3 +36,7 @@ what was open, and while Claude wrote the plan (`docs/final-push.md`).
 > I appreciate it can't hese tbr music and pressure, but surely we can tell it X happens at Y, how would that fit/feel? Etc
 
 ("Fable" is the Claude model he asked to write the plan. "hese tbr" is as typed: hear the.)
+
+## 18:39 UTC, on the card "Move the quick clarity fixes ahead of Monday's sound work?"
+
+Dominic chose: "Clarity fixes first, then sound".
