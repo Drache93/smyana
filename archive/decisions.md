@@ -914,3 +914,9 @@ Claude, after two agent playtests: a calm track no longer always plays through. 
 turns, or a fire is lit at night, a track that has played half a minute fades over four seconds and the track for now
 begins (data/music.json "turn_min_s", "turn_fade_s", "turn_gap_s"). Still a swap of whole tracks, never a blend
 (D-042). Before, the dusk track came after dark and the fire's song an hour before dawn.
+
+## D-146: a man who has given up walking is helped on (2026-11-22)
+
+Claude: a man standing far from where he was sent, with Creel's stuck count at its limit three looks running, is stood
+on the walkable tile beside him nearest his goal and sent again (src/smyana/route.lobster, unstick_men). A safety net
+for a wedge on the gorge's ford that held a whole band for five days; the cause, in Creel's steering, is not found.

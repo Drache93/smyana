@@ -104,3 +104,15 @@ picture (a basket over a find) never shows in a screenshot either, so the harnes
 
 Still open from the reports: music cues late or missing, no sound effects, nothing to meet in the first two places,
 the long wait at night, arriving in the dark, and stretches where orders were ignored that were not yet explained.
+
+## Night: the music's turns, and the man in the ford
+
+The calm music now gives way when the light or the season turns or a fire is lit at night (D-145).
+
+The third seed's thirteen men who "could not cross the gorge" had crossed it. One man, sound and fed, stood on the
+first tile of the ford and gave up every order to walk on (Creel's stuck count at its limit), and the other twelve
+waited at the west gate for him for five days and starved. Healthy men started at that leg cross without trouble, so
+it is a rare wedge, cause not found. A safety net stands such a man on the next tile and sends him again (D-146). With
+it the thirteen leave the gorge. They then die in the winter fir woods and the beech valley: six bold wolves on them
+from the gate, five portions of food between them, and the test bot chasing wolves into the map's corner instead of
+reaching the cache. Open: whether that is the bot or the balance.
