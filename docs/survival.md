@@ -72,6 +72,8 @@ Each man has three needs, each from 100 (fine) down to 0 (spent). They are the m
   and chamois by place and season (`data/hunting.json`), set down by the trail; they look up at a man they can see and
   run if he comes close or moves while they watch, and run from every shot; a boar takes two balls and charges. Right-
   click the carcass to butcher it into the packs.
+  Since 2026-11-22 men sent to shoot one of a herd share out the herd they can see, two to a beast (D-140), and a
+  kill gives twice the portions: a roe deer 24, a boar 60, a chamois 30 (D-141).
 - **Goods to take home** are found the same way: herbs, hides, wild honey. They feed nobody; they are what the
   families need. Since 2026-11-13 each is a kind (herbs, wax, hides, wool), named in the tally (gathering.md).
 

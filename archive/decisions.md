@@ -860,3 +860,50 @@ band's cache). The tally at home names each kind. The ending will show them in t
 placholder"; he agreed the proposal.) With men chosen, a fire, a pack and an open hand sit under their feet in the
 game's own pixel hand, and beside them a loaf for each day the bread will last. No words. Supersedes the word row of
 D-126.
+
+**D-138, 2026-11-22: The last nine days go to sound and music first, and a first entry is submitted two days early.**
+(Dominic set the weights: "I think biggest gap is music and sounds", "guiding player through first 5-10mins probably
+needed", "Village is stretch goal so something to see leaving and returning to", macOS the only build, "only one we can
+test"; Claude wrote the plan from a playthrough, and Dominic: "Once plan ready go ahead".) The order: food balance,
+two days of sound, two of music, the first ten minutes, leaving and coming home, a full played pass and the macOS build
+on 29 November, his notes on the 30th, the final entry by 18:00 on 1 December. The full village set, the years-later
+ending, the long intro, the loader's map, voices and other platforms are cut unless time is left. The plan:
+`docs/final-push.md`. Narrows the frame of #51 and D-136's "the ending will show them in the village".
+
+**D-139, 2026-11-22: An agent plays the game as a first-time player after each major change.** (Dominic: "Possible as
+we go to have agent play the game as normal user? Test the pace, fun factor, clear how to play and why etc? Including
+if it holds attention until the end...", and, when Claude said it could not hear or feel the clock: "surely we can
+tell it X happens at Y, how would that fit/feel?") It sees screenshots only and uses a player's mouse and keys, knowing
+nothing of the code. With each picture the game gives it a timed log: real minutes passed, the track playing, each
+sound, how long each march and night lasts. It does not replace the test bot (`script:play`), which measures the
+balance, or Dominic's own play.
+
+**D-140, 2026-11-22: A volley takes more than one beast from a herd.** (Claude, within Dominic's "foraging + hunting
+make up the rest".) Men told to shoot one of a herd share out the herd they can see, two men to a beast, nearest to the
+one pointed at first. Before, every man fired at the one beast and the rest ran at the shot, so a hunt was one deer
+however many rifles went. `hunt_order` in `src/smyana/hunting.lobster`.
+
+**D-141, 2026-11-22: A kill gives twice the portions.** (Claude; Dominic asked for the food balanced against the
+winter on 2026-11-13, and D-129 rules out pay.) A roe deer 24, a boar 60, a chamois 30: a portion counted as half a
+kilo of meat with what else a man finds to eat beside it, not a kilo. Twenty men eat twenty portions a day over about
+twenty days; at the old numbers that was more than thirty deer. Supersedes the meat numbers of D-122.
+
+**D-142, 2026-11-22: A camp is made where a man stands, on his own level.** (Claude, from a playthrough.) The fire
+was laid at the middle of the chosen men, which on the pass's shelf road, with men out gathering, was ground none of
+them could walk to: a night with no meal and no sleep, and seventeen men dead on the ridge the next day. Now it is laid
+by the man nearest their middle, on open ground at his own height.
+
+**D-143, 2026-11-22: Hunger kills in about two days, not one.** (Claude, from the playthroughs; within D-129, no pay.)
+A man with nothing to eat loses 0.8 health an hour, not 1.5: he is slow and weak for about two days and mends when he
+is fed. At the old rate a band that reached the pass with no bread was dead before it could hunt or reach a cache.
+
+## D-144: what a first-time player is told (2026-11-22)
+
+Two agent playtests (archive/playtests/) quit before ten minutes: no goal, a pause with no sign, orders that failed
+without a word, the men lost off the screen, hunger unseen, three signs never understood. Dominic, on the card: "Clarity
+fixes first, then sound". Claude's choices, kept as small as the game's look asks: the men say it (data/survival.json
+"says": where the lane goes and what the year is for at the start, camp at dusk on the first evenings, the last of the
+bread, hungry, starving, "No way through there." when an order can't be followed); one faint line at the foot of the
+screen until the first order is given; the word Paused; a word under a sign the mouse is on; a small ring at the
+screen's edge toward the men when none is in view (a click on it, Tab or F goes to them). The men's words are bigger and
+nearer their heads. All the words are Claude's placeholders and Dominic's to change.

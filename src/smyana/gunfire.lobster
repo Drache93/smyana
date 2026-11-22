@@ -92,7 +92,7 @@ def gunfire_shot(uid:int, feet:float2, to:float2):
     let lock = feet + float2 { dir.x * GUN_LOCK_AHEAD, -GUN_LOCK_UP }
     gun_flashes.push(GunFlash { lock, dir, 0.0, false })
     let far, pan = gun_hear(lock)
-    if far < gun_cfg_f(guns_cfg, "far_tiles", 16.0) * 0.6: play_sound_at("pan", -3.0 - far * 0.8, pan)
+    if far < gun_cfg_f(guns_cfg, "far_tiles", 16.0) * 0.6: hear("pan", -3.0 - far * 0.8, pan)
     // the priming's own little puff, out of the pan, rising
     for(2): gun_puffs.push(GunPuff { lock + float2 { rnd_range(-1.0, 1.0), 0.0 }, float2 { dir.x * 6.0, -4.0 }, -0.03, rnd_range(4.0, 7.0), 1.5, rnd_range(4.0, 6.0), 3.0, 0.7 })
 
@@ -107,7 +107,7 @@ def gun_bang(s:GunShot):
     gun_flashes.push(GunFlash { muzzle, s.dir, 0.0, true })
     let far, pan = gun_hear(muzzle)
     let near = far < gun_cfg_f(guns_cfg, "far_tiles", 16.0)
-    play_sound_at("{if near: "boom" else: "far"}_{gun_place()}", if near: -far * 0.5 else: -4.0 - (far - 16.0) * 0.3, pan)
+    hear("{if near: "boom" else: "far"}_{gun_place()}", if near: -far * 0.5 else: -4.0 - (far - 16.0) * 0.3, pan)
     // the smoke: driven out ahead of the muzzle in a long plume, slowing fast, then a cloud that swells and hangs
     let life = gun_cfg_f(gun_air(), "smoke_s", 18.0)
     for(12):
@@ -155,7 +155,7 @@ def gunfire_tick(dt:float, cam:float2, half_w:float):
         while n < plan.length and since >= as_float(plan[n].a[0]) * len:
             if i >= 0 and u_hp[i] > 0:
                 let far, pan = gun_hear(on_ground(float2 { float(u_x[i]), float(u_y[i]) }))
-                if far < 9.0: play_sound_at(as_str(plan[n].a[1]), -far * 1.2, pan)
+                if far < 9.0: hear(as_str(plan[n].a[1]), -far * 1.2, pan)
             n++
         gun_heard.set(uid, n)
     // the smoke: slowing, rising a little, carried by the air (from the west, a little up the screen)

@@ -166,6 +166,15 @@ def camp_order(ids:[int]) -> bool:
         let i = index_of(id)
         cx += u_x[i] / here.length
         cy += u_y[i] / here.length
+    // (where the man nearest their middle stands, not the middle itself: with men spread along a shelf road or out
+    // gathering, the middle can be ground none of them can walk to, and a playthrough found a night at the pass
+    // with a camp nobody reached, no meal and no sleep, 2026-11-22)
+    var mid = index_of(here[0])
+    for(here) id:
+        let i = index_of(id)
+        if dist2(u_x[i], u_y[i], cx, cy) < dist2(u_x[mid], u_y[mid], cx, cy): mid = i
+    cx = u_x[mid]
+    cy = u_y[mid]
     // (at a hut near them: on its hearth, inside; else on the most open ground near them, where the men can lie
     // round it)
     let hut = hut_near(cx, cy, gint(c, "in_tiles", 5))
@@ -229,7 +238,8 @@ def open_spot(c:int) -> int:
     for(9) j: for(9) i:
         let x = c % W + i - 4
         let y = c / W + j - 4
-        if x >= 2 and y >= 2 and x < W - 2 and y < H - 2 and walks[0][y * W + x] == 1:
+        // (on their own level: not on the shelf above them or the valley floor below)
+        if x >= 2 and y >= 2 and x < W - 2 and y < H - 2 and walks[0][y * W + x] == 1 and (has_heights == 0 or level[y * W + x] == level[c]):
             var open = 0
             for(5) v: for(5) u: if walks[0][(y + v - 2) * W + x + u - 2] == 1: open++
             let score = open * 16 - abs(i - 4) - abs(j - 4)
