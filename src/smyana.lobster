@@ -43,6 +43,7 @@ import view.vox
 import view.voxel
 import smyana.sheets
 import smyana.men_view
+import smyana.heard
 import smyana.gunfire
 import smyana.trees
 import smyana.cliff
@@ -60,6 +61,7 @@ let shot = arg_of("shot")
 let shot_at = if arg_of("at") != "": string_to_float(arg_of("at")) else: 4.0
 let script = arg_of("script")  // "tour": the men walk the whole route by themselves (captures, and timing the loads); "play": the same, and they fight what they meet, logging the run (a fast playthrough, with fast:)
 meal_log = script == "play"
+heard_on = (find(args) a: a == "heard") >= 0
 // fast:<n>: the sim runs n times as fast as the clock, the picture drawn as usual (a playthrough in minutes, Dominic
 // 2026-11-12: "very fast playthroughs where we speed it up loads and shoot through everything really quickly")
 let fast = if arg_of("fast") != "": max(1.0, string_to_float(arg_of("fast"))) else: 1.0
@@ -2170,6 +2172,9 @@ class Speech:
 var speech = []::Speech
 
 def man_says(uid:int, text:string):
+    if text != "" and not (exists(speech) sp: sp.id == uid and sp.text == text):
+        let who = man_of(uid)
+        heard_line("said", "{if who: who.name else: "a man"}: \"{text}\"")
     speech = filter(speech) sp: sp.id != uid
     speech.push(Speech { uid, text, gl.time() + 4.0 })
 
@@ -2363,7 +2368,7 @@ let howl_next = dictionary<int, float>(8)  // a pack's first wolf -> seconds til
 
 def wolf_cry(what:string, x:int, y:int):
     let far, pan = gun_hear(gp(float(x), float(y)))
-    if far < 24.0: play_sound_at(what, -far * 0.6, pan)
+    if far < 24.0: hear(what, -far * 0.6, pan)
 
 def howl_tick(dt:float):
     for(packs) p:
@@ -2376,8 +2381,8 @@ def howl_tick(dt:float):
         howl_next.set(p.ids[0], gun_between(glist(wolf_cfg(), "howl_s")))
         let i = index_of(alive[0])
         let far, pan = gun_hear(gp(float(u_x[i]), float(u_y[i])))
-        if far < 12.0: play_sound_at("howl", -2.0 - far * 0.4, pan)
-        else: play_sound_at("far_howl", -2.0 - (far - 12.0) * 0.25, pan * 0.6)
+        if far < 12.0: hear("howl", -2.0 - far * 0.4, pan)
+        else: hear("far_howl", -2.0 - (far - 12.0) * 0.25, pan * 0.6)
 
 def order_tick():
     // C: make camp where the chosen men stand, or put its fire out, or light it again (docs/survival.md, #68)
@@ -2830,9 +2835,14 @@ def tour_tick():
                 let inside = find(ids) id: camp_of(index_of(id)) >= 0 and sv_camps[camp_of(index_of(id))].lit
                 if inside < 0: camp_order(ids)
                 else:
+                    // (only from near by: men a long walk from that fire make their own where they are, sooner than
+                    // walk the night through to it; the gorge going home cost eleven men that way)
                     let cp = sv_camps[camp_of(index_of(ids[inside]))]
-                    for(ids) id, n:
-                        if camp_of(index_of(id)) < 0: issue_cmd(0, CMD_MOVE, [ id ], cp.x + (n % 5 - 2) * TILE / 2, cp.y + TILE + (n / 5) * TILE / 2, 0, 0)
+                    let out = filter(ids) id: camp_of(index_of(id)) < 0
+                    let far = filter(out) id: dist2(u_x[index_of(id)], u_y[index_of(id)], cp.x, cp.y) > sq(10 * TILE)
+                    if far.length: camp_order(out)
+                    else:
+                        for(out) id, n: issue_cmd(0, CMD_MOVE, [ id ], cp.x + (n % 5 - 2) * TILE / 2, cp.y + TILE + (n / 5) * TILE / 2, 0, 0)
                 print "play: {leg_id} camp at {int(hour_now())}h, {play_status()}"
             return
         // (late in the day they stop where they are and wait for the evening, rather than walk on into the next place in
@@ -3237,6 +3247,31 @@ var paused = false
 var frame_no = 0
 var shot_taken = false
 
+// What the agent player is told it would hear and see, a line at a time (smyana/heard.lobster): the music as it begins
+// and ends, the screen's turns (the menu, the letter between places, the end), and every half minute where the men are.
+var heard_track = ""
+var heard_phase = ""
+var heard_next = 0.0
+var heard_sec = -1
+
+def heard_tick():
+    if not heard_on: return
+    heard_s = clock_s
+    // (a line a second of the run's clock, so the harness can run the game for so many seconds of it however fast or
+    // slowly the machine draws)
+    if int(clock_s) > heard_sec:
+        heard_sec = int(clock_s)
+        print "tick: {heard_sec}"
+    if score_track != heard_track:
+        heard_track = score_track
+        heard_line("heard", if score_track != "": "music begins: {score_track} ({score_kind})" else: "the music ends, and the wood is left quiet")
+    if phase != heard_phase:
+        heard_phase = phase
+        heard_line("clock", "the screen now: {phase}")
+    if clock_s >= heard_next:
+        heard_next = clock_s + 30.0
+        heard_line("clock", "{gstr(leg_now(), "name", "")}, {season_now()}, {int(hour_now())}h, {men_alive()} men")
+
 def set_phase(p:string):
     phase = p
     phase_t = 0.0
@@ -3331,6 +3366,7 @@ while gl.frame():
         mood_tick()
         if phase != "leaving": score_tick(dt, season_now(), mood_now(), fires.length > 0)
         danger_tick()
+        heard_tick()
         if not paused: howl_tick(dt)
         if debug_line: score_keys()
         ground_season_tick()
