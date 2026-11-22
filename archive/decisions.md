@@ -928,3 +928,12 @@ the guns (sound/forest.py: wind, small birds, crickets, rain, a stream, a fire),
 season, the hour, the weather and what is in view, and five calls heard now and then (cuckoo in spring, woodpecker in
 summer, jay in autumn, raven in winter, an owl at night). Levels and timings in data/audio.json "forest". Made without
 being heard (a cloud session has no ears): measured and looked at as spectrograms only, so Dominic's ear is the test.
+
+## D-148: the men have a sound (2026-11-23)
+
+Claude: the men's feet are a bed like the forest's (leaves, snow where it lies, wading in a ford), as loud as the
+number walking in view, so twenty men are one sound. Single sounds as they happen: a low "hm" in answer to an order
+(not a word: the men's voices are not written yet), gathering, the knife, packs set down, a fire lit (sound/men.py;
+data/audio.json bus "Men"). And a volley is thinned in `hear` (src/smyana/heard.lobster): of one sound many times in a
+third of a second, the first three play and then one a tenth of a second, quieter. The third agent playtest counted
+seventeen booms in one second. Made unheard, like the forest's: Dominic's ear is the test.

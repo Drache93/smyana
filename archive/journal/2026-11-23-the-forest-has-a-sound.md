@@ -14,3 +14,9 @@ Claude cannot hear. The loops were checked for a seamless join and for level, an
 the birds sound like birds is for Dominic to say.
 
 Not done: footsteps, the men's voices, sounds for gathering and butchering and orders (Tuesday).
+
+## Then the men (Tuesday's work, begun early)
+
+`sound/men.py`: footsteps on leaves and snow and wading as beds, and an order's "hm", gathering, the knife, packs
+set down and a fire being lit as single sounds (D-148). A volley is thinned so seventeen guns are not seventeen booms
+in a second. Seen working in the playtest harness's log: ack on an order, pack_down, fire_light, the fire coming up.

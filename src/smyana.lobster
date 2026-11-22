@@ -3448,6 +3448,9 @@ def draw_guide(dt:float):
 // (smyana/ambience.lobster, D-147)
 var amb_water = 0.0  // how near water is to the middle of the view, 0..1 (looked for twice a second)
 var amb_look = 0.0
+var amb_fires = 0
+var amb_piles = 0
+var amb_mark = -10.0
 
 def ambience_tick(dt:float):
     let fc = forest_cfg()
@@ -3487,6 +3490,37 @@ def ambience_tick(dt:float):
     var fire = 0.0
     for(fires) fp: fire = max(fire, clamp(1.0 - magnitude(iso_inv(cam - fp)) / 1000.0 / float(gint(fc, "fire_tiles", 10)), 0.0, 1.0))
     bed_want(BED_FIRE, fire)
+    // the men (D-148): their feet, as loud as how many walk in view; their work, where one is at it in view
+    let ws = float(gl.window_size())
+    var walking = 0
+    var wading = 0
+    var gathering = false
+    var cutting = false
+    let ford = str_index(tr_names, "ford")
+    for(u_x.length) i:
+        if man_of(u_id[i]):
+            let sp = to_screen(gp(float(u_x[i]), float(u_y[i])))
+            if sp.x > 0.0 and sp.y > 0.0 and sp.x < ws.x and sp.y < ws.y:
+                if u_moving[i] == 1 and not paused:
+                    if terrain[cell_of(u_x[i], u_y[i])] == ford: wading++
+                    else: walking++
+                elif foraging(u_id[i]): gathering = true
+                elif butchering(u_id[i]): cutting = true
+    let tread = min(1.0, sqrt(float(walking) / float(max(1, gint(fc, "steps_men", 8)))))
+    let snow = snow_lying() > 300
+    bed_want(BED_STEPS, if snow: 0.0 else: tread)
+    bed_want(BED_SNOW, if snow: tread else: 0.0)
+    bed_want(BED_WADE, min(1.0, sqrt(float(wading) / 4.0)))
+    if not paused and phase == "play":
+        if gathering: hear("gather", -2.0, 0.0)
+        if cutting: hear("knife", -2.0, 0.0)
+        // (a fire catching, a pile of packs set down, an order given: each once as it happens)
+        if fires.length > amb_fires: hear("fire_light", 0.0, 0.0)
+        if piles.length > amb_piles: hear("pack_down", 0.0, 0.0)
+        if mark_t != amb_mark and chosen_men().length > 0: hear("ack", 0.0, 0.0)
+    amb_fires = fires.length
+    amb_piles = piles.length
+    amb_mark = mark_t
     beds_tick(dt)
     if not paused: calls_tick(dt, season, night, raining, float(cell_hash(frame_no * 7 + 13) % 1000) / 1000.0)
 

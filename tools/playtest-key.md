@@ -34,4 +34,5 @@ Sounds:
 - cock, pour, rod, ram: a man reloading his rifle (about 18 seconds).
 - howl, far_howl, snarl, yelp: wolves. bear_huff, bear_roar, bear_swipe: a bear.
 - The forest (since 2026-11-23): steady beds that fade in and out (the wind in the trees, birdsong, crickets, rain on the leaves, the stream, the fire crackling), and single bird calls: cuckoo (spring), woodpecker (summer), jay (autumn), raven (winter), owl (night).
-- There are no footsteps or voices yet, and no sound for gathering, butchering or an order.
+- The men (since 2026-11-23): their footsteps are a steady sound under everything while they walk (not in the log); `men wading`; `ack`: a man's low "hm" in answer to an order; `gather`: hands in leaves; `knife`: butchering; `pack_down`: packs set down; `fire_light`: flint and steel, then the tinder catching.
+- A volley is thinned: only some of the guns that fire in the same breath are heard, so the log shows fewer shots than men.

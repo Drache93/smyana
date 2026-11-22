@@ -21,7 +21,11 @@ let beds = [
     Bed { "night", "crickets" },
     Bed { "rain", "rain on the leaves" },
     Bed { "stream", "the stream" },
-    Bed { "fire", "the fire crackling" }
+    Bed { "fire", "the fire crackling" },
+    // (the men's feet, D-148: no line in the log for them, they come and go with every order)
+    Bed { "steps_leaf", "" },
+    Bed { "steps_snow", "" },
+    Bed { "wade", "men wading" }
 ]
 let BED_WIND = 0
 let BED_BIRDS = 1
@@ -29,6 +33,9 @@ let BED_NIGHT = 2
 let BED_RAIN = 3
 let BED_STREAM = 4
 let BED_FIRE = 5
+let BED_STEPS = 6
+let BED_SNOW = 7
+let BED_WADE = 8
 var call_wait = 20.0  // seconds till the next call
 
 def forest_cfg() -> JV: return gobj(lib_data("audio.json"), "forest")
@@ -44,12 +51,14 @@ def beds_tick(dt:float):
     let levels = gobj(fc, "beds")
     let bus = db_to_volume(buses.get("Forest", 0.0)) * float(sound_level) / 10.0
     for(beds) b:
-        b.now = move_toward(b.now, if sound_on: b.want else: 0.0, dt / max(fade, 0.1))
+        // (the men's feet come and go four times as fast as the weather)
+        b.now = move_toward(b.now, if sound_on: b.want else: 0.0, dt / max(if b.label == "" or b.name == "wade": fade / 4.0 else: fade, 0.1))
         if b.id == 0 and b.now > 0.0:
             b.id = play_music(audio_file("sfx/amb_{b.name}_1.wav"), -1)
             if b.id <= 0: b.id = -1
         if b.id > 0: music_volume(b.id, b.now * db_to_volume(as_float(at(levels, b.name))) * bus)
         // (the log: when it can first be heard, and when it has gone)
+        if b.label == "": continue
         if not b.heard and b.now > 0.25:
             b.heard = true
             heard_line("heard", "{b.label}, coming up")
