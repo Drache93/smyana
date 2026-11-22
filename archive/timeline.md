@@ -230,3 +230,8 @@ One line per moment worth remembering. Newest at the bottom.
   need rethinking: a proposal comes before more UI.
 - **2026-11-13:** Dominic agrees the gathering proposal ("go ahead"): no words under the mouse, no felling, a few big
   stands the men call out, goods for home by kind, drawn order signs and loaves (D-134 to D-137).
+- **2026-11-22:** Nine days left. A plan for them (D-138, `docs/final-push.md`): Dominic puts music and sound first,
+  then the first ten minutes; the village is only something to see at both ends; an agent will play it as a new player
+  (D-139). Played through, every man starved before the turn for home: the scouts walked past the game, a camp was
+  laid where nobody could reach it. Fixed, with a volley that takes more than one beast (D-140), twice the meat
+  (D-141) and slower hunger: 11 and 12 of 20 men home on two seeds, the third stuck at a gate.

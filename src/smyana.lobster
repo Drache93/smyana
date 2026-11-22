@@ -2400,7 +2400,7 @@ def order_tick():
     let mm = mouse_milli()
     let foe = unit_at_screen(mouse_px())
     if foe >= 0 and not man_of(u_id[foe]):
-        guns_order(ids, u_id[foe])
+        hunt_order(ids, u_id[foe])
         mark_t = gl.time()
         mark_at = gp(float(u_x[foe]), float(u_y[foe]))
         return
@@ -2602,6 +2602,30 @@ def play_food_order(ids:[int]) -> bool:
         if foragers.length and clock_uh - play_busy_uh < 5 * 1000000: return true
         // (a cache or the honey can be far down a path: six hours to walk there, a playthrough found two hours too few)
         if fetchers.length and clock_uh - play_busy_uh < 6 * 1000000: return true
+        // (scouts who see game on the way that has not run: they stop and shoot, as a player would the moment it
+        // shows; a playthrough found them walking on to the path's end, and every herd gone before a shot)
+        if play_scouts.length and not is_night():
+            let out = filter(play_scouts) id: index_of(id) >= 0
+            var quarry = -1
+            var quarry_d = sq(9 * TILE)
+            for(game) g:
+                let j = index_of(g.id)
+                if j >= 0 and g.state != G_DEAD and g.state != G_FLEE and men_see(j):
+                    for(out) id:
+                        let d = dist2(u_x[index_of(id)], u_y[index_of(id)], u_x[j], u_y[j])
+                        if d < quarry_d:
+                            quarry_d = d
+                            quarry = j
+            if quarry >= 0:
+                play_hunt = u_id[quarry]
+                play_hunt_uh = clock_uh
+                play_hunts++
+                print "play: {leg_id} scouts shoot at a {game[game_of(play_hunt)].kind} at {int(sqrt(float(quarry_d))) / TILE} tiles, {int(clock_s)} s"
+                hunt_order(out, play_hunt)
+                play_scouts = []
+                play_stalked = false
+                play_busy = ""
+                return true
         // (scouts on their way down a path: till one is there, or four hours; then what they see is hunted)
         if play_scouts.length and clock_uh - play_busy_uh < 4 * 1000000 and not (exists(play_scouts) id: index_of(id) >= 0 and dist2(u_x[index_of(id)], u_y[index_of(id)], play_scout_x, play_scout_y) < sq(3 * TILE)): return true
         // (there, and nothing in sight: they stalk on to seven tiles from the nearest of it, once, slowly)
@@ -2614,13 +2638,15 @@ def play_food_order(ids:[int]) -> bool:
                 if j >= 0 and s0 >= 0 and g.state != G_DEAD and g.state != G_FLEE and dist2(u_x[j], u_y[j], u_x[s0], u_y[s0]) < best_d:
                     best_d = dist2(u_x[j], u_y[j], u_x[s0], u_y[s0])
                     best = j
-            if best >= 0 and not men_see(best):
-                let d = sqrt(float(best_d))
-                play_scout_x = u_x[best] + int(float(u_x[s0] - u_x[best]) * 7000.0 / d)
-                play_scout_y = u_y[best] + int(float(u_y[s0] - u_y[best]) * 7000.0 / d)
-                issue_cmd(0, CMD_MOVE, play_scouts, play_scout_x, play_scout_y, 0, 0)
-                play_stalked = true
-                play_busy_uh = clock_uh
+            // (they go for it as a player who sees it on the screen does: the order walks them to a rifle's range)
+            if best >= 0:
+                play_hunt = u_id[best]
+                play_hunt_uh = clock_uh
+                play_hunts++
+                print "play: {leg_id} scouts go for a {game[game_of(play_hunt)].kind} at {int(sqrt(float(best_d))) / TILE} tiles, {int(clock_s)} s"
+                hunt_order(filter(play_scouts) id: index_of(id) >= 0, play_hunt)
+                play_scouts = []
+                play_busy = ""
                 return true
         play_scouts = []
         play_stalked = false
@@ -2652,10 +2678,11 @@ def play_food_order(ids:[int]) -> bool:
             play_busy_uh = clock_uh
             print "play: {leg_id} {play_busy} at {int(clock_s)} s"
             return true
-    // (no more than six daylight hours a place on it: then they walk on, hungry or not. On the way out in the autumn,
-    // when the wood is full, a careful player fills the packs to leave caches for the winter)
-    let laying_by = outbound() and season_now() == "autumn"
-    if food >= alive.length * (if laying_by: 9 else: 3) or play_food_uh >= 6 * 1000000: return false
+    // (no more than six daylight hours a place on it, then they walk on; the packs filled to leave caches for the
+    // winter)
+    // (2026-11-22: a careful player keeps the packs near full all the way, and with under three days' bread stays
+    // a second day's light in a place to hunt, sooner than walk on to starve)
+    if food >= alive.length * 9 or play_food_uh >= (if food < alive.length * 3: 12 else: 6) * 1000000: return false
     if play_hunt >= 0 and game_of(play_hunt) >= 0 and index_of(play_hunt) >= 0 and game[game_of(play_hunt)].state != G_DEAD:
         if clock_uh - play_hunt_uh < 2 * 1000000: return true
         print "play: {leg_id} lost the {game[game_of(play_hunt)].kind} at {int(clock_s)} s"
@@ -2676,12 +2703,12 @@ def play_food_order(ids:[int]) -> bool:
     if best >= 0:
         let near = copy(ids)
         insertion_sort(near) a, b: dist2(u_x[index_of(a)], u_y[index_of(a)], u_x[best], u_y[best]) < dist2(u_x[index_of(b)], u_y[index_of(b)], u_x[best], u_y[best])
-        let shooters = near.slice(0, min(4, near.length))
+        let shooters = near.slice(0, min(6, near.length))
         play_hunt = u_id[best]
         play_hunt_uh = clock_uh
         play_hunts++
         print "play: {leg_id} hunt a {game[game_of(play_hunt)].kind} at {int(sqrt(float(best_d))) / TILE} tiles, {int(clock_s)} s"
-        guns_order(shooters, play_hunt)
+        hunt_order(shooters, play_hunt)
         return true
     // (none in sight: four men go quietly down a side path whose mouth shows signs of game, as a player reads them,
     // and the rest wait; not with wolves on their heels, docs/off-the-path.md)
@@ -2703,7 +2730,7 @@ def play_food_order(ids:[int]) -> bool:
                 let mouth = sp.cells[0]
                 let near = copy(ids)
                 insertion_sort(near) a, b: dist2(u_x[index_of(a)], u_y[index_of(a)], (mouth % W) * TILE, (mouth / W) * TILE) < dist2(u_x[index_of(b)], u_y[index_of(b)], (mouth % W) * TILE, (mouth / W) * TILE)
-                play_scouts = near.slice(0, min(4, near.length))
+                play_scouts = near.slice(0, min(6, near.length))
                 let rest = near.slice(play_scouts.length, near.length - play_scouts.length)
                 if rest.length: issue_cmd(0, CMD_STOP, rest, 0, 0, 0, 0)
                 issue_cmd(0, CMD_MOVE, play_scouts, play_scout_x, play_scout_y, 0, 0)  // (not a march: play_food takes them off any)
@@ -2784,13 +2811,28 @@ def tour_tick():
             play_stuck = true
             return
         if play_fight(ids): return
+        // (a day spent after food ends in a camp like any other: a playthrough found last night's camp still counted
+        // as made, and the men a second night with no fire or meal, dead with bread in their packs)
+        if not is_night() and hour_now() < 19.0 and play_camped:
+            play_camped = false
+            tour_sent = ""
+            print "play: {leg_id} morning, {play_status()}"
         if not is_night() and hour_now() < 19.0 and play_food(ids): return
         // (at night they make camp and light a fire, as a player would, and walk on at first light)
         if is_night() or hour_now() >= 19.0:  // (a careful player makes camp at dusk, before the dark)
             if not play_camped:
                 play_camped = true
                 march_off(ids)
-                camp_order(ids)
+                // (not in a camp whose fire is lit already, as at a hut they reached before dusk: the order given
+                // again puts a fire out, and a playthrough found a night in a hut with none)
+                // (the men not yet in it come in to it: a playthrough found one man asleep in the hut and fifteen out
+                // in the snow three nights running, unfed with bread in their packs)
+                let inside = find(ids) id: camp_of(index_of(id)) >= 0 and sv_camps[camp_of(index_of(id))].lit
+                if inside < 0: camp_order(ids)
+                else:
+                    let cp = sv_camps[camp_of(index_of(ids[inside]))]
+                    for(ids) id, n:
+                        if camp_of(index_of(id)) < 0: issue_cmd(0, CMD_MOVE, [ id ], cp.x + (n % 5 - 2) * TILE / 2, cp.y + TILE + (n / 5) * TILE / 2, 0, 0)
                 print "play: {leg_id} camp at {int(hour_now())}h, {play_status()}"
             return
         // (late in the day they stop where they are and wait for the evening, rather than walk on into the next place in
@@ -2848,11 +2890,12 @@ def tour_tick():
                 let i = index_of(id)
                 if not in_rect(r, u_x[i] / TILE, u_y[i] / TILE):
                     issue_cmd(0, CMD_MOVE, [ id ], (r[0] + n % (r[2] - r[0] + 1)) * TILE + TILE / 2, (r[1] + n / (r[2] - r[0] + 1) % (r[3] - r[1] + 1)) * TILE + TILE / 2, 0, 0)
-    // (setting off from a place on the way out that they come back through in the winter: what is more than four days'
-    // food a man is left there as a cache, by the men who carry most)
+    // (setting off from a place on the way out that they come back through in the winter: what is more than seven
+    // days' food a man is left there as a cache, by the men who carry most; four, until 2026-11-22: the pass, the ridge
+    // and the pass again are six days with little to find, and they went up with three)
     if script == "play" and tour_sent != leg_id and not waiting and outbound() and has(gobj(route, "legs"), place_now() + "_home"):
         let alive = filter(men) m: m.alive
-        var surplus = sum(map(alive) m: m.food) - alive.length * 4
+        var surplus = sum(map(alive) m: m.food) - alive.length * 7
         if surplus > 4:
             let rich = copy(ids)
             def food_of(id:int) -> int:

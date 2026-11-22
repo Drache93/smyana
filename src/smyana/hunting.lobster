@@ -235,7 +235,9 @@ def game_think(g:Game):
         // (one who comes on while it watches, to within two tiles of where it would run anyway: it runs. A careful
         // man who stops at a rifle's range, and keeps still, gets his shot; a playthrough found the old line, halfway
         // in from where it saw him, inside the rifle's range, so no stalk ever came to a shot)
-        elif seen >= 0 and tick - g.since > gint(c, "alert_s", 4) * TICK_HZ and u_moving[seen] == 1 and seen_d <= sq(flee + 2 * TILE): herd_flee(g.herd, u_x[seen], u_y[seen])
+        // (half a tile, since 2026-11-22; it was two: in the wood a man has to come to four or five tiles to see what
+        // he is to shoot, and every herd was gone before he did)
+        elif seen >= 0 and tick - g.since > gint(c, "alert_s", 4) * TICK_HZ and u_moving[seen] == 1 and seen_d <= sq(flee + TILE / 2): herd_flee(g.herd, u_x[seen], u_y[seen])
         return
     if seen >= 0:
         game_set(g, G_ALERT)
@@ -253,6 +255,28 @@ def game_think(g:Game):
 def men_see(i:int) -> bool:
     let sight = gint(threats_cfg, "men_sight", 10) * TILE
     return (find(men_here()) j: sees(j, i, sight)) >= 0
+
+// The men told to shoot one of the game: they share out the herd they can see, the nearest of it to the one pointed
+// at first, two men to each (a boar takes two balls), so a volley from cover takes more than one beast. (Claude,
+// 2026-11-22: a herd ran at the first shot with one of it down, and twenty men cannot live on a deer at a time.)
+def hunt_order(ids:[int], target:int):
+    let k = game_of(target)
+    let t = index_of(target)
+    if k < 0 or t < 0:
+        guns_order(ids, target)
+        return
+    let herd = filter(game) g: g.herd == game[k].herd and g.state != G_DEAD and index_of(g.id) >= 0 and (g.id == target or men_see(index_of(g.id)))
+    let marks = map(herd) g: g.id
+    insertion_sort(marks) a, b: dist2(u_x[index_of(a)], u_y[index_of(a)], u_x[t], u_y[t]) < dist2(u_x[index_of(b)], u_y[index_of(b)], u_x[t], u_y[t])
+    let n = min(marks.length, (ids.length + 1) / 2)
+    for(n) m:
+        let share = filter(ids) _, at: at / 2 % n == m
+        if share.length: guns_order(share, marks[m])
+    // (they fire together, on the slowest man's aim: the first shot sends the herd off, and a man still bringing his
+    // rifle up then has nothing to fire at)
+    var slowest = 0
+    for(ids) id: if index_of(id) >= 0: slowest = max(slowest, u_cooldown[index_of(id)])
+    for(ids) id: if index_of(id) >= 0: u_cooldown[index_of(id)] = slowest
 
 // Whether any of the game in this place is watching the men or running from them (for the view: a deer's bark).
 def game_alarmed() -> bool: return (find(game) g: g.state == G_ALERT or g.state == G_FLEE) >= 0
