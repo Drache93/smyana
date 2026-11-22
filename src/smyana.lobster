@@ -1961,8 +1961,9 @@ def sign_order(what:int):
     if not ids.length: return
     march_off(ids)
     if what == 0:
-        camp_order(ids)
-        selected = []
+        // (a new camp lets the men go, so its signs are out of the way; putting a fire out or lighting it again
+        // keeps them chosen for the order that follows, the third agent playtest, 2026-11-22)
+        if camp_order(ids): selected = []
     elif what == 1: packs_drop(ids)
     elif what == 2: issue_cmd(0, CMD_STOP, ids, 0, 0, 0, 0)
 
@@ -2337,10 +2338,10 @@ def select_tick():
                 if s.x >= lo.x and s.x <= hi.x and s.y >= lo.y - 10.0 and s.y <= hi.y + 20.0 * zoom: selected.push(u_id[i])
         else:
             let i = unit_at_screen(m)
-            if i >= 0 and gl.time() - last_click < 0.4: selected = copy(u_id)  // (a second click: every man)
+            if i >= 0 and seen_s - last_click < 0.5: selected = filter(u_id) id: man_of(id) != nil  // (a second click: every man)
             elif i >= 0: selected = [ u_id[i] ]
             else: selected = []
-            last_click = gl.time()
+            last_click = seen_s
     if gl.button("escape") == 1: selected = []
 
 // The young tree the mouse is on: its cell, or the one its picture stands on (a tree is drawn up from its foot). Or
@@ -3325,7 +3326,13 @@ def one_says(key:string, text:string, n:int):
     if text == "" or (find(said): _ == key) >= 0: return
     said.push(key)
     let there = filter(men) m: m.alive and index_of(m.uid) >= 0
-    if there.length: man_says(there[n % there.length].uid, text)
+    // (one of the five nearest the middle of the view, so the words are where the player is looking: the third agent
+    // playtest found them at the screen's corner, over a man at the edge of the band)
+    def off(m:Man) -> float:
+        let i = index_of(m.uid)
+        return magnitude(gp(float(u_x[i]), float(u_y[i])) - cam)
+    insertion_sort(there) a, b: off(a) < off(b)
+    if there.length: man_says(there[n % min(5, there.length)].uid, text)
 
 def men_in_view() -> bool:
     let ws = float(gl.window_size())
@@ -3364,8 +3371,10 @@ def guide_tick():
     if bread_days() <= 0 and clock_s > 30.0: one_says("last bread {day / 3}", say_cfg("last_bread"), 5)
     for(men) m, k:
         if m.alive and index_of(m.uid) >= 0 and not is_asleep(m.uid):
-            if m.fed < 15000: one_says("starving {day}", say_cfg("starving"), k)
-            elif m.fed < 40000: one_says("hungry {day}", say_cfg("hungry"), k)
+            // (only with the bread gone: a man is hungry every evening before the meal, and the third agent playtest
+            // was told of empty bellies beside four loaves, 2026-11-22)
+            if bread_days() <= 0 and m.fed < 15000: one_says("starving {day}", say_cfg("starving"), 1)
+            elif bread_days() <= 0 and m.fed < 40000: one_says("hungry {day}", say_cfg("hungry"), 2)
     // an order that can't be followed: three seconds on, nobody has moved and they are nowhere near it
     if mark_t != order_seen:
         order_seen = mark_t
@@ -3383,7 +3392,7 @@ def guide_tick():
             if u_moving[index_of(id)] == 1: moving = true
         if ids.length and not moving and magnitude(now - order_from) < 1000.0 and magnitude(mark_at - gp(now.x, now.y)) > 90.0 and not camps_made():
             said.remove_obj("no way")
-            one_says("no way", say_cfg("no_way"), find(men) m: m.uid == ids[0])
+            one_says("no way", say_cfg("no_way"), 0)
         order_ids = []
     if hint_stage == 0 and chosen_men().length > 1: hint_stage = 1
     // Tab, or a click on the men's mark: the view goes to them
