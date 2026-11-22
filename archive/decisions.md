@@ -907,3 +907,10 @@ bread, hungry, starving, "No way through there." when an order can't be followed
 screen until the first order is given; the word Paused; a word under a sign the mouse is on; a small ring at the
 screen's edge toward the men when none is in view (a click on it, Tab or F goes to them). The men's words are bigger and
 nearer their heads. All the words are Claude's placeholders and Dominic's to change.
+
+## D-145: the calm music turns with the light (2026-11-22)
+
+Claude, after two agent playtests: a calm track no longer always plays through. When the light's mood or the season
+turns, or a fire is lit at night, a track that has played half a minute fades over four seconds and the track for now
+begins (data/music.json "turn_min_s", "turn_fade_s", "turn_gap_s"). Still a swap of whole tracks, never a blend
+(D-042). Before, the dusk track came after dark and the fire's song an hour before dawn.

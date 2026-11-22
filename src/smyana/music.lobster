@@ -2,7 +2,8 @@
 // The score follows the game (D-036) by swapping whole tracks (D-042), never by blending them. Which track goes with
 // what is data (data/music.json); the tracks are Ogg files in assets/audio/music, made by music/pieces/set_03_score.py.
 //
-//   calm     a track for the season and the hour plays through once, then the forest is left alone for a while.
+//   calm     a track for the season and the hour plays once, then the forest is left alone for a while; when the
+//            light or the season turns, or a fire is lit at night, it fades and the track for now begins.
 //   danger   score_danger("bandits"): the calm track is cut and the danger's loop starts on its first sound.
 //            score_safe(): the loop is cut, a single drum stroke rings over the cut, and after a silence the calm
 //            music starts again from its beginning.
@@ -22,6 +23,9 @@ var score_left = 0.0     // seconds of it still to play (a loop: none)
 var score_wait = 0.0     // seconds of silence still to keep before the next calm track
 var score_fired = false  // the fire's song had the last turn at the fire
 var score_strokes = 0
+var score_for = ""  // the season and hour the calm track began in
+var score_fire_was = false
+var score_played = 0.0  // seconds the calm track has played
 
 def score_load():
     score_cfg = lib_data("music.json")
@@ -92,10 +96,24 @@ def score_tick(dt:float, season:string, mood:string, fire:bool):
             // (a track is over: the forest is left alone a while; after a stroke the wait is already set)
             if score_kind != "stroke": score_wait = as_float(at(score_cfg, "gap_s"))
             score_stop()
+    // (the light has turned, the season has, or a fire is lit in the dark: the calm track gives way to the one for now,
+    // D-145. Until 2026-11-22 a track always played through, and at two minutes a track and four a day the dusk's came
+    // after dark and the fire's song an hour before dawn, two agent playtests found.)
+    if score_kind == "calm":
+        score_played += dt
+        let want = score_calm_for(season, mood, fire)
+        let turned = "{season} {mood}" != score_for or (fire and mood == "night" and not score_fire_was and not score_fired)
+        if turned and want != "" and want != score_track and score_played >= as_float(at(score_cfg, "turn_min_s")):
+            score_stop(as_float(at(score_cfg, "turn_fade_s")))
+            score_wait = as_float(at(score_cfg, "turn_gap_s"))
+        elif turned and want == score_track: score_for = "{season} {mood}"
     if score_track != "": return
     score_wait -= dt
     if score_wait > 0.0: return
     let track = score_calm_for(season, mood, fire)
     score_fired = track == gstr(gobj(score_cfg, "fire_night"), "track", "-")
-    score_play(track, "calm", false, "{season} {mood}{if fire: ", by the fire" else: ""}")
+    score_play(track, "calm", false, "{season} {mood}{if score_fired: ", by the fire" else: ""}")
+    score_for = "{season} {mood}"
+    score_fire_was = fire
+    score_played = 0.0
     if score_track == "": score_wait = as_float(at(score_cfg, "gap_s"))  // (no track for this: ask again later)
