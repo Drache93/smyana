@@ -65,3 +65,25 @@ A run now shoots six beasts for about 186 portions of meat and gathers 65 to 78,
   them should bring more men home than it does.
 - **The numbers are tuned on a test player.** The agent's first play (D-139) and Dominic's own are the real test.
 - Deep fir woods and the high ground give nothing to gather in winter. Adding a plant there needs sources first.
+
+## Later the same day: it was not the gate
+
+The "stuck at the gorge's west gate" above was misread. Thirteen men reached the gorge on seed 3 and eleven of them
+died there over four days; the two at the gate were the last alive when the five-day limit stopped the run. At dusk
+the test player had sent men to a lit camp a long walk off and they walked the night through, unfed. Men far from a lit
+camp now make their own.
+
+Three more runs with that:
+
+| Seed | Men home | Meat | Gathered |
+|---|---|---|---|
+| 1 | 11 of 20 | 186 | 78 |
+| 2 | 16 of 20 | 210 | 83 |
+| 3 | 13 alive in the gorge going home, and no further | | |
+
+On seed 3 the camps now hold and nobody freezes, but the band sits in the gorge for five days with its bread running
+out: the bridge is down, and men sent on are "no nearer" after thirty tiles. Whether a player would be stopped there
+too, or only the test player, is the first question for tomorrow.
+
+The same evening: `tools/playtest.sh`, the harness for the agent that plays as a first-time player (D-139), and the
+game's `heard` log of what a player would hear and read. Its first run is under way.
