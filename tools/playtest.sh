@@ -44,11 +44,12 @@ step)
 	[ -n "$win" ] && xdotool windowfocus "$win" 2>/dev/null
 	while [ $# -gt 0 ]; do
 		case "$1" in
-		click) xdotool mousemove "$2" "$3" sleep 0.15 click 1; shift 3 ;;
-		rclick) xdotool mousemove "$2" "$3" sleep 0.15 click 3; shift 3 ;;
-		dclick) xdotool mousemove "$2" "$3" sleep 0.15 click --repeat 2 --delay 120 1; shift 3 ;;
+		# (a button is held a moment: on a slow machine a press and release inside one frame is not seen)
+		click) xdotool mousemove "$2" "$3" sleep 0.3 mousedown 1 sleep 0.25 mouseup 1; shift 3 ;;
+		rclick) xdotool mousemove "$2" "$3" sleep 0.3 mousedown 3 sleep 0.25 mouseup 3; shift 3 ;;
+		dclick) xdotool mousemove "$2" "$3" sleep 0.3 mousedown 1 sleep 0.12 mouseup 1 sleep 0.12 mousedown 1 sleep 0.12 mouseup 1; shift 3 ;;
 		move) xdotool mousemove "$2" "$3"; shift 3 ;;
-		drag) xdotool mousemove "$2" "$3" sleep 0.15 mousedown 1 sleep 0.15 mousemove "$4" "$5" sleep 0.15 mouseup 1; shift 5 ;;
+		drag) xdotool mousemove "$2" "$3" sleep 0.4 mousedown 1 sleep 0.5 mousemove "$4" "$5" sleep 0.5 mouseup 1; shift 5 ;;
 		key) xdotool key "$2"; shift 2 ;;
 		hold) xdotool keydown "$2" sleep "$3" keyup "$2"; shift 3 ;;
 		*) echo "unknown action: $1"; shift ;;
