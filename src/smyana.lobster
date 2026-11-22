@@ -3390,6 +3390,12 @@ def guide_tick():
         for(ids) id:
             now += float2 { float(u_x[index_of(id)]), float(u_y[index_of(id)]) } / float(ids.length)
             if u_moving[index_of(id)] == 1: moving = true
+        // (for the playtest's log: what state men who did not move for an order are in; thirteen stood deaf to five
+        // orders until Halt, 2026-11-22, and why is not known)
+        if heard_on and ids.length and not moving and magnitude(now - order_from) < 1000.0 and magnitude(mark_at - gp(now.x, now.y)) > 90.0:
+            for(ids) id:
+                let i = index_of(id)
+                print "deaf: man {id} at {u_x[i] / TILE},{u_y[i] / TILE} to {u_tx[i] / TILE},{u_ty[i] / TILE} stuck {u_stuck[i]} block {u_block[i]} group {u_group[i]} task {u_task[i]} foe {u_foe[i]} asleep {is_asleep(id)} camp {camp_of(i)} marchers {marchers.length}"
         if ids.length and not moving and magnitude(now - order_from) < 1000.0 and magnitude(mark_at - gp(now.x, now.y)) > 90.0 and not camps_made():
             said.remove_obj("no way")
             one_says("no way", say_cfg("no_way"), 0)

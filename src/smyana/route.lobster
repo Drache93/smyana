@@ -592,7 +592,7 @@ def mend_bridge(ids:[int], k:int) -> bool:
 // A man walking with the others who has not moved for half a minute, far from where he was sent, is sent on by himself.
 // (2026-11-12, a playthrough: after the bear came into a night's camp, the man it mauled stood waiting on his block
 // and his block waited on him, so nobody could leave by the gate. Creel's block steering, sim side; this is the safety
-// net while that is found.) Every 200 ticks.
+// net while that is found.) Every 80 ticks.
 let unstick_d = dictionary<int, int>(32)      // a man's id: how far he was from where he was sent at the last look (tenths of a tile)
 let unstick_looks = dictionary<int, int>(32)  // how many looks running he has come no nearer
 def unstick_men():
@@ -611,11 +611,11 @@ def unstick_men():
         elif u_moving[i] == 0 and d > 50 and u_stuck[i] >= STUCK_LIMIT and u_foe[i] == 0 and not is_asleep(m.uid):
             // (2026-11-22, a playthrough: a man wedged on the first tile of the gorge's ford gave up every order to
             // walk on, and the other twelve waited five days at the gate for him and starved. Given up on his way
-            // three looks running, he is stood on the tile beside him that is nearest where he was going, and sent
+            // eight looks running, he is stood on the tile beside him that is nearest where he was going, and sent
             // again. The cause is in Creel's steering, not found yet: D-146.)
             let n = unstick_looks.get(m.uid, 0) + 1
             unstick_looks.set(m.uid, n)
-            if n >= 3:
+            if n >= 8:
                 unstick_looks.set(m.uid, 0)
                 let cx = u_x[i] / TILE
                 let cy = u_y[i] / TILE
@@ -648,7 +648,9 @@ def route_tick() -> string:
     for(u_carry) n, i:
         if n > 0 and u_carry_kind[i] == spoil: u_carry[i] = 0
     if tick % 10 != 0 or run_over(): return ""
-    if tick % 200 == 0: unstick_men()
+    // (every four seconds, so a man held by his block is sent on in twelve: at ten it took half a minute and more, and
+    // the third agent playtest gave five orders to thirteen men who stood deaf until Halt, 2026-11-22)
+    if tick % 80 == 0: unstick_men()
     survival_tick()
     forage_tick()
     hunt_tick()
