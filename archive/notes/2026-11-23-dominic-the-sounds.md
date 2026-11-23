@@ -21,3 +21,7 @@ Written in the project thread after listening to `forest-reel-01` and `men-reel-
 17:23:
 
 > Please dont ever wait for me, can wait async
+
+17:57, after `wading-03`:
+
+> Okay for now
