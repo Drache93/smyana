@@ -78,3 +78,12 @@ The fire song was made from its sheet of 11 November (D-161): one man hums a lin
 knocks on a log. Then the Ottomans (D-162), the one track Dominic had named: "too synth". The answer is distance:
 the drum stays close and the pipe goes across the valley. Both unheard by him. With these the calm score and the
 named danger track are through the design stage; wary, hiding, beasts, bandits and the chase are still first drafts.
+
+## Something to meet (Claude)
+
+The village edge had one herd of roe, and it stood at the end of a side path that no first-time player has yet
+walked. It now stands beside the trail about two and a half minutes in (D-163). In a hand play on seed 1 a man said
+"Roe deer, there among the trees" at 2:39, though the deer were just past the screen's edge, so the words now wait
+until the deer are in the picture.
+
+![Two roe deer beside the trail in the first place](../images/2026-11-23/02-roe-deer-beside-the-trail.png)

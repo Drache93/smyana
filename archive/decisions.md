@@ -1051,3 +1051,13 @@ The first danger track through the design stage, Claude's call, unheard. Dominic
 synth". The bench's zurna is a bare buzz and was in front; now their drum is close and dry and the pipe is only two
 far calls of long notes, darkened and mostly echo. The wide step of their scale is kept. A knock was added to the
 drum so that small speakers carry it. The other danger tracks (wary, hiding, beasts, bandits, chase) are not remade.
+
+## D-163: the first place has roe deer in sight of the trail (2026-11-23)
+
+Claude's call, from the fifth first-time play ("In 21 minutes nothing happened to me except walking and sleeping. No
+animal, no stranger, no choice"). The village edge's one herd was set at the end of a side path nobody took. Now a
+herd in data/hunting.json may have 'by_trail': it stands six to eight tiles off the trail, 24 to 34 tiles from where
+the men come in, and the village edge's herd (two or three roe, was one or two) is such a one. When the first game is
+both seen by the men and on the screen, one man names it and says how it is come at (Claude's placeholder words). On
+the first night, with a fire lit, wolves howl twice far off and a man says the fire keeps them away: nothing comes.
+The side paths' herds elsewhere are unchanged. This is a first answer only; Friday's work on the opening goes on.

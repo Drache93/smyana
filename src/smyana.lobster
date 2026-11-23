@@ -3408,6 +3408,15 @@ def guide_tick():
         gathered_said = food_gathered
         one_says("gathered {food_gathered}", say_cfg("gathered"), 2)
     // dark, and no camp: the men will not walk on blind
+    // (the first game the men can see: one of them says what it is and how it is come at)
+    if (find(said): _ == "first game") < 0 and not is_night():
+        let ws = float(gl.window_size())
+        for(game) g:
+            let i = index_of(g.id)
+            if g.state != G_DEAD and i >= 0 and (find(said): _ == "first game") < 0 and men_see(i):
+                // (and the player can: the words wait till the game is well inside the picture)
+                let s = to_screen(gp(float(u_x[i]), float(u_y[i])))
+                if s.x > ws.x * 0.08 and s.y > ws.y * 0.1 and s.x < ws.x * 0.92 and s.y < ws.y * 0.9: one_says("first game", say_cfg("first_game"), 2)
     if is_night() and not camps_made() and hour_now() >= 21.5: one_says("dark {day}", say_cfg("dark"), 3)
     if rose_asked:
         rose_asked = false
