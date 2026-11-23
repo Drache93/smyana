@@ -187,6 +187,29 @@ As made: the kaval has 16 notes of 3.2 seconds, none under a second, 6 leaps (fi
 [`05-autumn-day-designed.ogg`](../archive/audio/2026-11-23/05-autumn-day-designed.ogg), pencil sketch
 [`06-pencil-autumn-day.ogg`](../archive/audio/2026-11-23/06-pencil-autumn-day.ogg).
 
+## Sheet: autumn night
+
+Made 2026-11-23 by Claude, the fifth song through the design stage. **Claude's call**, unheard.
+
+| | |
+|---|---|
+| **Where** | Autumn nights, in turn with the men's own song once a fire is lit. |
+| **The one idea** | The fiddle sinks: one line goes down the whole piece like a stair, and reaches the bottom. |
+| **Shape** | A stair down. Each phrase falls a third or a fourth, climbs back one step and rests; the next begins on that rest. From B3 to the low E2, an octave and a half. A drone rises only under the last note. |
+| **Who plays** | A low gadulka. A drone for the last twenty seconds. |
+| **Who doesn't** | No kaval, no voices, no lute, no haze, no drone until the end. |
+| **Home note and range** | E. B3 down to E2, the lowest tune in the score. |
+| **Space** | In the wood, dark. |
+| **Loud and soft** | Real quiet between phrases (22 dB from quiet to loud, the widest so far). |
+| **Not like** | *Summer dusk* is the other lone fiddle: it rises to questions on G and never gets a drone; this one only falls, on E, an octave lower, and lands. *Autumn dusk* (a pipe that holds, its drone from the start). |
+| **Real model** | None close; a slow gadulka lament played low. |
+| **Open** | Does the bench's fiddle hold together that low? Is 22 dB too wide over the night's crickets and fire? |
+
+As made: 15 notes of 3.8 seconds, 7 moves down and 4 up (first draft: 24 notes of 1.8 seconds, 13 down and 10 up,
+ending where it began); 96 seconds. Track: `music/pieces/song_05_autumn_night.py`. Renders:
+[`07-autumn-night-designed.ogg`](../archive/audio/2026-11-23/07-autumn-night-designed.ogg), pencil sketch
+[`08-pencil-autumn-night.ogg`](../archive/audio/2026-11-23/08-pencil-autumn-night.ogg).
+
 ## Autumn dusk, as made (2026-11-11, evening)
 
 Dominic, 21:13 UTC: "for the music for phase 1, lets focus on just getting that music creation solid. So we make one

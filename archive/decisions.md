@@ -1017,3 +1017,9 @@ Dominic on the remade summer day and summer dusk, 2026-11-23 21:34: "Songs are g
 way, one song at a time, each Claude's call until he hears it. The fourth through the design stage: autumn day is a
 kaval calling across the valley and the men humming the call back, on E, with no drone. Sheet: docs/music-design.md
 "Sheet: autumn day".
+
+## D-158: autumn night is a fiddle that sinks (2026-11-23)
+
+The fifth song through the design stage, Claude's call, unheard: a low gadulka whose one line goes down a stair from
+B3 to E2 over the whole piece, a drone rising only under the last note. Sheet: docs/music-design.md "Sheet: autumn
+night".

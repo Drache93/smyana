@@ -246,3 +246,4 @@ One line per moment worth remembering. Newest at the bottom.
 - 2026-11-23 (night): a strawberry patch in sight of the start, so gathering is learned in the first minute (D-156).
 - 2026-11-23 (late): fifth agent playtest reached the second place; a round of small fixes from it.
 - 2026-11-23 (late): Dominic: "Songs are good"; autumn day remade as a call and its echo (D-157).
+- 2026-11-23 (late): autumn night remade as a fiddle that sinks (D-158).
