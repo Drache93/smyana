@@ -1023,3 +1023,10 @@ kaval calling across the valley and the men humming the call back, on E, with no
 The fifth song through the design stage, Claude's call, unheard: a low gadulka whose one line goes down a stair from
 B3 to E2 over the whole piece, a drone rising only under the last note. Sheet: docs/music-design.md "Sheet: autumn
 night".
+
+## D-159: winter day slows to nothing; on winter nights a man hums the song of home and cannot finish it (2026-11-23)
+
+The sixth and seventh songs through the design stage, Claude's calls, unheard. Winter day: a lute's single notes on
+D and A, the wait between them growing from 3.5 to 8.5 seconds, one far kaval phrase. Winter night: one man humming
+the main theme in three tries, each further, never reaching its last line, which is kept for the spring and the
+homecoming. The open sung voice is not used. Sheets: docs/music-design.md.

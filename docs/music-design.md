@@ -210,6 +210,50 @@ ending where it began); 96 seconds. Track: `music/pieces/song_05_autumn_night.py
 [`07-autumn-night-designed.ogg`](../archive/audio/2026-11-23/07-autumn-night-designed.ogg), pencil sketch
 [`08-pencil-autumn-night.ogg`](../archive/audio/2026-11-23/08-pencil-autumn-night.ogg).
 
+## Sheet: winter day
+
+Made 2026-11-23 by Claude, the sixth song through the design stage. **Claude's call**, unheard.
+
+| | |
+|---|---|
+| **Where** | Winter days in the snow: the pass, the ridge, the way home. |
+| **The one idea** | The cold slows it: a lute's single notes, the wait between them growing until it has all but stopped. |
+| **Shape** | A pulse that slows. Home and the fifth above it (D, A), one note at a time, 3.5 seconds apart at first and 8.5 at the end. One kaval phrase of four notes in the middle, far off, in a gap of twenty seconds. |
+| **Who plays** | Tambura. A kaval once. |
+| **Who doesn't** | No fiddle, no pipe, no drone, no voices, no haze. |
+| **Home note and range** | D, winter's note. The lute D2 to A3. |
+| **Space** | The open snow: the long cold echo, each note left to die in it. |
+| **Loud and soft** | Mostly the echo's tail and the wind (22 dB from quiet to loud). |
+| **Not like** | *Summer day* is the other lute piece: that one walks in time and carries a tune; this has no tune and slows to nothing. |
+| **Real model** | None. |
+| **Open** | Is it music enough, or only a clock running down? |
+
+Track: `music/pieces/song_06_winter_day.py`; 16 plucked notes and 4 on the kaval in 112 seconds. Renders:
+[`09-winter-day-designed.ogg`](../archive/audio/2026-11-23/09-winter-day-designed.ogg), pencil sketch
+[`10-pencil-winter-day.ogg`](../archive/audio/2026-11-23/10-pencil-winter-day.ogg).
+
+## Sheet: winter night
+
+Made 2026-11-23 by Claude, the seventh song through the design stage. **Claude's call**, unheard.
+
+| | |
+|---|---|
+| **Where** | Winter nights, the deepest point of the run. |
+| **The one idea** | A man hums the song of home and cannot finish it. |
+| **Shape** | Three tries at the main theme, each getting further: its first line; the first and second; the first, second and the climb of the third, held on its top note and left. The fourth line, the one that comes home, is never heard: it is kept for the spring and the homecoming. |
+| **Who plays** | One man humming, lips closed. |
+| **Who doesn't** | Everyone else. No open voice (the bench's sounded like a trumpet to Dominic), no instrument. |
+| **Home note and range** | D, the men's own note; the theme an octave and a tone under where it is written, D3 to D4. |
+| **Space** | At the fire, close: almost no echo. He is beside you. |
+| **Loud and soft** | The quiet after each try (15 dB from quiet to loud). |
+| **Not like** | *The fire* (the men together, a beat). *Autumn day* (the men hum an answer, far off, to a kaval). Here one man, near, alone. |
+| **Real model** | A man humming to himself. |
+| **Open** | The theme itself is still first-draft work, quick and stepwise, and has no sheet: slowed to 1.6 times its length here. Does the bench's hum pass for one man close by? A real voice would be better and is still undecided (docs/music-tracks.md, "Singing"). |
+
+Track: `music/pieces/song_07_winter_night.py`; 114 seconds; 88% of its energy between 150 and 300 Hz. Renders:
+[`11-winter-night-designed.ogg`](../archive/audio/2026-11-23/11-winter-night-designed.ogg), pencil sketch
+[`12-pencil-winter-night.ogg`](../archive/audio/2026-11-23/12-pencil-winter-night.ogg).
+
 ## Autumn dusk, as made (2026-11-11, evening)
 
 Dominic, 21:13 UTC: "for the music for phase 1, lets focus on just getting that music creation solid. So we make one
