@@ -3,16 +3,21 @@
 *Smyana* is Bulgarian for "shift": the change of the seasons, and a shift of work.
 
 An atmospheric survival game about twenty men who leave their village in the Rhodope mountains
-of 1800s Bulgaria to find seasonal work. They walk out in summer with stone hammers and
-swallow-tailed rifles. They spend autumn and winter in the forest, gathering, felling, hunting,
-fighting and surviving. They come home in spring with what they earned and what they learned.
+of 1800s Bulgaria at the end of summer, with swallow-tailed rifles and four days' bread. They go
+out over the ridge and come home by spring. On the way they gather, hunt, camp, hide from
+patrols, and keep each other alive through the autumn and the winter. They come home with what
+they found and what they learned.
 
-It's a survival RPG built as an RTS, made for a game competition whose theme is **Shift**.
+It's a survival RPG built as an RTS, made for [Game Off 2026](docs/game-off-2026-rules.md), whose
+theme is **Shift**.
 
 ## Status
 
-A first runnable version, November 2026: two grey-boxed places, twenty men, and the walk out and
-home again in miniature. Most of the game is still to come.
+November 2026, a week before the deadline: the whole road can be played, seven places out and
+back, summer to spring, in about two hours. The places are still grey-boxed under their woods.
+There is hunger, cold, sleep, camps and fires, gathering and hunting, wolves, a bear and mounted
+patrols, the forest's own sound and a first score. No village to see yet at either end. The
+plan for the last days is in [`docs/final-push.md`](docs/final-push.md).
 
 ```sh
 git submodule update --init --remote   # the Creel engine, at its main
@@ -31,11 +36,12 @@ has changed is baked again on the next start and written there; commit it with t
 
 It needs [Lobster](https://github.com/Drache93/lobster) (`LOBSTER=/path/to/bin/lobster`, by
 default `~/Dev/lobster/bin/lobster`), with `lobsterfmt` built beside it (`cmake --build build --target
-lobster lobsterfmt` in its `dev/`). Left click or drag to select men, double-click for all of
-them, right click to send them or to fell a young tree, C to make camp (C again puts the fire out), X to drop
-their packs (right click the pile to pick it up).
-Arrows or WASD move the camera. Walk
-every man into the far edge of a place to move on.
+lobster lobsterfmt` in its `dev/`).
+
+Drag across the men to choose them (double-click a man for all of them) and right click to send
+them. The pointer shows what a right click will do: walk, gather, shoot, butcher, pick up, camp in
+a hut. Signs under the chosen men make camp (C), set the packs down (X) and halt. Space pauses, Tab
+finds the men, arrows or WASD move the view. Walk every man into the far edge of a place to move on.
 
 ## What's here
 
