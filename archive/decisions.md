@@ -945,3 +945,13 @@ Dominic's ear on the first reels (2026-11-23): birds "robotic, like data"; the s
 synthesised sounds from now on: water is made of bubbles and drops, with noise only as a faint spray; a bird's note
 never holds a clean pitch and birds are mostly far off with silences; a camp fire is cracks with almost no flame
 roar; a filtered noise never has a hard band edge or a hole in the middle. Wind, leaves and rain stay as they were.
+
+## D-150: the night runs on once every man is asleep (2026-11-23)
+
+The third agent playtest (2026-11-22) sat through about two minutes of dark at each camp with nothing to do and asked
+for a way to skip the night. Claude's call, with no button added (the UI stays minimal): once every living man in
+the place is asleep, the night's hours run at `asleep_speed` (route.json, 800: about twenty seconds for the rest of
+the night) in place of the night's usual 250. One man still up, on the road or lost in the dark holds it at 250, so
+bringing everyone in to the fire is what ends the night. The needs run on the clock, so a night costs and gives what
+it did. The day's length is left alone for now: the same playtest found the days too short for the walk, but that
+player's men were frozen or scattered for much of it; to be judged again from the fourth play.
