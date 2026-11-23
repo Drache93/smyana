@@ -41,6 +41,6 @@
   "stream_tiles": 12,
   "fire_tiles": 10,
   "calls": { "spring": "cuckoo", "summer": "woodpecker", "autumn": "jay", "winter": "raven" },
-  "call_s": [ 25, 70 ]
+  "call_s": [ 40, 200 ]
  }
 }
