@@ -1002,3 +1002,11 @@ a player hears first and most. Sheet: docs/music-design.md "Sheet: summer day". 
 The third song through the design stage, Claude's call, unheard: a gadulka alone on G, four slow phrases with long
 quiet after each, three of them ending away from home; no drone. In place of the first draft's fiddle running by
 steps over a bagpipe's drone. Sheet: docs/music-design.md "Sheet: summer dusk".
+
+## D-156: strawberries in sight of the start (2026-11-23)
+
+The stands of what the wood gives keep sixteen tiles from a place's gates, so at the village edge the nearest was
+thirty tiles on, and neither first-time player found one in twenty minutes or learned that gathering exists. The
+first place now grows one more stand of its first light-loving find (wild strawberries in summer) nine to fourteen
+tiles from where the men set out, just off the lane: it is on the opening screen, a man calls it out, and the pointer
+turns to the basket over it. Claude. Picture: `archive/images/2026-11-23/01-strawberries-on-the-opening-screen.png`.

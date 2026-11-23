@@ -117,6 +117,28 @@ def stands_grow():
                 let hi = if am.length > 1: as_int(am[1]) else: lo
                 stands.push(Stand { c, k, lo + threat_hash(seed, k * 31 + placed, 3) % (hi - lo + 1) })
                 placed++
+    // (the first place: one more stand of its first light-loving find, a short walk from where the men set out and
+    // just off the lane. The stands keep away from the gates, so two first-time players never saw one in twenty
+    // minutes and never learned to gather, 2026-11-22 and 23. It is the last stand, so the others stay where they
+    // were. D-156.)
+    let first = find(finds) f: gstr(f, "where", "light") == "light"
+    if leg_id == gstr(route, "start", "") and gate_rects.length and first >= 0:
+        var g = gate_rects[0]
+        for(gate_rects) r: if r[0] < g[0]: g = r
+        let gx = (g[0] + g[2]) / 2
+        let gy = (g[1] + g[3]) / 2
+        var best = -1
+        var best_h = 1 << 30
+        for(W * H) c:
+            let d = abs(c % W - gx) + abs(c / W - gy)
+            if d >= 9 and d <= 14 and terrain[c] == grass and walks[0][c] == 1 and far[c] >= 2 and far[c] <= 4 and open_round(c, 1) >= 8:
+                let h = threat_hash(seed, c, 9)
+                if h < best_h:
+                    best_h = h
+                    best = c
+        if best >= 0:
+            let am = glist(finds[first], "amount")
+            stands.push(Stand { best, first, if am.length: as_int(am[0]) else: 4 })
     // (what was taken before, still taken)
     let was = forage_memory.get(forage_key)
     if was: for(stands) s, n: if n < was.length: s.left = was[n]

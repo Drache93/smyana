@@ -243,3 +243,4 @@ One line per moment worth remembering. Newest at the bottom.
 - 2026-11-23 (evening): fourth agent playtest (22 minutes); men deaf to orders traced to Creel's blocks and worked round (D-151); quiet between tracks, the menu's track, the dog rose's line (D-152).
 - 2026-11-23 (night): music draft 2 begins: summer day remade as a walking lute through the design stage (D-154).
 - 2026-11-23 (night): summer dusk remade through the design stage (D-155).
+- 2026-11-23 (night): a strawberry patch in sight of the start, so gathering is learned in the first minute (D-156).
