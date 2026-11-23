@@ -59,7 +59,7 @@ def study_order(ids:[int]) -> bool:
             students = filter(students) s: s.id != id
             students.push(Student { id })
             let c = cells[(n * 5 + 2) % cells.length]
-            issue_cmd(0, CMD_MOVE, [ id ], (c % W) * TILE + 300 + (n % 3) * 200, (c / W) * TILE - 700 + (n / 3 % 2) * 1400, 0, 0)
+            send_men([ id ], (c % W) * TILE + 300 + (n % 3) * 200, (c / W) * TILE - 700 + (n / 3 % 2) * 1400)
             n++
     return n > 0
 

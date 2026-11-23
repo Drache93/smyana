@@ -1915,7 +1915,10 @@ def signs() -> [int], int:
 
 // The bread the men have, in days for each man (all of them share it at a meal).
 def bread_days() -> int:
+    // (with what is in their own packs set down: the fourth agent playtest set the packs down and was told "That is
+    // the last of the bread", 2026-11-23)
     var food = 0
+    for(piles) pl: if pl.kind == 0: food += pl.food
     var n = 0
     for(men) m:
         if m.alive:
@@ -2102,6 +2105,8 @@ class MarchEnd:
 
 var march_ends = []::MarchEnd
 
+var rose_asked = false  // a right click has just sent the men to a dog rose that is no stand
+
 def march(ids:[int], x:int, y:int):
     let here = filter(ids) id: index_of(id) >= 0
     march_off(here)
@@ -2113,7 +2118,7 @@ def march(ids:[int], x:int, y:int):
         cy += u_y[index_of(id)] / here.length
     let far = sqrt(float(dist2(cx, cy, x, y)))
     if far < float(MARCH_TILES * TILE) or here.length < 3:
-        issue_cmd(0, CMD_MOVE, here, x, y, 0, 0)
+        send_men(here, x, y)
         return
     // (the way they go, and across it)
     let ux = float(x - cx) / far
@@ -2136,14 +2141,14 @@ def march_tick():
             if h < 0 or dist2(u_x[h], u_y[h], e.x, e.y) <= sq(4 * TILE) or (u_moving[h] == 0 and tick > e.at + 2 * TICK_HZ):
                 let left = filter(e.ids) id: index_of(id) >= 0
                 marchers = filter(marchers) mr: (find(left) id: id == mr.id) < 0
-                if left.length: issue_cmd(0, CMD_MOVE, left, e.x, e.y, 0, 0)
+                if left.length: send_men(left, e.x, e.y)
                 false
             else: true
     if not marchers.length: return
     marchers = filter(marchers) mr:
         if tick < mr.at: true
         else:
-            if index_of(mr.id) >= 0: issue_cmd(0, CMD_MOVE, [ mr.id ], mr.x, mr.y, 0, 0)
+            if index_of(mr.id) >= 0: send_men([ mr.id ], mr.x, mr.y)
             false
 
 // Told something else: he is no longer on the march.
@@ -2292,7 +2297,7 @@ def menu_mill(dt:float):
     let i = rnd(u_x.length)
     let x = clamp(c.x + rnd(5000) - 2500, 500, W * TILE - 500)
     let y = clamp(c.y + rnd(5000) - 2500, 500, H * TILE - 500)
-    issue_cmd(0, CMD_MOVE, [ u_id[i] ], x, y, 0, 0)
+    send_men([ u_id[i] ], x, y)
 
 // The camera while the menu is up: over the men, drifting slowly as if someone stood watching.
 def menu_camera(dt:float):
@@ -2484,6 +2489,9 @@ def order_tick():
         let x = clamp(int(mm.x), 0, W * TILE - 1)
         let y = clamp(int(mm.y), 0, H * TILE - 1)
         march(ids, x, y)
+        // (a dog rose that is only a bush: two first-time players went straight to its red hips, right-clicked nine
+        // times and were told nothing, 2026-11-22 and 23. Now a man says why there is nothing to pick: guide_tick.)
+        rose_asked = (find(props) pr: pr.kind == 5 and pr.name.length >= 4 and substring(pr.name, 0, 4) == "rose" and abs(pr.cell % W - x / TILE) <= 1 and abs(pr.cell / W - y / TILE) <= 1) >= 0
         mark_at = gp(float(x), float(y))
     mark_t = seen_s
 
@@ -2765,7 +2773,7 @@ def play_food_order(ids:[int]) -> bool:
                 play_scouts = near.slice(0, min(6, near.length))
                 let rest = near.slice(play_scouts.length, near.length - play_scouts.length)
                 if rest.length: issue_cmd(0, CMD_STOP, rest, 0, 0, 0, 0)
-                issue_cmd(0, CMD_MOVE, play_scouts, play_scout_x, play_scout_y, 0, 0)  // (not a march: play_food takes them off any)
+                send_men(play_scouts, play_scout_x, play_scout_y)  // (not a march: play_food takes them off any)
                 play_busy = "scouting down the {[ "deer track", "sheep path", "cart track" ][sp.size]} after {game[signs].kind}"
                 play_busy_uh = clock_uh
                 print "play: {leg_id} {play_busy} at {int(clock_s)} s"
@@ -2869,7 +2877,7 @@ def tour_tick():
                     let far = filter(out) id: dist2(u_x[index_of(id)], u_y[index_of(id)], cp.x, cp.y) > sq(10 * TILE)
                     if far.length: camp_order(out)
                     else:
-                        for(out) id, n: issue_cmd(0, CMD_MOVE, [ id ], cp.x + (n % 5 - 2) * TILE / 2, cp.y + TILE + (n / 5) * TILE / 2, 0, 0)
+                        for(out) id, n: send_men([ id ], cp.x + (n % 5 - 2) * TILE / 2, cp.y + TILE + (n / 5) * TILE / 2)
                 print "play: {leg_id} camp at {int(hour_now())}h, {play_status()}"
             return
         // (late in the day they stop where they are and wait for the evening, rather than walk on into the next place in
@@ -2926,7 +2934,7 @@ def tour_tick():
             for(ids) id, n:
                 let i = index_of(id)
                 if not in_rect(r, u_x[i] / TILE, u_y[i] / TILE):
-                    issue_cmd(0, CMD_MOVE, [ id ], (r[0] + n % (r[2] - r[0] + 1)) * TILE + TILE / 2, (r[1] + n / (r[2] - r[0] + 1) % (r[3] - r[1] + 1)) * TILE + TILE / 2, 0, 0)
+                    send_men([ id ], (r[0] + n % (r[2] - r[0] + 1)) * TILE + TILE / 2, (r[1] + n / (r[2] - r[0] + 1) % (r[3] - r[1] + 1)) * TILE + TILE / 2)
     // (setting off from a place on the way out that they come back through in the winter: what is more than seven
     // days' food a man is left there as a cache, by the men who carry most; four, until 2026-11-22: the pass, the ridge
     // and the pass again are six days with little to find, and they went up with three)
@@ -3111,7 +3119,7 @@ if arg_of("range") != "":
         u_x[i] = xy[0] * TILE + 500 - (i % 2) * 700
         u_y[i] = (xy[1] - 4) * TILE + 500 + (i / 2) * 800
     let mark = guns_mark((xy[0] + 5) * TILE + 500, xy[1] * TILE + 500)
-    for(u_id) id, i: issue_cmd(0, CMD_MOVE, [ id ], u_x[i], u_y[i], 0, 0)
+    for(u_id) id, i: send_men([ id ], u_x[i], u_y[i])
     guns_order(copy(u_id), mark)
     p_id = []  // leg:<id>: start at this leg of the route, for a look
 // fight:<x>,<y>[,<n>]: the men in a loose block on that tile, and a patrol of n (7) on a road that comes down past them
@@ -3124,7 +3132,7 @@ if arg_of("fight") != "":
     for(u_x.length) i:
         u_x[i] = xy[0] * TILE + 500 - (i % 4) * 900
         u_y[i] = xy[1] * TILE + 500 + (i / 4) * 900 - 2000
-    for(u_id) id, i: issue_cmd(0, CMD_MOVE, [ id ], u_x[i], u_y[i], 0, 0)
+    for(u_id) id, i: send_men([ id ], u_x[i], u_y[i])
     let road = [ xy[0] + 24, xy[1] - 14, xy[0] + 6, xy[1], xy[0], xy[1] + 26 ]
     patrol_spawn(map(road) v: v * TILE + TILE / 2, if xy.length > 2: xy[2] else: 7)
     p_id = []
@@ -3188,7 +3196,7 @@ if has_s(args, "camp") or arg_of("camp") != "":
                 u_y[i] = c.y + int(sin(a) * r)
         // (they stay where they are put: the order that walked them in from the gate is called off)
         // (each man is sent to where he stands: a stop leaves the group's march standing, and they walk on)
-        for(u_id) id, i: issue_cmd(0, CMD_MOVE, [ id ], u_x[i], u_y[i], 0, 0)
+        for(u_id) id, i: send_men([ id ], u_x[i], u_y[i])
         p_id = []
         // (and a clearing in a close wood round it, as in the mock-up: open within three tiles, thick trees beyond)
         let tx = c.x / TILE
@@ -3231,7 +3239,7 @@ if has_s(args, "droppacks"):
     for(men) m: if m.alive: m.wares = [ WARE_HERBS, WARE_HIDES ]
     packs_drop(ids)
     cam = gp(float(piles[0].x), float(piles[0].y))
-    for(ids) id, n: issue_cmd(0, CMD_MOVE, [ id ], piles[0].x + 3000 + (n % 4) * 700, piles[0].y + (n / 4) * 700 - 1500, 0, 0)
+    for(ids) id, n: send_men([ id ], piles[0].x + 3000 + (n % 4) * 700, piles[0].y + (n / 4) * 700 - 1500)
 // study: the men go to study the Roman drain as the place opens (#70, for a look at the ruins)
 if has_s(args, "study"): study_order(filter(u_id) id: man_of(id) != nil)
 if arg_of("look") != "":  // look:<x>,<y>: the camera on this tile
@@ -3254,7 +3262,7 @@ if arg_of("look") != "":  // look:<x>,<y>: the camera on this tile
             if on.length:
                 u_x[i] = (on[k] % W) * TILE + 500
                 u_y[i] = (on[k] / W) * TILE + 500
-                issue_cmd(0, CMD_MOVE, [ u_id[i] ], u_x[i], u_y[i], 0, 0)
+                send_men([ u_id[i] ], u_x[i], u_y[i])
                 man_dir.set(u_id[i], 1)
 boot_part("the rest")
 print "start: {seconds_elapsed() - boot0} s ({boot_parts}) (the bakes {boot_bakes} s: men baked in {men_bake_s} s, trees in {trees_bake_s} s, 0: read from baked/; the first place {last_load_s} s, its view {view_load_s} s)"
@@ -3377,6 +3385,12 @@ def guide_tick():
     if open_n < opening.length and phase_t > 2.0 + float(open_n * gint(sv_cfg("says"), "opening_s", 7)) and leg_id == gstr(route, "start", ""):
         one_says("opening {open_n}", opening[open_n], open_n * 7)
         open_n++
+    // a later morning still in the first place: which way, again (the third and fourth agent playtests spent three
+    // days at the village edge, 2026-11-22 and 23)
+    if day >= 1 and hour_now() >= 6.0 and hour_now() < 9.0 and leg_id == gstr(route, "start", "") and not is_night(): one_says("morning {day}", say_cfg("morning"), day)
+    if rose_asked:
+        rose_asked = false
+        one_says("rose {day}", say_cfg(if season_now() == "summer": "rose_unripe" else: "rose_bare"), 4)
     // dusk, the first evenings, with no camp made
     if day < 3 and hour_now() >= 17.5 and hour_now() < 20.0 and not camps_made(): one_says("dusk {day}", say_cfg("dusk"), 3)
     // the bread gone; a man hungry; a man starving
@@ -3563,7 +3577,7 @@ while gl.frame():
         if menu_hover == 1 and gl.button("mouse1") == 1: break
         if go and phase_t > 0.5:
             // (the men stop where they are: the run is theirs now)
-            for(u_id) id, i: issue_cmd(0, CMD_MOVE, [ id ], u_x[i], u_y[i], 0, 0)
+            for(u_id) id, i: send_men([ id ], u_x[i], u_y[i])
             set_phase("play")
     elif gl.button("space") == 1: paused = not paused
     if phase == "menu" or phase == "play" or phase == "arriving" or phase == "leaving":
@@ -3616,7 +3630,16 @@ while gl.frame():
                 selected = []
         gunfire_tick(if paused: 0.0 else: dt, cam, float(gl.window_size().x) * 0.5 / zoom)
         mood_tick()
-        if phase != "leaving": score_tick(dt, season_now(), mood_now(), fires.length > 0)
+        // (the menu has its own track, a loop, which fades as the game is started: until 2026-11-23 it was never
+        // played and the summer day's tune began over the title, the fourth agent playtest found)
+        let menu_track = gstr(gobj(score_cfg, "moments"), "menu", "-")
+        if phase == "menu" and music_arg == "":
+            if score_track == "": score_moment("menu")
+        elif phase != "leaving":
+            if score_track == menu_track and music_arg == "":
+                score_stop(2.0)
+                score_wait = as_float(at(score_cfg, "first_wait_s"))
+            score_tick(dt, season_now(), mood_now(), fires.length > 0)
         danger_tick()
         if phase == "leaving": beds_hush()
         if phase != "menu" or menu_alpha > 0.0: ambience_tick(dt)

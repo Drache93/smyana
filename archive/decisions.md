@@ -955,3 +955,28 @@ the night) in place of the night's usual 250. One man still up, on the road or l
 bringing everyone in to the fire is what ends the night. The needs run on the clock, so a night costs and gives what
 it did. The day's length is left alone for now: the same playtest found the days too short for the walk, but that
 player's men were frozen or scattered for much of it; to be judged again from the fourth play.
+
+## D-151: a man leaves his block before a new order (2026-11-23)
+
+Two agent playtests (2026-11-22, 23) had most of the band answer an order ("hm") and stand still for a minute or two
+until Halt. Found by Claude in Creel's `commands.lobster`: a move to within five tiles of where a block of men was
+last sent is taken as the same order again and dropped (`block_same_order`), and that holds for a block that has
+arrived, or stands stopped in thick wood. Halt clears a man's block, which is why it freed them. Creel's rule suits a
+wide RTS map; here five tiles is most of the screen. Every walk order of ours now goes through `send_men`
+(route.lobster): a man who is standing, or whose block has arrived, or who is sent more than a tile and a half from
+its goal, leaves the block first. Creel itself is not changed. Not yet seen to cure it in a played run: the cause is
+read from the code, and the next agent play is the test.
+
+## D-152: quiet between the calm tracks again; the menu's own track; small honesty fixes (2026-11-23)
+
+From the fourth agent playtest, Claude's calls:
+
+- `gap_s` 1 to 70: Dominic said on 2026-11-13 "music should play in a loop for now", when the game had no other
+  sound. The forest has its own now (D-147), and the player heard the summer day's tune nine times in 22 minutes. A
+  turn of the light or a fire lit at night ends the quiet early. His to overturn.
+- The menu plays `24_menu`, which had never been played; it fades as the game starts.
+- The bread count takes in the men's own packs set down: setting them down brought "That is the last of the bread".
+- A dog rose that is only a bush answers a right click with a man's line (unripe in summer, stripped later): both
+  first-time players went to the red hips first and got nothing, nine clicks in the fourth play. The lines are
+  Claude's placeholders, with the rest of `says`.
+- A later morning still at the village edge, a man says which way again.

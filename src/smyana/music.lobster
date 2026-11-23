@@ -108,6 +108,9 @@ def score_tick(dt:float, season:string, mood:string, fire:bool):
             score_wait = as_float(at(score_cfg, "turn_gap_s"))
         elif turned and want == score_track: score_for = "{season} {mood}"
     if score_track != "": return
+    // (in the quiet between two tracks, the light turning or a fire lit in the dark brings the next one in at once)
+    let gap = as_float(at(score_cfg, "turn_gap_s"))
+    if score_for != "" and score_wait > gap and ("{season} {mood}" != score_for or (fire and mood == "night" and not score_fire_was and not score_fired)): score_wait = gap
     score_wait -= dt
     if score_wait > 0.0: return
     let track = score_calm_for(season, mood, fire)

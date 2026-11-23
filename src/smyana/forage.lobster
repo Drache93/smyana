@@ -145,7 +145,7 @@ def forage_order(ids:[int], c:int) -> bool:
             let x = sx + int(cos(a) * float(TILE) * 0.9)
             let y = sy + int(sin(a) * float(TILE) * 0.6)
             foragers.push(Forager { id, k, x, y, since: tick })
-            issue_cmd(0, CMD_MOVE, [ id ], x, y, 0, 0)
+            send_men([ id ], x, y)
             sent++
     return sent > 0
 
@@ -165,7 +165,7 @@ def forage_back(uid:int):
             cx += u_x[j]
             cy += u_y[j]
             n++
-    if n > 0 and dist2(u_x[i], u_y[i], cx / n, cy / n) > sq(6 * TILE): issue_cmd(0, CMD_MOVE, [ uid ], cx / n, cy / n, 0, 0)
+    if n > 0 and dist2(u_x[i], u_y[i], cx / n, cy / n) > sq(6 * TILE): send_men([ uid ], cx / n, cy / n)
 
 // Every ten sim ticks (route_tick): a man at his spot gathers one a gather_s into his pack, till the stand is bare or
 // his pack full; one sent elsewhere gives up.

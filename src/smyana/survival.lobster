@@ -204,16 +204,16 @@ def camp_order(ids:[int]) -> bool:
         if n < 2 and tick < cp.lit_at and tick + gint(c, "lay_s", 4) * TICK_HZ < cp.lit_at:
             let wa = a + 180.0 + float(n) * 50.0
             let wc = camp_ground_near(cell_of(clamp(cx + int(cos(wa) * float(TILE * 4)), TILE, (W - 1) * TILE), clamp(cy + int(sin(wa) * float(TILE * 4)), TILE, (H - 1) * TILE)), cell_of(cx, cy))
-            issue_cmd(0, CMD_MOVE, [ id ], (wc % W) * TILE + TILE / 2, (wc / W) * TILE + TILE / 2, 0, 0)
+            send_men([ id ], (wc % W) * TILE + TILE / 2, (wc / W) * TILE + TILE / 2)
             wood_goers.push(WoodGoer { id, tx, ty, cp })
-        else: issue_cmd(0, CMD_MOVE, [ id ], tx, ty, 0, 0)
+        else: send_men([ id ], tx, ty)
     return true
 
 // Each of the two gone for dead wood back to his place when the fire catches.
 def wood_goers_tick():
     wood_goers = filter(wood_goers) w:
         if fire_burning(w.camp) or not w.camp.lit:
-            if w.camp.lit and index_of(w.id) >= 0: issue_cmd(0, CMD_MOVE, [ w.id ], w.x, w.y, 0, 0)
+            if w.camp.lit and index_of(w.id) >= 0: send_men([ w.id ], w.x, w.y)
             false
         else: true
 

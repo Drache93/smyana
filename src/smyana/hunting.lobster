@@ -302,7 +302,7 @@ def butcher_order(ids:[int], k:int) -> bool:
         if m and index_of(id) >= 0:
             butchers = filter(butchers) b: b.id != id
             butchers.push(Butcher { id, cc.uid, 0, since: tick })
-            issue_cmd(0, CMD_MOVE, [ id ], cc.x + (id % 3 - 1) * 400, cc.y + (id / 3 % 3 - 1) * 400, 0, 0)
+            send_men([ id ], cc.x + (id % 3 - 1) * 400, cc.y + (id / 3 % 3 - 1) * 400)
             sent = true
     return sent
 

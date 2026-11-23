@@ -240,3 +240,4 @@ One line per moment worth remembering. Newest at the bottom.
 - 2026-11-23 (morning): Dominic heard the reels; birds, stream, fire, footsteps and wading remade from his notes (D-149).
 - 2026-11-23 (afternoon): Dominic passed reel 2 but for the wading, remade from the stream's water.
 - 2026-11-23 (afternoon): the night runs on once every man is asleep (D-150); a fourth agent playtest sent out.
+- 2026-11-23 (evening): fourth agent playtest (22 minutes); men deaf to orders traced to Creel's blocks and worked round (D-151); quiet between tracks, the menu's track, the dog rose's line (D-152).

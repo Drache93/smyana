@@ -125,7 +125,7 @@ def hut_order(ids:[int], hut:int) -> bool:
     let near = spots.slice(0, min(spots.length, 6))
     for(ids) id, n:
         let o = near[n % near.length]
-        issue_cmd(0, CMD_MOVE, [ id ], (o % W) * TILE + 200 + (n * 137) % 600, (o / W) * TILE + 200 + (n * 251) % 600, 0, 0)
+        send_men([ id ], (o % W) * TILE + 200 + (n * 137) % 600, (o / W) * TILE + 200 + (n * 251) % 600)
     return true
 
 // Every ten sim ticks (route_tick): the men sent to a hut make camp in it as they get there; given up in a minute or

@@ -163,6 +163,20 @@ def winter_depth() -> int:
     let y = year_here() % 4000
     return if y < 2000: y / 2 else: (4000 - y) / 2
 
+// Men sent somewhere (every order of ours to walk goes through here). Creel walks men who are sent together as a
+// block, and a block told to go within five tiles of where it was last told is taken as "the same again" and the
+// order is dropped, even when the block has long arrived and stands there. In Creel's own game that spares a
+// re-shuffle; here five tiles is most of the screen, and it is why men answered and stood still till Halt (the third
+// and fourth agent playtests, 2026-11-22 and 23; D-151). So a man leaves his block before the order, unless he is
+// walking and it is to nearly the same spot.
+def send_men(ids:[int], x:int, y:int):
+    for(ids) id:
+        let i = index_of(id)
+        if i >= 0 and u_block[i] > 0:
+            let b = u_block[i] - 1
+            if u_moving[i] == 0 or fb_state[b] == BLOCK_THERE or dist2(fb_gx[b], fb_gy[b], x, y) > TILE * TILE * 2: u_block[i] = 0
+    issue_cmd(0, CMD_MOVE, ids, x, y, 0, 0)
+
 def ticks_per_hour() -> int: return gint(route, "day_minutes", 8) * 60 * TICK_HZ / 24
 
 // ---- the clock of the day (issue #13)
@@ -565,7 +579,7 @@ def walk_in(edge:string):
     let step = 7 * TILE
     let tx = cx + (if edge == "west": step elif edge == "east": -step else: 0)
     let ty = cy + (if edge == "north": step elif edge == "south": -step else: 0)
-    if ids.length: issue_cmd(0, CMD_MOVE, ids, tx, ty, 0, 0)
+    if ids.length: send_men(ids, tx, ty)
 
 // Each man's health and load as they are now, and who has died.
 def men_read():
@@ -620,7 +634,7 @@ def unstick_men():
             if n >= 3:
                 unstick_looks.set(m.uid, 0)
                 print "(unstick: man {m.uid} {d / 10} tiles from where he was sent and no nearer: sent on by himself)"
-                issue_cmd(0, CMD_MOVE, [ m.uid ], u_tx[i], u_ty[i], 0, 0)
+                send_men([ m.uid ], u_tx[i], u_ty[i])
         elif u_moving[i] == 0 and d > 50 and u_stuck[i] >= STUCK_LIMIT and u_foe[i] == 0 and not is_asleep(m.uid):
             // (2026-11-22, a playthrough: a man wedged on the first tile of the gorge's ford gave up every order to
             // walk on, and the other twelve waited five days at the gate for him and starved. Given up on his way
@@ -647,7 +661,7 @@ def unstick_men():
                     u_x[i] = (best % W) * TILE + TILE / 2
                     u_y[i] = (best / W) * TILE + TILE / 2
                     u_stuck[i] = 0
-                    issue_cmd(0, CMD_MOVE, [ m.uid ], u_tx[i], u_ty[i], 0, 0)
+                    send_men([ m.uid ], u_tx[i], u_ty[i])
         else: unstick_looks.set(m.uid, 0)
         unstick_d.set(m.uid, d)
 
