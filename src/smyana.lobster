@@ -3586,7 +3586,11 @@ while gl.frame():
             select_tick()
             order_tick()
         if phase != "menu": camera_tick()
-        if not paused: acc = min(acc + dt * fast, 0.5 * fast)
+        // (once every man sleeps the whole world runs faster till one wakes or the day comes, D-150: a first-time
+        // player sat through two minutes of dark at each camp with nothing to do, 2026-11-22. The first try ran only
+        // the clock faster, and the test bot's men starved: the game and the wood's food come back by the tick.)
+        let rush = if phase == "play" and script == "" and is_night() and all_asleep(): float(gint(gobj(route, "night"), "asleep_speed", 100)) / 100.0 else: 1.0
+        if not paused: acc = min(acc + dt * fast * rush, 0.5 * fast * rush)
         while acc >= 0.05:
             p_id = copy(u_id)
             p_x = copy(u_x)

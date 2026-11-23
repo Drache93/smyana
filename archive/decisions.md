@@ -980,3 +980,12 @@ From the fourth agent playtest, Claude's calls:
   first-time players went to the red hips first and got nothing, nine clicks in the fourth play. The lines are
   Claude's placeholders, with the rest of `says`.
 - A later morning still at the village edge, a man says which way again.
+
+## D-153: the sleeping night is the whole game run faster, not the clock (2026-11-23)
+
+Supersedes how D-150 does it, not what it is for. With only the clock run faster while the men slept, the test bot
+lost every man on seed 1 (twice) and brought 9 home on seed 2; three runs side by side on seed 1 found it: fast clock
+alone, nobody home; the new walk orders alone, 12 home; neither, 16. The game and what the wood gives come back by
+the sim's ticks, so a night with fewer ticks in it is a poorer country. Now, when every man is asleep at night, the
+whole sim runs at `asleep_speed` (400: four times) till one wakes or day comes: every night has the ticks it had,
+and the player waits a quarter of the time. The bot's own runs do not use it (they are already run fast). Claude.

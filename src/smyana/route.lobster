@@ -198,7 +198,8 @@ def is_night() -> bool:
     let h = if hour_force >= 0.0: int(hour_force) else: (gint(route, "start_hour", 7) + clock_uh / 1000000) % 24
     return if falls > ends: h >= falls or h < ends else: h >= falls and h < ends
 
-// Every living man here is asleep (and there is one): the night has nothing in it to watch.
+// Every living man here is asleep (and there is one): the night has nothing in it to watch, and the game runs it
+// faster (D-150; the game's main loop).
 def all_asleep() -> bool:
     var n = 0
     for(men) m:
@@ -208,11 +209,7 @@ def all_asleep() -> bool:
     return n > 0
 
 def clock_tick():
-    // (once every man sleeps the night runs faster still, D-150: a first-time player sat through two minutes of
-    // dark at each camp with nothing to do, 2026-11-22. A man still up, or lost in the dark, holds it back.)
-    let nt = gobj(route, "night")
-    let speed = if not is_night(): 100 elif all_asleep(): gint(nt, "asleep_speed", gint(nt, "speed", 100)) else: gint(nt, "speed", 100)
-    clock_uh += 1000000 / ticks_per_hour() * speed / 100
+    clock_uh += 1000000 / ticks_per_hour() * (if is_night(): gint(gobj(route, "night"), "speed", 100) else: 100) / 100
     // (the season: one thousandth every so many ticks, up to where this leg lets it go)
     let span = glist(leg_now(), "year")
     if span.length > 1 and year_m < as_int(span[1]) and run_ticks % max(1, gint(gobj(route, "season"), "ticks_per_milli", 28)) == 0: year_m++
