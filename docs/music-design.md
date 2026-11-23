@@ -140,6 +140,29 @@ no energy to speak of above 1200 Hz, 20% in 600 to 1300 Hz. Quiet to loud 8.9 dB
 Renders: [`01-summer-day-designed.ogg`](../archive/audio/2026-11-23/01-summer-day-designed.ogg), pencil sketch
 [`02-pencil-summer-day.ogg`](../archive/audio/2026-11-23/02-pencil-summer-day.ogg).
 
+## Sheet: summer dusk
+
+Made 2026-11-23 by Claude, the third song through the design stage; **Claude's call**, unheard, as with summer day.
+
+| | |
+|---|---|
+| **Where** | A summer evening from 18h, as a man says "The light is going. We should make camp.", and on into the night until a fire is lit (then the men's own song takes over). |
+| **The one idea** | The fiddle asks and is not answered: three phrases end away from home, each followed by a long quiet, and the fourth comes home. |
+| **Shape** | A line and its silence. Phrases of 13 to 25 seconds with 5 to 7 seconds of nothing after each, in which the crickets and the fire are heard. Every phrase has a leap of a fourth or a fifth. |
+| **Who plays** | Gadulka alone. One low lute string touched before each phrase. |
+| **Who doesn't** | No drone (the first draft had a bagpipe's under it), no pipe, no kaval, no voices, no beat. |
+| **Home note and range** | G, as the summer day, but an hour lower in feeling: G3 to G4, bowed. |
+| **Space** | In the wood, near. |
+| **Loud and soft** | The fiddle swells on its held notes; the quiet between phrases is real quiet (13.6 dB from quiet to loud). |
+| **Not like** | *Summer day* (a beat, plucked). *The fire* (voices, a beat). *Autumn dusk* is its nearest neighbour, also slow and held: that one is a pipe on E over its drone that never stops; this one is a fiddle on G with nothing under it and gaps. *Autumn night* (a low fiddle with gaps) will have to fall where this one rises, when it is made. |
+| **Real model** | A gadulka player alone, slow and unmeasured. |
+| **Open** | Is the bench's fiddle good enough alone? Are the gaps too long once the forest's own sound is under them? Is it too close to autumn dusk? |
+
+As made: 20 notes of 3.2 seconds on average, none under a second, 6 leaps (the first draft: 33 notes of 1.2 seconds,
+23 under a second, 1 leap); 96 seconds. Track: `music/pieces/song_02_summer_dusk.py`. Renders:
+[`03-summer-dusk-designed.ogg`](../archive/audio/2026-11-23/03-summer-dusk-designed.ogg), pencil sketch
+[`04-pencil-summer-dusk.ogg`](../archive/audio/2026-11-23/04-pencil-summer-dusk.ogg).
+
 ## Autumn dusk, as made (2026-11-11, evening)
 
 Dominic, 21:13 UTC: "for the music for phase 1, lets focus on just getting that music creation solid. So we make one

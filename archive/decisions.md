@@ -996,3 +996,9 @@ The second song through the design stage (D-073), and Claude's call throughout, 
 for him: the summer day track is a tambura tune at walking pace on G, with a kaval answering twice from far off, in
 place of the first draft's kaval running over a rocking lute. Chosen first for music draft 2 because it is the track
 a player hears first and most. Sheet: docs/music-design.md "Sheet: summer day". Unheard by anyone yet.
+
+## D-155: summer dusk is a fiddle that asks and is not answered (2026-11-23)
+
+The third song through the design stage, Claude's call, unheard: a gadulka alone on G, four slow phrases with long
+quiet after each, three of them ending away from home; no drone. In place of the first draft's fiddle running by
+steps over a bagpipe's drone. Sheet: docs/music-design.md "Sheet: summer dusk".
