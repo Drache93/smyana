@@ -26,6 +26,7 @@ var score_strokes = 0
 var score_for = ""  // the season and hour the calm track began in
 var score_fire_was = false
 var score_played = 0.0  // seconds the calm track has played
+var score_hold = false  // the light is about to turn: no new calm track for the hour that is ending
 
 def score_load():
     score_cfg = lib_data("music.json")
@@ -113,6 +114,7 @@ def score_tick(dt:float, season:string, mood:string, fire:bool):
     if score_for != "" and score_wait > gap and ("{season} {mood}" != score_for or (fire and mood == "night" and not score_fire_was and not score_fired)): score_wait = gap
     score_wait -= dt
     if score_wait > 0.0: return
+    if score_hold and score_for == "{season} {mood}": return
     let track = score_calm_for(season, mood, fire)
     score_fired = track == gstr(gobj(score_cfg, "fire_night"), "track", "-")
     score_play(track, "calm", false, "{season} {mood}{if score_fired: ", by the fire" else: ""}")

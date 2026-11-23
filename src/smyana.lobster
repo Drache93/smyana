@@ -2105,6 +2105,7 @@ class MarchEnd:
 
 var march_ends = []::MarchEnd
 
+var gathered_said = 0
 var rose_asked = false  // a right click has just sent the men to a dog rose that is no stand
 
 def march(ids:[int], x:int, y:int):
@@ -2346,7 +2347,8 @@ def select_tick():
             let i = unit_at_screen(m)
             if i >= 0 and seen_s - last_click < 0.5: selected = filter(u_id) id: man_of(id) != nil  // (a second click: every man)
             elif i >= 0: selected = [ u_id[i] ]
-            else: selected = []
+            // (a click on empty ground keeps the men chosen, Escape lets them go: a click that missed a sign, or
+            // one on the mark that finds the men, left the fifth agent playtest with nobody chosen, 2026-11-23)
             last_click = seen_s
     if gl.button("escape") == 1: selected = []
 
@@ -2517,10 +2519,12 @@ def camera_tick():
     if gl.button("down") >= 1 or gl.button("s") >= 1: d.y += 1.0
     let inside = m.x > 0.0 and m.y > 0.0 and m.x < ws.x and m.y < ws.y
     if inside and not capture and gl.window_focused():
-        if m.x <= 3.0: d.x -= 1.0
-        if m.y <= 3.0: d.y -= 1.0
-        if m.x >= ws.x - 4.0: d.x += 1.0
-        if m.y >= ws.y - 4.0: d.y += 1.0
+        // (not while a box is being dragged: one that ended at the screen's edge slid the view a screen away)
+        if not (dragging and magnitude(m - drag_from) > 6.0):
+            if m.x <= 3.0: d.x -= 1.0
+            if m.y <= 3.0: d.y -= 1.0
+            if m.x >= ws.x - 4.0: d.x += 1.0
+            if m.y >= ws.y - 4.0: d.y += 1.0
     cam += d * sp
     // the wheel: a step in or out, about the point under the mouse
     let wheel = gl.mousewheel_delta()
@@ -3388,6 +3392,13 @@ def guide_tick():
     // a later morning still in the first place: which way, again (the third and fourth agent playtests spent three
     // days at the village edge, 2026-11-22 and 23)
     if day >= 1 and hour_now() >= 6.0 and hour_now() < 9.0 and leg_id == gstr(route, "start", "") and not is_night(): one_says("morning {day}", say_cfg("morning"), day)
+    // gathered: what it came to, said once the pickers are done
+    if food_gathered < gathered_said: gathered_said = food_gathered
+    if food_gathered > gathered_said and not foragers.length:
+        gathered_said = food_gathered
+        one_says("gathered {food_gathered}", say_cfg("gathered"), 2)
+    // dark, and no camp: the men will not walk on blind
+    if is_night() and not camps_made() and hour_now() >= 21.5: one_says("dark {day}", say_cfg("dark"), 3)
     if rose_asked:
         rose_asked = false
         one_says("rose {day}", say_cfg(if season_now() == "summer": "rose_unripe" else: "rose_bare"), 4)
@@ -3476,6 +3487,7 @@ var amb_look = 0.0
 var amb_fires = 0
 var amb_piles = 0
 var amb_mark = -10.0
+var work_wait = 0.0  // seconds till the next sound of hands gathering or a knife cutting
 
 def ambience_tick(dt:float):
     let fc = forest_cfg()
@@ -3493,7 +3505,9 @@ def ambience_tick(dt:float):
     // crickets: warm nights and evenings
     let warm = if season == "summer": 1.0 elif season == "autumn" and year_here() % 4000 < 1500: 0.5 else: 0.0
     bed_want(BED_NIGHT, if raining: 0.0 elif night: warm elif h >= 19.0: warm * 0.6 else: 0.0)
-    bed_want(BED_RAIN, if kind == "rain": float(hard) / 700.0 else: 0.0)
+    // (rain is heard from where it can be seen: a spell's first drops are too few to draw, and two agent playtests
+    // had a minute of rain's sound over a dry picture)
+    bed_want(BED_RAIN, if kind == "rain": clamp(float(hard - 120) / 600.0, 0.0, 1.0) else: 0.0)
     // the stream: water or a ford near the middle of the view (frozen quiet in deep winter)
     amb_look -= dt
     if amb_look <= 0.0:
@@ -3537,8 +3551,12 @@ def ambience_tick(dt:float):
     bed_want(BED_SNOW, if snow: tread else: 0.0)
     bed_want(BED_WADE, min(1.0, sqrt(float(wading) / 4.0)))
     if not paused and phase == "play":
-        if gathering: hear("gather", -2.0, 0.0)
-        if cutting: hear("knife", -2.0, 0.0)
+        // (hands at work are heard every second or two, not every frame: the fifth agent playtest's log had 66
+        // gather sounds in six seconds, 2026-11-23)
+        work_wait -= dt
+        if work_wait <= 0.0 and (gathering or cutting):
+            hear(if cutting: "knife" else: "gather", -2.0, 0.0)
+            work_wait = 1.2 + float(cell_hash(frame_no * 3 + 5) % 100) / 100.0
         // (a fire catching, a pile of packs set down, an order given: each once as it happens)
         if fires.length > amb_fires: hear("fire_light", 0.0, 0.0)
         if piles.length > amb_piles: hear("pack_down", 0.0, 0.0)
@@ -3547,7 +3565,7 @@ def ambience_tick(dt:float):
     amb_piles = piles.length
     amb_mark = mark_t
     beds_tick(dt)
-    if not paused: calls_tick(dt, season, night, raining, float(cell_hash(frame_no * 7 + 13) % 1000) / 1000.0)
+    if not paused: calls_tick(dt, season, night or h >= 19.5 or h < 5.5, raining, float(cell_hash(frame_no * 7 + 13) % 1000) / 1000.0)
 
 score_load()
 score_on = music_arg != "off"
@@ -3643,6 +3661,12 @@ while gl.frame():
             if score_track == menu_track and music_arg == "":
                 score_stop(2.0)
                 score_wait = as_float(at(score_cfg, "first_wait_s"))
+            // (no calm track is begun in the last minute and a half before the light turns: it would be cut)
+            var turn_h = 99.0
+            for([ "dawn", "day", "dusk", "night" ]) name:
+                let ahead = mood_hour(name) - hour_now()
+                turn_h = min(turn_h, if ahead > 0.0: ahead else: ahead + 24.0)
+            score_hold = turn_h * float(ticks_per_hour()) / float(TICK_HZ) / (if is_night(): float(gint(gobj(route, "night"), "speed", 100)) / 100.0 else: 1.0) < 90.0
             score_tick(dt, season_now(), mood_now(), fires.length > 0)
         danger_tick()
         if phase == "leaving": beds_hush()

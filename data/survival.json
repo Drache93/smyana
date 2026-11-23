@@ -12,7 +12,9 @@
   "no_way": "No way through there.",
   "morning": "East again, down the lane. The beeches are not far.",
   "rose_unripe": "Hips, but hard and green inside yet. Come the autumn.",
-  "rose_bare": "The birds have had the best of this one."
+  "rose_bare": "The birds have had the best of this one. There will be better bushes.",
+  "gathered": "A few handfuls more in the packs. It all helps.",
+  "dark": "We cannot walk on blind. Make a fire here."
  },
  "fed": {
   "_doc": "Hunger. 'per_hour' is how much a man awake loses an hour, more by 'work' hundredths while he fells or digs and 'loaded' while he carries; 'asleep' asleep. A hot meal at a lit fire fills him, a cold one gives 'cold_meal'. At 0 he loses 'starving_hp' health an hour (0.8: a man with nothing to eat lasts about two days more, slow and weak, and mends when he is fed; it was 1.5, a day, until 2026-11-22, when playthroughs lost whole bands in one foodless day on the pass).",

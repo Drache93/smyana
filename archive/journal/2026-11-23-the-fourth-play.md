@@ -43,3 +43,21 @@ Two days ahead of the plan. The first of the calm tracks to be remade is the one
 in `docs/music-design.md`; the tune is a plucked lute walking at 80 steps a minute with leaps of a fifth and notes
 said twice, and a far kaval answering in the two places the walk stops or thins. Measured, not heard: 15 leaps
 against the first draft's 2. Sent to Dominic with its pencil sketch.
+
+## The fifth play (late night)
+
+Report: `archive/playtests/2026-11-23-05-first-time-player.md`. 21 minutes, 118 steps. The player reached the beech
+valley at 9:12 (the first to leave the village edge), gathered the strawberries in the first minute, liked the dog
+rose's line, and had no long spell of men deaf to orders: one 20-second stand at dusk, cause unknown, and five
+"No way through there" at the rock ledges of the village edge, where the men were right but the ledges do not read
+as walls. It would still have stopped at about 13 minutes: "nothing happened to me except walking and sleeping".
+That is Friday's work in the plan (the first ten minutes), and the biggest thing left.
+
+Fixed the same night (Claude): hands gathering and the knife sound every second or two, not every frame (66 in six
+seconds); no calm track begun in the last minute and a half before the light turns; rain's sound only once rain can
+be seen; a click on empty ground keeps the men chosen (Escape lets go); no edge scrolling while a box is dragged; the
+owl from half past seven in the evening; a man says what the gathering came to, and says to make a fire when it is
+dark with no camp; the bare dog rose's line no longer breaks the summer one's promise.
+
+Left: the afternoon lost in the walk between places (five hours by design, so the player arrives at dusk); the lane
+lost under the crowns; nothing to hover on the loaves; the icons move with the men.
