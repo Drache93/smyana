@@ -1037,3 +1037,10 @@ The eighth song through the design stage, Claude's call, unheard. The summer day
 and quicker, and a low kaval plays the home song's third and fourth lines: the last line, which the winter night
 withheld (D-159), is heard here for the first time. Spring morning stays as it is: it is the tune Dominic himself
 heard as "spring or morning time" (2026-11-10). Sheet: docs/music-design.md "Sheet: spring day".
+
+## D-161: the fire song is made from its sheet: one man starts, the others answer (2026-11-23)
+
+The ninth song through the design stage, Claude's call, unheard. Made as the sheet of 2026-11-11 asked: four lines,
+each hummed by one man and then by all, a stick knocked on a log every four beats, no instrument. Added in the making:
+the last two lines once more by all the men together, slowing to a held low D. The first draft (the main theme hummed
+with no beat) is replaced. It is still the bench's hum, not men: real voices remain the wish for this track.

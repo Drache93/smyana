@@ -115,6 +115,12 @@ Pencil sketch (the pipe, its drone and the kaval's two notes, nothing else):
 Pencil sketch (hummed, since the bench can't sing words; one voice, then five, and the knock):
 [`02-music-pencil-sketch-the-fire.ogg`](../archive/audio/2026-11-11/02-music-pencil-sketch-the-fire.ogg)
 
+As made (2026-11-23, D-161): [`song_19_the_fire.py`](../music/pieces/song_19_the_fire.py). The four lines called and
+answered at 66 beats a minute, a bar of the knock alone, then the last two lines by all the men together, slowing,
+the low D held. The knock is a stick on a log, not the drum of the sketch. The crackle is left to the game's own
+fire. Still hummed: real men's voices would be better and this is the track to record first.
+[`15-the-fire-designed.ogg`](../archive/audio/2026-11-23/15-the-fire-designed.ogg)
+
 ## Sheet: summer day
 
 Made 2026-11-23 by Claude, the second song through the design stage. Dominic could not hear the sheet or the sketch
