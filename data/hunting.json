@@ -9,8 +9,16 @@
     "kind": "roe",
     "herds": 1,
     "n": [
+     1,
+     2
+    ]
+   },
+   {
+    "kind": "roe",
+    "herds": 1,
+    "n": [
      2,
-     3
+     2
     ],
     "by_trail": [
      24,

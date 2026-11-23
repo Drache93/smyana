@@ -1061,3 +1061,11 @@ the men come in, and the village edge's herd (two or three roe, was one or two) 
 both seen by the men and on the screen, one man names it and says how it is come at (Claude's placeholder words). On
 the first night, with a fire lit, wolves howl twice far off and a man says the fire keeps them away: nothing comes.
 The side paths' herds elsewhere are unchanged. This is a first answer only; Friday's work on the opening goes on.
+
+## D-164: the trailside deer are a second herd; the side path keeps its own (2026-11-23)
+
+Corrects D-163 the same night (Claude). With the village edge's only herd moved to the trail, the test bot, which
+looks for the first deer down the side path, found none and lost its early meat: 8 of 20 home on seed 1 and nobody on
+seed 2, twice. The herd down the side path is back as it was (one or two roe) and the deer by the trail are a second
+herd of two. With that the bot brings 14 and 15 of 20 home (seeds 1 and 2). The same seed with the old data gave 5
+home in one run and 17 in another: the bot's runs vary widely, more so when two run at once.
