@@ -254,6 +254,29 @@ Track: `music/pieces/song_07_winter_night.py`; 114 seconds; 88% of its energy be
 [`11-winter-night-designed.ogg`](../archive/audio/2026-11-23/11-winter-night-designed.ogg), pencil sketch
 [`12-pencil-winter-night.ogg`](../archive/audio/2026-11-23/12-pencil-winter-night.ogg).
 
+## Sheet: spring day
+
+Made 2026-11-23 by Claude, the eighth song through the design stage. **Claude's call**, unheard.
+
+| | |
+|---|---|
+| **Where** | Spring days, the last places before home. |
+| **The one idea** | The walk again, and the song finished: the summer's walking lute comes back higher and quicker, and a kaval plays the two lines of the home song the man in the winter night could not reach. |
+| **Shape** | The summer day's shape with the song laid in its two rests. Line A twice; the song's third line, the climb; line B twice; the fourth line, down and home, heard for the first time in the run; line A once more under one long home note. |
+| **Who plays** | Tambura (the tune and the walking low strings), a low kaval with the men now, a flock's bells nearer than in summer. |
+| **Who doesn't** | No voices (the first draft's far women were the bench's open voice), no drone, no fiddle. |
+| **Home note and range** | A for the song, a fourth above where it is written; the lute's tune sits on C above it. The lute C4 to C5, the kaval under it, G3 to A4. |
+| **Space** | In the open, near. The kaval is no longer across the valley. |
+| **Loud and soft** | Steady: the walk never stops this time (6 dB from quiet to loud, the narrowest of the calm tracks). |
+| **Not like** | *Summer day* on purpose is its twin: the same lines, but a fourth up, 88 steps a minute against 80, the kaval near and low and playing the song, and no halt. *Spring morning* (quick, a kaval dance tune). |
+| **Real model** | None beyond the summer day's. |
+| **Open** | Will anyone hear that it is the summer's tune come back, four seasons later? Is the home song, still first-draft work, good enough to be what comes home? |
+
+Track: `music/pieces/song_09_spring_day.py`; 110 seconds. A first render had the kaval above the lute and a third of
+the energy between 600 and 1300 Hz; it was put an octave down (17%). Renders:
+[`13-spring-day-designed.ogg`](../archive/audio/2026-11-23/13-spring-day-designed.ogg), pencil sketch
+[`14-pencil-spring-day.ogg`](../archive/audio/2026-11-23/14-pencil-spring-day.ogg).
+
 ## Autumn dusk, as made (2026-11-11, evening)
 
 Dominic, 21:13 UTC: "for the music for phase 1, lets focus on just getting that music creation solid. So we make one

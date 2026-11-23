@@ -29,3 +29,11 @@ Written in the project thread after listening to `forest-reel-01` and `men-reel-
 21:34, after the remade summer day and summer dusk (music draft 2, D-154 and D-155):
 
 > Songs are good
+
+21:45:
+
+> Perfect
+
+(Sent eleven minutes after "Songs are good". Which message it answers is not certain: most likely the plan to carry
+on in that style and the fifth playtest's report. It is not taken as his ear on autumn day, autumn night or the
+winter pair.)

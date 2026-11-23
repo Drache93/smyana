@@ -61,3 +61,13 @@ dark with no camp; the bare dog rose's line no longer breaks the summer one's pr
 
 Left: the afternoon lost in the walk between places (five hours by design, so the player arrives at dusk); the lane
 lost under the crowns; nothing to hover on the loaves; the icons move with the men.
+
+## Later: wolves a long way off, and spring (Claude)
+
+Play 5's hardest word was that nothing happens in the first twenty minutes. A first small answer, ahead of Friday's
+work on the opening: on the first night, once a fire is lit and it is past half past ten, wolves howl twice a long way
+off and one man says so ("Wolves. A long way off yet. They keep clear of a fire.", Claude's placeholder). Nothing
+comes; it only tells the player what the wood holds and what the fire is for. Seen in the harness at 5:16 of play.
+
+Spring day was remade too (D-160): summer's walking tune a fourth up and quicker, with the theme's third and fourth
+lines on a low kaval, the lines winter's hum never reached. Unheard by Dominic yet.

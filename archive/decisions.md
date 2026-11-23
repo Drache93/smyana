@@ -1030,3 +1030,10 @@ The sixth and seventh songs through the design stage, Claude's calls, unheard. W
 D and A, the wait between them growing from 3.5 to 8.5 seconds, one far kaval phrase. Winter night: one man humming
 the main theme in three tries, each further, never reaching its last line, which is kept for the spring and the
 homecoming. The open sung voice is not used. Sheets: docs/music-design.md.
+
+## D-160: spring day is the summer's walk come back, with the song finished (2026-11-23)
+
+The eighth song through the design stage, Claude's call, unheard. The summer day's lute tune returns a fourth higher
+and quicker, and a low kaval plays the home song's third and fourth lines: the last line, which the winter night
+withheld (D-159), is heard here for the first time. Spring morning stays as it is: it is the tune Dominic himself
+heard as "spring or morning time" (2026-11-10). Sheet: docs/music-design.md "Sheet: spring day".

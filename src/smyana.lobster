@@ -2106,7 +2106,8 @@ class MarchEnd:
 var march_ends = []::MarchEnd
 
 var gathered_said = 0
-var rose_asked = false  // a right click has just sent the men to a dog rose that is no stand
+var far_howl_again = 0.0  // when the second far howl of the first night comes (watched seconds; 0: none due)
+var rose_asked = false    // a right click has just sent the men to a dog rose that is no stand
 
 def march(ids:[int], x:int, y:int):
     let here = filter(ids) id: index_of(id) >= 0
@@ -3392,6 +3393,15 @@ def guide_tick():
     // a later morning still in the first place: which way, again (the third and fourth agent playtests spent three
     // days at the village edge, 2026-11-22 and 23)
     if day >= 1 and hour_now() >= 6.0 and hour_now() < 9.0 and leg_id == gstr(route, "start", "") and not is_night(): one_says("morning {day}", say_cfg("morning"), day)
+    // the first night by a fire: wolves heard a long way off, and the man on watch says so. Nothing comes of it; it is
+    // the first word of what the deeper woods hold (three first-time plays met nothing at all in twenty minutes)
+    if day == 0 and is_night() and fires.length > 0 and (hour_now() >= 22.5 or hour_now() < 3.0) and (find(said): _ == "first howl") < 0:
+        hear("far_howl", -10.0, 0.6)
+        far_howl_again = seen_s + 10.0
+        one_says("first howl", say_cfg("first_howl"), 1)
+    if far_howl_again > 0.0 and seen_s >= far_howl_again:
+        far_howl_again = 0.0
+        hear("far_howl", -13.0, 0.3)
     // gathered: what it came to, said once the pickers are done
     if food_gathered < gathered_said: gathered_said = food_gathered
     if food_gathered > gathered_said and not foragers.length:
