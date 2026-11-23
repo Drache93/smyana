@@ -47,3 +47,10 @@ Dominic listened to both reels (his words: `archive/notes/2026-11-23-dominic-the
   thins out, drops falling back, and only a breath of spray.
 
 All of it is still made unheard, by numbers. Sent as `sound-reel-02`.
+
+## Third pass: the wading again
+
+Dominic on reel 2 (17:22): "Good except after 1min weird watery sound". That was the wading, made of bare sine
+bubbles. So the birds, stream, fire and footsteps stand. The wading is now made of what he passed in the stream: a
+swell of the same bright wash with the same small blips in it, falling away, and a soft low knock as the leg goes in.
+Sent alone as `wading-03`. He also said never to wait for him: the work goes on and his notes are taken as they come.

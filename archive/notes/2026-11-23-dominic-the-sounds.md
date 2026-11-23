@@ -13,3 +13,11 @@ Written in the project thread after listening to `forest-reel-01` and `men-reel-
 > water if thats what it is sounds bad, like pushing sand around. The walking
 
 (The second message ends there. The sound after the rain on the reel was the stream.)
+
+17:22, after `sound-reel-02` (the sound a minute in was the wading):
+
+> Good except after 1min weird watery sound
+
+17:23:
+
+> Please dont ever wait for me, can wait async

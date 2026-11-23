@@ -64,25 +64,25 @@ def drop(rng, lo, hi):
 
 
 def slosh(rng):
-    """A leg through knee-deep water: a plunge, a crowd of bubbles gurgling up behind it, drops falling back.
-    (The first try was a push of mid noise, and Dominic heard "pushing sand around", 2026-11-23: noise is sand.)"""
-    n = secs(0.9)
+    """A leg through knee-deep water: the stream's own water, stirred. A swell of bright wash, thick with small
+    bubbles, that falls away; a soft low knock under it as the leg goes in.
+    (The first try was a push of mid noise: "pushing sand around". The second was bare sine bubbles: "weird watery
+    sound". Dominic, 2026-11-23. The stream's wash and small blips he passed, so this is made of those.)"""
+    n = secs(0.95)
     t = tt(n)
-    x = np.zeros(n)
-    # (the plunge: a low hollow knock of water closing, one or two big bubbles)
-    for k in range(int(rng.integers(1, 3))):
-        put(x, drop(rng, 180, 420) * rng.uniform(0.5, 0.9), secs(rng.uniform(0.0, 0.08)))
-    # (the gurgle: many bubbles, thick just after the plunge, thinning out)
-    for k in range(int(rng.integers(28, 44))):
-        at = 0.03 + rng.exponential(0.16)
-        if at < 0.82:
-            put(x, drop(rng, 450, 2600) * rng.uniform(0.12, 0.5), secs(at))
-    # (drops falling back from the leg: a few high and late)
-    for k in range(int(rng.integers(3, 8))):
-        put(x, drop(rng, 2200, 5200) * rng.uniform(0.08, 0.25), secs(rng.uniform(0.25, 0.8)))
-    # (only a breath of spray, very high and short)
-    spray = highpass(noise(n, rng), 3500) * env(n, 0.02, 0.22) * 0.05
-    return x + spray
+    shape = np.clip(t / 0.09, 0, 1) * 10 ** (-3 * np.maximum(t - 0.09, 0) / rng.uniform(0.6, 0.8))
+    wash = band(noise(n, rng), 700, 4200) * 0.5 + band(noise(n, rng), 4200, 9000) * 0.2 + band(noise(n, rng), 250, 700) * 0.15
+    ripple = lowpass(noise(n + 2048, rng), 18)[1024:1024 + n]
+    x = wash * shape * (1 + 0.3 * ripple / (np.abs(ripple).max() + 1e-9))
+    for k in range(int(rng.integers(50, 70))):
+        at = rng.exponential(0.2)
+        if at < 0.85:
+            f = rng.uniform(900, 3600)
+            bn = secs(rng.uniform(0.008, 0.03))
+            blip = np.sin(2 * np.pi * np.cumsum(np.linspace(f, f * rng.uniform(1.15, 1.6), bn)) / SR) * env(bn, 0.001, 0.02)
+            put(x, blip * rng.uniform(0.08, 0.4) * (0.4 + 0.6 * shape[secs(at)]), secs(at))
+    knock = lowpass(highpass(noise(n, rng), 70, 1), 300, 1) * env(n, 0.01, 0.12) * 0.5
+    return x + knock
 
 
 def walking(step, rng, length=10.0, men=4, pace=1.7):
