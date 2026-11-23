@@ -115,6 +115,31 @@ Pencil sketch (the pipe, its drone and the kaval's two notes, nothing else):
 Pencil sketch (hummed, since the bench can't sing words; one voice, then five, and the knock):
 [`02-music-pencil-sketch-the-fire.ogg`](../archive/audio/2026-11-11/02-music-pencil-sketch-the-fire.ogg)
 
+## Sheet: summer day
+
+Made 2026-11-23 by Claude, the second song through the design stage. Dominic could not hear the sheet or the sketch
+first (his standing word that day: "Please dont ever wait for me, can wait async"), so this is **Claude's call**,
+his to change when he hears it.
+
+| | |
+|---|---|
+| **Where** | The village edge on the first morning, and every summer day after: green lane, the men setting out. The first music a player hears and the track heard most. |
+| **The one idea** | The lute walks. A tambura plays the tune at the men's own pace; the pipe does not run, it answers twice from far off. |
+| **Shape** | A beat that stops. Line A twice (home, a leap up a fifth, back by steps), the walk halts and a kaval answers across the valley; line B twice, higher, to the top G; the kaval again over the low strings; line A once more, slowing. |
+| **Who plays** | Tambura (tune, and its two low strings as the walk), a kaval far off, a flock's bells very far. |
+| **Who doesn't** | No gaida, no drone, no voices, no humming, no haze. |
+| **Home note and range** | G (summer's note in the rules above). The lute between G3 and G4, an octave under the first draft's kaval; the kaval above it, D5 to G5. |
+| **Space** | In the wood for the lute (some echo); across the valley for the kaval (the long echo). |
+| **Loud and soft** | The lute is steady; the quiet is the halt, when only the kaval is left. |
+| **Not like** | *Summer dusk* (a fiddle alone, no beat). *Spring morning* (quick, a kaval tune). *Autumn dusk* (a held pipe on E). The first draft of this track (kaval running by steps over a rocking lute). |
+| **Real model** | A tambura tune in plain 2/4 played alone, walking pace. |
+| **Open** | Does the bench's plucked lute carry a tune by itself? Is 80 steps a minute the men's pace on screen? Is it too plain to hear many times? |
+
+As made: 72 notes, 15 leaps and 14 notes said twice (the first draft: 50 notes, 2 leaps, 8 said twice); 116 seconds;
+no energy to speak of above 1200 Hz, 20% in 600 to 1300 Hz. Quiet to loud 8.9 dB. Track: `music/pieces/song_01_summer_day.py`.
+Renders: [`01-summer-day-designed.ogg`](../archive/audio/2026-11-23/01-summer-day-designed.ogg), pencil sketch
+[`02-pencil-summer-day.ogg`](../archive/audio/2026-11-23/02-pencil-summer-day.ogg).
+
 ## Autumn dusk, as made (2026-11-11, evening)
 
 Dominic, 21:13 UTC: "for the music for phase 1, lets focus on just getting that music creation solid. So we make one

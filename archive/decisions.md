@@ -989,3 +989,10 @@ alone, nobody home; the new walk orders alone, 12 home; neither, 16. The game an
 the sim's ticks, so a night with fewer ticks in it is a poorer country. Now, when every man is asleep at night, the
 whole sim runs at `asleep_speed` (400: four times) till one wakes or day comes: every night has the ticks it had,
 and the player waits a quarter of the time. The bot's own runs do not use it (they are already run fast). Claude.
+
+## D-154: summer day is a walking lute (2026-11-23)
+
+The second song through the design stage (D-073), and Claude's call throughout, since Dominic had said not to wait
+for him: the summer day track is a tambura tune at walking pace on G, with a kaval answering twice from far off, in
+place of the first draft's kaval running over a rocking lute. Chosen first for music draft 2 because it is the track
+a player hears first and most. Sheet: docs/music-design.md "Sheet: summer day". Unheard by anyone yet.

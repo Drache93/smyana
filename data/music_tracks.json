@@ -1,7 +1,7 @@
 {
  "_doc": "How long each track in assets/audio/music is, seconds. Written by music/pieces/set_03_score.py index.",
  "seconds": {
-  "01_summer_day": 126.0,
+  "01_summer_day": 116.0,
   "02_summer_dusk": 98.74,
   "03_autumn_day": 126.0,
   "04_autumn_dusk": 146.0,

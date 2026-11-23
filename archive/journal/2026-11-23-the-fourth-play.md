@@ -36,3 +36,10 @@ about a third of the real time of a day step.
 The day is 4:20 of light and both players felt they got nowhere; the day's length is not changed, since the balance
 moved a long way on a change to the night alone. Black beyond the map's edge. Nights too dark to find one's own
 camp. Drags that chose nobody twice (seen again in the harness under load; may be the harness).
+
+## Music draft 2 begins: summer day (D-154)
+
+Two days ahead of the plan. The first of the calm tracks to be remade is the one heard first and most. Its sheet is
+in `docs/music-design.md`; the tune is a plucked lute walking at 80 steps a minute with leaps of a fifth and notes
+said twice, and a far kaval answering in the two places the walk stops or thins. Measured, not heard: 15 leaps
+against the first draft's 2. Sent to Dominic with its pencil sketch.
