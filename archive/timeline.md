@@ -250,3 +250,4 @@ One line per moment worth remembering. Newest at the bottom.
 - 2026-11-23 (late): the winter pair remade (D-159).
 - 2026-11-23 (late): spring day remade (D-160).
 - 2026-11-23 (late): the fire song made from its sheet, call and answer (D-161).
+- 2026-11-23 (late): the Ottomans remade as a close drum and a far pipe (D-162).

@@ -1044,3 +1044,10 @@ The ninth song through the design stage, Claude's call, unheard. Made as the she
 each hummed by one man and then by all, a stick knocked on a log every four beats, no instrument. Added in the making:
 the last two lines once more by all the men together, slowing to a held low D. The first draft (the main theme hummed
 with no beat) is replaced. It is still the bench's hum, not men: real voices remain the wish for this track.
+
+## D-162: the Ottomans are a drum close by and a pipe far off (2026-11-23)
+
+The first danger track through the design stage, Claude's call, unheard. Dominic, 2026-11-11: "ottomans sounds too
+synth". The bench's zurna is a bare buzz and was in front; now their drum is close and dry and the pipe is only two
+far calls of long notes, darkened and mostly echo. The wide step of their scale is kept. A knock was added to the
+drum so that small speakers carry it. The other danger tracks (wary, hiding, beasts, bandits, chase) are not remade.

@@ -283,6 +283,26 @@ the energy between 600 and 1300 Hz; it was put an octave down (17%). Renders:
 [`13-spring-day-designed.ogg`](../archive/audio/2026-11-23/13-spring-day-designed.ogg), pencil sketch
 [`14-pencil-spring-day.ogg`](../archive/audio/2026-11-23/14-pencil-spring-day.ogg).
 
+## Sheet: the Ottomans
+
+| | |
+|---|---|
+| **Where** | A patrol has seen the men. A loop, for as long as the danger lasts. |
+| **The one idea** | The drum is here and the pipe is not. |
+| **Shape** | Sixteen bars at 92 beats a minute (42 s). Four bars of the drum alone, four with the pipe far off, four of the drum heavier, four with the pipe again. |
+| **Who plays** | Their big drum, close and dry: dum, tek tek, dum, tek, a short roll every fourth bar. Their pipe, across the valley: two calls of long notes (1.6 s a note; the first draft's ran at half a second), more echo than pipe. |
+| **Who doesn't** | No second pipe holding a note. Nothing of the men's: no kaval, no lute, no hum. |
+| **Home note and scale** | E, with their own scale (E F G sharp A B C): the wide step from F to G sharp is kept, since it says whose pipe it is. |
+| **Space** | Two spaces at once, the only track that has them: the drum in the player's chest, the pipe a valley away with its top taken off by the air. |
+| **Loud and soft** | The drum does not let up. The pipe comes and goes. |
+| **Not like** | Every calm track (no beat, or the men's own walk). The first draft (a pipe running in front). |
+| **Answers** | "ottomans sounds too synth" (Dominic, 2026-11-11): the bench's reed is a bare buzz close up, so it is never heard close up. |
+| **Open** | Only his ear can say whether a far buzz passes. The drum is the bench's too; its boom is very low, so the beater's knock was added for small speakers. A real zurna recording would still be better. |
+
+Made (2026-11-23, D-162): [`song_14_ottomans.py`](../music/pieces/song_14_ottomans.py).
+[`17-ottomans-designed.ogg`](../archive/audio/2026-11-23/17-ottomans-designed.ogg), the pipe's calls alone:
+[`18-pencil-ottomans.ogg`](../archive/audio/2026-11-23/18-pencil-ottomans.ogg)
+
 ## Autumn dusk, as made (2026-11-11, evening)
 
 Dominic, 21:13 UTC: "for the music for phase 1, lets focus on just getting that music creation solid. So we make one

@@ -71,3 +71,10 @@ comes; it only tells the player what the wood holds and what the fire is for. Se
 
 Spring day was remade too (D-160): summer's walking tune a fourth up and quicker, with the theme's third and fourth
 lines on a low kaval, the lines winter's hum never reached. Unheard by Dominic yet.
+
+## Later still: the fire and the Ottomans (Claude)
+
+The fire song was made from its sheet of 11 November (D-161): one man hums a line, the others hum it back, a stick
+knocks on a log. Then the Ottomans (D-162), the one track Dominic had named: "too synth". The answer is distance:
+the drum stays close and the pipe goes across the valley. Both unheard by him. With these the calm score and the
+named danger track are through the design stage; wary, hiding, beasts, bandits and the chase are still first drafts.
