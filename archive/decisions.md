@@ -1010,3 +1010,10 @@ thirty tiles on, and neither first-time player found one in twenty minutes or le
 first place now grows one more stand of its first light-loving find (wild strawberries in summer) nine to fourteen
 tiles from where the men set out, just off the lane: it is on the opening screen, a man calls it out, and the pointer
 turns to the basket over it. Claude. Picture: `archive/images/2026-11-23/01-strawberries-on-the-opening-screen.png`.
+
+## D-157: autumn day is a call and its echo (2026-11-23)
+
+Dominic on the remade summer day and summer dusk, 2026-11-23 21:34: "Songs are good". So draft 2 goes on in that
+way, one song at a time, each Claude's call until he hears it. The fourth through the design stage: autumn day is a
+kaval calling across the valley and the men humming the call back, on E, with no drone. Sheet: docs/music-design.md
+"Sheet: autumn day".

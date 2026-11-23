@@ -163,6 +163,30 @@ As made: 20 notes of 3.2 seconds on average, none under a second, 6 leaps (the f
 [`03-summer-dusk-designed.ogg`](../archive/audio/2026-11-23/03-summer-dusk-designed.ogg), pencil sketch
 [`04-pencil-summer-dusk.ogg`](../archive/audio/2026-11-23/04-pencil-summer-dusk.ogg).
 
+## Sheet: autumn day
+
+Made 2026-11-23 by Claude, the fourth song through the design stage, after Dominic heard summer day and summer dusk
+("Songs are good", 21:34). **Claude's call**, unheard.
+
+| | |
+|---|---|
+| **Where** | Autumn days: the beech valley gone orange, the fir woods in mist. |
+| **The one idea** | A call and its echo. A kaval calls across the valley; after a quiet the men give the same call back, low and hummed. |
+| **Shape** | Four calls, each a little longer (two notes, four, six, four), each with a fall or a climb of a fifth. The third climbs and is left open, and the men turn it home. The last is sounded together, the men two seconds behind. |
+| **Who plays** | Kaval; the men humming (closed lips, not the open voice he heard as a trumpet); a trace of haze. |
+| **Who doesn't** | No drone, no pipe, no lute, no beat. |
+| **Home note and range** | E, autumn's note. The kaval E4 to E5; the men an octave under. |
+| **Space** | Across the valley: the long echo, the only calm track so far that has it. |
+| **Loud and soft** | Quiet between call and answer (12 dB from quiet to loud). |
+| **Not like** | *Summer day* (a beat, plucked). *Summer dusk* (one fiddle, unanswered: here every call is answered). *Autumn dusk* (one pipe that holds over its drone). |
+| **Real model** | Shepherds calling across a valley on the kaval; men's unison humming. |
+| **Open** | 72% of its energy sits between 300 and 600 Hz, the band the first draft crowded: is it too soft and round ("too soft now", he said of the first autumn mist)? Does the bench's hum pass for men? |
+
+As made: the kaval has 16 notes of 3.2 seconds, none under a second, 6 leaps (first draft: 35 notes of 1.5 seconds,
+21 under a second); 116 seconds. Track: `music/pieces/song_03_autumn_day.py`. Renders:
+[`05-autumn-day-designed.ogg`](../archive/audio/2026-11-23/05-autumn-day-designed.ogg), pencil sketch
+[`06-pencil-autumn-day.ogg`](../archive/audio/2026-11-23/06-pencil-autumn-day.ogg).
+
 ## Autumn dusk, as made (2026-11-11, evening)
 
 Dominic, 21:13 UTC: "for the music for phase 1, lets focus on just getting that music creation solid. So we make one
