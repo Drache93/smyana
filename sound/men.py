@@ -31,9 +31,11 @@ TAKES = 3
 
 def leaf_step(rng):
     """A foot down in leaf litter: a soft thud under a brush of dry leaves, a twig now and then."""
-    n = secs(0.22)
-    thud = band(noise(n, rng), 60, 260) * env(n, 0.004, 0.09) * 0.9
-    brush = band(noise(n, rng), 900, 5200) * env(n, 0.012, rng.uniform(0.09, 0.16)) * 0.5
+    # (the first try kept the thud under 260 Hz and the brush between 900 and 5200 with nothing between or above, and
+    # Dominic heard "the sound being cut a bit at high or low band", 2026-11-23: now the whole band, gently sloped.)
+    n = secs(0.26)
+    thud = lowpass(highpass(noise(n, rng), 45, 1), 420, 1) * env(n, 0.004, 0.1) * 0.9
+    brush = lowpass(highpass(noise(n, rng), 500, 1), 9000, 1) * env(n, 0.012, rng.uniform(0.1, 0.18)) * 0.42
     x = thud + brush
     for k in range(int(rng.integers(2, 6))):
         cn = secs(0.008)
@@ -47,25 +49,40 @@ def snow_step(rng):
     """A foot down in snow: the dry creak as it packs, then the dull thud."""
     n = secs(0.3)
     t = tt(n)
-    creak = band(noise(n, rng), 700, 3200) * env(n, 0.03, 0.16) * (1 + 0.6 * np.sin(2 * np.pi * rng.uniform(55, 90) * t))
-    thud = band(noise(n, rng), 50, 200) * env(n, 0.01, 0.1) * 0.8
-    return creak * 0.6 + thud
+    creak = lowpass(highpass(noise(n, rng), 600, 1), 8000, 1) * env(n, 0.03, 0.16) * (1 + 0.6 * np.sin(2 * np.pi * rng.uniform(55, 90) * t))
+    thud = lowpass(highpass(noise(n, rng), 40, 1), 320, 1) * env(n, 0.01, 0.1) * 0.8
+    return creak * 0.5 + thud
+
+
+def drop(rng, lo, hi):
+    """One bubble or drop: a damped sine whose pitch climbs as it closes. Water is these, not noise."""
+    f = rng.uniform(lo, hi)
+    bn = secs(rng.uniform(0.015, 0.06))
+    t = tt(bn)
+    curve = f * (1 + rng.uniform(0.15, 0.7) * (t / (bn / SR)) ** 2)
+    return np.sin(2 * np.pi * np.cumsum(curve) / SR) * env(bn, 0.0015, bn / SR)
 
 
 def slosh(rng):
-    """A leg through knee-deep water: the push, and the water falling back."""
-    n = secs(0.7)
+    """A leg through knee-deep water: a plunge, a crowd of bubbles gurgling up behind it, drops falling back.
+    (The first try was a push of mid noise, and Dominic heard "pushing sand around", 2026-11-23: noise is sand.)"""
+    n = secs(0.9)
     t = tt(n)
-    push = band(noise(n, rng), 250, 2200) * np.sin(np.pi * np.clip(t / 0.45, 0, 1)) ** 2
-    spray = band(noise(n, rng), 2500, 7000) * env(n, 0.05, 0.3) * 0.25
-    x = push + spray
+    x = np.zeros(n)
+    # (the plunge: a low hollow knock of water closing, one or two big bubbles)
+    for k in range(int(rng.integers(1, 3))):
+        put(x, drop(rng, 180, 420) * rng.uniform(0.5, 0.9), secs(rng.uniform(0.0, 0.08)))
+    # (the gurgle: many bubbles, thick just after the plunge, thinning out)
+    for k in range(int(rng.integers(28, 44))):
+        at = 0.03 + rng.exponential(0.16)
+        if at < 0.82:
+            put(x, drop(rng, 450, 2600) * rng.uniform(0.12, 0.5), secs(at))
+    # (drops falling back from the leg: a few high and late)
     for k in range(int(rng.integers(3, 8))):
-        f = rng.uniform(450, 1500)
-        bn = secs(rng.uniform(0.02, 0.05))
-        blip = np.sin(2 * np.pi * np.cumsum(np.linspace(f, f * rng.uniform(1.3, 1.9), bn)) / SR) * env(bn, 0.002, 0.04) * 0.5
-        a = int(rng.integers(secs(0.1), n - bn))
-        x[a:a + bn] += blip
-    return x
+        put(x, drop(rng, 2200, 5200) * rng.uniform(0.08, 0.25), secs(rng.uniform(0.25, 0.8)))
+    # (only a breath of spray, very high and short)
+    spray = highpass(noise(n, rng), 3500) * env(n, 0.02, 0.22) * 0.05
+    return x + spray
 
 
 def walking(step, rng, length=10.0, men=4, pace=1.7):

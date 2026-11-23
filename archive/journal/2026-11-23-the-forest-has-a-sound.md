@@ -29,3 +29,21 @@ in a second. Seen working in the playtest harness's log: ack on an order, pack_d
   (the test bot did not go to a hut in the run tried).
 - A gathering order on a far stand sent four pickers off and left the rest, and the band was in pieces. Now the rest
   walk with them and wait four tiles short of the stand, and a picker who is done walks back to the others.
+
+## Second pass, from Dominic's ear
+
+Dominic listened to both reels (his words: `archive/notes/2026-11-23-dominic-the-sounds.md`). Kept: wind and leaves
+("great"), rain ("good"), the fire's crackle, footsteps ("pretty good"). Remade by Claude the same morning (D-149):
+
+- **Birds** ("robotic, like data"): pure sliding sine chirps on a grid. Now each note's pitch wanders and flutters,
+  has air in it, and the eight singers sit mostly far off with silences between phrases.
+- **Stream** (heard as "lightning"): slow loud surges of low water. Now a steady bright wash, a shallow quick ripple
+  and many small bubbles.
+- **Fire** ("something blow hard on the fire"): the low flame flutter was loud. Cut to almost nothing; more small
+  cracks, fewer big ones.
+- **Footsteps** ("cut a bit at high or low band"): the thud stopped at 260 Hz and the brush sat between 900 and
+  5200 Hz. Now both slope gently across the whole band.
+- **Wading** ("pushing sand around"): it was a push of filtered noise. Now it is bubbles: a low plunge, a gurgle that
+  thins out, drops falling back, and only a breath of spray.
+
+All of it is still made unheard, by numbers. Sent as `sound-reel-02`.

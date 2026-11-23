@@ -237,3 +237,4 @@ One line per moment worth remembering. Newest at the bottom.
   (D-141) and slower hunger: 11 and 12 of 20 men home on two seeds, the third stuck at a gate.
 - 2026-11-22 (evening): two agent playtests quit before ten minutes; first clarity fixes in (the men say the goal, Paused, sign labels, a mark toward the men), D-144.
 - 2026-11-23: the forest has a sound: wind, birds, crickets, rain, stream and fire beds, and five bird calls (D-147).
+- 2026-11-23 (morning): Dominic heard the reels; birds, stream, fire, footsteps and wading remade from his notes (D-149).

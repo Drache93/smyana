@@ -101,68 +101,111 @@ def wind(rng, length=18.0):
     return two(*out)
 
 
-def chirp(f0, f1, dur, rng, trill=0.0):
-    """One note of a small bird: a pure tone gliding f0 to f1, a quick trill in it, soft at both ends."""
-    n = secs(dur)
-    t = tt(n)
-    f = np.linspace(f0, f1, n) * (1 + trill * np.sin(2 * np.pi * rng.uniform(28, 45) * t))
+def slur(points, dur, rng, rough=0.0):
+    """One note of a small bird: a whistle sliding through (place 0..1, Hz) points, never quite steady: the pitch
+    wanders and shivers, the breath behind it flutters, and no two are alike. (The first try, 2026-11-23, was pure
+    tones at set pitches in set rhythms, and Dominic heard it at once: "very robotic, like data, not like birds".)"""
+    n = max(secs(dur), 32)
+    x = np.arange(n) / n
+    f = np.interp(x, [p[0] for p in points], [p[1] for p in points])
+    k = max(3, n // 12)
+    f = np.convolve(np.pad(f, (k, k), mode="edge"), np.hanning(k * 2 + 1) / np.hanning(k * 2 + 1).sum(), mode="same")[k:-k]
+    wander = lowpass(noise(n + 256, rng), 60)[128:128 + n]
+    f = f * (1 + 0.02 * wander / (np.abs(wander).max() + 1e-9)) * (1 + rng.uniform(0.0, 0.025) * np.sin(2 * np.pi * rng.uniform(18, 60) * tt(n) + rng.uniform(0, 6.28)))
     ph = 2 * np.pi * np.cumsum(f) / SR
-    e = np.sin(np.pi * np.arange(n) / n) ** 0.8
-    return (np.sin(ph) + 0.18 * np.sin(2 * ph)) * e
+    flutter = lowpass(noise(n + 256, rng), 90)[128:128 + n]
+    amp = np.clip(1 + (0.25 + rough) * flutter / (np.abs(flutter).max() + 1e-9), 0.1, None)
+    up = rng.uniform(0.08, 0.3)
+    e = np.clip(x / up, 0, 1) ** rng.uniform(0.7, 1.6) * np.clip((1 - x) / (1 - up), 0, 1) ** rng.uniform(0.6, 2.0)
+    tone_ = np.sin(ph) + rng.uniform(0.03, 0.14) * np.sin(2 * ph + rng.uniform(0, 6.28))
+    air = band(noise(n + 512, rng), 2500, 7500)[256:256 + n] * rng.uniform(0.02, 0.06)
+    return (tone_ * amp + air) * e
 
 
 def phrase(kind, rng):
-    """A bird's phrase as (seconds in, note) pairs."""
+    """A bird's phrase as (seconds in, note, loudness) triples. Each bird has its own way, but loosely: lengths,
+    gaps and pitches all wander, a note is dropped now and then, and it trails off when it likes."""
     notes = []
     at = 0.0
-    if kind == "finch":  # a falling, quickening run that ends in a flourish
-        f = rng.uniform(4200, 4800)
-        for k in range(rng.integers(8, 12)):
-            d = 0.085 - k * 0.003
-            notes.append((at, chirp(f, f * 0.86, d, rng)))
-            at += d + 0.035
-            f *= 0.955
-        notes.append((at, chirp(f * 1.3, f * 0.8, 0.16, rng, 0.05)))
-    elif kind == "tit":  # two notes, high then low, over and over
-        hi = rng.uniform(4400, 5200)
-        for k in range(rng.integers(3, 6)):
-            notes.append((at, chirp(hi, hi * 0.98, 0.11, rng)))
-            notes.append((at + 0.16, chirp(hi * 0.76, hi * 0.75, 0.13, rng)))
-            at += 0.42
-    elif kind == "warbler":  # a hurried chatter up and down
-        for k in range(rng.integers(9, 16)):
-            f = rng.uniform(2800, 5600)
-            d = rng.uniform(0.04, 0.09)
-            notes.append((at, chirp(f, f * rng.uniform(0.8, 1.25), d, rng, 0.03)))
-            at += d + rng.uniform(0.02, 0.06)
-    else:  # a single thin call
-        f = rng.uniform(5200, 6800)
-        notes.append((0.0, chirp(f, f * 0.93, 0.22, rng)))
+    if kind == "finch":  # a chaffinch: a falling, quickening rattle of down-slurs and a flourish at the end
+        f = rng.uniform(3900, 5000)
+        count = int(rng.integers(6, 13))
+        for k in range(count):
+            d = rng.uniform(0.05, 0.085) * (1 - 0.3 * k / count)
+            top = f * rng.uniform(0.97, 1.05)
+            notes.append((at, slur([(0, top * rng.uniform(1.0, 1.12)), (0.35, top), (1, top * rng.uniform(0.72, 0.86))], d, rng), rng.uniform(0.6, 1.0)))
+            at += d + rng.uniform(0.02, 0.05)
+            f *= rng.uniform(0.94, 0.985)
+        if rng.uniform() < 0.8:
+            notes.append((at + rng.uniform(0, 0.04), slur([(0, f * 0.9), (0.3, f * 1.35), (0.6, f * 0.8), (1, f * 1.1)], rng.uniform(0.14, 0.22), rng, 0.2), 1.0))
+    elif kind == "tit":  # a great tit: two notes, high then low, a few times, never quite the same twice
+        hi = rng.uniform(4000, 5400)
+        ratio = rng.uniform(0.7, 0.8)
+        for k in range(int(rng.integers(2, 6))):
+            h = hi * rng.uniform(0.985, 1.015)
+            notes.append((at, slur([(0, h * 0.96), (0.2, h), (1, h * rng.uniform(0.95, 0.99))], rng.uniform(0.09, 0.14), rng), rng.uniform(0.7, 1.0)))
+            at += rng.uniform(0.15, 0.2)
+            notes.append((at, slur([(0, h * ratio * 1.04), (0.3, h * ratio), (1, h * ratio * 0.97)], rng.uniform(0.1, 0.16), rng), rng.uniform(0.6, 0.95)))
+            at += rng.uniform(0.2, 0.3)
+    elif kind == "warbler":  # a blackcap: a hurried, rambling warble, up and down with no pattern to it
+        f = rng.uniform(3000, 4500)
+        for k in range(int(rng.integers(7, 18))):
+            f = float(np.clip(f * rng.uniform(0.75, 1.35), 2400, 6200))
+            d = rng.uniform(0.035, 0.13)
+            g = f * rng.uniform(0.8, 1.25)
+            notes.append((at, slur([(0, f), (rng.uniform(0.3, 0.7), (f + g) / 2 * rng.uniform(0.92, 1.1)), (1, g)], d, rng, 0.15), rng.uniform(0.4, 1.0)))
+            at += d + (rng.uniform(0.01, 0.05) if rng.uniform() < 0.85 else rng.uniform(0.1, 0.25))
+    elif kind == "robin":  # a robin: a few long thin wistful notes, then a quick ripple
+        f = rng.uniform(4300, 5800)
+        for k in range(int(rng.integers(2, 4))):
+            d = rng.uniform(0.18, 0.4)
+            notes.append((at, slur([(0, f * rng.uniform(0.95, 1.05)), (0.5, f * rng.uniform(0.9, 1.1)), (1, f * rng.uniform(0.8, 1.0))], d, rng), rng.uniform(0.5, 0.9)))
+            at += d + rng.uniform(0.06, 0.2)
+            f *= rng.uniform(0.8, 1.2)
+        for k in range(int(rng.integers(0, 7))):
+            d = rng.uniform(0.03, 0.06)
+            g = f * rng.uniform(0.7, 1.4)
+            notes.append((at, slur([(0, g), (1, g * rng.uniform(0.8, 1.2))], d, rng), rng.uniform(0.4, 0.8)))
+            at += d + rng.uniform(0.01, 0.03)
+    else:  # a single thin call, "tsip" or "hweet"
+        f = rng.uniform(4800, 7000)
+        if rng.uniform() < 0.5:
+            notes.append((0.0, slur([(0, f * 1.15), (0.4, f), (1, f * 0.8)], rng.uniform(0.04, 0.08), rng, 0.2), 1.0))
+        else:
+            notes.append((0.0, slur([(0, f * 0.7), (0.6, f * 0.95), (1, f)], rng.uniform(0.12, 0.22), rng), 0.9))
     return notes
 
 
-def birds(rng, length=24.0):
+def birds(rng, length=32.0):
+    """Small birds in a wood, most of them a way off: each sings, waits, sings again from the same perch a little
+    differently; there are stretches with only a call or two in them."""
     n = secs(length)
     L = np.zeros(n)
     R = np.zeros(n)
-    at = 0.0
-    while at < length - 0.5:
-        kind = rng.choice(["finch", "tit", "warbler", "call", "call"], p=[0.22, 0.26, 0.2, 0.16, 0.16])
-        far = rng.uniform(0.0, 1.0)   # 0 near, 1 far off
+    tail = lowpass(noise(secs(1.3), rng), 3500) * env(secs(1.3), 0.02, 1.1)
+    tail /= np.sqrt((tail ** 2).sum())
+    singers = [("finch", 0.55), ("tit", 0.75), ("warbler", 0.35), ("robin", 0.85), ("call", 0.2), ("call", 0.6), ("tit", 0.95), ("finch", 0.9)]
+    for kind, far in singers:
+        far = float(np.clip(far + rng.uniform(-0.1, 0.1), 0.05, 1.0))  # 0 near, 1 far off
         pan = rng.uniform(-0.9, 0.9)
-        gain = 10 ** (-(4 + far * 20) / 20)
-        dry = np.zeros(secs(3.2))
-        for t0, note in phrase(kind, rng):
-            a = secs(t0)
-            if a + len(note) < len(dry):
-                dry[a:a + len(note)] += note
-        # (far off: the wood dulls it and gives it back)
-        tail = lowpass(noise(secs(0.9), rng), 3000) * env(secs(0.9), 0.01, 0.8)
-        wet = np.convolve(dry, tail)[: len(dry)] * 0.012
-        x = lowpass(dry * (1 - far * 0.5) + wet * (0.4 + far * 1.6), 7500 - far * 3500) * gain
-        put(L, x * np.sqrt((1 - pan) / 2), secs(at))
-        put(R, x * np.sqrt((1 + pan) / 2), secs(at))
-        at += rng.uniform(0.5, 2.3)
+        gain = 10 ** (-(6 + far * 18) / 20)
+        at = rng.uniform(0, length)
+        sung = 0.0
+        while sung < length:
+            dry = np.zeros(secs(4.0))
+            for t0, note, loud in phrase(kind, rng):
+                a = secs(t0)
+                if a + len(note) < len(dry):
+                    dry[a:a + len(note)] += note * loud
+            # (the wood between: the further off, the duller, and the more of it is the wood's own answer)
+            wet = np.convolve(dry, tail)[: len(dry)]
+            x = lowpass(dry * (1 - far * 0.7) + wet * (0.25 + far * 0.9), 8000 - far * 4500) * gain
+            put(L, x * np.sqrt((1 - pan) / 2), secs(at))
+            put(R, x * np.sqrt((1 + pan) / 2), secs(at + rng.uniform(0, 0.0006)))
+            wait = rng.uniform(3.5, 9.0) if kind != "call" else rng.uniform(1.5, 7.0)
+            if rng.uniform() < 0.25: wait += rng.uniform(4, 10)  # (he falls silent a while)
+            at += wait
+            sung += wait
     return two(L, R)
 
 
@@ -218,24 +261,25 @@ def rain(rng, length=14.0):
     return two(*out)
 
 
-def stream(rng, length=14.0):
+def stream(rng, length=16.0):
+    """A small mountain stream over stones: a steady bright wash, a quick light ripple in it, and many small
+    bubbles. (The first try had slow loud surges of low water in it, and Dominic heard "lightning"; 2026-11-23.)"""
     n = secs(length + 1.0)
     m = n - secs(1.0)
     out = []
     for side in range(2):
-        x = seamless(band(noise(n, rng), 250, 2600)) * 0.5 + seamless(band(noise(n, rng), 2600, 7000)) * 0.12
-        # (the bubbling: narrow voices of water that come and go, each at its own pitch)
-        for k in range(9):
-            lo = rng.uniform(350, 1900)
-            v = seamless(band(noise(n, rng), lo, lo * 1.25, order=3)) * 1.6
-            v *= np.clip(swell(m, rng, tuple(int(c) for c in rng.integers(5, 40, 3)), 1.3), 0, None) ** 2
-            x += v
-        # (single bubbles: a short rising blip)
-        for k in range(int(length * 9)):
-            f = rng.uniform(500, 1600)
-            bn = secs(rng.uniform(0.02, 0.05))
-            blip = np.sin(2 * np.pi * np.cumsum(np.linspace(f, f * rng.uniform(1.3, 1.9), bn)) / SR) * env(bn, 0.002, 0.04)
-            put(x, blip * rng.uniform(0.4, 1.0), int(rng.integers(m)))
+        wash = seamless(band(noise(n, rng), 700, 4200)) * 0.5 + seamless(band(noise(n, rng), 4200, 9000)) * 0.18
+        low = seamless(band(noise(n, rng), 250, 700)) * 0.12
+        # (the ripple: quick and shallow, never a surge)
+        ripple = lowpass(noise(m + 2048, rng), 14)[1024:1024 + m]
+        ripple = 1 + 0.18 * ripple / (np.abs(ripple).max() + 1e-9)
+        x = (wash + low) * ripple * swell(m, rng, (1, 2, 3), 0.06)
+        # (bubbles: many, small, each a short rising blip, a few a little bigger)
+        for k in range(int(length * 45)):
+            f = rng.uniform(900, 3600)
+            bn = secs(rng.uniform(0.008, 0.03))
+            blip = np.sin(2 * np.pi * np.cumsum(np.linspace(f, f * rng.uniform(1.15, 1.6), bn)) / SR) * env(bn, 0.001, 0.02)
+            put(x, blip * rng.uniform(0.05, 0.35), int(rng.integers(m)))
         out.append(x)
     return two(*out)
 
@@ -244,24 +288,26 @@ def fire(rng, length=14.0):
     n = secs(length + 1.0)
     m = n - secs(1.0)
     # (the flame: a low flutter; the wood: cracks, each a click with a dull knock under it, and spitting between)
-    flutter = seamless(band(noise(n, rng), 40, 380)) * swell(m, rng, (7, 11, 17, 23), 0.5) * 0.8
-    breath = seamless(band(noise(n, rng), 300, 1800)) * 0.12 * swell(m, rng, (3, 5, 9), 0.4)
+    # (the flame is nearly silent: a camp fire is its wood. The first try's low flutter was loud, and Dominic heard
+    # "something blow hard on the fire", 2026-11-23.)
+    flutter = seamless(band(noise(n, rng), 50, 220)) * swell(m, rng, (7, 11, 17, 23), 0.3) * 0.07
+    breath = seamless(band(noise(n, rng), 400, 1500)) * 0.012 * swell(m, rng, (3, 5, 9), 0.3)
     x = flutter + breath
     L = x.copy()
     R = x.copy()
-    for k in range(int(length * 5.5)):
-        big = rng.uniform() < 0.18
+    for k in range(int(length * 11)):
+        big = rng.uniform() < 0.08
         cn = secs(0.05 if big else 0.012)
         click = highpass(noise(cn, rng), 1500 if big else 2500) * env(cn, 0.0003, 0.03 if big else 0.006)
         if big:
             click = click * 1.8 + band(noise(cn, rng), 150, 700) * env(cn, 0.001, 0.04) * 1.5
-        g = rng.uniform(0.5, 1.6) * (2.2 if big else 1.0) * 0.22
+        g = rng.uniform(0.5, 1.6) * (1.5 if big else 1.0) * 0.22
         pan = rng.uniform(-0.5, 0.5)
         at = int(rng.integers(m))
         put(L, click * g * np.sqrt((1 - pan) / 2), at)
         put(R, click * g * np.sqrt((1 + pan) / 2), at)
     # (spitting: a short burst of small clicks close together)
-    for k in range(int(length * 0.5)):
+    for k in range(int(length * 0.9)):
         at = int(rng.integers(m))
         for j in range(int(rng.integers(4, 10))):
             cn = secs(0.006)
@@ -361,7 +407,7 @@ def main():
     SFX.mkdir(parents=True, exist_ok=True)
     made = 0
     # each sound's peak sets how loud it is beside the others (the game's own dB go on top: data/audio.json)
-    for k, (name, fn, db) in enumerate((("wind", wind, -8), ("birds", birds, -6), ("night", night, -10), ("rain", rain, -6),
+    for k, (name, fn, db) in enumerate((("wind", wind, -8), ("birds", birds, -9), ("night", night, -10), ("rain", rain, -6),
                                         ("stream", stream, -8), ("fire", fire, -5))):
         write_loop(SFX / f"amb_{name}_1.wav", fn(np.random.default_rng(7000 + k)), db)
         made += 1

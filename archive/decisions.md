@@ -937,3 +937,11 @@ number walking in view, so twenty men are one sound. Single sounds as they happe
 data/audio.json bus "Men"). And a volley is thinned in `hear` (src/smyana/heard.lobster): of one sound many times in a
 third of a second, the first three play and then one a tenth of a second, quieter. The third agent playtest counted
 seventeen booms in one second. Made unheard, like the forest's: Dominic's ear is the test.
+
+## D-149: water is bubbles, birds wander, a fire is its wood (2026-11-23)
+
+Dominic's ear on the first reels (2026-11-23): birds "robotic, like data"; the stream "sounds pretty weird"; the fire
+"super windy"; footsteps "cut a bit at high or low band"; wading "like pushing sand around". Claude's rules for the
+synthesised sounds from now on: water is made of bubbles and drops, with noise only as a faint spray; a bird's note
+never holds a clean pitch and birds are mostly far off with silences; a camp fire is cracks with almost no flame
+roar; a filtered noise never has a hard band edge or a hole in the middle. Wind, leaves and rain stay as they were.
