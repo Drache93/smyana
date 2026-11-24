@@ -52,3 +52,10 @@ in Chrome and Safari from a private test page.
 ## Decisions
 
 None yet. Whether the jam entry gets a browser build is Dominic's call, once the speed is known.
+
+## Later the same morning
+
+The coordinator passed on Dominic's standing rule (never wait for him), so the three small things above were done:
+the tree key now sits beside the baked trees in `baked/trees_key.txt`, written whenever it changes, and the browser
+build takes it from there and leaves the models out (68 MB of data, was 106); the menu has no Quit in a browser; the
+page keeps `settings.txt` in the browser's storage. `./check.sh` passes.
