@@ -1524,3 +1524,10 @@ Dominic's to rewrite.
 The eleventh first-time play: "'Start' and 'Quit' are small, pale, and drawn over the men; 'Start' sits on top of a
 man." The menu's words now stand on the same soft band of shade as the morning after's
 (`archive/images/2026-11-24/22-the-title-over-the-village.jpg`, also the README's title picture).
+
+## D-207 (2026-11-24, Claude): three bots play the finished build
+
+After D-202 to D-206, three bots played the whole run (`script:play fast:40`, seeds 1 to 3): 14, 17 and 6 of 20 men
+came home, with 5, 5 and 3 animals shot. All three reached the village and its end; none stuck. Seed 1, which lost
+every man on the build before (D-202), brought 14 home. The spread (6 to 17) is the patrol's and the winter's doing
+and is left as it is.

@@ -291,3 +291,4 @@ One line per moment worth remembering. Newest at the bottom.
 - 2026-11-24: by the morning after the men are indoors (D-203).
 - 2026-11-24: a right click on "The way on" sends the men the whole way to the gate (D-204).
 - 2026-11-24: coming home, a man sees the village's smoke and says so (D-205).
+- 2026-11-24: three bots play the finished build: 14, 17 and 6 of 20 home (D-207).
