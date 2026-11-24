@@ -1075,6 +1075,16 @@ def crown_fade(foot:float2, sp:string) -> float:
         least = min(least, clamp((d - 1.05) / 0.55, 0.04, 1.0))
     return least
 
+// How much of a tall fir's trunk shows: its crown is out of sight overhead, so nothing of it thinned over a man, and
+// in the deep fir woods the trunks stood black across the men, the game and the track (the tenth first-time play,
+// 2026-11-24). The trunk thins where a man stands behind it.
+def trunk_fade(foot:float2) -> float:
+    var least = 1.0
+    for(eyes) e:
+        if e.y < foot.y + 6.0 and e.y > foot.y - TALL_H * ART_UP * 1.6:
+            least = min(least, clamp((abs(e.x - foot.x) - 14.0) / 18.0, 0.22, 1.0))
+    return least
+
 def collect_props():
     canopies = []
     flecks = []
@@ -1091,7 +1101,7 @@ def collect_props():
                 let dim = float4 { 1.0, 1.0, 1.0, 1.0 - canopy_dim * (if pidx < canopy.length: canopy[pidx] else: 0.0) }
                 add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -40000.0, float4_1)
                 // (its trunk and limbs thin out over a man too, as its crown does, but less: the tree stays a tree)
-                add(snow_frame(pr.name, pr.cell), pr.at.x, pr.at.y, pr.at.y, dim, max(0.3, crown_fade(pr.at, pr.sp)))
+                add(snow_frame(pr.name, pr.cell), pr.at.x, pr.at.y, pr.at.y, dim, if pr.sp == "tall": trunk_fade(pr.at) else: max(0.3, crown_fade(pr.at, pr.sp)))
                 foot_at(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, trunk_half(pr.sp))
                 let crown = if pr.sp == "tall": "spruce{pr.pick}.crown.ever" else: pr.name + ".crown." + (if leafy(pr.sp): season else: "ever")
                 if pr.sp == "tall":
@@ -2382,13 +2392,19 @@ def draw_speech():
     gl.set_shader("color")
     gl.set_font_name("../data/fonts/OldStandard/OldStandard-Regular.ttf")
     gl.set_font_size(size)
+    let placed = []::float3
     for(speech) sp:
         let i = index_of(sp.id)
         let a = clamp((sp.until - now) / 0.6, 0.0, 1.0)
         let tw = float(gl.text_size(sp.text))
         let p0 = float(floor(to_screen(gp(float(u_x[i]), float(u_y[i])) - float2 { 0.0, 46.0 }) - float2 { tw.x / 2.0, tw.y }))
         // (kept on the screen: a man at its edge had his words cut to one letter, the sixth first-time play)
-        let p = float2 { clamp(p0.x, 4.0, max(4.0, ws.x - tw.x - 4.0)), clamp(p0.y, 4.0, ws.y - tw.y - 4.0) }
+        var p = float2 { clamp(p0.x, 4.0, max(4.0, ws.x - tw.x - 4.0)), clamp(p0.y, 4.0, ws.y - tw.y - 4.0) }
+        // (and clear of a line already up: two men's words lay across each other on arriving in the fir woods, the
+        // tenth first-time play)
+        for(placed) q:
+            if abs(p.y - q.y) < tw.y * 1.15 and p.x < q.x + q.z and q.x < p.x + tw.x: p = float2 { p.x, q.y + tw.y * 1.25 }
+        placed.push(float3 { p.x, p.y, tw.x })
         for([ 1.0, 0.0 ]) shade:
             gl.color(if shade > 0.0: float4 { 0.0, 0.0, 0.0, 0.7 * a } else: float4 { 0.97, 0.93, 0.82, a }):
                 gl.translate(p + float2 { shade, shade }): gl.text(sp.text)

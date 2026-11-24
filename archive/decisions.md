@@ -1359,3 +1359,11 @@ minutes, each with a ring. After that it found these, and each is changed, Domin
 - A right click on the ring over game is a hunt, as a click on the deer is (it was a walk, and the herd ran).
 Not done, and noted: the fir woods' trunks hide the track and the men; the later places are quiet for minutes at a
 time; several lines repeat word for word; the clock jumps between places so a day can be two minutes' walk.
+
+## D-193 (2026-11-24, Claude, from the tenth first-time play): the tall firs' trunks thin over the men
+
+In the deep fir woods the crowns are out of sight overhead and only the trunks cross the picture, so nothing thinned
+over a man as a crown does (D-103's fade is measured from the crown), and the trunks stood black across the men, the
+game and the track. A tall trunk now thins to about a fifth where a man, game the men can see, or a camp's fire is
+behind it (`trunk_fade`; `archive/images/2026-11-24/11-the-fir-trunks-thin-over-the-men.png`). And two men's lines
+that would lie across each other are set one under the other.
