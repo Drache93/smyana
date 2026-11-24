@@ -619,6 +619,28 @@ def mend_bridge(ids:[int], k:int) -> bool:
 // net while that is found.) Every 80 ticks.
 let unstick_d = dictionary<int, int>(32)      // a man's id: how far he was from where he was sent at the last look (tenths of a tile)
 let unstick_looks = dictionary<int, int>(32)  // how many looks running he has come no nearer
+let unstick_sent = dictionary<int, int>(32)   // how many times running sending him on by himself did not help
+// The man stood on the walkable tile beside him that is nearest where he was going, and sent again.
+def unstick_nudge(uid:int, i:int, d:int):
+    let cx = u_x[i] / TILE
+    let cy = u_y[i] / TILE
+    var best = -1
+    var best_d = dist2(u_x[i], u_y[i], u_tx[i], u_ty[i])
+    for(9) k:
+        let x = cx + k % 3 - 1
+        let y = cy + k / 3 - 1
+        if x >= 0 and y >= 0 and x < W and y < H and walks[lane(i)][y * W + x] == 1:
+            let far = dist2(x * TILE + TILE / 2, y * TILE + TILE / 2, u_tx[i], u_ty[i])
+            if far < best_d:
+                best_d = far
+                best = y * W + x
+    if best >= 0:
+        print "(unstick: man {uid} given up at {cx},{cy}, {d / 10} tiles from where he was sent: stood on {best % W},{best / W} and sent again)"
+        u_x[i] = (best % W) * TILE + TILE / 2
+        u_y[i] = (best / W) * TILE + TILE / 2
+        u_stuck[i] = 0
+        send_men([ uid ], u_tx[i], u_ty[i])
+
 def unstick_men():
     for(men) m:
         if not m.alive: continue
@@ -630,8 +652,15 @@ def unstick_men():
             unstick_looks.set(m.uid, n)
             if n >= 3:
                 unstick_looks.set(m.uid, 0)
-                print "(unstick: man {m.uid} {d / 10} tiles from where he was sent and no nearer: sent on by himself)"
-                send_men([ m.uid ], u_tx[i], u_ty[i])
+                // (2026-11-24, a playthrough: one man walked on the spot in the gorge, 41 tiles behind, through every
+                // sending on, and fifteen fed men waited five days for him. Sent on twice for nothing, he is stood on
+                // the next tile instead. Creel's steering again: D-146.)
+                let sent = unstick_sent.get(m.uid, 0) + 1
+                unstick_sent.set(m.uid, sent)
+                if sent > 2: unstick_nudge(m.uid, i, d)
+                else:
+                    print "(unstick: man {m.uid} {d / 10} tiles from where he was sent and no nearer: sent on by himself)"
+                    send_men([ m.uid ], u_tx[i], u_ty[i])
         elif u_moving[i] == 0 and d > 50 and u_stuck[i] >= STUCK_LIMIT and u_foe[i] == 0 and not is_asleep(m.uid):
             // (2026-11-22, a playthrough: a man wedged on the first tile of the gorge's ford gave up every order to
             // walk on, and the other twelve waited five days at the gate for him and starved. Given up on his way
@@ -641,25 +670,10 @@ def unstick_men():
             unstick_looks.set(m.uid, n)
             if n >= 8:
                 unstick_looks.set(m.uid, 0)
-                let cx = u_x[i] / TILE
-                let cy = u_y[i] / TILE
-                var best = -1
-                var best_d = dist2(u_x[i], u_y[i], u_tx[i], u_ty[i])
-                for(9) k:
-                    let x = cx + k % 3 - 1
-                    let y = cy + k / 3 - 1
-                    if x >= 0 and y >= 0 and x < W and y < H and walks[lane(i)][y * W + x] == 1:
-                        let far = dist2(x * TILE + TILE / 2, y * TILE + TILE / 2, u_tx[i], u_ty[i])
-                        if far < best_d:
-                            best_d = far
-                            best = y * W + x
-                if best >= 0:
-                    print "(unstick: man {m.uid} given up at {cx},{cy}, {d / 10} tiles from where he was sent: stood on {best % W},{best / W} and sent again)"
-                    u_x[i] = (best % W) * TILE + TILE / 2
-                    u_y[i] = (best / W) * TILE + TILE / 2
-                    u_stuck[i] = 0
-                    send_men([ m.uid ], u_tx[i], u_ty[i])
-        else: unstick_looks.set(m.uid, 0)
+                unstick_nudge(m.uid, i, d)
+        else:
+            unstick_looks.set(m.uid, 0)
+            if d < unstick_d.get(m.uid, 1 << 30) - 5: unstick_sent.set(m.uid, 0)
         unstick_d.set(m.uid, d)
 
 def route_tick() -> string:

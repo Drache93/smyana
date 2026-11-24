@@ -120,7 +120,10 @@ def needs_pace(m:Man) -> int:
     let low = gint(p, "low", 30) * 1000
     let most = gint(p, "most", 12)
     var kept = 100
-    for([ m.fed, m.warm, m.rested ]) n: if n < low: kept -= most * (low - n) / low
+    for([ m.warm, m.rested ]) n: if n < low: kept -= most * (low - n) / low
+    // (hunger takes more, and from sooner: an empty belly is what sends the band into the wood)
+    let hungry = gint(p, "hungry", 40) * 1000
+    if m.fed < hungry: kept -= gint(p, "most_hungry", 22) * (hungry - m.fed) / hungry
     return kept
 
 // A few plain words on how a man is (the one panel: docs/survival.md), "" when he is well.
@@ -320,6 +323,9 @@ def survival_tick():
             if had:
                 m.fed = if hot: NEED_FULL else: need_set(m.fed + gint(fd, "cold_meal", 50) * 1000)
                 if hot: meals_hot++ else: meals_cold++
+            // (a night with nothing to eat is felt the next morning, not a day later: three first-time plays ran out
+            // of bread and saw no cost, 2026-11-24)
+            else: m.fed = need_set(m.fed - gint(fd, "missed_meal", 30) * 1000)
             if meal_log: print "play: meal: {m.name} {if not had: "nothing left" elif hot: "hot" else: "cold"}, fed {m.fed / 1000}"
         let working = u_task[i] == GATHER or u_task[i] == BUILD or foraging(m.uid) or butchering(m.uid) or studying(m.uid)
         let loaded = u_carry[i] > 0

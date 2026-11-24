@@ -1268,3 +1268,114 @@ the fork at the commit in `creel/LOBSTER_VERSION` and builds it into `.lobster/`
 cmake or a compiler is missing; `play.sh`, `check.sh`, the lint and the tools all use it. Tried from nothing on Linux
 here; the macOS workflow now gets its Lobster the same way, so the Mac path is tried on every change. The unsigned zip
 (D-169) stays as it costs nothing. The README's mock-up gives way to pictures from the game (`docs/pictures/`).
+
+## D-185 (2026-11-24, Dominic): Smyana is under the GPL, version 3
+
+Dominic, asked which licence: "GPL yes". The `LICENSE` file is the GNU General Public License version 3, as Age of
+Anything has. Creel and Lobster stay Apache 2.0 and the typeface OFL, which the GPL allows alongside it.
+
+## D-186 (2026-11-24, Dominic's direction, Claude's design): the open pack is a woven bag
+
+Dominic: "i think we need to design a pack looking UI, not a plane box". The board of D-180 becomes a torba, the woven
+wool shoulder bag, drawn in the signs' own pixels: its strap over the top, its flap thrown back, stripes of red, black
+and cream at mouth and foot, tassels at the corners. On a cloth laid in it, a row for each thing carried: a small
+picture (a loaf, a bundle of herbs, a cake of wax, a rolled hide, wool, a stone arch for the Roman drain) and a few
+words. The bag's look is from Claude's memory of such bags, not from a source checked today.
+
+## D-187 (2026-11-24, Claude): what the ninth first-time play found
+
+It reached the fourth place, the gorge, in 29 minutes with all twenty men
+(`archive/playtests/2026-11-24-09-first-time-player.md`). Its worst moment was D-180's own: with the packs open, a
+right click anywhere near an old tree hid them, three times by accident. Hiding now needs the pointer on the tree's
+own foot, and the pointer says "Hide the packs here". Also: the way on shows whenever the men have stood still six
+seconds by day; "They are away" is said only of game the men were sent after in the last minute; the men stay chosen
+on arriving in a new place. Not done: who the men are and why they go (the letters are Dominic's), food in the beech
+valley, the place's name on arrival, the music gaps after the day's track.
+
+## D-188 (2026-11-24, Claude): shorter quiet between the calm tracks
+
+Three first-time plays (the sixth, eighth and ninth) each listed stretches of about two minutes with no music in
+every day, about a third of the game. The quiet between two calm tracks goes from 70 seconds to 40 (D-152 had it at
+70), and a new track is held back only when the light turns within 45 seconds, not 90. By the numbers the longest
+quiet in a day falls from about 110 seconds to about 85, and most are 40.
+
+## D-189 (2026-11-24, Dominic's question, Claude's answer and build): hunger bites, and what is called out can be found
+
+Dominic: "feels too easy to just walk forward on the first map, that said i then came across a deer which meant things
+started to get interesting. is our gameplay loop strong enough?" Claude's answer: not yet; walking on is safe and
+enough (`archive/notes/2026-11-24-dominic-is-the-loop-strong-enough.md`). Two changes, his to overrule:
+- A night in camp with nothing to eat takes 30 off a man's hunger at once ('missed_meal'), so he is hungry the next
+  morning and not a day later; hunger slows a man by up to 22 hundredths from 40 down (it was 12 from 30). A man says
+  so and one line names the cure. Whether the test player still gets home on this is being run.
+- What a man calls out gets a small warm ring for sixteen seconds, at the screen's edge if it is out of view: a stand
+  of fruit, the first game, a hut, a cache, wild bees (the last three are newly called out at all).
+
+## D-190 (2026-11-24, Dominic's direction, Claude's numbers and build): the path alone does not carry the men home
+
+Dominic: "if players can finish the game by just following the path. And the game doesnt suggest anything other than
+that - then yes we need to rethink a bit right? agree on your fixes for now". The test player was given a `pathonly`
+mode that walks the road, camps and eats, and never hunts, gathers, or fetches a cache. Four playthroughs on D-189's
+hunger:
+- The path alone (seed 1): the bread is gone on the fifth night, in the gorge, and all 20 men are dead by the high
+  ridge, half way. "Nobody came home."
+- Hunting and gathering, seed 1: 11 of 20 home with 78 portions left; seven fell to the zaptiye in the Roman ruins in
+  winter, cold and unrested. Seed 3: nobody home; three of seven hunts brought meat and the winter starved them.
+  Seed 2: 16 men, fed, with 123 portions, stopped for five days in the gorge by one man walking on the spot 41 tiles
+  behind (Creel's steering, D-146).
+So the path alone is not enough any more, which is what was asked. What a careful player gets is too much a matter of
+luck still, and before D-189 this player brought 14 or 15 home. Changes, Dominic's to overrule:
+- One supper missed takes 20 off a man's hunger, not 30: at 30 a band went from fed to starving in a single night.
+- A man sent on by himself twice for nothing is stood on the next tile towards where he was going (`unstick_nudge`),
+  the same net the standing man had.
+- A right click on the ring round a thing called out, while the thing is off the edge of the view, is a right click
+  on the thing. Checked by eye: the cache in the first place is taken that way
+  (`archive/images/2026-11-24/09-a-cache-taken-by-its-ring-and-the-pack-shows-it.png`).
+A second round of four playthroughs on these numbers is running.
+
+## D-191 (2026-11-24, Claude's numbers): D-190's hunger stands
+
+The second round, four playthroughs on D-190's numbers (a missed supper takes 20). Hunting and gathering: seed 2 brought
+18 of 20 home with 106 portions left, seed 4 brought 16 with 32 left, seed 5 brought 8 with 45 left. The path alone
+(seed 2): bread gone in the gorge, 19 men reached the high ridge in winter with nothing, 3 came down from it, nobody
+came home. No run stopped: the man walking on the spot was moved on each time (`unstick_nudge`, 83 to 150 times a run,
+which says how often Creel's steering leaves a man behind, D-146). So a band that hunts and gathers comes home, most
+of it; a band that only walks does not. Kept as it is, Dominic's to overrule.
+
+## D-192 (2026-11-24, Claude, from the tenth first-time play): the way on stays, and a camp answers when shot at
+
+The tenth first-time play (`archive/playtests/2026-11-24-10-first-time-player.md`) said the first place now pulls a
+player off the road: the line about four days' bread, then a cache, a deer, strawberries and a hut within four
+minutes, each with a ring. After that it found these, and each is changed, Dominic's to overrule:
+- "The way on" was gone when it was wanted, the fifth play running to lose the track. It now stays on screen all day
+  while the men are out of camp. This is more on the screen than the rule of almost no interface likes; two words and
+  a ring at the edge.
+- A camp was shot into for a minute and nobody stirred. Now at the first shot one man says "They are shooting into
+  the camp! Up, and to the rifles!", a ring goes on whoever fired, the men are chosen and they fire back
+  (`archive/images/2026-11-24/10-a-camp-shot-into-wakes-and-fires-back.png`).
+- The men said "We should make camp", and nine seconds after the fire was lit they said there were zaptiye ahead.
+  Asked to make a new camp with zaptiye within 22 tiles, the men now say no and why, once, with a ring on the
+  zaptiye; asked again within half a minute they light it.
+- Two huts were walked to and neither took the camp: the men were given a minute to reach a hut. Now four.
+- A right click on the ring over game is a hunt, as a click on the deer is (it was a walk, and the herd ran).
+Not done, and noted: the fir woods' trunks hide the track and the men; the later places are quiet for minutes at a
+time; several lines repeat word for word; the clock jumps between places so a day can be two minutes' walk.
+
+## D-193 (2026-11-24, Claude, from the tenth first-time play): the tall firs' trunks thin over the men
+
+In the deep fir woods the crowns are out of sight overhead and only the trunks cross the picture, so nothing thinned
+over a man as a crown does (D-103's fade is measured from the crown), and the trunks stood black across the men, the
+game and the track. A tall trunk now thins to about a fifth where a man, game the men can see, or a camp's fire is
+behind it (`trunk_fade`; `archive/images/2026-11-24/11-the-fir-trunks-thin-over-the-men.png`). And two men's lines
+that would lie across each other are set one under the other.
+
+## D-194 (2026-11-24, Dominic's direction, Claude's build): each morning a man points off the track
+
+Dominic: "if players can finish the game by just following the path. And the game doesnt suggest anything other than
+that - then yes we need to rethink a bit right?" The tenth first-time play left the road for everything called out in
+the first place, then walked twelve minutes through the beech valley with nothing called: the stands and the deer were
+past where the men see from the track. Now, each morning out of camp and on coming into a place by day, one man says
+where the nearest ground off the track is that holds something (a stand not yet picked, or game), from nine to 45
+tiles off, and a ring goes on it for half a minute, "Right click to go and look"
+(`archive/images/2026-11-24/12-a-man-points-off-the-track-in-the-morning.png`). He does not know of caches or huts:
+those are still found by going. The picture shows the ring's words lying on the foot's line of words; the ring is kept
+higher since. Dominic's to overrule, the words most of all.

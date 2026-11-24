@@ -271,3 +271,13 @@ One line per moment worth remembering. Newest at the bottom.
 - 2026-11-24: the eighth first-time play reached the third place with all twenty men; its camp, way-on, night and food notes fixed (D-182).
 - 2026-11-24: the score's tracks trimmed to one loudness for each kind, by the meter (D-183).
 - 2026-11-24: Dominic: players just run ./play.sh; it now fetches and builds Lobster itself, and the README shows the game (D-184).
+- 2026-11-24: Dominic chose the GPL, version 3; LICENSE added (D-185).
+- 2026-11-24: Dominic: "fallen trees over the cliff?"; fallen trunks keep two tiles from any step in the ground.
+- 2026-11-24: the open pack drawn as a woven bag (D-186); the ninth first-time play reached the fourth place, and hiding the packs by accident is fixed (D-187).
+- 2026-11-24: the quiet between calm tracks shortened from 70 seconds to 40 (D-188).
+- 2026-11-24: Dominic asks if the loop is strong enough; hunger made to bite and finds pointed out (D-189).
+- 2026-11-24: the path alone now loses every man by the high ridge; a missed supper softened, a man walking on the spot is moved on, a ring at the screen's edge can be clicked (D-190).
+- 2026-11-24: second round of test playthroughs: 18, 16 and 8 of 20 home with hunting and gathering, nobody by the path alone (D-191).
+- 2026-11-24: the tenth first-time play; the way on stays on screen, a camp shot into wakes and fires back, the men will not camp beside zaptiye unasked twice (D-192).
+- 2026-11-24: the tall firs' trunks thin over the men; two lines at once no longer overlap (D-193).
+- 2026-11-24: each morning a man points at the nearest ground off the track that holds food (D-194).

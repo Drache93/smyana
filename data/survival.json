@@ -3,7 +3,7 @@
  "start_food": 4,
  "says": {
   "_doc": "What the men say aloud when the moment comes, a line over one man's head, each once (the dusk and hunger lines once a day). PLACEHOLDERS written by Claude, 2026-11-22, after two agent playtests found no goal, no word on hunger and no sign of an order that can't be followed: the words are Dominic's to change. 'opening' are said in turn at the start of the run, 'opening_s' seconds apart. '' says nothing.",
-  "opening": ["Which way? The lane runs east, down to the beeches.", "A long road. Out over the ridge, and home by spring."],
+  "opening": ["Which way? The lane runs east, down to the beeches.", "A long road. Out over the ridge, and home by spring.", "Bread for four days in the packs. After that we eat what the mountain gives us: game, fruit, what others have left."],
   "opening_s": 7,
   "dusk": "The light is going. We should make camp.",
   "season_autumn": "The leaves are turning. Summer is behind us.",
@@ -14,7 +14,7 @@
   "lost_track": "We have lost the track. The way on lies over there.",
   "bread_low": "A day's bread left between us. We must hunt, or gather, before it is gone.",
   "last_bread": "That is the last of the bread.",
-  "hungry": "My belly is empty. The wood has food, if we look.",
+  "hungry": "Nothing in my belly since yesterday, and it is in my legs already. The wood has food, if we look.",
   "starving": "I can't go much further without food.",
   "no_way": "No way through there.",
   "as_near": "No way up there from here. This is as near as we get.",
@@ -27,12 +27,19 @@
   "rose_bare": "The birds have had the best of this one. There will be better bushes.",
   "gathered": "A few handfuls more in the packs. It all helps.",
   "dark": "We cannot walk on blind. Make a fire here.",
+  "hut_seen": "A shepherds' hut, off the track there. A roof for the night, if we want one.",
+  "cache_seen": "Stones heaped by hand, over there. Somebody has left a cache.",
+  "honey_seen": "Bees, in that hollow trunk. Honey for us, and wax for the candles at home.",
   "first_game": "Roe deer, there among the trees. Meat, if we come up slow and stop short of them.",
   "game_down": "One down. Send men to it with the knife, and the meat is ours.",
   "game_away": "They are away. We came on them too fast.",
   "patrol_ahead": "Zaptiye on the road ahead, resting. They have not seen us. Round through the trees, or wait till they ride on.",
   "followed": "We are followed. Wolves, keeping their distance. Stay together, and keep a fire at night.",
-  "patrol_wary": "The zaptiye have noticed something. Off the road, into the trees, and keep still.",
+  "look_stand": "There is ground off the track that way where things grow. Worth the walk, before we go on.",
+ "look_game": "Game keeps to the quiet ground over that way. Meat for the road, if we come up on them slowly.",
+ "camp_shot": "They are shooting into the camp! Up, and to the rifles!",
+ "camp_near": "Not here. There are zaptiye close by, and a fire would bring them. Further off, in the trees. Or ask again, and we light it.",
+ "patrol_wary": "The zaptiye have noticed something. Off the road, into the trees, and keep still.",
   "first_howl": "Wolves. A long way off yet. They keep clear of a fire."
  },
  "fed": {
@@ -42,6 +49,7 @@
   "loaded": 125,
   "asleep": 1.2,
   "cold_meal": 50,
+  "missed_meal": 20,
   "starving_hp": 0.8
  },
  "warm": {
@@ -74,9 +82,11 @@
   "heal_hp": 1
  },
  "pace": {
-  "_doc": "Below 'low' a need takes up to 'most' hundredths off a man's pace, each need its own share.",
+  "_doc": "Below 'low' cold or tiredness takes up to 'most' hundredths off a man's pace, each its own share. Hunger takes up to 'most_hungry' from 'hungry' down (2026-11-24: an empty pack cost nothing a player could see).",
   "low": 30,
-  "most": 12
+  "most": 12,
+  "hungry": 40,
+  "most_hungry": 22
  },
  "camp": {
   "_doc": "Making camp (C): the men stand round the fire, the nearest 'ring_tiles' from it, and lay a fire: it costs 'wood' off their backs and takes 'lay_s' seconds, or 'lay_bare_s' if none of them carries wood, while two of them go off for dead wood (50 until 2026-11-13: Dominic, playing, \"telling them to make camp, i got no fire\"; the fireplace now shows while it is laid). A man within 'in_tiles' of it is in the camp; at night he sleeps there. The camp is struck when no man has been within 'in_tiles' for 'struck_s'. Woken by a shot, a man stays up 'woken_s'. The meal is at the first camp after 'meal_hour'.",
@@ -469,27 +479,31 @@
   }
  },
  "wares": {
-  "_doc": "The goods the men take home, each a kind (docs/gathering.md; the gathering proposal Dominic agreed 2026-11-13: food for the road, and things for home that make the village better). 'herbs' are gathered at a stand of herbs or mountain tea (Sideritis scardica, the Rhodopes' mountain tea, drunk against coughs and colds); 'wax' is the comb of wild bees' honey, for candles; 'hides' are taken from a deer or boar the men kill; 'wool' is what another band left in its cache. Each is one place in a pack. 'line' is the tally's line at home, % the count ('one' when there is one).",
+  "_doc": "The goods the men take home, each a kind (docs/gathering.md; the gathering proposal Dominic agreed 2026-11-13: food for the road, and things for home that make the village better). 'herbs' are gathered at a stand of herbs or mountain tea (Sideritis scardica, the Rhodopes' mountain tea, drunk against coughs and colds); 'wax' is the comb of wild bees' honey, for candles; 'hides' are taken from a deer or boar the men kill; 'wool' is what another band left in its cache. Each is one place in a pack. 'line' is the tally's line at home, % the count ('one' when there is one); 'short' and 'short_one' are the same in the open pack.",
   "kinds": [
    {
     "id": "herbs",
     "line": "% bundles of herbs and mountain tea, against the winter's coughs.",
-    "one": "A bundle of herbs and mountain tea, against the winter's coughs."
+    "one": "A bundle of herbs and mountain tea, against the winter's coughs.",
+    "short": "% bundles of herbs and mountain tea", "short_one": "A bundle of herbs and mountain tea", "short_none": "No herbs or mountain tea yet"
    },
    {
     "id": "wax",
     "line": "% cakes of wild bees' wax, for candles.",
-    "one": "A cake of wild bees' wax, for candles."
+    "one": "A cake of wild bees' wax, for candles.",
+    "short": "% cakes of wild bees' wax", "short_one": "A cake of wild bees' wax", "short_none": "No wax yet"
    },
    {
     "id": "hides",
     "line": "% hides, for shoes and coats.",
-    "one": "A hide, for shoes and coats."
+    "one": "A hide, for shoes and coats.",
+    "short": "% hides", "short_one": "A hide", "short_none": "No hides yet"
    },
    {
     "id": "wool",
     "line": "% bundles of wool another band left behind.",
-    "one": "A bundle of wool another band left behind."
+    "one": "A bundle of wool another band left behind.",
+    "short": "% bundles of wool", "short_one": "A bundle of wool", "short_none": "No wool yet"
    }
   ]
  }
