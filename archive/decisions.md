@@ -1135,3 +1135,10 @@ to Thrace and the Shope country and not the Rhodopes. The new one (`music/pieces
 `docs/music-design.md`) is a plain hard 2/4 on the tapan at 152, six bars at a run and two of silence, with one low
 gadulka string scraped under three of the six eights. Claude's call throughout: Dominic has not heard it. Hiding,
 bandits and the chase are left as first drafts, since nothing in the game plays them.
+
+## D-172 (2026-11-24, Claude): smoke from the village's chimneys
+
+Each of the six houses at the village edge has a thread of pale smoke from its chimney, drawn in the lit world so the
+hour's light falls on it, leaning east with the wind. It is the cheapest sign that somebody is at home, on the title
+screen and behind the end's words. The chimney tops are worked out from the house models' own measures
+(`tools/camp_vox.py`), turned as each house is turned. There are still no people in the village.

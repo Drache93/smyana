@@ -65,3 +65,11 @@ all sub-bass and borrowed its uneven rhythm from the wrong part of Bulgaria. The
 too fast, stopping dead for two bars in every eight (D-171):
 [the track](../audio/2026-11-24/01-beasts-designed.ogg), [the drum alone](../audio/2026-11-24/02-pencil-beasts.ogg).
 Dominic has not heard it.
+
+## Somebody at home
+
+The houses now smoke (D-172). The first tries could not be seen: grey smoke over the grey haze at the top of the
+title screen. A red mark showed the chimneys were found, white squares showed the drawing worked, and the fault was
+only the colour.
+
+![Smoke from the chimneys](../images/2026-11-24/04-smoke-from-the-chimneys.png)

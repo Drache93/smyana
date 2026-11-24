@@ -1401,6 +1401,7 @@ def draw_world(alpha:float):
                 flush_sprites()
                 for(ghosts) g: sprite_faded(int(g.z), g.x, g.y, SASH, GHOST)
                 draw_leaf_fall()
+                draw_chimney_smoke()
                 gunfire_draw()
                 draw_weather()
                 if show_cover: draw_cover()
@@ -1408,6 +1409,32 @@ def draw_world(alpha:float):
                 gunfire_glow()
     sprite_snap = 1.0
     if atmo_on: atmo_end(cam_px, zoom, 1.5)
+
+// The village's hearths (D-172): a thread of smoke from each house's chimney, so that somebody is at home. Where each
+// chimney's top is comes from tools/camp_vox.py's house(): 0.4 of the half length along the house and a quarter of the
+// half depth behind its ridge, 1.16 m over the roof there (metres from the middle of the floor; HOUSES there).
+let CHIMNEYS = [ float3 { 1.36, 0.75, 6.6 }, float3 { 1.16, 0.7, 8.64 }, float3 { 1.44, 0.68, 6.41 } ]
+let TILE_M = 4.85  // (metres a tile, as the camp's models are cut: 135.76 voxels a tile at 28 a metre)
+
+def draw_chimney_smoke():
+    let camp = glist(su_map, "camp")
+    if not camp.length: return
+    let t = gl.time()
+    gl.set_shader("color")
+    for(camp) e, i:
+        let name = as_str(e.a[0])
+        if name.length == 6 and substring(name, 0, 5) == "house":
+            let n = string_to_int(substring(name, 5, 1))
+            let c = CHIMNEYS[n % 3]
+            // (house0..2 are turned half round, house3..5 a quarter: camp.lobster's CAMP_THING_TURNS)
+            let q = if n < 3: float2 { -c.x, -c.y } else: float2 { -c.y, c.x }
+            let top = gp(as_float(e.a[1]), as_float(e.a[2])) + iso(q.x / TILE_M * 1000.0, q.y / TILE_M * 1000.0) - float2 { 0.0, c.z / TILE_M * ART_UP }
+            for(12) k:
+                let u = (t * 0.09 + float(k) / 12.0 + float(i) * 0.37) % 1.0
+                let lean = (0.25 + gust()) * 34.0 * u * u  // (the air takes it east as it rises, more the higher it is)
+                gl.color(float4 { 0.9, 0.9, 0.91, 0.7 * (1.0 - u) * min(1.0, u * 8.0) }):
+                    gl.translate(floor(top + float2 { sin(u * 300.0 + float(i) * 70.0) * 2.5 + lean, -u * 58.0 })):
+                        gl.rect(float2 { 3.0 + u * 11.0, 3.0 + u * 7.0 })
 
 // The leaves coming down (#11: "leaves fall and pile up"): from each shedding crown in view a few leaves at a time, a
 // pixel or two of the tree's own autumn colour each, swinging as they fall from the crown to the ground at its foot.

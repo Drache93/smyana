@@ -259,3 +259,4 @@ One line per moment worth remembering. Newest at the bottom.
 - 2026-11-24: a macOS build workflow, CREDITS.md with the AI disclosure, the letters in the title's typeface (D-169).
 - 2026-11-24: the loaves and the walk between places say what they are; the macOS build is green on GitHub (D-170).
 - 2026-11-24: the wolves' and bear's music remade through the design stage (D-171).
+- 2026-11-24: smoke from the village's chimneys (D-172).
