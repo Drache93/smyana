@@ -2182,7 +2182,10 @@ var march_ends = []::MarchEnd
 
 var gathered_said = 0
 var far_howl_again = 0.0  // when the second far howl of the first night comes (watched seconds; 0: none due)
-var rose_asked = false    // a right click has just sent the men to a dog rose that is no stand
+var near_asked = false    // an order was moved to the nearest ground the men can reach
+var hunt_said_n = 0
+var hunt_alarm = false
+var rose_asked = false  // a right click has just sent the men to a dog rose that is no stand
 
 def march(ids:[int], x:int, y:int):
     let here = filter(ids) id: index_of(id) >= 0
@@ -2574,6 +2577,9 @@ def order_tick():
         let reach = reach_side(0, u_kind[i0], cell_of(u_x[i0], u_y[i0]))
         let x, y = reachable_near(reach, clamp(int(mm.x), 0, W * TILE - 1), clamp(int(mm.y), 0, H * TILE - 1))
         march(ids, x, y)
+        // (told when it is far from where the mouse was: men who stopped at a cliff's foot without a word looked
+        // like men who had stopped obeying, the seventh first-time play, 2026-11-24)
+        if dist2(x, y, int(mm.x), int(mm.y)) > sq(3 * TILE): near_asked = true
         // (a dog rose that is only a bush: two first-time players went straight to its red hips, right-clicked nine
         // times and were told nothing, 2026-11-22 and 23. Now a man says why there is nothing to pick: guide_tick.)
         rose_asked = (find(props) pr: pr.kind == 5 and pr.name.length >= 4 and substring(pr.name, 0, 4) == "rose" and abs(pr.cell % W - x / TILE) <= 1 and abs(pr.cell / W - y / TILE) <= 1) >= 0
@@ -3535,10 +3541,13 @@ def guide_tick():
     let opening = gstrs(sv_cfg("says"), "opening")
     if open_n < opening.length and phase_t > 2.0 + float(open_n * gint(sv_cfg("says"), "opening_s", 7)) and leg_id == gstr(route, "start", ""):
         one_says("opening {open_n}", opening[open_n], open_n * 7)
+        if open_n == 0: way_until = seen_s + 30.0  // (east is down and to the right: the ring says so)
         open_n++
     // a later morning still in the first place: which way, again (the third and fourth agent playtests spent three
     // days at the village edge, 2026-11-22 and 23)
-    if day >= 1 and hour_now() >= 6.0 and hour_now() < 9.0 and leg_id == gstr(route, "start", "") and not is_night(): one_says("morning {day}", say_cfg("morning"), day)
+    if day >= 1 and hour_now() >= 6.0 and hour_now() < 9.0 and leg_id == gstr(route, "start", "") and not is_night() and (find(said): _ == "morning {day}") < 0:
+        one_says("morning {day}", say_cfg("morning"), day)
+        way_until = seen_s + 30.0
     // the first night by a fire: wolves heard a long way off, and the man on watch says so. Nothing comes of it; it is
     // the first word of what the deeper woods hold (three first-time plays met nothing at all in twenty minutes)
     if day == 0 and is_night() and fires.length > 0 and (hour_now() >= 22.5 or hour_now() < 3.0) and (find(said): _ == "first howl") < 0:
@@ -3567,6 +3576,23 @@ def guide_tick():
                 let s = to_screen(gp(float(u_x[i]), float(u_y[i])))
                 if s.x > ws.x * 0.08 and s.y > ws.y * 0.1 and s.x < ws.x * 0.92 and s.y < ws.y * 0.9: one_says("first game", say_cfg("first_game"), 2)
     if is_night() and not camps_made() and hour_now() >= 21.5: one_says("dark {day}", say_cfg("dark"), 3)
+    // the hunt's end, said: one down (and what to do with it), or the game away ("Deer gone, no result shown ... I
+    // never learnt whether we hit", the seventh first-time play)
+    if game_shot < hunt_said_n: hunt_said_n = game_shot
+    if game_shot > hunt_said_n:
+        hunt_said_n = game_shot
+        hunt_alarm = false
+        said.remove_obj("game down")
+        one_says("game down", say_cfg("game_down"), 2)
+    elif game_alarmed(): hunt_alarm = true
+    elif hunt_alarm:
+        hunt_alarm = false
+        said.remove_obj("game away")
+        one_says("game away", say_cfg("game_away"), 3)
+    if near_asked:
+        near_asked = false
+        said.remove_obj("as near")
+        one_says("as near", say_cfg("as_near"), 1)
     if rose_asked:
         rose_asked = false
         one_says("rose {day}", say_cfg(if season_now() == "summer": "rose_unripe" else: "rose_bare"), 4)
@@ -3643,7 +3669,7 @@ def draw_guide(dt:float):
             let pad = ws.y * 0.07
             let k = min((ws.x / 2.0 - pad) / max(abs(d.x), 1.0), (ws.y / 2.0 - pad) / max(abs(d.y), 1.0))
             let p = ws / 2.0 + d * min(k, 1.0)
-            let a = clamp(way_until - seen_s, 0.0, 1.0) * clamp(20.0 - (way_until - seen_s), 0.0, 1.0)
+            let a = clamp(way_until - seen_s, 0.0, 1.0)
             let r = ws.y * 0.02
             for(12) j:
                 let a0 = 30.0 * float(j)

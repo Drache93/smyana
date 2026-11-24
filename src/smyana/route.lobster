@@ -712,7 +712,11 @@ def route_tick() -> string:
                 let y = u_y[i] / TILE
                 var here = false
                 for(gate_rects) r, g:
-                    if in_rect(r, x, y):
+                    // (in the gate, or past it toward the map's edge: the seventh first-time play, 2026-11-24, sent
+                    // the men through the first gate to the very edge of the place, where they stood in a row
+                    // against the dark and nothing happened)
+                    let past = y >= r[1] - 8 and y <= r[3] + 8 and (if r[0] + r[2] > W: x > r[2] else: x < r[0])
+                    if in_rect(r, x, y) or past:
                         inside[g]++
                         here = true
                 if here: in_any++

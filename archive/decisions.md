@@ -1175,3 +1175,22 @@ numbers are going as this is written; the numbers stand or move by what they bri
 
 D-174, what it brought home (2026-11-24, later): on seeds 1, 2, 3 and 6 the test player came home with 12, 15, 13 and
 16 of 20 men, where seeds 1, 2, 3 and 6 had brought 0, 1, 0 and 0 before. The numbers stand.
+
+## D-175 (2026-11-24, Claude): out of the first place, and three things said
+
+The seventh first-time play (`archive/playtests/2026-11-24-07-first-time-player.md`, cut short at 8:45) walked the
+men through the first gate to the very edge of the map, where they stood in a row and nothing happened: a gate was a
+box of four tiles by eight, and they had gone past it. So:
+
+- **Past the gate is out.** The men leave a place when all of them are in its gate or beyond it toward the map's edge
+  (within eight tiles either side of it).
+- **The way on shows in the first place too**, for thirty seconds with "The lane runs east" and with each morning's
+  reminder there: east is down and to the right, and three players have now gone right.
+- **"No way up there from here. This is as near as we get."** when an order is moved more than three tiles to ground
+  the men can reach (D-166 moved it silently, and men at a cliff's foot looked like men who had stopped obeying).
+- **The hunt's end is said**: "One down. Send men to it with the knife, and the meat is ours." or "They are away. We
+  came on them too fast."
+
+Not done from that report: the view following the men, the deer that reads as a post, the hard-edged black shade
+under the trees by the cliff, men sitting at the fire, the hips line said twice, why the men go (the letters are
+Dominic's to write).
