@@ -1214,3 +1214,9 @@ already did. Moving to a newer Creel is a deliberate step, with the names fixed 
 Dominic, playing: "the pointer showing where your guys are (off screen) is great. But their controls also follow you,
 so end up at the edge of the screen". The signs stay under the chosen men while that is well inside the screen;
 otherwise they sit at the foot of the screen in the middle. The men's mark at the edge is kept as it is.
+
+## D-179 (2026-11-24, Dominic's note, Claude's fix): no pointer for what is already done
+
+Dominic, playing: "i can right clich a hut to search it -> but after ive taken things from it, i can still right click
+it". A hut the men are camped in no longer shows the camp's pointer or takes the order again, and the ruins no longer
+show the scholar's pointer once the drain is learned. Which of the game's things he meant is not certain (asked).

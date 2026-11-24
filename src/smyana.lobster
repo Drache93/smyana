@@ -2259,8 +2259,12 @@ def hover_cursor() -> int:
     let mm = mouse_milli()
     let mc = clamp(int(mm.y / 1000.0), 0, H - 1) * W + clamp(int(mm.x / 1000.0), 0, W - 1)
     if carcass_near(int(mm.x), int(mm.y)) >= 0: return CURSOR_KNIFE
-    if at_ruin(mc): return CURSOR_STUDY
-    if hut_near(int(mm.x), int(mm.y), 1) >= 0: return CURSOR_CAMP
+    // (a pointer only for what is still there to do: Dominic, playing, 2026-11-24: "after ive taken things from it, i
+    // can still right click it". Not the scholar's pointer on ruins already learned from, nor the camp's on a hut the
+    // men are camped in)
+    if at_ruin(mc) and not drain_learned(): return CURSOR_STUDY
+    let hut = hut_near(int(mm.x), int(mm.y), 1)
+    if hut >= 0 and not (exists(sv_camps) cp: cp.hut and dist2(cp.x, cp.y, (huts[hut] % W) * TILE, (huts[hut] / W) * TILE) < sq(4 * TILE)): return CURSOR_CAMP
     if pile_near(int(mm.x), int(mm.y)) >= 0: return CURSOR_TAKE
     if patch_under(mm) >= 0: return CURSOR_GATHER
     let yt = young_tree_at(mm)
@@ -2533,7 +2537,8 @@ def order_tick():
         mark_t = seen_s
         return
     // (a shepherds' hut under the mouse: make camp in it, smyana/finds.lobster)
-    if hut_order(ids, hut_near(int(mm.x), int(mm.y), 1)):
+    let hut = hut_near(int(mm.x), int(mm.y), 1)
+    if hut >= 0 and not (exists(sv_camps) cp: cp.hut and dist2(cp.x, cp.y, (huts[hut] % W) * TILE, (huts[hut] / W) * TILE) < sq(4 * TILE)) and hut_order(ids, hut):
         mark_at = gp(mm.x, mm.y)
         mark_t = seen_s
         return
