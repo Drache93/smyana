@@ -1863,6 +1863,27 @@ def draw_lines(texts:[string], t:float, size:int):
                 gl.translate(float2 { floor(ws.x / 2.0 - min(w, ws.x * 0.7) / 2.0), floor(y) }): gl.text(l)
         y += gap
 
+// Above the click's words, from the letter's start: how long the walk to the next place is and when in the day the men
+// come in ("Crossing into the beech valley threw away the afternoon ... I had about 40 seconds of daylight in the new
+// place", the fifth first-time play, 2026-11-23: the hours were always spent, and nothing said so).
+def walk_words(hours:int, arrive_hour:float) -> string:
+    if hours <= 0: return ""
+    let n = [ "An hour", "Two hours", "Three hours", "Four hours", "Five hours", "Six hours", "Seven hours", "Eight hours" ][min(hours, 8) - 1]
+    let h = arrive_hour - floor(arrive_hour / 24.0) * 24.0
+    let dusk = mood_hour("dusk")
+    let when = if h < mood_hour("dawn") or h >= dusk + 1.5: "after dark" elif h >= dusk - 1.0: "as the light goes" elif h < 11.0: "in the morning" elif h < 14.0: "at midday" else: "in the afternoon"
+    return "{n} on the road. They come in {when}."
+
+def draw_walk_words(l:string, t:float):
+    if l == "": return
+    let ws = float(gl.window_size())
+    gl.set_shader("color")
+    gl.set_font_name(FONT)
+    gl.set_font_size(int(ws.y / 44.0))
+    let w = float(gl.text_size(l).x)
+    gl.color(float4 { 0.93, 0.89, 0.78, clamp(t - 0.4, 0.0, 1.0) * 0.6 }):
+        gl.translate(float2 { floor(ws.x / 2.0 - w / 2.0), floor(ws.y * 0.8) }): gl.text(l)
+
 // Under the letter, once the next place is ready: that a click goes on.
 def draw_go_on(t:float):
     let ws = float(gl.window_size())
@@ -3305,6 +3326,7 @@ var phase_t = 0.0
 var leave_edge = ""
 var letter = []::string
 var letter_loaded = false
+var walk_line = ""  // under the letter: the hours of the walk and when the men come in
 var acc = 0.0
 var paused = false
 var frame_no = 0
@@ -3732,6 +3754,7 @@ while gl.frame():
         else:
             letter = gstrs(gobj(route, "letters"), gstr(exit_by(leave_edge), "letter", ""))
             letter_loaded = false
+            walk_line = walk_words(gint(exit_by(leave_edge), "hours", 0), hour_now() + float(gint(exit_by(leave_edge), "hours", 0)))
             set_phase("letter")
     if phase == "letter":
         if not letter_loaded and phase_t > 0.3:  // (the letter is on the screen first: the load stops the picture for its length)
@@ -3742,7 +3765,7 @@ while gl.frame():
         // second; it was the letter that held the screen, twenty seconds. Now it is up as long as it takes to read,
         // and a click or a key goes on as soon as the place is ready)
         let reading = 2.5 + float(letter.length) * 1.4 + float(sum(map(letter) l: l.length)) / 30.0
-        let hold = if not letter.length: 0.5 elif script == "tour": 6.0 elif script == "play": 1.0 else: min(reading, float(gint(route, "letter_seconds", 20)))
+        let hold = if not letter.length: 0.5 elif script == "tour": 6.0 elif arg_of("letter") != "": string_to_float(arg_of("letter")) elif script == "play": 1.0 else: min(reading, float(gint(route, "letter_seconds", 20)))
         let skip = letter_loaded and phase_t > 0.6 and (gl.button("mouse1") == 1 or gl.button("space") == 1 or gl.button("return") == 1)
         if letter_loaded and (phase_t >= hold or skip):
             paused = false
@@ -3759,6 +3782,7 @@ while gl.frame():
         gl.blend(1)
         if phase == "letter":
             draw_lines(letter, phase_t, int(float(gl.window_size().y) / 34.0))
+            draw_walk_words(walk_line, phase_t)
             if letter_loaded and phase_t > 1.5: draw_go_on(phase_t - 1.5)
         elif phase == "end":
             // (home: the words over the village edge, the view going slowly up the lane to the houses, D-168. With
@@ -3796,7 +3820,7 @@ while gl.frame():
             gl.set_font_size(16)
             gl.color(float4 { 1.0, 1.0, 1.0, 0.8 }):
                 gl.translate(float2 { 10.0, 8.0 }): gl.text("{leg_id}  {season_now()} {year_here()}  {int(hour_now())}h  {atmo_mood}  men {men_alive()}  {int(1.0 / max(dt, 0.001))} fps  {phase}")
-    if shot != "" and not shot_taken and (clock_s >= shot_at or (phase == "end" and phase_t > (if script == "play": 1.8 else: 5.0))) and (arg_of("in") == "" or arg_of("in") == phase or arg_of("in") == leg_id):
+    if shot != "" and not shot_taken and (clock_s >= shot_at or (phase == "end" and phase_t > (if script == "play": 1.8 else: 5.0))) and (arg_of("in") == "" or (arg_of("in") == phase and (phase != "letter" or phase_t >= 5.0)) or arg_of("in") == leg_id):
         gl.screenshot(shot)
         shot_taken = true
         print "shot {shot} at {clock_s} s: {leg_id}, {phase}, tick {tick}"

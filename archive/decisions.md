@@ -1115,3 +1115,13 @@ Smyana.command to double-click (tools/package-macos.sh; the folder was run from 
 not signed or notarised: the first start needs right-click, Open. CREDITS.md says who made what and is the AI
 disclosure. The letters and the end's words are set in the title's typeface (Old Standard), not Droid Sans. Not
 decided, and Dominic's: the repo's licence (there is none, so normal copyright applies for now).
+
+## D-170 (2026-11-24, Claude): the loaves and the walk between places say what they are
+
+Two things first-time players asked that the screen did not answer. The loaves beside the signs now show "Food for 4
+days" under them when the mouse is on them. And the letter between places has a line under it, "Three hours on the
+road. They come in after dark.", from the exit's hours and the hour of leaving: the fifth play (2026-11-23) lost an
+afternoon to the crossing and was told to make camp four seconds after arriving, with nothing to say the hours had
+been walked. The hours themselves are unchanged (they are part of the food and warmth balance). The macOS build runs
+on `macos-latest`: a `macos-14` job was cancelled the moment it started, three times, while a Linux job in the same
+run went through. Its first green run built Lobster, ran the route check on the Mac and uploaded `Smyana-macos`.

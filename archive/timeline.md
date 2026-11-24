@@ -257,3 +257,4 @@ One line per moment worth remembering. Newest at the bottom.
 - 2026-11-24: the village: six stone houses with slab roofs by the lane, seen on the title screen (D-167).
 - 2026-11-24: the run ends over the village edge with the houses in view (D-168).
 - 2026-11-24: a macOS build workflow, CREDITS.md with the AI disclosure, the letters in the title's typeface (D-169).
+- 2026-11-24: the loaves and the walk between places say what they are; the macOS build is green on GitHub (D-170).

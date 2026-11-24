@@ -46,3 +46,14 @@ The end was a dark screen with lines of text. It is now the same lines over the 
 at the gate between the houses. The test bot came in at night, so the first picture of it is dark:
 
 ![Home, at night, over the village edge](../images/2026-11-24/02-home-at-night-over-the-village-edge.png)
+
+## Small things said out loud
+
+The loaves answer the mouse ("Food for 4 days"), and the letter between places now says how long the walk is and when
+the men come in (D-170):
+
+![The letter says how long the walk is](../images/2026-11-24/03-the-letter-says-how-long-the-walk-is.png)
+
+The macOS build went green on GitHub at the third try: the `macos-14` runner cancelled each job as it started, and
+`macos-latest` built Lobster, played the route check and zipped the game in two minutes. Nobody has yet started that
+zip on a real Mac.
