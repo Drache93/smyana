@@ -46,6 +46,7 @@ var men = []::Man
 var leg_id = ""
 var arrived_by = ""      // the edge the men came in by
 var run_ticks = 0        // the clock: sim ticks since the run began, the walks between places included
+var gate_wait = 0        // looks running with most of the band in a gate out and not all of it
 var gates_armed = false  // the men have walked clear of the edge they came in by: a gate can take them out again
 var gate_names = []::string
 var gate_rects = []::[int]  // tiles: x0, y0, x1, y1
@@ -742,6 +743,22 @@ def route_tick() -> string:
     let exits = gobj(leg_now(), "exits")
     for(gate_names) name, g:
         if alive > 0 and inside[g] == alive and has(exits, name): return name
+    // (most of the band stood in a gate out and somebody left behind: after some seconds he is called on to them.
+    // Playing the homecoming by hand, 2026-11-24, one man missed by the drag stood at the far gate, the other
+    // nineteen stood in the gate home, and nothing happened or was said. This runs every tenth tick.)
+    var waiting = false
+    for(gate_names) name, g:
+        if alive > 1 and has(exits, name) and inside[g] * 4 >= alive * 3 and not camps_made():
+            waiting = true
+            gate_wait++
+            if gate_wait >= 12 and gate_wait % 20 == 12:
+                let r = gate_rects[g]
+                for(men) m:
+                    let i = index_of(m.uid)
+                    if m.alive and i >= 0 and not in_rect(r, u_x[i] / TILE, u_y[i] / TILE) and u_foe[i] == 0 and u_moving[i] == 0 and not is_asleep(m.uid):
+                        print "(gate: {m.name} is called on to the others)"
+                        send_men([ m.uid ], (r[0] + r[2]) * TILE / 2 + TILE / 2, (r[1] + r[3]) * TILE / 2 + TILE / 2)
+    if not waiting: gate_wait = 0
     return ""
 
 def exit_by(edge:string) -> JV: return at(at(leg_now(), "exits"), edge)

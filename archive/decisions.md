@@ -1403,3 +1403,21 @@ of the lane and between the yards, a wall fountain with its trough on the lane, 
 in the yards (`archive/images/2026-11-24/13-the-village-with-yard-walls-and-a-fountain.png`). A wall has no shadow of
 its own: a stretch's shadow ran past its end and lay on the next.
 Not done: the lane is still earth, not cobbles; there are no people; no church.
+
+## D-197 (2026-11-24, Claude's build, the words stand-ins for Dominic's): the homecoming and the morning after
+
+Until now the run ended with the men stood at the village's gate and the end's words over them (D-168). Now:
+- In the last place, coming home, a house has smoke only if its man came back: with half the men lost, half the
+  chimneys are cold, spread through the village. The player sees it walking in.
+- At the gate the men walk on by themselves up the lane between the yard walls, the view going with them, for
+  fourteen seconds. Then the end's words as before ("Home.", who came back, what they carry).
+- When those are read, or at a click, it is the next morning, clear: the village in morning light, and at the foot of
+  the picture a line at a time for each thing that came home, from `data/survival.json`'s "after": the hearths, the
+  herbs, the wax, the hides, the wool, the Romans' drain if a man who learned it is home, and a last line, "In late
+  summer the men took down their rifles again." The last line stays.
+The frame set on 2026-11-22 stands: this is not the full village in three states or the years-later ending that shows
+each thing built. Nothing in the village changes with what was brought but the smoke. The lines are Claude's and are
+there to be rewritten by Dominic.
+Found playing it by hand: one man missed by the drag stood at the far gate, the other nineteen stood in the gate home,
+and nothing happened or was said. With three quarters of the band in a gate out for six seconds, a man standing
+elsewhere is now called on to them (`gate_wait`, route.lobster).

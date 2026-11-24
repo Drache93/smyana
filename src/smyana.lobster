@@ -1445,9 +1445,18 @@ def draw_chimney_smoke():
     if not camp.length: return
     let t = gl.time()
     gl.set_shader("color")
+    // (coming home, a hearth for each house whose man came back: with half the men lost, half the chimneys are cold.
+    // D-197)
+    var houses = 0
+    for(camp) e: if as_str(e.a[0]).length == 6 and substring(as_str(e.a[0]), 0, 5) == "house": houses++
+    let lit = if leg_id == "village_home" and men.length > 0: (houses * men_alive() + men.length - 1) / men.length else: houses
+    var house_n = 0
     for(camp) e, i:
         let name = as_str(e.a[0])
         if name.length == 6 and substring(name, 0, 5) == "house":
+            house_n++
+            // (which are cold is spread through the village, not one end of it)
+            if (house_n * 7) % houses >= lit: continue
             let n = string_to_int(substring(name, 5, 1))
             let c = CHIMNEYS[n % 3]
             // (house0..2 are turned half round, house3..5 a quarter: camp.lobster's CAMP_THING_TURNS)
@@ -4013,6 +4022,25 @@ def shaded_text(t:string, at:float2, a:float):
         gl.color(if shade > 0.0: float4 { 0.0, 0.0, 0.0, 0.7 * a } else: float4 { 0.97, 0.93, 0.82, a }):
             gl.translate(floor(at + float2 { shade, shade })): gl.text(t)
 
+// How long the end's words take to come up (draw_lines' own pace).
+def end_read_s() -> float: return 0.6 + float(tally_lines().length) * 1.4 + 1.2
+
+// The morning after the men come home (D-197): what the village makes of what they brought, a line at a time at the
+// foot of the picture, over the village in clear morning light; the last line stays.
+def draw_after(t:float):
+    let texts = after_lines()
+    if t < 0.0 or not texts.length: return
+    let each = 7.0
+    let n = min(int(t / each), texts.length - 1)
+    let u = t - float(n) * each
+    let a = if n == texts.length - 1: clamp(u / 1.2, 0.0, 1.0) else: clamp(min(u / 1.2, (each - u) / 1.2), 0.0, 1.0)
+    let ws = float(gl.window_size())
+    gl.set_shader("color")
+    gl.set_font_name(FONT)
+    gl.set_font_size(int(ws.y / 28.0))
+    let w = float(gl.text_size(texts[n]).x)
+    shaded_text(texts[n], float2 { floor(ws.x / 2.0 - w / 2.0), floor(ws.y * 0.8) }, a)
+
 // The packs, open (D-186. Dominic, 2026-11-24: "we need to design a pack looking UI, not a plane box"): a torba, the
 // woven wool shoulder bag of the Rhodopes, drawn in the signs' own hand with its flap thrown back and its strap over
 // the top, striped red and black at mouth and foot. What the men carry between them lies on its cloth, a small
@@ -4366,12 +4394,13 @@ while gl.frame():
             for(u_id) id, i: send_men([ id ], u_x[i], u_y[i])
             set_phase("play")
     elif gl.button("space") == 1: paused = not paused
-    if phase == "menu" or phase == "play" or phase == "arriving" or phase == "leaving":
+    if phase == "menu" or phase == "play" or phase == "arriving" or phase == "leaving" or phase == "home" or phase == "after":
         if phase == "play":
             guide_tick()
             select_tick()
             order_tick()
-        if phase != "menu": camera_tick(phase == "play" and script != "tour")
+        // (not at the homecoming or after it: the view goes up the lane by itself, past where the rim keeps it)
+        if phase != "menu" and phase != "home" and phase != "after": camera_tick(phase == "play" and script != "tour")
         // (once every man sleeps the whole world runs faster till one wakes or the day comes, D-150: a first-time
         // player sat through two minutes of dark at each camp with nothing to do, 2026-11-22. The first try ran only
         // the clock faster, and the test bot's men starved: the game and the wood's food come back by the tick.)
@@ -4459,6 +4488,15 @@ while gl.frame():
         if not paused: howl_tick(dt)
         if debug_line: score_keys()
         ground_season_tick()
+    if phase == "home":
+        cam += (men_centre() - cam) * min(1.0, dt * 0.9)
+        if phase_t >= 14.0: set_phase("end")
+    // (the end's words read, or clicked past: the morning after, D-197)
+    if phase == "end" and script == "" and men_alive() > 0 and (phase_t > end_read_s() + 5.0 or (phase_t > 3.0 and (gl.button("mouse1") == 1 or gl.button("space") == 1 or gl.button("return") == 1))):
+        hour_force = 8.5
+        weather_force = "clear"
+        set_phase("after")
+    if phase == "after": cam += (gp(6500.0, 51500.0) - cam) * min(1.0, dt * 0.1)
     if phase == "arriving" and phase_t >= 1.5:
         set_phase("play")
         // (the men come into a new place still chosen, once the player has learned to choose them: the eighth and ninth
@@ -4470,8 +4508,18 @@ while gl.frame():
         if last:
             // (the last walk, down the lane into the village: no letter and nothing to load. The village edge stays
             // as it is behind the end's words, D-168)
-            set_phase("end")
             score_moment("homecoming")
+            if script != "": set_phase("end")
+            else:
+                // (the men walk on up the lane between the yard walls, the view going with them, before the end's
+                // words: D-197)
+                set_phase("home")
+                selected = []
+                var n = 0
+                for(u_id) id:
+                    if man_of(id):
+                        send_men([ id ], (1 + n % 9) * TILE + 300 + (n * 137) % 400, (50 + (n / 9) % 2) * TILE + 300 + (n * 251) % 400)
+                        n++
         else:
             letter = gstrs(gobj(route, "letters"), gstr(exit_by(leave_edge), "letter", ""))
             letter_loaded = false
@@ -4509,10 +4557,14 @@ while gl.frame():
             // (home: the words over the village edge, the view going slowly up the lane to the houses, D-168. With
             // nobody left the words stand on the dark, where the last man fell.)
             if men_alive() > 0 and gstr(su_map, "id", "") == "village_edge":
-                cam += (gp(10500.0, 51000.0) - cam) * min(1.0, dt * 0.35)
+                cam += (gp(6000.0, 50500.0) - cam) * min(1.0, dt * 0.2)
                 draw_world(acc / 0.05)
                 veil(1.0 - clamp(phase_t / 3.0, 0.0, 1.0) * 0.5)
             draw_lines(tally_lines(), phase_t, int(float(gl.window_size().y) / 30.0))
+        elif phase == "after":
+            draw_world(acc / 0.05)
+            veil(1.0 - clamp(phase_t / 3.0, 0.0, 1.0))
+            draw_after(phase_t - 3.0)
         else:
             draw_world(acc / 0.05)
             draw_breaths()

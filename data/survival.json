@@ -513,5 +513,18 @@
     "short": "% bundles of wool", "short_one": "A bundle of wool", "short_none": "No wool yet"
    }
   ]
+ },
+ "after": {
+  "_doc": "The morning after the men come home (D-197): a line for each thing that came back, shown one at a time over the village. 'some_lost': % the men who did not come. Claude's stand-ins: Dominic's to rewrite.",
+  "all_home": "In the morning every chimney in the village was smoking.",
+  "one_lost": "In the morning one hearth in the village stayed cold.",
+  "some_lost": "In the morning % hearths in the village stayed cold.",
+  "herbs": "The herbs and the mountain tea were hung to dry under the eaves, against the winter's coughs.",
+  "wax": "The wax went for candles, for the church and for the long evenings.",
+  "hides": "The hides were scraped and tanned. By autumn there were shoes for the children.",
+  "wool": "The wool was washed in the river and spun through the summer.",
+  "drain": "And along the lane they dug a drain the way the Romans laid theirs, and the spring mud ran off down it.",
+  "nothing": "They brought back nothing but themselves, and were counted at the fountain all the same.",
+  "last": "In late summer the men took down their rifles again."
  }
 }
