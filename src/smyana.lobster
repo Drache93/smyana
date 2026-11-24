@@ -2371,7 +2371,7 @@ def draw_hover():
 // loader is the game's name on the dark, and the menu is the same name over the wood, the men in it going about the
 // camp, with two words under it. Start, and the words fade off the game that is already running.
 
-let MENU_ITEMS = [ "Start", "Quit" ]
+let MENU_ITEMS = if has_s(args, "web"): [ "Start" ] else: [ "Start", "Quit" ]  // (a browser tab has nothing to quit to)
 // Old Standard (SIL Open Font License, data/fonts/OldStandard/OFL.txt): a book face of the 19th century, made for
 // Cyrillic as well as Latin, for the name as the game's pictures write it, Смяна.
 let TITLE_FONT = "../data/fonts/OldStandard/OldStandard-Bold.ttf"

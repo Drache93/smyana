@@ -266,3 +266,4 @@ One line per moment worth remembering. Newest at the bottom.
 - 2026-11-24: the view goes with the men after an order (D-176).
 - 2026-11-24: Dominic's first note from playing: the signs no longer end up at the screen's edge (D-178).
 - 2026-11-24: Dominic's notes from playing: the pack's sign opens the packs and hiding is done at an old tree (D-180); the men and a line on screen say what to do next, closer zoom, fires seen through crowns (D-181).
+- 2026-11-24: browser build spike: Smyana builds for WebAssembly and runs in a browser after four Lobster fixes (32-bit slots, folder listing, Ogg, asyncify); speed on a real GPU still to measure.
