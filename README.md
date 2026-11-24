@@ -1,6 +1,13 @@
 # Смяна (Smyana)
 
-*Smyana* is Bulgarian for "shift": the change of the seasons, and a shift of work.
+Smyana means shift, or change. And it fits perfectly two things in this game. When I saw `SHIFT`
+was the theme for Game Off 2026 the first thing that came to my mind was the changing seasons of
+the Bulgarian mountains. Smyana, Смяна, is used to describe the changing time, the change of
+scenery, the changing of the guard, the end of a work shift - so it felt very appropriate that the
+game would be 100% vibe coded; built on a vibe coded engine, with vibe coded art, music and
+planning.
+
+Dominic
 
 An atmospheric survival game about twenty men who leave their village in the Rhodope mountains
 of 1800s Bulgaria at the end of summer, with swallow-tailed rifles and four days' bread. They go
