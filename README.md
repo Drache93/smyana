@@ -56,6 +56,12 @@ move on.
 
 Who made what, and the AI disclosure, are in [`CREDITS.md`](CREDITS.md).
 
+## Licence
+
+Smyana is free software under the GNU General Public License, version 3: see [`LICENSE`](LICENSE).
+The Creel engine and Lobster are under the Apache License 2.0, and the typeface under the SIL Open
+Font License; [`CREDITS.md`](CREDITS.md) lists them.
+
 ## What's here
 
 | Path | What it is |

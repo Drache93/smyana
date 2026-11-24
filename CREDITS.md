@@ -14,6 +14,11 @@
 - **First-time players:** AI agents that played builds cold from screenshots; their reports are in
   [`archive/playtests/`](archive/playtests/).
 
+## Licence
+
+Smyana (its code, art, sound, music and words) is under the GNU General Public License, version 3: [`LICENSE`](LICENSE).
+Dominic chose it on 2026-11-24.
+
 ## What it is built on
 
 - **Creel**, the engine, by Casaide (Apache License 2.0): <https://github.com/Casaide/creel>. First built for *Age of

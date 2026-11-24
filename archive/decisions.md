@@ -1268,3 +1268,8 @@ the fork at the commit in `creel/LOBSTER_VERSION` and builds it into `.lobster/`
 cmake or a compiler is missing; `play.sh`, `check.sh`, the lint and the tools all use it. Tried from nothing on Linux
 here; the macOS workflow now gets its Lobster the same way, so the Mac path is tried on every change. The unsigned zip
 (D-169) stays as it costs nothing. The README's mock-up gives way to pictures from the game (`docs/pictures/`).
+
+## D-185 (2026-11-24, Dominic): Smyana is under the GPL, version 3
+
+Dominic, asked which licence: "GPL yes". The `LICENSE` file is the GNU General Public License version 3, as Age of
+Anything has. Creel and Lobster stay Apache 2.0 and the typeface OFL, which the GPL allows alongside it.
