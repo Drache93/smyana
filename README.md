@@ -16,7 +16,8 @@ theme is **Shift**.
 November 2026, a week before the deadline: the whole road can be played, seven places out and
 back, summer to spring, in about two hours. The places are still grey-boxed under their woods.
 There is hunger, cold, sleep, camps and fires, gathering and hunting, wolves, a bear and mounted
-patrols, the forest's own sound and a first score. No village to see yet at either end. The
+patrols, the forest's own sound and a score. The village is a handful of houses seen as the men leave and
+come home. The
 plan for the last days is in [`docs/final-push.md`](docs/final-push.md).
 
 ```sh
@@ -42,6 +43,12 @@ Drag across the men to choose them (double-click a man for all of them) and righ
 them. The pointer shows what a right click will do: walk, gather, shoot, butcher, pick up, camp in
 a hut. Signs under the chosen men make camp (C), set the packs down (X) and halt. Space pauses, Tab
 finds the men, arrows or WASD move the view. Walk every man into the far edge of a place to move on.
+
+## A download for macOS
+
+The workflow [`macos-build.yml`](.github/workflows/macos-build.yml) builds Lobster and zips the game with it
+(`tools/package-macos.sh`): unzip, and double-click `Smyana.command`. The build is not signed, so the first time
+right-click it and choose Open. Who made what, and the AI disclosure, are in [`CREDITS.md`](CREDITS.md).
 
 ## What's here
 

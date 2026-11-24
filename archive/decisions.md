@@ -1106,3 +1106,12 @@ unloads the place: the end's words ("Home.", who came back, what they carry) com
 left it, the houses either side of them, the view going slowly to the gate, under a half veil. With nobody left alive
 the words stand on the dark as before. The years-later ending that shows what the knowledge built stays cut (plan,
 "What is cut first").
+
+## D-169: the macOS download is a zip built on GitHub, unsigned; credits and the AI disclosure written (2026-11-24)
+
+Claude's call, within Dominic's "macOS only ... Readme shows how easy it is to run" (2026-11-22). A workflow builds
+the Lobster fork at Creel's commit on a GitHub Mac, runs the route check, and zips the game with the binary and a
+Smyana.command to double-click (tools/package-macos.sh; the folder was run from a clean place on Linux first). It is
+not signed or notarised: the first start needs right-click, Open. CREDITS.md says who made what and is the AI
+disclosure. The letters and the end's words are set in the title's typeface (Old Standard), not Droid Sans. Not
+decided, and Dominic's: the repo's licence (there is none, so normal copyright applies for now).

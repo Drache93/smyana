@@ -1,0 +1,39 @@
+# Builds the macOS download of Smyana: the Lobster fork at the commit Creel names, the game and its baked pictures,
+# and a Smyana.command to double-click. Runs on a push to main, on a change to this file or to tools/package-macos.sh,
+# and by hand (Actions, "macOS build", Run workflow). The zip is the run's artifact "Smyana-macos".
+name: macOS build
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    paths: [".github/workflows/macos-build.yml", "tools/package-macos.sh"]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Lobster, at Creel's commit
+        run: |
+          git clone https://github.com/Drache93/lobster "$RUNNER_TEMP/lobster"
+          git -C "$RUNNER_TEMP/lobster" checkout "$(cat creel/LOBSTER_VERSION)"
+          cd "$RUNNER_TEMP/lobster/dev"
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --target lobster -j 4
+          ls -la ../bin
+      - name: The route plays through with no window
+        run: |
+          cd src
+          "$RUNNER_TEMP/lobster/bin/lobster" run_check.lobster 2>&1 | grep -v 'warning:' | tee /dev/stderr | grep -q '^run_check: ok$'
+      - name: Package
+        run: tools/package-macos.sh "$RUNNER_TEMP/lobster" "$RUNNER_TEMP/out"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Smyana-macos
+          path: ${{ runner.temp }}/out/Smyana-macos.zip
+          if-no-files-found: error

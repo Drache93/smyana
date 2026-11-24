@@ -256,3 +256,4 @@ One line per moment worth remembering. Newest at the bottom.
 - 2026-11-24: Dominic: "Just keep working. Just go until everything's done."; a certain first patrol in the beech valley (D-165), clicks on ledges go to the nearest ground (D-166).
 - 2026-11-24: the village: six stone houses with slab roofs by the lane, seen on the title screen (D-167).
 - 2026-11-24: the run ends over the village edge with the houses in view (D-168).
+- 2026-11-24: a macOS build workflow, CREDITS.md with the AI disclosure, the letters in the title's typeface (D-169).

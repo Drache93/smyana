@@ -1838,7 +1838,7 @@ def fires_glow():
 
 // ------------------------------------------------------------------ words on the screen (the letter, the end)
 
-let FONT = "data/fonts/Droid_Sans/DroidSans.ttf"  // (Lobster's own, as Creel uses)
+let FONT = "../data/fonts/OldStandard/OldStandard-Regular.ttf"  // (the title's face, for the letters and the end's words too; Droid Sans till 2026-11-24)
 
 def veil(a:float):
     if a <= 0.0: return
