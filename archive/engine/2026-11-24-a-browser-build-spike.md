@@ -59,3 +59,11 @@ The coordinator passed on Dominic's standing rule (never wait for him), so the t
 the tree key now sits beside the baked trees in `baked/trees_key.txt`, written whenever it changes, and the browser
 build takes it from there and leaves the models out (68 MB of data, was 106); the menu has no Quit in a browser; the
 page keeps `settings.txt` in the browser's storage. `./check.sh` passes.
+
+## Later: the Lobster fixes are merged
+
+Dominic fixed Claude's access to the Lobster fork, and the fixes went in as Drache93/lobster PR 1 (merged 10:15 UTC),
+with one more found by the fork's CI: the unit tests' C++ casts a 32-bit slot straight to `LString *`, so `LSlot` got an
+explicit pointer cast. So `tools/web/lobster-web.patch` is gone and the web build needs Lobster at 3b1f968c or later.
+Creel's `LOBSTER_VERSION` (still d3c7ed2c) is Creel's to move. The fork's lobsterfmt_test fails on a fresh machine, which
+isn't from these changes (it makes its temp folder only after the goldens run).

@@ -1,10 +1,8 @@
 #!/bin/bash
 # Builds Smyana for the browser (WebAssembly + WebGL 2), into build/web/, and zips it for itch.io (build/smyana-web.zip).
 #   tools/web/build.sh
-# Needs: Emscripten (EMSDK=<emsdk dir>, default ~/emsdk), and the Lobster fork (LOBSTER_DIR, default ~/Dev/lobster) at the
-# commit in creel/LOBSTER_VERSION with tools/web/lobster-web.patch applied (git apply), its bin/lobster built as usual.
-# The same fixes are Drache93/lobster PR 1 (branch claude/web-build); once it is merged and LOBSTER_VERSION moves past it,
-# the patch is no longer needed.
+# Needs: Emscripten (EMSDK=<emsdk dir>, default ~/emsdk), and the Lobster fork (LOBSTER_DIR, default ~/Dev/lobster) at
+# 3b1f968c or later (its master since Drache93/lobster PR 1, which has the fixes the web needs), bin/lobster built as usual.
 # The browser build runs the C++ the Lobster compiler writes (lobster --cpp), not the JIT; the link takes a few minutes.
 # Serve build/web/ over http to try it (python3 -m http.server -d build/web), since a browser won't load it from a file.
 set -e
