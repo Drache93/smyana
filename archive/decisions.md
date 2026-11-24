@@ -1142,3 +1142,33 @@ Each of the six houses at the village edge has a thread of pale smoke from its c
 hour's light falls on it, leaning east with the wind. It is the cheapest sign that somebody is at home, on the title
 screen and behind the end's words. The chimney tops are worked out from the house models' own measures
 (`tools/camp_vox.py`), turned as each house is turned. There are still no people in the village.
+
+## D-173 (2026-11-24, Claude): the way on, and what else the sixth first-time play could not find
+
+The sixth agent play (`archive/playtests/2026-11-24-06-first-time-player.md`) never left the second place: it walked
+to the right of the screen, which is north-east on the map, met the rocks and spent twenty minutes lost. It met no
+deer and no patrol, because both are along the track it had left. So:
+
+- **The way on.** Coming into each place after the first, a man says the track goes on "that way", and for twenty
+  seconds a pale ring with the words "The way on" sits at the gate out, or at the screen's edge toward it. When the
+  men have been more than ten tiles off the track for a minute and a half of daylight (not camped), a man says they
+  have lost it and the ring comes back; not again for four minutes, since going off the track is what the wood is for
+  (Dominic, 2026-11-13). This is a mark on the screen, against "ideally no UI"; it is there twenty seconds at a time.
+- **The hut over the cliff.** A hut order now only sends men to ground they can walk to; with none, it is an ordinary
+  walk, which goes as near as it can, and no more "No way through there" under a flame pointer.
+- **The signs hold still** while the mouse is on or near them (under walking men they slid from under the click), and
+  the loaves' word and the men's words stay inside the screen.
+- **The seasons are said** by one of the men when they turn, and after the first order a line says that Tab brings
+  the view back to the men.
+- **The grunt at an order** comes at most every eight seconds ("I heard it about sixty times").
+
+The men's new lines are Claude's placeholders, like the rest. Not done from that report: the strawberries it could not
+find, the view following the men, rain and birdsong swapping within seconds, the fire song missing on some nights.
+
+## D-174 (2026-11-24, Claude): more meat on an animal and more in a cache
+
+Six runs of the test player on new seeds ended with 0, 1, 0 and 0 men home and two more starving on the way (the 14
+and 15 of D-164 were two lucky seeds). They ran out of food from the pass homeward every time. A day costs the band
+about 25 portions; a roe gave 24, a chamois 30, a boar 60, a cache 12 to 22. Now a roe gives 36, a chamois 44, a boar
+84 and a cache 20 to 32. The premise holds (food from hunting, caches and finds, never a wage). Four runs on the new
+numbers are going as this is written; the numbers stand or move by what they bring home.

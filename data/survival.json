@@ -6,6 +6,12 @@
   "opening": ["Which way? The lane runs east, down to the beeches.", "A long road. Out over the ridge, and home by spring."],
   "opening_s": 7,
   "dusk": "The light is going. We should make camp.",
+  "season_autumn": "The leaves are turning. Summer is behind us.",
+  "season_winter": "That is winter in the air. Keep the fires high.",
+  "season_spring": "The snow is going. Spring, and the road home.",
+  "season_summer": "Summer again.",
+  "way_on": "The track goes on across this place. That way.",
+  "lost_track": "We have lost the track. The way on lies over there.",
   "last_bread": "That is the last of the bread.",
   "hungry": "My belly is empty. The wood has food, if we look.",
   "starving": "I can't go much further without food.",
@@ -427,8 +433,8 @@
    "cache": {
     "weight": 3,
     "food": [
-     12,
-     22
+     20,
+     32
     ],
     "goods": [
      0,

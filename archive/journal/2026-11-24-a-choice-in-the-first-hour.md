@@ -73,3 +73,13 @@ title screen. A red mark showed the chimneys were found, white squares showed th
 only the colour.
 
 ![Smoke from the chimneys](../images/2026-11-24/04-smoke-from-the-chimneys.png)
+
+## The sixth play: lost for twenty minutes
+
+The deer by the trail and the certain patrol were both there, and the sixth first-time player met neither. It walked
+to the right of the screen from the gate, which is north-east, not east, and spent twenty of its twenty-eight minutes
+against the rocks at the valley's north side with the bread running out. Its report is in
+`archive/playtests/2026-11-24-06-first-time-player.md`. The answer is a small one, a man's line and a ring at the
+screen's edge for twenty seconds (D-173); whether it is enough needs a seventh play.
+
+The test player meanwhile starved on six new seeds, and the animals and caches now give half as much again (D-174).

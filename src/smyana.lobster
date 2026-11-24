@@ -1981,6 +1981,8 @@ def bread_days() -> int:
     return if n: food / n else: 0
 
 // The size of a pixel of the signs' art, in screen pixels (a sign is 16 of them square).
+var sign_held = float3_0  // where the signs last sat (x, y; z: 1 once they have)
+
 def sign_px() -> float: return float(max(2, gl.window_size().y / 360))
 
 // Where the signs sit on the screen, each a square (x, y, side) in a row centred under the chosen men's feet, kept on
@@ -1999,8 +2001,15 @@ def sign_boxes(n:int) -> [float3], float2:
         men_foot = max(men_foot, p.y)
     let loaves_w = 9.0 * k * float(clamp(bread_days(), 1, 8)) + gap
     let total = float(n) * side + float(max(0, n - 1)) * gap + gap * 2.0 + loaves_w
-    let x0 = clamp(sx / float(max(1, ids.length)) - total / 2.0, ws.y * 0.03, ws.x - ws.y * 0.03 - total)
-    let y0 = clamp(men_foot + 10.0 * k, ws.y * 0.08, ws.y - side - ws.y * 0.04)
+    var x0 = clamp(sx / float(max(1, ids.length)) - total / 2.0, ws.y * 0.03, ws.x - ws.y * 0.03 - total)
+    var y0 = clamp(men_foot + 10.0 * k, ws.y * 0.08, ws.y - side - ws.y * 0.04)
+    // (they stay where they are while the mouse is on or near them: under walking men they slid away from the click,
+    // which then landed on the ground as an order, twice in the sixth first-time play, 2026-11-24)
+    let m = mouse_px()
+    if sign_held.z > 0.0 and m.x > sign_held.x - side and m.x < sign_held.x + total + side and m.y > sign_held.y - side and m.y < sign_held.y + side * 2.0:
+        x0 = sign_held.x
+        y0 = sign_held.y
+    sign_held = float3 { x0, y0, 1.0 }
     let boxes = map(n) j: float3 { floor(x0 + float(j) * (side + gap)), floor(y0), side }
     return boxes, float2 { floor(x0 + float(n) * (side + gap) + gap), floor(y0 + side - 7.0 * k) }
 
@@ -2138,7 +2147,7 @@ def draw_signs():
         let word = if days <= 0: "No food left" elif days == 1: "Food for a day" else: "Food for {days} days"
         gl.set_font_name("../data/fonts/OldStandard/OldStandard-Regular.ttf")
         gl.set_font_size(int(float(gl.window_size().y) / 46.0))
-        let at = float2 { loaves.x, boxes[0].y + side + 3.0 * k }
+        let at = float2 { min(loaves.x, float(gl.window_size().x) - float(gl.text_size(word).x) - 6.0), boxes[0].y + side + 3.0 * k }
         for([ 1.0, 0.0 ]) shade:
             gl.color(if shade > 0.0: float4 { 0.0, 0.0, 0.0, 0.75 } else: float4 { 0.97, 0.93, 0.82, 1.0 }):
                 gl.translate(at + float2 { shade, shade }): gl.text(word)
@@ -2282,7 +2291,9 @@ def draw_speech():
         let i = index_of(sp.id)
         let a = clamp((sp.until - now) / 0.6, 0.0, 1.0)
         let tw = float(gl.text_size(sp.text))
-        let p = float(floor(to_screen(gp(float(u_x[i]), float(u_y[i])) - float2 { 0.0, 46.0 }) - float2 { tw.x / 2.0, tw.y }))
+        let p0 = float(floor(to_screen(gp(float(u_x[i]), float(u_y[i])) - float2 { 0.0, 46.0 }) - float2 { tw.x / 2.0, tw.y }))
+        // (kept on the screen: a man at its edge had his words cut to one letter, the sixth first-time play)
+        let p = float2 { clamp(p0.x, 4.0, max(4.0, ws.x - tw.x - 4.0)), clamp(p0.y, 4.0, ws.y - tw.y - 4.0) }
         for([ 1.0, 0.0 ]) shade:
             gl.color(if shade > 0.0: float4 { 0.0, 0.0, 0.0, 0.7 * a } else: float4 { 0.97, 0.93, 0.82, a }):
                 gl.translate(p + float2 { shade, shade }): gl.text(sp.text)
@@ -3408,7 +3419,7 @@ def load_next():
 // (data/survival.json "says"), one faint line at the foot of the screen until the first order is given, the word
 // Paused, and a mark at the screen's edge toward the men when none of them is in view.
 let said = []::string
-var hint_stage = 0  // 0 choose them, 1 send them, 2 done
+var hint_stage = 0  // 0 choose them, 1 send them, 2 the Tab key (nine seconds), 3 done
 var hint_t = 0.0
 var open_n = 0
 var order_seen = -10.0
@@ -3454,8 +3465,70 @@ def men_mark() -> float2:
     let k = min((ws.x / 2.0 - pad) / max(abs(d.x), 1.0), (ws.y / 2.0 - pad) / max(abs(d.y), 1.0))
     return ws / 2.0 + d * min(k, 1.0)
 
+// The way on (D-173): where this place's gate out is, in the picture or at its edge toward it. The sixth first-time
+// play (2026-11-24) spent twenty minutes of its twenty-eight lost in the beech valley: "After the first line nobody ever
+// says. There is no map, compass, path or signpost". East on the map is down and to the right on the screen, and it
+// had walked to the right. So: a man says where the track goes as they come into a place, and again when they have
+// been well off it for a minute and a half of daylight, and for twenty seconds a pale ring shows the way.
+var way_until = 0.0
+var season_said = ""
+var amb_ack_s = -100.0  // when a man last grunted at an order
+var off_trail_s = 0.0
+var off_trail_at = 0.0
+
+def way_on() -> float2, bool:
+    let exits = gobj(leg_now(), "exits")
+    for(gate_names) name, g:
+        if has(exits, name):
+            let r = gate_rects[g]
+            return to_screen(gp(float(r[0] + r[2] + 1) * 500.0, float(r[1] + r[3] + 1) * 500.0)), true
+    return float2_0, false
+
+// How far the middle of the men is from the nearest tile of trail, in tiles (99 where the place has none).
+def tiles_off_trail() -> float:
+    let trail = str_index(tr_names, "trail")
+    var sum = float2_0
+    var n = 0
+    for(u_x.length) i:
+        if man_of(u_id[i]):
+            sum += float2 { float(u_x[i]), float(u_y[i]) }
+            n++
+    if not n: return 0.0
+    let c = sum / float(n) / 1000.0
+    var best = 99.0 * 99.0
+    for(H) y: for(W) x:
+        if terrain[y * W + x] == trail:
+            let d = float2 { float(x) + 0.5, float(y) + 0.5 } - c
+            best = min(best, d.x * d.x + d.y * d.y)
+    return sqrt(best)
+
+def way_tick():
+    if leg_id != gstr(route, "start", "") and phase_t > 3.0 and (find(said): _ == "way {leg_id}") < 0:
+        one_says("way {leg_id}", say_cfg("way_on"), 2)
+        way_until = seen_s + 20.0
+        off_trail_s = 0.0
+    if seen_s - off_trail_at < 1.0: return
+    let dt = min(seen_s - off_trail_at, 2.0)
+    off_trail_at = seen_s
+    if paused or is_night() or camps_made(): return
+    let off = tiles_off_trail()
+    if off < 6.0: off_trail_s = min(off_trail_s, 0.0)
+    elif off > 10.0 and off < 90.0: off_trail_s += dt
+    if off_trail_s > 90.0:
+        off_trail_s = -240.0  // (not again for four minutes more: going off the track is what the wood is for)
+        said.remove_obj("lost track")
+        one_says("lost track", say_cfg("lost_track"), 3)
+        way_until = seen_s + 20.0
+
 def guide_tick():
     if phase != "play" or script != "": return
+    way_tick()
+    // the season turned: one of them says so (the sixth first-time play took the autumn trees for the new place's look)
+    if season_said == "": season_said = season_now()
+    elif season_said != season_now() and phase_t > 4.0:
+        season_said = season_now()
+        said.remove_obj("season")
+        one_says("season", say_cfg("season_" + season_said), 4)
     let day = (gint(route, "start_hour", 7) * 1000000 + clock_uh) / 24000000
     // the opening: where the road goes, and what the year is for
     let opening = gstrs(sv_cfg("says"), "opening")
@@ -3513,7 +3586,9 @@ def guide_tick():
         order_tick_no = tick
         order_from = float2_0
         for(order_ids) id: order_from += float2 { float(u_x[index_of(id)]), float(u_y[index_of(id)]) } / float(order_ids.length)
-        if hint_stage == 1: hint_stage = 2
+        if hint_stage == 1:
+            hint_stage = 2
+            hint_t = 0.0
     elif order_ids.length and tick > order_tick_no + 3 * TICK_HZ:
         let ids = filter(order_ids) id: index_of(id) >= 0
         var now = float2_0
@@ -3552,12 +3627,31 @@ def draw_guide(dt:float):
         gl.set_font_size(int(ws.y / 22.0))
         let w = float(gl.text_size("Paused").x)
         shaded_text("Paused", float2 { ws.x / 2.0 - w / 2.0, ws.y * 0.4 }, 0.95)
-    if hint_stage < 2 and menu_alpha <= 0.0:
+    if hint_stage == 2 and hint_t > 9.0: hint_stage = 3
+    if hint_stage < 3 and menu_alpha <= 0.0:
         hint_t += dt
         gl.set_font_size(int(ws.y / 40.0))
-        let l = if hint_stage == 0: "Drag across the men to choose them" else: "Right click to send them"
+        let l = if hint_stage == 0: "Drag across the men to choose them" elif hint_stage == 1: "Right click to send them" else: "Tab brings the view back to the men"
         let w = float(gl.text_size(l).x)
         shaded_text(l, float2 { ws.x / 2.0 - w / 2.0, ws.y * 0.9 }, clamp(hint_t - 1.0, 0.0, 1.0) * 0.8)
+    if seen_s < way_until:
+        // (the way on: a pale ring at the gate out, or at the screen's edge toward it, and two words)
+        let g, has_gate = way_on()
+        if has_gate:
+            let d = g - ws / 2.0
+            let pad = ws.y * 0.07
+            let k = min((ws.x / 2.0 - pad) / max(abs(d.x), 1.0), (ws.y / 2.0 - pad) / max(abs(d.y), 1.0))
+            let p = ws / 2.0 + d * min(k, 1.0)
+            let a = clamp(way_until - seen_s, 0.0, 1.0) * clamp(20.0 - (way_until - seen_s), 0.0, 1.0)
+            let r = ws.y * 0.02
+            for(12) j:
+                let a0 = 30.0 * float(j)
+                gl.color(float4 { 0.95, 0.91, 0.79, 0.85 * a }):
+                    gl.line(p + float2 { cos(a0), sin(a0) } * r, p + float2 { cos(a0 + 30.0), sin(a0 + 30.0) } * r, 2.0)
+            gl.set_font_size(int(ws.y / 46.0))
+            let w = float(gl.text_size("The way on").x)
+            shaded_text("The way on", float2 { clamp(p.x - w / 2.0, 4.0, ws.x - w - 4.0), p.y + (if p.y > ws.y * 0.8: -r * 3.0 else: r * 1.4) }, a)
+            gl.set_shader("color")
     if not men_in_view():
         // (a small pale ring with a dot, where the signs' hand would be: the men are that way; a click on it goes there)
         let p = men_mark()
@@ -3654,7 +3748,10 @@ def ambience_tick(dt:float):
         // (a fire catching, a pile of packs set down, an order given: each once as it happens)
         if fires.length > amb_fires: hear("fire_light", 0.0, 0.0)
         if piles.length > amb_piles: hear("pack_down", 0.0, 0.0)
-        if mark_t != amb_mark and chosen_men().length > 0: hear("ack", 0.0, 0.0)
+        // (not at every order: "I heard it about sixty times", the sixth first-time play, 2026-11-24)
+        if mark_t != amb_mark and chosen_men().length > 0 and seen_s - amb_ack_s > 8.0:
+            hear("ack", 0.0, 0.0)
+            amb_ack_s = seen_s
     amb_fires = fires.length
     amb_piles = piles.length
     amb_mark = mark_t

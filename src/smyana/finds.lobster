@@ -115,12 +115,19 @@ def hut_order(ids:[int], hut:int) -> bool:
     if not n_here: return false
     mx /= n_here
     my /= n_here
+    // (and only ground the men can walk to from where they stand: the sixth first-time play, 2026-11-24, sent the men
+    // three times to a hut over a cliff and got "No way through there" each time. With none, the order is an
+    // ordinary walk, which goes as near as it can)
+    let i0 = index_of(ids[0])
+    let reach = reach_side(0, u_kind[i0], cell_of(u_x[i0], u_y[i0]))
     let spots = []::int
     for(25) k:
         let x = hut % W + k % 5 - 2
         let y = hut / W + k / 5 - 2
-        if x >= 0 and y >= 0 and x < W and y < H and y * W + x != hut and walks[0][y * W + x] == 1: spots.push(y * W + x)
-    if not spots.length: spots.push(camp_ground_near(hut, hut))
+        if x >= 0 and y >= 0 and x < W and y < H and y * W + x != hut and walks[0][y * W + x] == 1 and reach[y * W + x] == 1: spots.push(y * W + x)
+    if not spots.length:
+        hut_goal = -1
+        return false
     insertion_sort(spots) a, b: dist2((a % W) * TILE, (a / W) * TILE, mx, my) < dist2((b % W) * TILE, (b / W) * TILE, mx, my)
     let near = spots.slice(0, min(spots.length, 6))
     for(ids) id, n:
