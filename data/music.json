@@ -3,7 +3,7 @@
  "db": -3,
  "trim": { "_doc": "dB added to a track on top of 'db', so tracks of one kind sit at one loudness (measured with ffmpeg ebur128, 2026-11-24; calm and the fire's song to -24.5 LUFS, wary and hiding -23, the hunts -20, the end strokes -17.5, the menu -25, the moments -21). A track not named is left as made.", "01_summer_day": 2.1, "03_autumn_day": -0.6, "06_winter_day": -1.3, "07_winter_night": 1.8, "08_spring_morning": -0.9, "09_spring_day": 1.0, "10_wary": 2.4, "11_hiding": 1.5, "13_bandits": -1.9, "14_ottomans": 1.2, "15_chase": -1.7, "16_end_stroke_1": -1.9, "16_end_stroke_2": -0.9, "16_end_stroke_3": -1.0, "16_end_stroke_4": -2.6, "18_a_man_dies": 1.4, "19_the_fire": 1.3, "20_intro": 1.0, "22_homecoming": -2.0, "23_ending": -0.7, "24_menu": 2.1 },
  "first_wait_s": 3,
- "gap_s": 70,
+ "gap_s": 40,
  "after_danger_s": 6,
  "leave_fade_s": 2.5,
  "turn_min_s": 30,

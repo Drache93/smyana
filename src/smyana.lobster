@@ -4217,7 +4217,7 @@ while gl.frame():
             for([ "dawn", "day", "dusk", "night" ]) name:
                 let ahead = mood_hour(name) - hour_now()
                 turn_h = min(turn_h, if ahead > 0.0: ahead else: ahead + 24.0)
-            score_hold = turn_h * float(ticks_per_hour()) / float(TICK_HZ) / (if is_night(): float(gint(gobj(route, "night"), "speed", 100)) / 100.0 else: 1.0) < 90.0
+            score_hold = turn_h * float(ticks_per_hour()) / float(TICK_HZ) / (if is_night(): float(gint(gobj(route, "night"), "speed", 100)) / 100.0 else: 1.0) < 45.0
             score_tick(dt, season_now(), mood_now(), fires.length > 0)
         danger_tick()
         if phase == "leaving": beds_hush()

@@ -1291,3 +1291,10 @@ own foot, and the pointer says "Hide the packs here". Also: the way on shows whe
 seconds by day; "They are away" is said only of game the men were sent after in the last minute; the men stay chosen
 on arriving in a new place. Not done: who the men are and why they go (the letters are Dominic's), food in the beech
 valley, the place's name on arrival, the music gaps after the day's track.
+
+## D-188 (2026-11-24, Claude): shorter quiet between the calm tracks
+
+Three first-time plays (the sixth, eighth and ninth) each listed stretches of about two minutes with no music in
+every day, about a third of the game. The quiet between two calm tracks goes from 70 seconds to 40 (D-152 had it at
+70), and a new track is held back only when the light turns within 45 seconds, not 90. By the numbers the longest
+quiet in a day falls from about 110 seconds to about 85, and most are 40.

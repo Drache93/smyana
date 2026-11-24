@@ -274,3 +274,4 @@ One line per moment worth remembering. Newest at the bottom.
 - 2026-11-24: Dominic chose the GPL, version 3; LICENSE added (D-185).
 - 2026-11-24: Dominic: "fallen trees over the cliff?"; fallen trunks keep two tiles from any step in the ground.
 - 2026-11-24: the open pack drawn as a woven bag (D-186); the ninth first-time play reached the fourth place, and hiding the packs by accident is fixed (D-187).
+- 2026-11-24: the quiet between calm tracks shortened from 70 seconds to 40 (D-188).
