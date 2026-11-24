@@ -2082,6 +2082,18 @@ def draw_signs():
     if days <= 0: draw_loaf(loaves.x, loaves.y, k, true)
     else:
         for(min(days, 8)) n: draw_loaf(loaves.x + float(n) * 9.0 * k, loaves.y, k, false)
+    // (and a word under the loaves too when the mouse is on them: a playtester asked what they count, 2026-11-23)
+    let m = mouse_px()
+    let wide = 9.0 * k * float(clamp(days, 1, 8))
+    let side = boxes[0].z
+    if m.x >= loaves.x - 2.0 * k and m.x <= loaves.x + wide and m.y >= boxes[0].y and m.y <= boxes[0].y + side:
+        let word = if days <= 0: "No food left" elif days == 1: "Food for a day" else: "Food for {days} days"
+        gl.set_font_name("../data/fonts/OldStandard/OldStandard-Regular.ttf")
+        gl.set_font_size(int(float(gl.window_size().y) / 46.0))
+        let at = float2 { loaves.x, boxes[0].y + side + 3.0 * k }
+        for([ 1.0, 0.0 ]) shade:
+            gl.color(if shade > 0.0: float4 { 0.0, 0.0, 0.0, 0.75 } else: float4 { 0.97, 0.93, 0.82, 1.0 }):
+                gl.translate(at + float2 { shade, shade }): gl.text(word)
 
 // ------------------------------------------------------------------ on the march (Dominic, 2026-11-13: "long march they
 // should walk in a column not wide")

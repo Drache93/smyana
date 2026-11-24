@@ -11,6 +11,10 @@ on:
 permissions:
   contents: read
 jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo ok
   build:
     runs-on: macos-14
     timeout-minutes: 45
