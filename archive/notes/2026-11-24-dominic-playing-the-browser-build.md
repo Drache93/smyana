@@ -46,3 +46,10 @@ At 13:26, with a picture of a fallen trunk lying across a ledge's edge:
 
 What was done (Claude): a fallen trunk in the undergrowth is only placed where the ground is level for two tiles round
 it.
+
+At 13:28:
+
+> "in the packs" i think we need to design a pack looking UI, not a plane box
+
+What was done (Claude, D-186): the open pack is drawn as a woven wool shoulder bag, striped red and black, with a small
+picture and a few words for each thing in it.

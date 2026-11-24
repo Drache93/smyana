@@ -1273,3 +1273,21 @@ here; the macOS workflow now gets its Lobster the same way, so the Mac path is t
 
 Dominic, asked which licence: "GPL yes". The `LICENSE` file is the GNU General Public License version 3, as Age of
 Anything has. Creel and Lobster stay Apache 2.0 and the typeface OFL, which the GPL allows alongside it.
+
+## D-186 (2026-11-24, Dominic's direction, Claude's design): the open pack is a woven bag
+
+Dominic: "i think we need to design a pack looking UI, not a plane box". The board of D-180 becomes a torba, the woven
+wool shoulder bag, drawn in the signs' own pixels: its strap over the top, its flap thrown back, stripes of red, black
+and cream at mouth and foot, tassels at the corners. On a cloth laid in it, a row for each thing carried: a small
+picture (a loaf, a bundle of herbs, a cake of wax, a rolled hide, wool, a stone arch for the Roman drain) and a few
+words. The bag's look is from Claude's memory of such bags, not from a source checked today.
+
+## D-187 (2026-11-24, Claude): what the ninth first-time play found
+
+It reached the fourth place, the gorge, in 29 minutes with all twenty men
+(`archive/playtests/2026-11-24-09-first-time-player.md`). Its worst moment was D-180's own: with the packs open, a
+right click anywhere near an old tree hid them, three times by accident. Hiding now needs the pointer on the tree's
+own foot, and the pointer says "Hide the packs here". Also: the way on shows whenever the men have stood still six
+seconds by day; "They are away" is said only of game the men were sent after in the last minute; the men stay chosen
+on arriving in a new place. Not done: who the men are and why they go (the letters are Dominic's), food in the beech
+valley, the place's name on arrival, the music gaps after the day's track.

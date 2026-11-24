@@ -469,27 +469,31 @@
   }
  },
  "wares": {
-  "_doc": "The goods the men take home, each a kind (docs/gathering.md; the gathering proposal Dominic agreed 2026-11-13: food for the road, and things for home that make the village better). 'herbs' are gathered at a stand of herbs or mountain tea (Sideritis scardica, the Rhodopes' mountain tea, drunk against coughs and colds); 'wax' is the comb of wild bees' honey, for candles; 'hides' are taken from a deer or boar the men kill; 'wool' is what another band left in its cache. Each is one place in a pack. 'line' is the tally's line at home, % the count ('one' when there is one).",
+  "_doc": "The goods the men take home, each a kind (docs/gathering.md; the gathering proposal Dominic agreed 2026-11-13: food for the road, and things for home that make the village better). 'herbs' are gathered at a stand of herbs or mountain tea (Sideritis scardica, the Rhodopes' mountain tea, drunk against coughs and colds); 'wax' is the comb of wild bees' honey, for candles; 'hides' are taken from a deer or boar the men kill; 'wool' is what another band left in its cache. Each is one place in a pack. 'line' is the tally's line at home, % the count ('one' when there is one); 'short' and 'short_one' are the same in the open pack.",
   "kinds": [
    {
     "id": "herbs",
     "line": "% bundles of herbs and mountain tea, against the winter's coughs.",
-    "one": "A bundle of herbs and mountain tea, against the winter's coughs."
+    "one": "A bundle of herbs and mountain tea, against the winter's coughs.",
+    "short": "% bundles of herbs and mountain tea", "short_one": "A bundle of herbs and mountain tea"
    },
    {
     "id": "wax",
     "line": "% cakes of wild bees' wax, for candles.",
-    "one": "A cake of wild bees' wax, for candles."
+    "one": "A cake of wild bees' wax, for candles.",
+    "short": "% cakes of wild bees' wax", "short_one": "A cake of wild bees' wax"
    },
    {
     "id": "hides",
     "line": "% hides, for shoes and coats.",
-    "one": "A hide, for shoes and coats."
+    "one": "A hide, for shoes and coats.",
+    "short": "% hides", "short_one": "A hide"
    },
    {
     "id": "wool",
     "line": "% bundles of wool another band left behind.",
-    "one": "A bundle of wool another band left behind."
+    "one": "A bundle of wool another band left behind.",
+    "short": "% bundles of wool", "short_one": "A bundle of wool"
    }
   ]
  }

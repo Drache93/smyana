@@ -2225,6 +2225,7 @@ var gathered_said = 0
 var far_howl_again = 0.0  // when the second far howl of the first night comes (watched seconds; 0: none due)
 var near_asked = false    // an order was moved to the nearest ground the men can reach
 var hunt_said_n = 0
+var hunt_asked_at = -1000.0  // when the men were last sent after game (seen_s)
 var hunt_alarm = false
 var rose_asked = false  // a right click has just sent the men to a dog rose that is no stand
 
@@ -2287,14 +2288,15 @@ def march_off(ids:[int]):
 // Whether a bridge here is down (felling is for mending one, and nothing else).
 def bridge_down() -> bool: return (find(br_up) up: up == 0) >= 0
 
-// The old tree at cell c or beside it (its foot: a place to hide the packs), or -1.
-def old_tree_near(c:int) -> int:
-    let old = str_index(tr_names, "tree")
-    for([ 0, 1, -1 ]) j: for([ 0, 1, -1 ]) i:
-        let x = c % W + i
-        let y = c / W + j
-        if x >= 0 and y >= 0 and x < W and y < H and terrain[y * W + x] == old: return y * W + x
-    return -1
+// The old tree whose foot the mouse is on (a place to hide the packs), or -1. Its own tile only, within a third of a
+// tile of its middle: with the tiles beside it counted too, most right clicks in a wood were on "a tree", and the
+// ninth first-time play hid its packs three times by accident with the packs open, 2026-11-24.
+def hide_tree_under(mm:float2) -> int:
+    let x = int(mm.x / 1000.0)
+    let y = int(mm.y / 1000.0)
+    if x < 0 or y < 0 or x >= W or y >= H or terrain[y * W + x] != str_index(tr_names, "tree"): return -1
+    let d = float2 { mm.x - float(x) * 1000.0 - 500.0, mm.y - float(y) * 1000.0 - 500.0 }
+    return if magnitude(d) < 380.0: y * W + x else: -1
 
 // The cursor for what is under the mouse, with men chosen, in the order a right click takes them.
 def hover_cursor() -> int:
@@ -2310,7 +2312,7 @@ def hover_cursor() -> int:
     let hut = hut_near(int(mm.x), int(mm.y), 1)
     if hut >= 0 and not (exists(sv_camps) cp: cp.hut and dist2(cp.x, cp.y, (huts[hut] % W) * TILE, (huts[hut] / W) * TILE) < sq(4 * TILE)): return CURSOR_CAMP
     if pile_near(int(mm.x), int(mm.y)) >= 0: return CURSOR_TAKE
-    if pack_open and old_tree_near(mc) >= 0: return CURSOR_TAKE
+    if pack_open and hide_tree_under(mm) >= 0: return CURSOR_TAKE
     if patch_under(mm) >= 0: return CURSOR_GATHER
     let yt = young_tree_at(mm)
     if yt >= 0 and terrain[yt] == str_index(tr_names, "rubble"): return CURSOR_DIG
@@ -2359,9 +2361,12 @@ def draw_speech():
 // A man's name by the pointer when it is on him.
 def draw_hover():
     let u = unit_at_screen(mouse_px())
-    if u < 0: return
-    let m = man_of(u_id[u])
-    if not m: return
+    // (with the packs open, on an old tree's foot: what a right click there does)
+    let hide_here = u < 0 and pack_open and hide_tree_under(mouse_milli()) >= 0
+    if u < 0 and not hide_here: return
+    let m = if hide_here: nil else: man_of(u_id[u])
+    if not m and not hide_here: return
+    let label = if m: m.name else: "Hide the packs here"
     let ws = float(gl.window_size())
     let size = int(ws.y / 38.0)
     let p = mouse_px() + float2 { 20.0, 16.0 }
@@ -2371,7 +2376,7 @@ def draw_hover():
     for([ 1.0, 0.0 ]) shade:
         let o = float2 { shade, shade }
         gl.color(if shade > 0.0: float4 { 0.0, 0.0, 0.0, 0.75 } else: float4 { 0.97, 0.93, 0.82, 1.0 }):
-            gl.translate(floor(p + o)): gl.text(m.name)
+            gl.translate(floor(p + o)): gl.text(label)
 
 // ------------------------------------------------------------------ the menu (#86)
 // Dominic: "Game start is slow, we want very minimal loader. The game menu should show the village (once ready - just
@@ -2569,7 +2574,7 @@ def order_tick():
     // (the packs open and an old tree under the mouse: hide the packs at its foot)
     let was_open = pack_open
     pack_open = false
-    let hide_tree = if was_open: old_tree_near(clamp(int(mm.y / 1000.0), 0, H - 1) * W + clamp(int(mm.x / 1000.0), 0, W - 1)) else: -1
+    let hide_tree = if was_open: hide_tree_under(mm) else: -1
     if hide_tree >= 0:
         let g = camp_ground_near(hide_tree, -1)
         hide_ids = ids
@@ -2582,6 +2587,7 @@ def order_tick():
     let foe = unit_at_screen(mouse_px())
     if foe >= 0 and not man_of(u_id[foe]):
         hunt_order(ids, u_id[foe])
+        if game_of(u_id[foe]) >= 0: hunt_asked_at = seen_s
         mark_t = seen_s
         mark_at = gp(float(u_x[foe]), float(u_y[foe]))
         return
@@ -3414,6 +3420,8 @@ if has_s(args, "makecamp"):
     camp_order(filter(u_id) id: man_of(id) != nil)
     let fx, fy = camp_xy(0)
     cam = gp(float(fx), float(fy))
+// goods: every man carries one of the goods for home as the place opens (for a look at the open pack)
+if has_s(args, "goods"): for(men) m, n: if m.alive and n % 5 != 4: m.wares = [ n % 4 ]
 // droppacks: the men put their packs down where they stand as the place opens and walk on a little (#67, for a look)
 if has_s(args, "droppacks"):
     let ids = filter(u_id) id: man_of(id) != nil
@@ -3570,6 +3578,7 @@ def men_mark() -> float2:
 // had walked to the right. So: a man says where the track goes as they come into a place, and again when they have
 // been well off it for a minute and a half of daylight, and for twenty seconds a pale ring shows the way.
 var way_until = 0.0
+var still_since = 0.0  // since when no man has been walking (seen_s)
 var season_said = ""
 var rain_heard = false  // the rain is hard enough to hush the birds
 var amb_ack_s = -100.0  // when a man last grunted at an order
@@ -3610,6 +3619,12 @@ def way_tick():
     // (and again each morning, and whenever Tab finds the men: the eighth first-time play had the ring on arriving in
     // the dark and never again, and was lost for three minutes after going round a patrol, 2026-11-24)
     if gl.button("tab") == 1: way_until = max(way_until, seen_s + 12.0)
+    // (and whenever the men have stood still a few seconds by day, out of camp: a player who has stopped is a player
+    // working out where to go. Four first-time plays in a row lost the way once the ring had gone.)
+    var walking = false
+    for(u_id) id, i: if man_of(id) and u_moving[i] == 1: walking = true
+    if walking or is_night() or camps_made() or paused: still_since = seen_s
+    elif seen_s - still_since > 6.0: way_until = max(way_until, seen_s + 2.0)
     if seen_s - off_trail_at < 1.0: return
     let dt = min(seen_s - off_trail_at, 2.0)
     off_trail_at = seen_s
@@ -3733,7 +3748,9 @@ def guide_tick():
         hunt_alarm = false
         said.remove_obj("game down")
         one_says("game down", say_cfg("game_down"), 2)
-    elif game_alarmed_seen(): hunt_alarm = true
+    // (only of game the men were sent after in the last minute: the ninth first-time play was told "They are away" ten
+    // times, of herds it had not seen and while the men slept)
+    elif game_alarmed_seen() and seen_s - hunt_asked_at < 60.0: hunt_alarm = true
     elif hunt_alarm:
         hunt_alarm = false
         said.remove_obj("game away")
@@ -3801,9 +3818,62 @@ def shaded_text(t:string, at:float2, a:float):
         gl.color(if shade > 0.0: float4 { 0.0, 0.0, 0.0, 0.7 * a } else: float4 { 0.97, 0.93, 0.82, a }):
             gl.translate(floor(at + float2 { shade, shade })): gl.text(t)
 
-// The packs, open: what the men carry between them, in a few lines on a dark board at the left.
-def pack_lines() -> [string]:
-    let ids = chosen_men()
+// The packs, open (D-186. Dominic, 2026-11-24: "we need to design a pack looking UI, not a plane box"): a torba, the
+// woven wool shoulder bag of the Rhodopes, drawn in the signs' own hand with its flap thrown back and its strap over
+// the top, striped red and black at mouth and foot. What the men carry between them lies on its cloth, a small
+// picture and a few words for each kind: the bread, the goods for home, and what they have learned.
+// One picture of what is in a pack, on a square 10 art px wide at (x, y), k screen px to the art px:
+// 0 a loaf, 1 a bundle of herbs, 2 a cake of wax, 3 a rolled hide, 4 wool, 5 the Romans' drain (an arch of stone).
+def draw_pack_thing(what:int, x:float, y:float, k:float):
+    def px(dx:float, dy:float, w:float, h:float, c:float4):
+        gl.color(c): gl.translate(float2 { x + dx * k, y + dy * k }): gl.rect(float2 { w * k, h * k })
+    let dark = float4 { 0.16, 0.11, 0.07, 1.0 }
+    if what == 0: draw_loaf(x + k, y + 2.0 * k, k, false)
+    elif what == 1:
+        // (stalks tied at the middle, leaves above, a pale flower or two)
+        let stalk = float4 { 0.36, 0.42, 0.2, 1.0 }
+        let leaf = float4 { 0.5, 0.58, 0.28, 1.0 }
+        px(4.0, 3.0, 2.0, 5.0, stalk)
+        px(2.0, 0.0, 6.0, 3.0, leaf)
+        px(1.0, 1.0, 8.0, 1.0, leaf)
+        px(3.0, 0.0, 1.0, 1.0, float4 { 0.9, 0.86, 0.5, 1.0 })
+        px(6.0, 1.0, 1.0, 1.0, float4 { 0.9, 0.86, 0.5, 1.0 })
+        px(3.0, 4.0, 4.0, 1.0, float4 { 0.72, 0.6, 0.4, 1.0 })
+        px(3.0, 7.0, 1.0, 1.0, stalk)
+        px(6.0, 7.0, 1.0, 1.0, stalk)
+    elif what == 2:
+        // (a round cake of wax, pale yellow, its rim darker)
+        px(2.0, 2.0, 6.0, 5.0, float4 { 0.62, 0.48, 0.16, 1.0 })
+        px(1.0, 3.0, 8.0, 3.0, float4 { 0.62, 0.48, 0.16, 1.0 })
+        px(2.0, 2.0, 6.0, 3.0, float4 { 0.9, 0.76, 0.34, 1.0 })
+        px(3.0, 2.0, 3.0, 1.0, float4 { 0.98, 0.9, 0.56, 1.0 })
+    elif what == 3:
+        // (a hide rolled and tied, the fur's edge pale at one end)
+        px(1.0, 2.0, 8.0, 5.0, float4 { 0.42, 0.27, 0.15, 1.0 })
+        px(1.0, 2.0, 8.0, 1.0, float4 { 0.56, 0.38, 0.22, 1.0 })
+        px(8.0, 2.0, 1.0, 5.0, float4 { 0.8, 0.7, 0.54, 1.0 })
+        px(3.0, 2.0, 1.0, 5.0, dark)
+        px(6.0, 2.0, 1.0, 5.0, dark)
+    elif what == 4:
+        // (a fleece: pale, lumpy)
+        let wool = float4 { 0.9, 0.87, 0.78, 1.0 }
+        px(2.0, 1.0, 3.0, 2.0, wool)
+        px(5.0, 2.0, 3.0, 2.0, wool)
+        px(1.0, 3.0, 8.0, 3.0, wool)
+        px(2.0, 6.0, 6.0, 1.0, float4 { 0.68, 0.64, 0.56, 1.0 })
+        px(4.0, 4.0, 1.0, 1.0, float4 { 0.68, 0.64, 0.56, 1.0 })
+    else:
+        // (an arch of dressed stone over dark water)
+        let stone = float4 { 0.66, 0.64, 0.6, 1.0 }
+        px(1.0, 1.0, 8.0, 6.0, stone)
+        px(3.0, 3.0, 4.0, 4.0, dark)
+        px(4.0, 2.0, 2.0, 1.0, dark)
+        px(3.0, 6.0, 4.0, 1.0, float4 { 0.3, 0.42, 0.5, 1.0 })
+        px(1.0, 3.0, 2.0, 1.0, float4 { 0.5, 0.48, 0.45, 1.0 })
+        px(7.0, 5.0, 2.0, 1.0, float4 { 0.5, 0.48, 0.45, 1.0 })
+
+// What is in the packs: for each row its picture and its words.
+def pack_rows() -> [int], [string]:
     var food = 0
     let count = map(WARES) _: 0
     var knowers = 0
@@ -3813,21 +3883,17 @@ def pack_lines() -> [string]:
             for(m.wares) w: count[w]++
             if knows_drain(m): knowers++
     let days = bread_days()
-    let l = [ if food <= 0: "No food." else: "Food: {food} portions, {if days == 1: "a day" elif days < 1: "less than a day" else: "{days} days"} for them all." ]
+    let pics = [ 0 ]
+    let words = [ if food <= 0: "No bread left" elif days < 1: "Bread for less than a day" elif days == 1: "Bread for a day" else: "Bread for {days} days" ]
     let kinds = glist(gobj(survival_cfg, "wares"), "kinds")
-    var goods = 0
     for(count) n, w:
         if n > 0 and w < kinds.length:
-            goods += n
-            l.push(if n == 1: gstr(kinds[w], "one", "") else: replace_string(gstr(kinds[w], "line", "%"), "%", string(n)))
-    if knowers: l.push("{knowers} of them know how the Romans drained the land.")
-    if goods == 0 and knowers == 0: l.push("Nothing yet to bring home.")
-    var set_down = 0
-    for(piles) pl: if pl.kind == 0: set_down += pl.food + pl.wares.length
-    if set_down > 0: l.push("And the packs set down here hold {set_down} more.")
-    l.push("")
-    l.push(if ids.length < 20 and ids.length != (filter(men) m: m.alive).length: "Right click an old tree: these {ids.length} hide their packs at its foot." else: "Right click an old tree to hide the packs at its foot, and walk light.")
-    return l
+            pics.push(w + 1)
+            words.push(if n == 1: gstr(kinds[w], "short_one", "") else: replace_string(gstr(kinds[w], "short", "%"), "%", string(n)))
+    if knowers:
+        pics.push(5)
+        words.push(if knowers == 1: "One man knows the Roman drain" else: "{knowers} men know the Roman drain")
+    return pics, words
 
 def draw_packs():
     if not pack_open or phase != "play" or script != "": return
@@ -3835,24 +3901,73 @@ def draw_packs():
         pack_open = false
         return
     let ws = float(gl.window_size())
-    let l = pack_lines()
+    let pics, words = pack_rows()
+    let k = floor(sign_px() * 1.5)
     gl.set_font_name("../data/fonts/OldStandard/OldStandard-Regular.ttf")
-    let big = int(ws.y / 26.0)
-    let small = int(ws.y / 40.0)
-    gl.set_font_size(small)
+    let size = int(k * 7.5)
+    gl.set_font_size(size)
     var wide = 0.0
-    for(l) t: wide = max(wide, float(gl.text_size(t).x))
-    let pad = ws.y * 0.025
-    let step = float(small) * 1.45
-    let size = float2 { wide + pad * 2.0, float(big) * 1.5 + step * float(l.length) + pad * 2.0 }
-    let at = float2 { floor(ws.y * 0.04), floor(ws.y * 0.16) }
+    for(words) t: wide = max(wide, float(gl.text_size(t).x))
+    let row = 14.0
+    let bw = max(96.0, ceiling(wide / k) + 34.0)  // the bag's width and height, art px
+    let bh = 30.0 + row * float(pics.length)
+    let at = float2 { floor(ws.y * 0.05), floor(ws.y * 0.2) }
+    def px(x:float, y:float, w:float, h:float, c:float4):
+        gl.color(c): gl.translate(float2 { at.x + x * k, at.y + y * k }): gl.rect(float2 { w * k, h * k })
     gl.set_shader("color")
-    gl.color(float4 { 0.05, 0.04, 0.03, 0.78 }): gl.translate(at): gl.rect(size)
-    gl.color(float4 { 0.82, 0.68, 0.46, 0.5 }): gl.translate(at + float2 { pad, pad + float(big) * 1.25 }): gl.rect(float2 { wide, 1.0 })
-    gl.set_font_size(big)
-    shaded_text("In the packs", at + float2 { pad, pad }, 1.0)
-    gl.set_font_size(small)
-    for(l) t, n: if t != "": shaded_text(t, at + float2 { pad, pad + float(big) * 1.5 + step * float(n) }, if n == l.length - 1: 0.7 else: 0.95)
+    let edge = float4 { 0.1, 0.07, 0.05, 0.9 }
+    let cloth = float4 { 0.46, 0.36, 0.25, 1.0 }
+    let cloth_lit = float4 { 0.55, 0.44, 0.31, 1.0 }
+    let weave = float4 { 0.3, 0.22, 0.15, 0.35 }
+    let red = float4 { 0.62, 0.17, 0.13, 1.0 }
+    let black = float4 { 0.13, 0.1, 0.09, 1.0 }
+    let cream = float4 { 0.88, 0.82, 0.68, 1.0 }
+    let strap = float4 { 0.36, 0.26, 0.17, 1.0 }
+    // the strap, up from the two corners and over
+    px(7.0, -19.0, 6.0, 20.0, edge)
+    px(bw - 13.0, -19.0, 6.0, 20.0, edge)
+    px(7.0, -21.0, bw - 14.0, 6.0, edge)
+    px(8.0, -18.0, 4.0, 19.0, strap)
+    px(bw - 12.0, -18.0, 4.0, 19.0, strap)
+    px(8.0, -20.0, bw - 16.0, 4.0, strap)
+    px(8.0, -20.0, bw - 16.0, 1.0, cloth_lit)
+    // the flap, thrown back above the mouth: its paler inside, a stripe along its edge
+    px(3.0, -11.0, bw - 6.0, 12.0, edge)
+    px(4.0, -10.0, bw - 8.0, 10.0, cloth_lit)
+    px(4.0, -10.0, bw - 8.0, 2.0, red)
+    px(4.0, -8.0, bw - 8.0, 1.0, black)
+    // the bag: its corners taken off, the weave across it
+    px(1.0, -1.0, bw - 2.0, bh + 2.0, edge)
+    px(-1.0, 1.0, bw + 2.0, bh - 2.0, edge)
+    px(1.0, 0.0, bw - 2.0, bh, cloth)
+    px(0.0, 1.0, bw, bh - 2.0, cloth)
+    for(int(bh / 2.0) - 1) n: px(1.0, float(n) * 2.0 + 2.0, bw - 2.0, 1.0, weave)
+    // the stripes at its mouth and its foot: red, black, cream, as the bags are woven
+    for([ 3.0, bh - 11.0 ]) y:
+        px(0.0, y, bw, 3.0, red)
+        px(0.0, y + 3.0, bw, 1.0, black)
+        px(0.0, y + 4.0, bw, 1.0, cream)
+        px(0.0, y + 5.0, bw, 1.0, black)
+        px(0.0, y + 6.0, bw, 2.0, red)
+        for(int(bw / 6.0)) n: px(float(n) * 6.0 + 2.0, y + 4.0, 2.0, 1.0, red)
+    // tassels at the foot's corners
+    for([ 3.0, bw - 6.0 ]) x:
+        px(x - 1.0, bh, 5.0, 7.0, edge)
+        px(x, bh, 3.0, 2.0, black)
+        px(x, bh + 2.0, 3.0, 4.0, red)
+    // a cloth laid in it, and the things on the cloth
+    px(7.0, 13.0, bw - 14.0, row * float(pics.length) + 3.0, float4 { 0.2, 0.14, 0.1, 0.55 })
+    px(6.0, 12.0, bw - 12.0, row * float(pics.length) + 3.0, float4 { 0.84, 0.79, 0.66, 1.0 })
+    px(6.0, 12.0, bw - 12.0, 1.0, float4 { 0.94, 0.9, 0.8, 1.0 })
+    for(pics) what, n:
+        let y = 15.0 + row * float(n)
+        if n > 0: px(9.0, y - 2.0, bw - 18.0, 1.0, float4 { 0.6, 0.54, 0.42, 0.6 })
+        draw_pack_thing(what, at.x + 10.0 * k, at.y + (y + 1.0) * k, k)
+        gl.color(float4 { 0.17, 0.12, 0.08, 1.0 }):
+            gl.translate(float2 { at.x + 24.0 * k, at.y + (y + 5.0) * k - float(size) * 0.62 }): gl.text(words[n])
+    // (and under the bag, how the packs are hidden)
+    gl.set_font_size(int(ws.y / 44.0))
+    shaded_text("Right click an old tree to hide the packs at its foot.", float2 { at.x, at.y + (bh + 11.0) * k }, 0.8)
 
 def draw_guide(dt:float):
     if phase != "play" or script != "" or shot != "": return
@@ -4111,7 +4226,11 @@ while gl.frame():
         if not paused: howl_tick(dt)
         if debug_line: score_keys()
         ground_season_tick()
-    if phase == "arriving" and phase_t >= 1.5: set_phase("play")
+    if phase == "arriving" and phase_t >= 1.5:
+        set_phase("play")
+        // (the men come into a new place still chosen, once the player has learned to choose them: the eighth and ninth
+        // first-time plays called dragging the box again at every arrival busywork)
+        if hint_stage >= 2 and script == "": selected = filter(u_id) id: man_of(id) != nil
     if phase == "leaving" and phase_t >= 1.5:
         let last = gbool(gobj(gobj(route, "legs"), gstr(exit_by(leave_edge), "to", "")), "end", false)
         route_leave(leave_edge)
