@@ -563,6 +563,50 @@ def fountain():
     return m
 
 
+# ---- the women of the village --------------------------------------------------------------------------------------
+def woman(kind):
+    """A woman of the village, standing with her hands together before her, facing +x. Her dress is the saya's, as
+    read: for "the Rhodopes and parts of Pirin (Blagoevgrad)" a long-sleeved saya to the calf or ankle (eliznik.org.uk,
+    women's open tunic, saya); in the Blagoevgrad region "quite dark" and of wool even in summer, with "the black or
+    red woollen belt" and an apron "most often woollen - red, striped" (Radio Bulgaria, the history of the black
+    saya); married women in "square headscarves made of white home-made cloth", folded and put on the head with the
+    ends loose at the back (eliznik.org.uk, women's headwear); "knitted patterned socks and leather sandals
+    (tsarvuli)" (eliznik.org.uk, aprons and tunics). The white of the chemise at the saya's open front is from
+    photographs: the pages name the chemise (koshulya) and not its colour. kind 0: a red apron and a red belt; kind 1:
+    a striped apron and a black belt."""
+    m = Model(0.4, 0.4, 1.7)
+    for y in (-1, 1):
+        m.blob((0.04, y * 0.08, 0.04), (0.11, 0.055, 0.04), LEATHER)          # tsarvuli
+        m.capsule((0.0, y * 0.08, 0.06), (0.0, y * 0.08, 0.2), 0.05, 0.05, WHITE)  # socks
+    def skirt(g):
+        front = (g[..., 0] > 0.06) & (np.abs(g[..., 1]) < 0.13) & (g[..., 2] > 0.28) & (g[..., 2] < 0.93)
+        if kind == 0: apron = np.full(g.shape[:3], RED)
+        else: apron = np.where((np.floor(g[..., 2] * M / 2) % 4) == 0, OCHRE, np.where((np.floor(g[..., 2] * M / 2) % 4) == 2, BLACK, RED))
+        return np.where(front, apron, BLACK)
+    m.capsule((0.0, 0, 0.3), (0.0, 0, 0.92), 0.21, 0.15, skirt)                # the saya's skirt, to the ankle, and the apron
+    m.put((-0.3, -0.3, 0.17), (0.3, 0.3, 0.32), lambda g: (g[..., 0] ** 2 + g[..., 1] ** 2) < 0.2 ** 2, lambda g: skirt(g))
+    def body(g): return np.where((g[..., 0] > 0.08) & (np.abs(g[..., 1]) < 0.035), WHITE, BLACK)
+    m.capsule((0.0, 0, 0.95), (0.0, 0, 1.28), 0.15, 0.16, body)               # the bodice, the chemise at its opening
+    m.blob((0.0, 0, 0.95), (0.165, 0.165, 0.045), RED if kind == 0 else CHAR)  # the belt
+    for y in (-1, 1):
+        m.capsule((0.0, y * 0.19, 1.3), (0.06, y * 0.2, 1.08), 0.055, 0.05, BLACK)
+        m.capsule((0.06, y * 0.2, 1.08), (0.17, y * 0.05, 1.0), 0.05, 0.042, BLACK)
+        m.blob((0.19, y * 0.035, 1.0), (0.04, 0.04, 0.04), SKIN)
+    m.capsule((0.0, 0, 1.3), (0.0, 0, 1.38), 0.05, 0.05, SKIN)
+    m.blob((0.01, 0, 1.47), (0.095, 0.09, 0.11), SKIN)
+    def scarf(g):
+        d = ((g[..., 0] - 0.0) / 0.115) ** 2 + (g[..., 1] / 0.11) ** 2 + ((g[..., 2] - 1.49) / 0.125) ** 2
+        return (d <= 1.0) & ((g[..., 0] < 0.035) | (g[..., 2] > 1.53))
+    m.put((-0.2, -0.2, 1.3), (0.2, 0.2, 1.65), scarf, WHITE)
+    m.put((-0.2, -0.12, 1.12), (-0.07, 0.12, 1.42), lambda g: (np.abs(g[..., 1]) < 0.1 - (1.42 - g[..., 2]) * 0.18) & (g[..., 0] < -0.09), WHITE)  # its ends, loose at the back
+    # (drawn a third bigger, as the men are beside the houses: at her true size she stood to a man's chest)
+    k = 1.32
+    ix, iy, iz = [np.floor(np.arange(int(n * k)) / k).astype(int) for n in m.v.shape]
+    m.v = m.v[ix][:, iy][:, :, iz]
+    m.o = np.array([int(m.o[0] * k), int(m.o[1] * k), 0])
+    return m
+
+
 # ---- the horses and mules --------------------------------------------------------------------------------------
 COATS = {
     # coat, its shade (belly, legs), mane and tail, lower legs, muzzle
@@ -737,7 +781,7 @@ MULES = [("mule", "sacks"), ("mule_dun", "kegs"), ("bay", "baskets"), ("mule", "
 
 
 def models():
-    out = [("tent_canvas", tent0()), ("tent_rugs", tent1()), ("fireplace", fireplace()), ("woodpile", woodpile()), ("hut", hut()), ("wall", yard_wall(3)), ("fountain", fountain())]
+    out = [("tent_canvas", tent0()), ("tent_rugs", tent1()), ("fireplace", fireplace()), ("woodpile", woodpile()), ("hut", hut()), ("wall", yard_wall(3)), ("fountain", fountain()), ("woman_0", woman(0)), ("woman_1", woman(1))]
     for i, (seed, X, Y, floors, bay) in enumerate(HOUSES): out.append(("house_%d" % i, house(seed, X, Y, floors, bay)))
     for i, (coat, blanket) in enumerate(HORSES):
         m, s = animal(coat, False)

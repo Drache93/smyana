@@ -1421,3 +1421,21 @@ there to be rewritten by Dominic.
 Found playing it by hand: one man missed by the drag stood at the far gate, the other nineteen stood in the gate home,
 and nothing happened or was said. With three quarters of the band in a gate out for six seconds, a man standing
 elsewhere is now called on to them (`gate_wait`, route.lobster).
+
+## D-198 (2026-11-24, Claude's build): the women of the village
+
+Dominic asked for more of the village (D-196), and D-196 left it with no people. The men leave and come home to
+somebody, so the first people are the women, stood at their gates and by the fountain.
+Read first (the evidence rule, used for dress as for plants): for "the Rhodopes and parts of Pirin (Blagoevgrad)" a
+long-sleeved saya to the calf or ankle (eliznik.org.uk, women's open tunic, saya); in the Blagoevgrad region "quite
+dark" and of wool even in summer, with "the black or red woollen belt" and an apron "most often woollen - red,
+striped" (Radio Bulgaria, the history of the black saya); married women in "square headscarves made of white home-made
+cloth" with the ends loose at the back (eliznik.org.uk, women's headwear); "knitted patterned socks and leather
+sandals (tsarvuli)" (eliznik.org.uk, aprons and tunics).
+Built: two women (`woman(kind)` in `tools/camp_vox.py`), one with a red apron and a red belt, one with a striped apron
+and a black belt, stood seven times about the lane and the yards, turned two ways
+(`archive/images/2026-11-24/16-the-women-of-the-village.png`). They stand still.
+Inferred, not read: the white of the chemise at the saya's open front is from photographs; the pages name the chemise
+and not its colour.
+Not done: no children and no old men, because nothing was read on how they dressed; the women do not move, turn to the
+men or go in at night.

@@ -5,6 +5,8 @@ woodpile 17 15
 hut 58 55
 wall 68 9
 fountain 31 18
+woman_0 7 9
+woman_1 7 9
 house_0 111 109
 house_1 97 104
 house_2 117 91
