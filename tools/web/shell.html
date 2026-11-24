@@ -18,9 +18,19 @@
 <canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
 <div id="load"><div>Смяна</div><div id="bar"><div id="fill"></div></div><div id="what">Loading</div></div>
 <script>
+  var SETTINGS = '/settings.txt';
   var Module = {
     canvas: document.getElementById('canvas'),
-    arguments: (new URLSearchParams(location.search).get('args') || '').split(' ').filter(Boolean),
+    // "web": the game knows it is in a browser (no Quit, the tree key from baked/); ?args=... adds the game's own.
+    arguments: ['web'].concat((new URLSearchParams(location.search).get('args') || '').split(' ').filter(Boolean)),
+    // The settings (volumes, the HUD's size) live in the browser's own memory between visits: the game's files are
+    // in memory and gone on a reload, so settings.txt is put back before it starts and saved whenever it changes.
+    preRun: [function () {
+      try { var t = localStorage.getItem('smyana-settings'); if (t) FS.writeFile(SETTINGS, t); } catch (e) {}
+      setInterval(function () {
+        try { localStorage.setItem('smyana-settings', FS.readFile(SETTINGS, { encoding: 'utf8' })); } catch (e) {}
+      }, 2000);
+    }],
     print: function (t) { console.log(t); },
     printErr: function (t) { console.warn(t); },
     setStatus: function (t) {

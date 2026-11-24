@@ -23,10 +23,12 @@ mkdir -p "$EMDIR/assets/data" "$EMDIR/assets/bake_cache"
 cp -r "$ROOT/data/." "$EMDIR/assets/data/"
 cp -r "$LOBSTER_DIR/data/shaders" "$EMDIR/assets/data/"
 cp -r "$ROOT/art" "$ROOT/baked" "$ROOT/assets" "$EMDIR/assets/"
+# (the tree models are only read to check the baked trees are current; the web build takes that key from baked/)
+find "$EMDIR/assets/art/trees/vox" -name '*.vox' -delete
 
 mkdir -p "$OUT"
 make -C "$EMDIR" -j4 cpp EFLAGS="-sWASM=1 -sUSE_WEBGL2=1 -sFULL_ES3=1 -sALLOW_MEMORY_GROWTH=1 -sMAXIMUM_MEMORY=4GB \
-    -sASYNCIFY -sASYNCIFY_STACK_SIZE=1048576 -sSTACK_SIZE=8388608 -sBINARYEN_IGNORE_IMPLICIT_TRAPS=1 \
+    -sASYNCIFY -sASYNCIFY_STACK_SIZE=1048576 -sSTACK_SIZE=8388608 -sBINARYEN_IGNORE_IMPLICIT_TRAPS=1 -sEXPORTED_RUNTIME_METHODS=FS \
     --preload-file assets@/ --shell-file $ROOT/tools/web/shell.html -o $OUT/index.html"
 (cd "$OUT" && rm -f ../smyana-web.zip && zip -q -9 ../smyana-web.zip index.html index.js index.wasm index.data)
 ls -l "$OUT" "$ROOT/build/smyana-web.zip"
