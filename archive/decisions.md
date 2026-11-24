@@ -1069,3 +1069,19 @@ looks for the first deer down the side path, found none and lost its early meat:
 seed 2, twice. The herd down the side path is back as it was (one or two roe) and the deer by the trail are a second
 herd of two. With that the bot brings 14 and 15 of 20 home (seeds 1 and 2). The same seed with the old data gave 5
 home in one run and 17 in another: the bot's runs vary widely, more so when two run at once.
+
+## D-165: the first meeting with a patrol is certain (2026-11-24)
+
+Claude's call, after Dominic's "Just keep working. Just go until everything's done." (2026-11-24). The fifth first-time
+play met "no stranger, no choice" in 21 minutes; chance meetings were one place in four and never the first two. Now,
+if no patrol has been met, three zaptiye rest on the trail of the beech valley on the way out, fourteen to twenty
+tiles short of the gate the men leave by (data/threats.json meet.first). When the men come within sixteen tiles one of
+them says so (Claude's placeholder: "Zaptiye on the road ahead, resting. They have not seen us. Round through the
+trees, or wait till they ride on."), and the patrol rests three hours more and rides on ahead. So the first hour holds
+the game's own choice (Dominic, 2026-11-13: avoid a patrol, camp and wait them out): go round, wait, or fight three.
+
+## D-166: a click on ground the men cannot reach sends them to the nearest they can (2026-11-24)
+
+Claude's call. The fifth play was told "No way through there" five times at the village edge for rock ledges that did
+not read as walls. A walk order onto unwalkable ground now goes to the nearest ground the men can walk to, and the
+order's ring is drawn there. The ledges' look is unchanged.

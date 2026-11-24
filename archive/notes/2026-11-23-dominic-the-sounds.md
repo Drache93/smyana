@@ -37,3 +37,9 @@ Written in the project thread after listening to `forest-reel-01` and `men-reel-
 (Sent eleven minutes after "Songs are good". Which message it answers is not certain: most likely the plan to carry
 on in that style and the fifth playtest's report. It is not taken as his ear on autumn day, autumn night or the
 winter pair.)
+
+## 2026-11-24, 05:18 Bulgarian time: keep working
+
+After Claude wrote that the opening's real choice was "Friday's work":
+
+> What do you mean plan for Friday? Just keep working. Just go until everything's done.

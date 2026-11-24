@@ -253,3 +253,4 @@ One line per moment worth remembering. Newest at the bottom.
 - 2026-11-23 (late): the Ottomans remade as a close drum and a far pipe (D-162).
 - 2026-11-23 (late): roe deer in sight of the trail in the first place, far wolves on the first night (D-163).
 - 2026-11-23 (night): the trailside deer made a second herd after the test bot starved without the first (D-164).
+- 2026-11-24: Dominic: "Just keep working. Just go until everything's done."; a certain first patrol in the beech valley (D-165), clicks on ledges go to the nearest ground (D-166).

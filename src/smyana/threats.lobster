@@ -107,6 +107,9 @@ var trail_rode = -1                          // the riders, come up with the men
 var met_last = false                         // a chance meeting in the last place (never two running)
 var meets_off = false                        // no chance meetings (run_check: its men walk a set script)
 var meets = 0                                // how many chance meetings this run
+var first_meet = -1                          // the patrol of the first meeting, in this place (the meet's "first")
+var first_warned = false                     // the men have seen them ahead
+var first_say = false                        // and one of them has yet to say so (the guide's)
 var run_seed = 0                             // the chance meetings' seed for the run (seed:<n>)
 let shot_seen = dictionary<int, int>(32)     // a rifleman's id: the tick he last fired
 let patrol_looks = dictionary<int, int>(32)  // a patrolman's id: his look among the patrol's
@@ -278,8 +281,11 @@ def patrol_spawn(road_given:[int], n:int, mounted:bool = false, go:bool = true) 
     return patrols.length - 1
 
 // The tiles a unit of kind k of the patrol's side can walk to from cell c (1), and those it can't (0).
-def reach_from(k:int, c:int) -> [int]:
-    let ln = lane_base[1] + t_mclass[k]
+def reach_from(k:int, c:int) -> [int]: return reach_side(1, k, c)
+
+// The same for a unit of kind k of either side (0: the men).
+def reach_side(side:int, k:int, c:int) -> [int]:
+    let ln = lane_base[side] + t_mclass[k]
     let seen = map(W * H): 0
     if walks[ln][c] != 1: return seen
     seen[c] = 1
@@ -561,6 +567,7 @@ def threats_after_step(fired:[int]):
 
 // Every sim tick of the run (route_tick): a patrol due on its road sets out, and now and then they all think.
 def threats_tick():
+    if meet_ahead(): first_say = true
     if patrol_due.length and tick >= patrol_due_at:
         let k = patrol_spawn(patrol_due, patrol_due_n, patrol_due_mounted)
         if patrol_due_trail and k >= 0:
@@ -904,6 +911,7 @@ def trail_begin():
     trail_mh = 0
     met_last = false
     meets = 0
+    first_warned = false
 
 // How long men who keep going take to cross this place, thousandths of an hour (the leg's "brisk_h", or the data's).
 def brisk_mh() -> int: return gint(leg_now(), "brisk_h", gint(riders_cfg(), "brisk_h", 6)) * 1000
@@ -966,13 +974,18 @@ def meet_roll():
     let mc = meet_cfg()
     let was = met_last
     met_last = false
+    first_meet = -1
     if meets_off or was or has(leg_now(), "patrol") or (find(gstrs(mc, "never")) n: n == place_now()) >= 0: return
     if trail_on and trail_mh < gint(riders_cfg(), "close_h", 6) * 1000: return
     let roll = threat_hash(run_seed + 31, leg_hash(leg_id), 7) % 100
-    if roll >= gint(mc, "chance", 25): return
+    // (the first meeting is no chance: a few of them resting on the trail of the meet's "first" leg, every run, so
+    // that the first hour has a choice in it: round through the trees, wait them out, or fight. D-165)
+    let fc = gobj(mc, "first")
+    let first = meets == 0 and not first_warned and gstr(fc, "leg", "-") == leg_id
+    if roll >= gint(mc, "chance", 25) and not first: return
     let ruins = glist(su_map, "ruins")
-    let at_ruins = ruins.length > 0 and (gint(mc, "ruins_always", 1) == 1 or roll % 2 == 0)
-    let kind = if at_ruins: "ruins" elif roll % 3 == 0: "rest" else: "camp"
+    let at_ruins = not first and ruins.length > 0 and (gint(mc, "ruins_always", 1) == 1 or roll % 2 == 0)
+    let kind = if at_ruins: "ruins" elif first or roll % 3 == 0: "rest" else: "camp"
     var x = 0
     var y = 0
     if kind == "ruins":
@@ -986,7 +999,19 @@ def meet_roll():
         x /= n
         y /= n
     else:
-        let c = meet_spot(kind == "camp", roll)
+        var c = meet_spot(kind == "camp", roll)
+        if first:
+            // (on the trail fourteen to twenty tiles short of the gate the men leave by, so that whichever way they
+            // cross the place they come in sight of them: in the middle of the map the test bot walked by unseeing)
+            let trail = str_index(tr_names, "trail")
+            let near = []::int
+            for(gate_names) name, g:
+                if name != arrived_by:
+                    let r = gate_rects[g]
+                    for(W * H) t:
+                        let d = sq(t % W - (r[0] + r[2]) / 2) + sq(t / W - (r[1] + r[3]) / 2)
+                        if terrain[t] == trail and walks[0][t] == 1 and d >= sq(14) and d <= sq(20): near.push(t)
+            if near.length: c = near[(roll * 7919 + run_seed) % near.length]
         if c < 0: return
         x = (c % W) * TILE + TILE / 2
         y = (c / W) * TILE + TILE / 2
@@ -999,7 +1024,7 @@ def meet_roll():
             ox = (r[0] + r[2] + 1) * TILE / 2
             oy = (r[1] + r[3] + 1) * TILE / 2
     let span = glist(mc, "men")
-    let n = if span.length == 2: as_int(span[0]) + roll % max(1, as_int(span[1]) - as_int(span[0]) + 1) else: 5
+    let n = if first: gint(fc, "men", 3) elif span.length == 2: as_int(span[0]) + roll % max(1, as_int(span[1]) - as_int(span[0]) + 1) else: 5
     let k = patrol_spawn([ x, y, ox, oy ], n, false, false)
     if k < 0: return
     let p = patrols[k]
@@ -1007,6 +1032,10 @@ def meet_roll():
     p.state = P_GUARD
     let rh = glist(mc, "rest_h")
     if kind == "rest": p.until = tick + (if rh.length == 2: as_int(rh[0]) * 1000 + roll * 37 % max(1, (as_int(rh[1]) - as_int(rh[0])) * 1000) else: 1500) * ticks_per_hour() / 1000
+    if first:
+        // (they rest till the men have come in sight of them, and "wait_h" hours more: meet_ahead)
+        p.until = 0x3FFFFFFF
+        first_meet = k
     // (their horses, tied a little way off; at the ruins they stand by the road)
     let hk = type_of_slot(1, "horse")
     let reach = reach_from(type_of_slot(1, "patrol"), cell_of(x, y))
@@ -1020,6 +1049,30 @@ def meet_roll():
     met_last = true
     meets++
     print "(meet: a patrol of {n} {kind} in {leg_id} at tile {x / TILE},{y / TILE})"
+
+// Whether the men have just come within "warn_tiles" of the first meeting's patrol while it rests: once. From then the
+// patrol rests "wait_h" hours more and rides on, so men who wait out of sight are let by.
+def meet_ahead() -> bool:
+    if first_meet < 0 or first_warned or first_meet >= patrols.length: return false
+    let p = patrols[first_meet]
+    let fc = gobj(meet_cfg(), "first")
+    let wait = gint(fc, "wait_h", 2) * ticks_per_hour()
+    if p.state != P_GUARD:
+        // (they saw the men first, or heard a shot: no warning, and they ride on in their time after it)
+        first_warned = true
+        p.until = tick + wait
+        return false
+    let r = gint(fc, "warn_tiles", 16) * TILE
+    var warned = false
+    for(patrol_alive(p)) id:
+        let i = index_of(id)
+        for(men_here()) j:
+            if not first_warned and dist2(u_x[i], u_y[i], u_x[j], u_y[j]) < sq(r):
+                first_warned = true
+                warned = true
+                p.until = tick + wait
+                print "(meet: the men have come in sight of the first patrol, {int(sqrt(float(dist2(u_x[i], u_y[i], u_x[j], u_y[j])))) / TILE} tiles off)"
+    return warned
 
 def leg_hash(id:string) -> int:
     var h = 0

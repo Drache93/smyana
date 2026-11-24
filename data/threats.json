@@ -38,12 +38,18 @@
   }
  },
  "meet": {
-  "_doc": "Chance meetings (docs/threats.md, riders): in a place not in 'never', 'chance' in a hundred that a patrol is already there, dismounted, by the run's seed (seed:<n>): camped off the trail, resting on it for rest_h hours (at least, at most) before riding on, or, where the map has ruins, guarding them (ruins_always: always that there). Never two places running, and not when the riders on the trail are close. men: how many, at least and at most.",
+  "_doc": "Chance meetings (docs/threats.md, riders): in a place not in 'never', 'chance' in a hundred that a patrol is already there, dismounted, by the run's seed (seed:<n>): camped off the trail, resting on it for rest_h hours (at least, at most) before riding on, or, where the map has ruins, guarding them (ruins_always: always that there). Never two places running, and not when the riders on the trail are close. men: how many, at least and at most. first: the first meeting is certain (D-165): on the leg 'leg', if no patrol has been met yet, 'men' of them rest on the trail every run. When the men come within 'warn_tiles' of them one of the men says so, and the patrol rests 'wait_h' hours more and rides on ahead.",
   "chance": 25,
   "never": [ "village_edge" ],
   "men": [ 4, 6 ],
   "rest_h": [ 1, 2 ],
-  "ruins_always": 1
+  "ruins_always": 1,
+  "first": {
+   "leg": "beech_valley_out",
+   "men": 3,
+   "warn_tiles": 16,
+   "wait_h": 3
+  }
  },
  "wolves": {
   "_doc": "The wolves of the deep fir woods (#60). They follow the men at follow_tiles (winter's, bold, closer at follow_bold_tiles), are heard more than seen, and scatter scatter_tiles away from any shot they hear for scatter_s. At night winter's wolves rush a man who is more than alone_tiles from the next man, if one of them is within sight tiles of him (by smell: cover doesn't hide him), and draw off if he gets back within rejoined_tiles of the others. flee_after: this many down and the pack is gone. howl_s: how often one howls while they follow, at least and at most. The unit bites (melee): 10 a bite, a bite a second and a half.",

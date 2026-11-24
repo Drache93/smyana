@@ -2489,8 +2489,12 @@ def order_tick():
         issue_cmd(0, CMD_GATHER, ids, tree, 0, 0, 0)
         mark_at = gp(float((tree % W) * 1000 + 500), float((tree / W) * 1000 + 500))
     else:
-        let x = clamp(int(mm.x), 0, W * TILE - 1)
-        let y = clamp(int(mm.y), 0, H * TILE - 1)
+        // (a click on ground the men cannot walk to, a ledge's top or a rock, sends them to the nearest ground they
+        // can: at the village edge a first-time player was told "No way through there" five times, 2026-11-23, for
+        // rock ledges that did not read as walls. D-166)
+        let i0 = index_of(ids[0])
+        let reach = reach_side(0, u_kind[i0], cell_of(u_x[i0], u_y[i0]))
+        let x, y = reachable_near(reach, clamp(int(mm.x), 0, W * TILE - 1), clamp(int(mm.y), 0, H * TILE - 1))
         march(ids, x, y)
         // (a dog rose that is only a bush: two first-time players went straight to its red hips, right-clicked nine
         // times and were told nothing, 2026-11-22 and 23. Now a man says why there is nothing to pick: guide_tick.)
@@ -3408,6 +3412,9 @@ def guide_tick():
         gathered_said = food_gathered
         one_says("gathered {food_gathered}", say_cfg("gathered"), 2)
     // dark, and no camp: the men will not walk on blind
+    if first_say:
+        first_say = false
+        one_says("patrol ahead", say_cfg("patrol_ahead"), 1)
     // (the first game the men can see: one of them says what it is and how it is come at)
     if (find(said): _ == "first game") < 0 and not is_night():
         let ws = float(gl.window_size())
