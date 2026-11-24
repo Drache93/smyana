@@ -3598,6 +3598,9 @@ def way_tick():
         one_says("way {leg_id}", say_cfg("way_on"), 2)
         way_until = seen_s + 20.0
         off_trail_s = 0.0
+    // (and again each morning, and whenever Tab finds the men: the eighth first-time play had the ring on arriving in
+    // the dark and never again, and was lost for three minutes after going round a patrol, 2026-11-24)
+    if gl.button("tab") == 1: way_until = max(way_until, seen_s + 12.0)
     if seen_s - off_trail_at < 1.0: return
     let dt = min(seen_s - off_trail_at, 2.0)
     off_trail_at = seen_s
@@ -3634,6 +3637,17 @@ def tip_once(key:string, text:string):
     tip = text
     tip_until = seen_s + 12.0
 
+// Whether game the player can see has taken fright (not a herd over the hill: "They are away" was said three times of
+// animals the eighth first-time play never saw).
+def game_alarmed_seen() -> bool:
+    let ws = float(gl.window_size())
+    for(game) g:
+        let i = index_of(g.id)
+        if i >= 0 and (g.state == G_ALERT or g.state == G_FLEE):
+            let s = to_screen(gp(float(u_x[i]), float(u_y[i])))
+            if s.x > 0.0 and s.y > 0.0 and s.x < ws.x and s.y < ws.y: return true
+    return false
+
 def guide_tick():
     if phase != "play" or script != "": return
     // the first ten minutes, a step at a time: what the pointer is for; that the view comes closer; when the men tire
@@ -3660,6 +3674,9 @@ def guide_tick():
         said.remove_obj("season")
         one_says("season", say_cfg("season_" + season_said), 4)
     let day = (gint(route, "start_hour", 7) * 1000000 + clock_uh) / 24000000
+    if day >= 1 and hour_now() >= 6.0 and hour_now() < 9.0 and not is_night() and (find(said): _ == "way day {day}") < 0:
+        said.push("way day {day}")
+        way_until = max(way_until, seen_s + 30.0)
     // the opening: where the road goes, and what the year is for
     let opening = gstrs(sv_cfg("says"), "opening")
     if open_n < opening.length and phase_t > 2.0 + float(open_n * gint(sv_cfg("says"), "opening_s", 7)) and leg_id == gstr(route, "start", ""):
@@ -3707,7 +3724,7 @@ def guide_tick():
         hunt_alarm = false
         said.remove_obj("game down")
         one_says("game down", say_cfg("game_down"), 2)
-    elif game_alarmed(): hunt_alarm = true
+    elif game_alarmed_seen(): hunt_alarm = true
     elif hunt_alarm:
         hunt_alarm = false
         said.remove_obj("game away")
@@ -3723,6 +3740,7 @@ def guide_tick():
     // dusk, the first evenings, with no camp made
     if day < 3 and hour_now() >= 17.5 and hour_now() < 20.0 and not camps_made(): one_says("dusk {day}", say_cfg("dusk"), 3)
     // the bread gone; a man hungry; a man starving
+    if bread_days() == 1 and clock_s > 30.0: one_says("bread low {day / 2}", say_cfg("bread_low"), 4)
     if bread_days() <= 0 and clock_s > 30.0: one_says("last bread {day / 3}", say_cfg("last_bread"), 5)
     for(men) m:
         if m.alive and index_of(m.uid) >= 0 and not is_asleep(m.uid):

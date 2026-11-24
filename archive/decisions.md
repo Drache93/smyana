@@ -1240,3 +1240,13 @@ are tired or hungry or the light goes, what the fire does once it is lit. One ma
 meal and sleep will mend it." while he is worn and not in a camp. Also from the same note: + and - zoom as the wheel
 does and the view comes two steps closer; crowns thin over a camp's fire; the order's ring shows where a new camp is.
 The lines are placeholders by Claude until Dominic rewrites them.
+
+## D-182 (2026-11-24, Claude): what the eighth first-time play found
+
+It reached the third place in 32 minutes with all twenty men, the first play to do so
+(`archive/playtests/2026-11-24-08-first-time-player.md`). Fixed from its list: a camp is made in a hut only if the men
+can walk to it (the fire sign did nothing twice by the beech valley's hut over the cliff); the way on shows again each
+morning and when Tab finds the men; "They are away" is said only of game on the screen; a man says when a day's bread
+is left; the night is a little lighter and the men lifted more in it (exposure -0.62 to -0.5, unit_lift 0.7 to 1.0),
+which is a change to the look and is Dominic's to overrule. Not done: arriving at night, the patrol unseen, the wary
+music in the fir woods with nothing in sight, the place's name on arrival.

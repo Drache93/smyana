@@ -177,7 +177,17 @@ def camp_order(ids:[int]) -> bool:
     cy = u_y[mid]
     // (at a hut near them: on its hearth, inside; else on the most open ground near them, where the men can lie
     // round it)
-    let hut = hut_near(cx, cy, gint(c, "in_tiles", 5))
+    var hut = hut_near(cx, cy, gint(c, "in_tiles", 5))
+    // (only a hut the men can walk to: one over a cliff from them took the camp, and the fire sign then did nothing
+    // twice as night fell in the eighth first-time play, 2026-11-24)
+    if hut >= 0:
+        let reach = reach_side(0, u_kind[mid], cell_of(cx, cy))
+        var at_door = false
+        for(25) k:
+            let x = hut % W + k % 5 - 2
+            let y = hut / W + k / 5 - 2
+            if x >= 0 and y >= 0 and x < W and y < H and walks[0][y * W + x] == 1 and reach[y * W + x] == 1: at_door = true
+        if not at_door: hut = -1
     let best = if hut >= 0: hut else: open_spot(cell_of(cx, cy))
     cx = (best % W) * TILE + TILE / 2
     cy = (best / W) * TILE + TILE / 2
