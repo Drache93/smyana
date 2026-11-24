@@ -330,6 +330,17 @@ def place(pid, wood, seed, w, h, west_y, east_y, stream_x, old_gap, old_fill, yo
         doc["cliffs"] = 0.7   # (Creel's relief_cliffs: how far each drop wanders across the tile below it)
         doc["rows"] = rows
     if extra: doc.update(extra(doc))
+    if pid == "village_edge":
+        # (the village's houses on six of the plots, name, x, y in milli-tiles: house0..2 north of the lane with their fronts to
+        # it, house3..5 south of it with their fronts down the lane to the east, where the opening's view sees them. tools/camp_vox.py; D-167)
+        rows = doc.pop("rows")
+        doc["camp"] = [["house2", 4000, 41000], ["house1", 7500, 47500], ["house0", 11500, 46500], ["house3", 11500, 55500], ["house4", 6500, 56500], ["house5", 7500, 60500]]
+        doc["legend"] = dict(LEGEND, H="hut")   # (under each house, three tiles by three that nobody walks through)
+        for name, hx, hy in doc["camp"]:
+            for yy in range(hy // 1000 - 1, hy // 1000 + 2):
+                rows[yy] = rows[yy][:hx // 1000 - 1] + "HHH" + rows[yy][hx // 1000 + 2:]
+                lev.update({(xx, yy): 4 for xx in range(hx // 1000 - 1, hx // 1000 + 2)})
+        doc["rows"] = rows
     if lev:  # the ground's levels (Creel: 0 to 9): the place stands at 4, the gorge's bed at 0, the bluff at 8
         rows = doc.pop("rows")
         doc["heights"] = ["".join(str(lev.get((x, y), base)) for x in range(w)) for y in range(h)]
@@ -360,14 +371,13 @@ def village_edge(c):
     fields climb north of the trail, their walls wandering, with no trees on them; the first trees, oak and hornbeam,
     stand beyond them and along the river."""
     w, h, rng, ty = c.w, c.h, c.rng, c.trail_y
-    # (the village: houses either side of the lane, two levels up, their roofs bare stone)
+    # (the village: house plots either side of the lane)
     houses = [(1, -9, 3, 3), (5, -8, 3, 3), (2, -14, 4, 3), (7, -13, 2, 2), (1, 4, 3, 3), (6, 4, 2, 3), (2, 9, 4, 3), (7, 9, 2, 2)]
     lane = ty[3]
     for (hx, hy, hw, hh) in houses:
         for y in range(lane + hy, lane + hy + hh):
             for x in range(hx, hx + hw):
-                c.g[y][x] = "b"
-                c.lev[(x, y)] = 6
+                c.g[y][x] = "b"   # (their plots, level with the lane: the houses themselves are the map's "camp" list)
     c.bare_zone.append((0, lane - 16, RIM + 1, lane + 14))
     # (the terraces: three fields, each a level above the last, from the lane's side up the hill to the north)
     edges = [ragged(rng, w, 7, 1.2), ragged(rng, w, 6, 1.4), ragged(rng, w, 8, 1.4)]

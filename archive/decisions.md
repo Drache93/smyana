@@ -1085,3 +1085,16 @@ the game's own choice (Dominic, 2026-11-13: avoid a patrol, camp and wait them o
 Claude's call. The fifth play was told "No way through there" five times at the village edge for rock ledges that did
 not read as walls. A walk order onto unwalkable ground now goes to the nearest ground the men can walk to, and the
 order's ring is drawn there. The ledges' look is unchanged.
+
+## D-167: the village is six stone houses by the lane, and the title screen looks back at them (2026-11-24)
+
+Claude's call, for Dominic's "Village is stretch goal so something to see leaving and returning to" (2026-11-22). Three
+house models (tools/camp_vox.py, house) from what the sources say of the old houses of the Western Rhodope villages:
+two and three storeys of stone and wood, the animals below and the family above, bow windows over the street, roofs
+of stone slabs (Radio Bulgaria, 30 Oct 2024; bulgarianproperties.com, 2007; quoted in the code). The white plaster of
+the bay and its depth are from photographs, not from those texts. Six houses stand on the village edge map west of
+the gate, two of them either side of the lane where the men set out, each on three tiles by three nobody walks
+through. The title screen's view sits four tiles back up the lane from the men so the houses are behind them. The
+village is not named and not entered. Found on the way: the view's "middle of the men" counted the deer and any patrol
+as men, so the title screen and the Tab key sat between the men and the deer; it counts the men only now.
+Also, to D-165: the first patrol does not put off the chance of a meeting in the next place.

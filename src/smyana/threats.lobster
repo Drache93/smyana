@@ -1046,7 +1046,9 @@ def meet_roll():
             u_posture[h] = PASSIVE
             horse_ids.set(u_id[h], m)
         grow_scratch()
-    met_last = true
+    // (the first meeting does not put off the chance of one in the next place: the run's other meetings fall where
+    // they fell before it was added)
+    met_last = not first
     meets++
     print "(meet: a patrol of {n} {kind} in {leg_id} at tile {x / TILE},{y / TILE})"
 

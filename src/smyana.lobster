@@ -110,9 +110,15 @@ def mouse_milli() -> float2: return pick_milli(from_screen(mouse_px()))
 
 // Where the men are, taken together (art px).
 def men_centre() -> float2:
+    // (the men only: the deer and a patrol are units too, and with five deer in the first place the menu's view and
+    // the Tab key sat nine tiles east of the men)
     var sum = float2_0
-    for(u_x.length) i: sum += gp(float(u_x[i]), float(u_y[i]))
-    return if u_x.length: sum / float(u_x.length) else: cam
+    var n = 0
+    for(u_x.length) i:
+        if man_of(u_id[i]):
+            sum += gp(float(u_x[i]), float(u_y[i]))
+            n++
+    return if n: sum / float(n) else: cam
 
 // ------------------------------------------------------------------ what the view remembers of a place
 
@@ -2304,9 +2310,10 @@ def menu_mill(dt:float):
 // The camera while the menu is up: over the men, drifting slowly as if someone stood watching.
 def menu_camera(dt:float):
     let t = gl.time()
-    let to = men_centre() + float2 { sin(t * 4.0) * 40.0, cos(t * 3.0) * 14.0 }
+    // (four tiles back up the lane from the men, so that the village's houses stand in the picture behind them: what
+    // they are leaving. Not kept in from the rim, which is where the village is. D-167)
+    let to = men_centre() + iso(-4000.0, 0.0) + float2 { sin(t * 4.0) * 40.0, cos(t * 3.0) * 14.0 }
     cam += (to - cam) * min(1.0, dt * 0.6)
-    cam_keep()
 
 // ------------------------------------------------------------------ orders
 

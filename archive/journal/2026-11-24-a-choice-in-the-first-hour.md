@@ -23,3 +23,19 @@ fire (D-163, D-164). The choice was still missing.
 
 The warning has been seen in the log of a bot run, not yet with eyes in a hand play: the hand harness lost the men
 (its Tab key did not bring the view to them). The words are placeholders.
+
+## The village
+
+Dominic's stretch goal was "something to see leaving and returning to". The grey box already had plots for houses
+west of the gate, as raised blocks nobody ever saw: the view could not reach them. Now there are houses (D-167): coursed
+gneiss, a timber belt between the storeys, a wide door for the animals, a plastered bay on brackets, a slab roof and a
+chimney, made the way the shepherds' hut was. The title screen looks back up the lane at them.
+
+![The village behind the men on the title screen](../images/2026-11-24/01-the-village-behind-the-men.png)
+
+Getting them into the picture found a fault: the view's "middle of the men" was the middle of every unit in the place,
+deer included, so last night's five deer had pulled the title screen nine tiles east, and the Tab key with it. That
+is why the hand harness "lost the men" this morning.
+
+Not done: the houses do not change by season (no snow on the roofs), there is no smoke, no people, and the homecoming
+still ends on lines of text over whatever the view holds.
