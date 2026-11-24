@@ -109,10 +109,10 @@ index bff8d953..9fa5bde9 100644
                  "typedef lobster::VMString VMString;\n"
                  "typedef lobster::VMField VMField;\n"
 diff --git a/dev/src/lobster/vmdata.h b/dev/src/lobster/vmdata.h
-index a9dffb2e..d58584b2 100644
+index a9dffb2e..714a1104 100644
 --- a/dev/src/lobster/vmdata.h
 +++ b/dev/src/lobster/vmdata.h
-@@ -444,6 +444,27 @@ typedef Value *StackPtr;
+@@ -444,6 +444,29 @@ typedef Value *StackPtr;
  // the ones that take nothing and return nothing, which is what a function value called from
  // native code is.
  typedef void (*fun_base_t)(VM &);
@@ -127,6 +127,8 @@ index a9dffb2e..d58584b2 100644
 +    P p;
 +    uint32_t pad;
 +    operator P() const { return p; }
++    // So the generated code's casts to a more specific type, such as (LString *)slot, still work.
++    template<typename Q> explicit operator Q *() const { return (Q *)p; }
 +    LSlot &operator=(P q) {
 +        p = q;
 +        pad = 0;
