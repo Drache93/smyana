@@ -1331,3 +1331,12 @@ luck still, and before D-189 this player brought 14 or 15 home. Changes, Dominic
   on the thing. Checked by eye: the cache in the first place is taken that way
   (`archive/images/2026-11-24/09-a-cache-taken-by-its-ring-and-the-pack-shows-it.png`).
 A second round of four playthroughs on these numbers is running.
+
+## D-191 (2026-11-24, Claude's numbers): D-190's hunger stands
+
+The second round, four playthroughs on D-190's numbers (a missed supper takes 20). Hunting and gathering: seed 2 brought
+18 of 20 home with 106 portions left, seed 4 brought 16 with 32 left, seed 5 brought 8 with 45 left. The path alone
+(seed 2): bread gone in the gorge, 19 men reached the high ridge in winter with nothing, 3 came down from it, nobody
+came home. No run stopped: the man walking on the spot was moved on each time (`unstick_nudge`, 83 to 150 times a run,
+which says how often Creel's steering leaves a man behind, D-146). So a band that hunts and gathers comes home, most
+of it; a band that only walks does not. Kept as it is, Dominic's to overrule.
