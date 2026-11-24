@@ -1458,3 +1458,12 @@ The tenth first-time play was told "They are away. We came on them too fast." an
 settled while a shot was still to land. And after "One down" the same chase could still end in "They are away", which
 read as the kill undone. Now the line waits six seconds after the game settles and is dropped if one falls in them,
 and a kill ends what is said of that chase (`hunt_away_at`, smyana.lobster).
+
+## D-201 (2026-11-24, Claude): the open pack's look, checked against a source
+
+D-186 said the torba's look was from memory, not from a source. Read now: a torba from Shiroka Laka in the Rhodopes,
+about 1950, wool, 42 by 42 cm: "Red, black, yellow plaid sewn together on two sides to make a bag", "Braided strands
+of red, green and gold have attached tassles of different colors" (Museum of International Folk Art, Santa Fe, object
+A.2012.84.16). So the square shape, the wool, the red and black and the tassels stand. Ours is striped where that one
+is plaid, and cream where that one is yellow; the record says nothing of a strap or a flap, so ours are still from
+memory. It is a century later than the game. Left as drawn.
