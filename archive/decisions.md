@@ -1467,3 +1467,29 @@ of red, green and gold have attached tassles of different colors" (Museum of Int
 A.2012.84.16). So the square shape, the wool, the red and black and the tassels stand. Ours is striped where that one
 is plaid, and cream where that one is yellow; the record says nothing of a strap or a flap, so ours are still from
 memory. It is a century later than the game. Left as drawn.
+
+## D-202 (2026-11-24, Claude): what the eleventh first-time play and two bots' runs found at the end
+
+An agent played the last place by hand to the end
+(`archive/playtests/2026-11-24-11-first-time-player-the-homecoming.md`). It got all twenty home, and then: "It played
+five lines of text over a frozen village and then stopped dead ... no end screen, no menu, and nothing I pressed did
+anything." Done about it:
+- The game ends. When the morning after's last line has been read the picture darkens, the game's name comes up over
+  the village, and "Click to leave" under it; a click or a key closes the game (in a browser the name stands). Pictures: `archive/images/2026-11-24/18-the-morning-after-on-a-band-of-shade.png`, `19-the-game-ends-on-its-name.png`, and the bug as the agent saw it, `20-bug-dark-squares-on-the-lane-and-the-maps-edge.png`.
+- The ending's music (23_ending) had never been played anywhere. It now follows the homecoming's when that is over,
+  and no track of the forest's begins over the village after it.
+- "Three or four big square patches of darker, bluish cobbles": a tile of cobbles was shaded as a man is, whole, by
+  the shade at its middle, so a man's shadow on a tile's middle darkened the tile. The cobbles now take shade as the
+  ground does.
+- "The top-left corner of the screen is a flat black void": the view at the end looked past the map's edge. The men
+  walk two tiles less far up the lane and the views of the end and of the morning after are three tiles further in.
+- The morning after's words stand on a soft band of shade ("thin pale serif with no backing ... over grass, wall and
+  tree leaves").
+- "A woman with a log through her": she stood on a fallen log. Moved to the lane's side.
+Not done: the men still stand on the lane with their rifles and the women do not come to them; the houses, the yard's
+bare ground and the menu's words are as they were. The agent did not see the screen that says how many came back: the
+harness counts the run's clock, which stands still there.
+Two bots played the whole run on this build. One brought 14 of 20 home through the new village. The other lost all
+twenty: in the pass one man was held up in the map's corner, the band stood at the gate in the winter cold for him for
+four and a half minutes of the run's clock, went on with no strength left and was cut down by the patrol. A man held
+up is now stood up to three tiles nearer where he was sent at a time, not one (`unstick_nudge`, route.lobster).

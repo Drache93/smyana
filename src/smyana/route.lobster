@@ -621,15 +621,17 @@ def mend_bridge(ids:[int], k:int) -> bool:
 let unstick_d = dictionary<int, int>(32)      // a man's id: how far he was from where he was sent at the last look (tenths of a tile)
 let unstick_looks = dictionary<int, int>(32)  // how many looks running he has come no nearer
 let unstick_sent = dictionary<int, int>(32)   // how many times running sending him on by himself did not help
-// The man stood on the walkable tile beside him that is nearest where he was going, and sent again.
+// The man stood on the walkable tile near him that is nearest where he was going, and sent again.
 def unstick_nudge(uid:int, i:int, d:int):
     let cx = u_x[i] / TILE
     let cy = u_y[i] / TILE
     var best = -1
     var best_d = dist2(u_x[i], u_y[i], u_tx[i], u_ty[i])
-    for(9) k:
-        let x = cx + k % 3 - 1
-        let y = cy + k / 3 - 1
+    // (up to three tiles off: a tile at a time, a man in the pass's corner took four tries to come nine tiles, and
+    // the band stood at the gate in the cold for him till its strength was gone; a bot's run, 2026-11-24)
+    for(49) k:
+        let x = cx + k % 7 - 3
+        let y = cy + k / 7 - 3
         if x >= 0 and y >= 0 and x < W and y < H and walks[lane(i)][y * W + x] == 1:
             let far = dist2(x * TILE + TILE / 2, y * TILE + TILE / 2, u_tx[i], u_ty[i])
             if far < best_d:
