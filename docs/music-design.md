@@ -303,6 +303,31 @@ Made (2026-11-23, D-162): [`song_14_ottomans.py`](../music/pieces/song_14_ottoma
 [`17-ottomans-designed.ogg`](../archive/audio/2026-11-23/17-ottomans-designed.ogg), the pipe's calls alone:
 [`18-pencil-ottomans.ogg`](../archive/audio/2026-11-23/18-pencil-ottomans.ogg)
 
+## Sheet: wolves and bears
+
+| | |
+|---|---|
+| **Where** | Wolves rush a man on his own, or the bear is up on its hind legs and coming. Under the trees, often at night. A loop, for as long as it lasts. |
+| **The one idea** | The men's own dance drum, played too fast, that keeps stopping dead. |
+| **Shape** | 48 bars of plain 2/4 at 152 beats a minute (38 s), in six eights. Each eight is six bars at a run and two bars of nothing. The plain beat; heavier; the switch alone and soft; heavier; the heaviest, a blow on every beat; the plain beat again. |
+| **Who plays** | The tapan and nothing else in front: the heavy skin on the beat, the switch on the halves between and ruffling into the next bar. Under the third, fifth and sixth eights one low string of the gadulka, scraped: F, the half step over home, and down to E. |
+| **Who doesn't** | No tune: animals have no music. No pipe. No drone that holds (the wary track and the Ottomans' pipe have the long sounds). |
+| **Home note** | E, with F over it. |
+| **Space** | In the wood: close, a short echo. |
+| **Loud and soft** | It does not swell. It is all there or it is gone, seven and a half seconds of the loop being the six silences. |
+| **Not like** | The Ottomans (slow, heavy, a far pipe: their drum walks, this one runs). Wary (no beat at all). The first draft (uneven twos and threes, two drones). |
+| **Real model** | The tapan under a pravo horo: "dance tunes are mostly plain 2/4", and the uneven metres belong to Thrace and the Shope country ([`rhodope-music-style.md`](rhodope-music-style.md)). The first draft's uneven groups were borrowed from there without care. |
+| **Open** | Only an ear can say whether a dance beat with holes in it reads as fear or as a dance. If it reads as a dance, the fix is fewer bars at a run and longer holes. Claude's call: Dominic has not heard the sheet or the sketch. |
+
+Made (2026-11-24, D-171): [`song_12_beasts.py`](../music/pieces/song_12_beasts.py).
+[`01-beasts-designed.ogg`](../archive/audio/2026-11-24/01-beasts-designed.ogg), the drum alone and dry:
+[`02-pencil-beasts.ogg`](../archive/audio/2026-11-24/02-pencil-beasts.ogg)
+
+As made: the bench's drum is nearly all below 150 Hz (the first draft had 0.2% of its sound between 600 and 1300 Hz),
+so the beater's knock from the Ottomans' track is laid over the heavy skin and the switch is brought five times
+forward; 2.2% now sits in that band, with the Ottomans at 3.9%. The loop starts on a blow, so its seam is a drum's
+attack after two bars of silence and not a click.
+
 ## Autumn dusk, as made (2026-11-11, evening)
 
 Dominic, 21:13 UTC: "for the music for phase 1, lets focus on just getting that music creation solid. So we make one

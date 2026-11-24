@@ -57,3 +57,11 @@ the men come in (D-170):
 The macOS build went green on GitHub at the third try: the `macos-14` runner cancelled each job as it started, and
 `macos-latest` built Lobster, played the route check and zipped the game in two minutes. Nobody has yet started that
 zip on a real Mac.
+
+## The beasts' drum
+
+Only three danger tracks are ever played (wary, the Ottomans, the beasts). The beasts' first draft measured as nearly
+all sub-bass and borrowed its uneven rhythm from the wrong part of Bulgaria. The new one is the men's own dance drum,
+too fast, stopping dead for two bars in every eight (D-171):
+[the track](../audio/2026-11-24/01-beasts-designed.ogg), [the drum alone](../audio/2026-11-24/02-pencil-beasts.ogg).
+Dominic has not heard it.

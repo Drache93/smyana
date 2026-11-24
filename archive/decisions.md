@@ -1125,3 +1125,13 @@ afternoon to the crossing and was told to make camp four seconds after arriving,
 been walked. The hours themselves are unchanged (they are part of the food and warmth balance). The macOS build runs
 on `macos-latest`: a `macos-14` job was cancelled the moment it started, three times, while a Linux job in the same
 run went through. Its first green run built Lobster, ran the route check on the Mac and uploaded `Smyana-macos`.
+
+## D-171 (2026-11-24, Claude): the wolves' and bear's track is the men's dance drum that keeps stopping
+
+Of the six danger tracks the game calls for only three (wary, the Ottomans, the beasts), so the beasts' track was the
+next to go through the design stage. Its first draft was nearly inaudible on small speakers (0.2% of its sound between
+600 and 1300 Hz), clicked at its seam, and used uneven groups of two and three, which the style research says belong
+to Thrace and the Shope country and not the Rhodopes. The new one (`music/pieces/song_12_beasts.py`, sheet in
+`docs/music-design.md`) is a plain hard 2/4 on the tapan at 152, six bars at a run and two of silence, with one low
+gadulka string scraped under three of the six eights. Claude's call throughout: Dominic has not heard it. Hiding,
+bandits and the chase are left as first drafts, since nothing in the game plays them.
