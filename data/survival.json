@@ -3,7 +3,7 @@
  "start_food": 4,
  "says": {
   "_doc": "What the men say aloud when the moment comes, a line over one man's head, each once (the dusk and hunger lines once a day). PLACEHOLDERS written by Claude, 2026-11-22, after two agent playtests found no goal, no word on hunger and no sign of an order that can't be followed: the words are Dominic's to change. 'opening' are said in turn at the start of the run, 'opening_s' seconds apart. '' says nothing.",
-  "opening": ["Which way? The lane runs east, down to the beeches.", "A long road. Out over the ridge, and home by spring."],
+  "opening": ["Which way? The lane runs east, down to the beeches.", "A long road. Out over the ridge, and home by spring.", "Bread for four days in the packs. After that we eat what the mountain gives us: game, fruit, what others have left."],
   "opening_s": 7,
   "dusk": "The light is going. We should make camp.",
   "season_autumn": "The leaves are turning. Summer is behind us.",
