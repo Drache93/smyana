@@ -3,6 +3,8 @@
 #   tools/web/build.sh
 # Needs: Emscripten (EMSDK=<emsdk dir>, default ~/emsdk), and the Lobster fork (LOBSTER_DIR, default ~/Dev/lobster) at the
 # commit in creel/LOBSTER_VERSION with tools/web/lobster-web.patch applied (git apply), its bin/lobster built as usual.
+# The same fixes are Drache93/lobster PR 1 (branch claude/web-build); once it is merged and LOBSTER_VERSION moves past it,
+# the patch is no longer needed.
 # The browser build runs the C++ the Lobster compiler writes (lobster --cpp), not the JIT; the link takes a few minutes.
 # Serve build/web/ over http to try it (python3 -m http.server -d build/web), since a browser won't load it from a file.
 set -e
@@ -28,7 +30,7 @@ find "$EMDIR/assets/art/trees/vox" -name '*.vox' -delete
 
 mkdir -p "$OUT"
 make -C "$EMDIR" -j4 cpp EFLAGS="-sWASM=1 -sUSE_WEBGL2=1 -sFULL_ES3=1 -sALLOW_MEMORY_GROWTH=1 -sMAXIMUM_MEMORY=4GB \
-    -sASYNCIFY -sASYNCIFY_STACK_SIZE=1048576 -sSTACK_SIZE=8388608 -sBINARYEN_IGNORE_IMPLICIT_TRAPS=1 -sEXPORTED_RUNTIME_METHODS=FS,ENV \
+    -sASYNCIFY -sASYNCIFY_STACK_SIZE=1048576 -sSTACK_SIZE=8388608 -sBINARYEN_IGNORE_IMPLICIT_TRAPS=1 -sEXPORTED_RUNTIME_METHODS=FS \
     --preload-file assets@/ --shell-file $ROOT/tools/web/shell.html -o $OUT/index.html"
 (cd "$OUT" && rm -f ../smyana-web.zip && zip -q -9 ../smyana-web.zip index.html index.js index.wasm index.data)
 ls -l "$OUT" "$ROOT/build/smyana-web.zip"
