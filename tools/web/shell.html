@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Смяна (Smyana)</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #080706; overflow: hidden; }
+  #canvas { position: absolute; inset: 0; margin: auto; display: block; outline: none;
+            width: min(100vw, calc(100vh * 16 / 9)); height: min(100vh, calc(100vw * 9 / 16)); }
+  #load { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center;
+          justify-content: center; color: #d8ccb0; font: 20px Georgia, serif; gap: 14px; }
+  #bar { width: 40vw; height: 4px; background: #2a2620; }
+  #fill { width: 0; height: 100%; background: #b89a60; }
+</style>
+</head>
+<body>
+<canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+<div id="load"><div>Смяна</div><div id="bar"><div id="fill"></div></div><div id="what">Loading</div></div>
+<script>
+  var Module = {
+    canvas: document.getElementById('canvas'),
+    arguments: (new URLSearchParams(location.search).get('args') || '').split(' ').filter(Boolean),
+    print: function (t) { console.log(t); },
+    printErr: function (t) { console.warn(t); },
+    setStatus: function (t) {
+      var m = t.match(/\((\d+(\.\d+)?)\/(\d+)\)/);
+      if (m) document.getElementById('fill').style.width = (100 * m[1] / m[3]) + '%';
+      document.getElementById('what').textContent = t ? t.replace(/\(.*\)/, '').trim() || 'Loading' : '';
+      if (!t) document.getElementById('load').style.display = 'none';
+    },
+    monitorRunDependencies: function () {},
+  };
+  window.onerror = function (msg) { document.getElementById('what').textContent = 'Something went wrong: ' + msg; document.getElementById('load').style.display = 'flex'; };
+</script>
+{{{ SCRIPT }}}
+</body>
+</html>
