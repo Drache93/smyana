@@ -1511,3 +1511,10 @@ Each click moved the men about a quarter of a screen, then they stood ... It too
 The ring at the edge stands for the gate, as the ring on a find stands for the find (D-190), so a right click on it is
 now an order to the gate, the whole way. Played by hand: one click took the band across the last place to the lane.
 The view does not follow them; Tab brings it back, as before.
+
+## D-205 (2026-11-24, Claude's stand-in for Dominic's words): a man sees the village's smoke
+
+The eleventh first-time play: "Arrival is abrupt. Control is taken with no word. A line as the lane comes into view
+would help." Coming home, when the band is within thirty tiles of the village's end of the map, one man says once:
+"Smoke over the trees. Those are our own chimneys." (`home_seen`, data/survival.json). The words are Claude's and are
+Dominic's to rewrite.

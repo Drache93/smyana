@@ -37,6 +37,7 @@
   "first_game": "Roe deer, there among the trees. Meat, if we come up slow and stop short of them.",
   "game_down": "One down. Send men to it with the knife, and the meat is ours.",
   "game_down_more": ["It is down. The knife to it, and the meat into the packs.", "That one will not run. Send men with the knife."],
+  "home_seen": "Smoke over the trees. Those are our own chimneys.",
   "game_away": "They are away. We came on them too fast.",
   "game_away_more": ["Gone. They heard us coming.", "Away again. Slower, the next time, and stop short."],
   "patrol_ahead": "Zaptiye on the road ahead, resting. They have not seen us. Round through the trees, or wait till they ride on.",

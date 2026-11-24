@@ -3953,6 +3953,16 @@ def guide_tick():
                     find_until = seen_s + 10.0
                     find_word = "Right click to hunt"
     if is_night() and not camps_made() and hour_now() >= 21.5: one_says("dark {day}", say_cfg("dark"), 3)
+    // (coming home: the village's smoke over the trees, said once, so the lane and the end do not come from nowhere;
+    // "Arrival is abrupt", the eleventh first-time play. Claude's stand-in for Dominic's words.)
+    if leg_id == "village_home" and (find(said): _ == "home seen") < 0:
+        var sum_x = 0
+        var men_n = 0
+        for(u_x.length) i:
+            if man_of(u_id[i]):
+                sum_x += u_x[i]
+                men_n++
+        if men_n > 0 and sum_x / men_n < 30 * TILE: one_says("home seen", say_cfg("home_seen"), 4)
     // the hunt's end, said: one down (and what to do with it), or the game away ("Deer gone, no result shown ... I
     // never learnt whether we hit", the seventh first-time play)
     if game_shot < hunt_said_n: hunt_said_n = game_shot
