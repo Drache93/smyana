@@ -1309,3 +1309,25 @@ enough (`archive/notes/2026-11-24-dominic-is-the-loop-strong-enough.md`). Two ch
   so and one line names the cure. Whether the test player still gets home on this is being run.
 - What a man calls out gets a small warm ring for sixteen seconds, at the screen's edge if it is out of view: a stand
   of fruit, the first game, a hut, a cache, wild bees (the last three are newly called out at all).
+
+## D-190 (2026-11-24, Dominic's direction, Claude's numbers and build): the path alone does not carry the men home
+
+Dominic: "if players can finish the game by just following the path. And the game doesnt suggest anything other than
+that - then yes we need to rethink a bit right? agree on your fixes for now". The test player was given a `pathonly`
+mode that walks the road, camps and eats, and never hunts, gathers, or fetches a cache. Four playthroughs on D-189's
+hunger:
+- The path alone (seed 1): the bread is gone on the fifth night, in the gorge, and all 20 men are dead by the high
+  ridge, half way. "Nobody came home."
+- Hunting and gathering, seed 1: 11 of 20 home with 78 portions left; seven fell to the zaptiye in the Roman ruins in
+  winter, cold and unrested. Seed 3: nobody home; three of seven hunts brought meat and the winter starved them.
+  Seed 2: 16 men, fed, with 123 portions, stopped for five days in the gorge by one man walking on the spot 41 tiles
+  behind (Creel's steering, D-146).
+So the path alone is not enough any more, which is what was asked. What a careful player gets is too much a matter of
+luck still, and before D-189 this player brought 14 or 15 home. Changes, Dominic's to overrule:
+- One supper missed takes 20 off a man's hunger, not 30: at 30 a band went from fed to starving in a single night.
+- A man sent on by himself twice for nothing is stood on the next tile towards where he was going (`unstick_nudge`),
+  the same net the standing man had.
+- A right click on the ring round a thing called out, while the thing is off the edge of the view, is a right click
+  on the thing. Checked by eye: the cache in the first place is taken that way
+  (`archive/images/2026-11-24/09-a-cache-taken-by-its-ring-and-the-pack-shows-it.png`).
+A second round of four playthroughs on these numbers is running.

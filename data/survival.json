@@ -45,7 +45,7 @@
   "loaded": 125,
   "asleep": 1.2,
   "cold_meal": 50,
-  "missed_meal": 30,
+  "missed_meal": 20,
   "starving_hp": 0.8
  },
  "warm": {

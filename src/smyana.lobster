@@ -2008,9 +2008,10 @@ var pack_open = false
 var find_mark = float2_0  // art px
 var find_until = 0.0      // seen_s
 var find_word = ""
-var hide_ids = []::int  // the men on their way to hide their packs
-var hide_at = int2_0    // where, in sim units
-var hide_until = 0.0    // and till when they keep trying (seen_s)
+var find_milli = float2_0  // where it is on the map (thousandths of a tile), for a click on the ring itself
+var hide_ids = []::int     // the men on their way to hide their packs
+var hide_at = int2_0       // where, in sim units
+var hide_until = 0.0       // and till when they keep trying (seen_s)
 
 def sign_px() -> float: return float(max(2, gl.window_size().y / 360))
 
@@ -2347,6 +2348,7 @@ def draw_speech():
     if k >= 0:
         man_says(uid, gstr(forage_finds()[stands[k].kind], "call", ""))
         find_mark = gp(float((stands[k].cell % W) * 1000 + 500), float((stands[k].cell / W) * 1000 + 500))
+        find_milli = float2 { float((stands[k].cell % W) * 1000 + 500), float((stands[k].cell / W) * 1000 + 500) }
         find_until = seen_s + 16.0
         find_word = "Right click to gather"
     let now = seen_s
@@ -2580,7 +2582,15 @@ def order_tick():
     march_off(ids)
     hut_goal = -1  // (a new order: not on their way to a hut any more)
     hide_ids = []
-    let mm = mouse_milli()
+    var mm = mouse_milli()
+    // (a right click on the ring round something called out, while that thing is off the edge of the view, is a
+    // right click on the thing: the ring says "Right click to take" and it is what a player clicks)
+    if seen_s < find_until and find_word.length > 5 and find_word.substring(0, 5) == "Right":
+        let ws = float(gl.window_size())
+        let d = to_screen(find_mark) - ws / 2.0
+        let pad = ws.y * 0.06
+        let k = min((ws.x / 2.0 - pad) / max(abs(d.x), 1.0), (ws.y / 2.0 - pad) / max(abs(d.y), 1.0))
+        if k < 1.0 and magnitude(mouse_px() - (ws / 2.0 + d * k)) < ws.y * 0.06: mm = find_milli
     // (the packs open and an old tree under the mouse: hide the packs at its foot)
     let was_open = pack_open
     pack_open = false
@@ -3727,6 +3737,7 @@ def guide_tick():
                 if near:
                     one_says(key, say_cfg("hut_seen"), 1)
                     find_mark = gp(float((hc % W) * 1000 + 500), float((hc / W) * 1000 + 500))
+                    find_milli = float2 { float((hc % W) * 1000 + 500), float((hc / W) * 1000 + 500) }
                     find_until = seen_s + 16.0
                     find_word = "A hut"
         // (and a cache under its stones, or wild bees in a hollow trunk)
@@ -3738,6 +3749,7 @@ def guide_tick():
                 if near:
                     one_says(key, say_cfg(if pl.kind == PILE_HONEY: "honey_seen" else: "cache_seen"), 2)
                     find_mark = gp(float(pl.x), float(pl.y))
+                    find_milli = float2 { float(pl.x), float(pl.y) }
                     find_until = seen_s + 16.0
                     find_word = "Right click to take"
     // the opening: where the road goes, and what the year is for
@@ -3778,6 +3790,7 @@ def guide_tick():
                 if magnitude(at - c) < best:
                     best = magnitude(at - c)
                     find_mark = at
+                    find_milli = float2 { float(u_x[index_of(pid)]), float(u_y[index_of(pid)]) }
                     find_until = seen_s + 25.0
                     find_word = "Zaptiye"
     // (the first game the men can see: one of them says what it is and how it is come at)
@@ -3791,6 +3804,7 @@ def guide_tick():
                 if s.x > ws.x * 0.08 and s.y > ws.y * 0.1 and s.x < ws.x * 0.92 and s.y < ws.y * 0.9:
                     one_says("first game", say_cfg("first_game"), 2)
                     find_mark = gp(float(u_x[i]), float(u_y[i]))
+                    find_milli = float2 { float(u_x[i]), float(u_y[i]) }
                     find_until = seen_s + 10.0
                     find_word = "Right click to hunt"
     if is_night() and not camps_made() and hour_now() >= 21.5: one_says("dark {day}", say_cfg("dark"), 3)
@@ -3820,6 +3834,7 @@ def guide_tick():
                 let alive = pack_alive(pk)
                 if pk.state == W_FOLLOW and alive.length > 0:
                     find_mark = gp(float(u_x[index_of(alive[0])]), float(u_y[index_of(alive[0])]))
+                    find_milli = float2 { float(u_x[index_of(alive[0])]), float(u_y[index_of(alive[0])]) }
                     find_until = seen_s + 14.0
                     find_word = "Wolves"
     danger_told = danger_was

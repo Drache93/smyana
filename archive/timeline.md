@@ -276,3 +276,4 @@ One line per moment worth remembering. Newest at the bottom.
 - 2026-11-24: the open pack drawn as a woven bag (D-186); the ninth first-time play reached the fourth place, and hiding the packs by accident is fixed (D-187).
 - 2026-11-24: the quiet between calm tracks shortened from 70 seconds to 40 (D-188).
 - 2026-11-24: Dominic asks if the loop is strong enough; hunger made to bite and finds pointed out (D-189).
+- 2026-11-24: the path alone now loses every man by the high ridge; a missed supper softened, a man walking on the spot is moved on, a ring at the screen's edge can be clicked (D-190).
