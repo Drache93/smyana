@@ -504,6 +504,65 @@ def house(seed, X, Y, floors, bay):
 HOUSES = [(41, 3.4, 3.0, (2.3, 2.2), 2.6), (42, 2.9, 2.8, (2.3, 2.1, 2.2), 2.2), (43, 3.6, 2.7, (2.2, 2.2), 0.0)]
 
 
+# ---- the village's yard walls and its fountain -------------------------------------------------------------------
+def yard_wall(seed):
+    """A stretch of the wall between a yard and the lane: unhewn gneiss laid in courses with slabs along its top, a
+    little under a man's shoulder. ("authentic cobblestone streets, lining one after the other charming yards",
+    "stacked unhewn stones cemented with a mixture of clay and water", bg-guide.org, Kovachevitsa; Leshten's "stone
+    walls stand out", Radio Bulgaria. Its height and the coping are from photographs of the villages, not from those
+    texts.) Its length runs along x, just under a tile, so stretches stand end to end."""
+    X, T, H = 2.4, 0.24, 1.2
+    m = Model(X + 0.1, T + 0.2, H + 0.3)
+    rng = random.Random(seed)
+    g = 1.0 / M
+    z = 0.0
+    while z < H:
+        h = min(rng.uniform(0.12, 0.2), H - z)
+        s = -X
+        while s < X:
+            w = rng.uniform(0.25, 0.6)
+            d = rng.uniform(-0.03, 0.03)
+            m.box((s, -T + d, z), (min(s + w, X) - g, T + d, z + h - g), rng.choice([STONE, STONE2, STONE3, STONE, STONE2, ASH2]))
+            s += w
+        z += h
+    m.box((-X + 0.03, -T + 0.04, 0), (X - 0.03, T - 0.04, H), ASH, over=False)
+    s = -X
+    while s < X:
+        w = rng.uniform(0.5, 0.95)
+        m.box((s, -T - 0.08, H), (min(s + w, X) - g, T + 0.08, H + 0.06 + rng.uniform(0, 0.04)), rng.choice([STONE2, STONE3, STONE]))
+        s += w
+    return m
+
+
+def fountain():
+    """The village's fountain (a cheshma: Dolen's is named, the "Nikolovskata Cheshma", visitbulgaria.com): a wall of
+    dressed gneiss with a slab over it, an iron spout in a niche, and a stone trough the animals drink from under it.
+    Its shape is the common one of the Balkans' wall fountains, from photographs; no text read gives its measures. Its
+    face is toward -y."""
+    m = Model(1.3, 0.9, 1.9)
+    rng = random.Random(9)
+    g = 1.0 / M
+    z = 0.0
+    while z < 1.55:
+        h = min(rng.uniform(0.16, 0.24), 1.55 - z)
+        s = -0.95
+        while s < 0.95:
+            w = rng.uniform(0.3, 0.6)
+            m.box((s, 0.0, z), (min(s + w, 0.95) - g, 0.45, z + h - g), rng.choice([STONE, STONE2, STONE3, STONE2]))
+            s += w
+        z += h
+    m.box((-0.92, 0.04, 0), (0.92, 0.42, 1.55), ASH, over=False)
+    m.box((-1.08, -0.08, 1.55), (1.08, 0.53, 1.66), STONE3)          # the slab over it
+    m.box((-0.3, -0.01, 0.75), (0.3, 0.06, 1.25), ASH)                # the niche, dark
+    m.box((-0.24, -0.02, 0.8), (0.24, 0.02, 1.2), STONE3)             # its face stone, pale
+    m.capsule((0.0, 0.0, 0.95), (0.0, -0.2, 0.9), 0.025, 0.025, IRON)  # the spout
+    m.capsule((0.0, -0.2, 0.88), (0.0, -0.2, 0.5), 0.012, 0.012, WHITE)  # the water falling
+    m.box((-0.85, -0.62, 0), (0.85, -0.02, 0.48), STONE2)             # the trough
+    m.box((-0.74, -0.52, 0.34), (0.74, -0.12, 0.5), 0, over=True)
+    m.box((-0.74, -0.52, 0.3), (0.74, -0.12, 0.4), BLUE)              # the water in it
+    return m
+
+
 # ---- the horses and mules --------------------------------------------------------------------------------------
 COATS = {
     # coat, its shade (belly, legs), mane and tail, lower legs, muzzle
@@ -678,7 +737,7 @@ MULES = [("mule", "sacks"), ("mule_dun", "kegs"), ("bay", "baskets"), ("mule", "
 
 
 def models():
-    out = [("tent_canvas", tent0()), ("tent_rugs", tent1()), ("fireplace", fireplace()), ("woodpile", woodpile()), ("hut", hut())]
+    out = [("tent_canvas", tent0()), ("tent_rugs", tent1()), ("fireplace", fireplace()), ("woodpile", woodpile()), ("hut", hut()), ("wall", yard_wall(3)), ("fountain", fountain())]
     for i, (seed, X, Y, floors, bay) in enumerate(HOUSES): out.append(("house_%d" % i, house(seed, X, Y, floors, bay)))
     for i, (coat, blanket) in enumerate(HORSES):
         m, s = animal(coat, False)

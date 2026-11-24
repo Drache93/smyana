@@ -1386,3 +1386,20 @@ Six of the men's lines were heard twice or more, word for word. A line's key may
 `data/survival.json` ("<key>_more"); the first time it is said as written, and after that the others take turns. Given
 to seven lines: the light going, game down, game away, wolves following, the unripe and the bare rose bush, a hut
 seen. The words are Claude's, Dominic's to change.
+
+## D-196 (2026-11-24, Dominic's ask, Claude's build): the village has yards, a fountain and animals
+
+Dominic: "Flesh out the village a bit more also" (`archive/notes/2026-11-24-dominic-flesh-out-the-village.md`). What
+was read first, as the evidence rule asks, though nothing here is planted: Kovachevitsa's houses "are perched close to
+one another in an attempt to take up as little space as the sparse mountain terrain allows" (Radio Bulgaria, "A tale
+hewn in stone"); "authentic cobblestone streets, lining one after the other charming yards", "stacked unhewn stones
+cemented with a mixture of clay and water" (bg-guide.org, Kovachevitsa); Leshten's "stone walls" and "picturesque
+yards" (Radio Bulgaria, "An autumn walk along the cobblestone streets of the village of Leshten"); Dolen's named
+fountain, the "Nikolovskata Cheshma", and its people's "livestock breeding" (visitbulgaria.com); the animals kept on
+the houses' ground floors (D-167's sources). None of the pages gives a wall's height or a fountain's shape: those are
+from photographs of the villages, and are said so in `tools/camp_vox.py`.
+Built: five more houses (eleven, the same three models), walls of coursed gneiss with slabs along the top either side
+of the lane and between the yards, a wall fountain with its trough on the lane, three woodpiles, two mules and a horse
+in the yards (`archive/images/2026-11-24/13-the-village-with-yard-walls-and-a-fountain.png`). A wall has no shadow of
+its own: a stretch's shadow ran past its end and lay on the next.
+Not done: the lane is still earth, not cobbles; there are no people; no church.
