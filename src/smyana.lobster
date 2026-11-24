@@ -92,7 +92,9 @@ var zoom = 1.5  // screen px an art px
 // the pixels) and the wheel always comes back to where it started. 1 is the window 325 art px high (a man about a
 // tenth of it); each step is rounded to a quarter so the pixels of the art keep an even size. Dominic: "Default camera
 // zoom seems too close, when i zoom out, i cant zoom back to the default": it starts a step further out than before.
-let ZOOM_STEPS = [ 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.15, 1.3, 1.5 ]
+// (two steps closer than before, and the + and - keys as well as the wheel: Dominic, 2026-11-24, on a Retina screen in
+// the browser: "good if we can zoom in out a little ,the guys are abit small")
+let ZOOM_STEPS = [ 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.15, 1.3, 1.5, 1.75, 2.0 ]
 let ZOOM_START = 4
 var zoom_step = ZOOM_START
 var zoom_fixed = 0.0  // the zoom: option's zoom, till the wheel turns (0: the step's)
@@ -1050,6 +1052,9 @@ def collect_men(alpha:float):
             feet.push(float3 { p.x, p.y, 2.2 })
             if u_carry[i] > 0: add(frame_at.get("load.wood", -1), p.x + 3.0, p.y - 27.0, p.y + 0.1, float4_1, 1.0, 2)
             eyes.push(p - float2 { 0.0, 16.0 })
+    // (and the camps' fires: crowns thin over them too. Dominic, 2026-11-24: "i dont see a fire when asking them to
+    // make it - oh might be hidnig behind some trees")
+    for(sv_camps) cp: if not cp.hut: eyes.push(gp(float(cp.x), float(cp.y)) - float2 { 0.0, 10.0 })
     add_lift = 0.0
 
 // How much of a giant's crown shows: it thins out over any man it would hide.
@@ -1938,18 +1943,24 @@ def draw_one_man():
     gl.set_font_size(int(float(size) * 0.72))
     gl.color(float4 { 0.85, 0.81, 0.7, 0.75 }):
         gl.translate(float2 { floor(ws.y * 0.03), floor(ws.y - float(size) * 1.9) }): gl.text(man_state(m))
+    // (and what mends it, while he is not in a camp. Dominic, playing, 2026-11-24: "the guys say they're tired and
+    // hungry . What do i do next?")
+    let i = index_of(m.uid)
+    if (m.fed < 40000 or m.rested < 40000 or m.warm < 40000) and i >= 0 and camp_of(i) < 0:
+        gl.color(float4 { 0.85, 0.81, 0.7, 0.6 }):
+            gl.translate(float2 { floor(ws.y * 0.03), floor(ws.y - float(size) * 0.95) }): gl.text("Make camp: a fire, a meal and sleep will mend it.")
 
 // ------------------------------------------------------------------ the order signs (Dominic, 2026-11-13: "teaching
 // them to press C is pretty bad. This is where we need a minimal level of UI somehow"; "The UI youve done i pretty bad.
 // You went for minimal, but it just looks like placholder")
 // With men chosen, a few small pictures drawn in the game's own hand just under their feet, no words: a fire (make
-// camp, light it, or put it out), a pack (put the packs down), an open hand (halt); and beside them a row of loaves, one
+// camp, light it, or put it out), a pack (open the packs), an open hand (halt); and beside them a row of loaves, one
 // for each day the bread will last. Nothing shows when no one is chosen. The keys still work. docs/gathering.md.
 
 // The chosen men who are men (not game or a patrol someone clicked).
 def chosen_men() -> [int]: return filter(selected) id: man_of(id) != nil and index_of(id) >= 0
 
-// The signs for the chosen men now: what each does (0 camp, 1 packs down, 2 halt), and the camp's state for the fire's
+// The signs for the chosen men now: what each does (0 camp, 1 open the packs, 2 halt), and the camp's state for the fire's
 // picture (0 no camp, 1 a camp with its fire out, 2 the fire being laid, 3 the fire lit).
 def signs() -> [int], int:
     let ids = chosen_men()
@@ -1958,12 +1969,9 @@ def signs() -> [int], int:
     for(ids) id:
         let k = camp_of(index_of(id))
         if k >= 0: camp = if sv_camps[k].lit and tick < sv_camps[k].lit_at: 2 elif sv_camps[k].lit: 3 else: 1
-    let what = [ 0 ]
-    var carrying = false
-    for(ids) id:
-        let m = man_of(id)
-        if m and (m.food > 1 or m.wares.length > 0): carrying = true
-    if carrying: what.push(1)
+    // (the pack's sign always: it opens the packs now, and a sign that came and went without a word puzzled the
+    // sixth first-time play, 2026-11-24)
+    let what = [ 0, 1 ]
     what.push(2)
     return what, camp
 
@@ -1982,6 +1990,13 @@ def bread_days() -> int:
 
 // The size of a pixel of the signs' art, in screen pixels (a sign is 16 of them square).
 var sign_held = float3_0  // where the signs last sat (x, y; z: 1 once they have)
+// (the packs: the pack's sign opens them, to see what the men carry; with them open a right click on an old tree
+// sends the chosen men to hide their packs at its foot. Dominic, 2026-11-24: "opening the pack to see what you have",
+// and hiding "should be done via interaction menu with the place you're hiding it, not dumping it randomly". D-180)
+var pack_open = false
+var hide_ids = []::int  // the men on their way to hide their packs
+var hide_at = int2_0    // where, in sim units
+var hide_until = 0.0    // and till when they keep trying (seen_s)
 
 def sign_px() -> float: return float(max(2, gl.window_size().y / 360))
 
@@ -2028,16 +2043,28 @@ def sign_under() -> int:
     for(boxes) b, j: if m.x >= b.x and m.x < b.x + b.z and m.y >= b.y and m.y < b.y + b.z: return what[j]
     return -1
 
+// A camp just ordered: the order's ring where its fire will be, so the place is seen even among trees.
+def camp_marked():
+    if not sv_camps.length: return
+    let cp = sv_camps[sv_camps.length - 1]
+    mark_at = gp(float(cp.x), float(cp.y))
+    mark_t = seen_s
+
 // A sign clicked: its order.
 def sign_order(what:int):
     let ids = chosen_men()
     if not ids.length: return
+    if what == 1:
+        pack_open = not pack_open
+        return
+    pack_open = false
     march_off(ids)
     if what == 0:
         // (a new camp lets the men go, so its signs are out of the way; putting a fire out or lighting it again
         // keeps them chosen for the order that follows, the third agent playtest, 2026-11-22)
-        if camp_order(ids): selected = []
-    elif what == 1: packs_drop(ids)
+        if camp_order(ids):
+            selected = []
+            camp_marked()
     elif what == 2: issue_cmd(0, CMD_STOP, ids, 0, 0, 0, 0)
 
 // One sign's picture on its square (x, y, side), k screen pixels to the art's pixel; lit when under the mouse.
@@ -2133,7 +2160,7 @@ def draw_signs():
     // do; D-144)
     for(boxes) b, j:
         if what[j] == under:
-            let word = if under == 1: "Set the packs down" elif under == 2: "Halt" elif camp == 3: "Put the fire out" elif camp == 2: "Laying the fire" elif camp == 1: "Light the fire" else: "Make camp"
+            let word = if under == 1: (if pack_open: "Close the packs" else: "Open the packs") elif under == 2: "Halt" elif camp == 3: "Put the fire out" elif camp == 2: "Laying the fire" elif camp == 1: "Light the fire" else: "Make camp"
             gl.set_font_name("../data/fonts/OldStandard/OldStandard-Regular.ttf")
             gl.set_font_size(int(float(gl.window_size().y) / 46.0))
             let at = float2 { b.x, b.y + b.z + 3.0 * k }
@@ -2252,6 +2279,15 @@ def march_off(ids:[int]):
 // Whether a bridge here is down (felling is for mending one, and nothing else).
 def bridge_down() -> bool: return (find(br_up) up: up == 0) >= 0
 
+// The old tree at cell c or beside it (its foot: a place to hide the packs), or -1.
+def old_tree_near(c:int) -> int:
+    let old = str_index(tr_names, "tree")
+    for([ 0, 1, -1 ]) j: for([ 0, 1, -1 ]) i:
+        let x = c % W + i
+        let y = c / W + j
+        if x >= 0 and y >= 0 and x < W and y < H and terrain[y * W + x] == old: return y * W + x
+    return -1
+
 // The cursor for what is under the mouse, with men chosen, in the order a right click takes them.
 def hover_cursor() -> int:
     let u = unit_at_screen(mouse_px())
@@ -2266,6 +2302,7 @@ def hover_cursor() -> int:
     let hut = hut_near(int(mm.x), int(mm.y), 1)
     if hut >= 0 and not (exists(sv_camps) cp: cp.hut and dist2(cp.x, cp.y, (huts[hut] % W) * TILE, (huts[hut] / W) * TILE) < sq(4 * TILE)): return CURSOR_CAMP
     if pile_near(int(mm.x), int(mm.y)) >= 0: return CURSOR_TAKE
+    if pack_open and old_tree_near(mc) >= 0: return CURSOR_TAKE
     if patch_under(mm) >= 0: return CURSOR_GATHER
     let yt = young_tree_at(mm)
     if yt >= 0 and terrain[yt] == str_index(tr_names, "rubble"): return CURSOR_DIG
@@ -2442,7 +2479,10 @@ def select_tick():
             // (a click on empty ground keeps the men chosen, Escape lets them go: a click that missed a sign, or
             // one on the mark that finds the men, left the fifth agent playtest with nobody chosen, 2026-11-23)
             last_click = seen_s
-    if gl.button("escape") == 1: selected = []
+    // (Escape closes the packs first, then lets the men go)
+    if gl.button("escape") == 1:
+        if pack_open: pack_open = false
+        else: selected = []
 
 // The young tree the mouse is on: its cell, or the one its picture stands on (a tree is drawn up from its foot). Or
 // the heap of a landslide's debris the mouse is on (#20): the men dig that away as they fell a tree.
@@ -2503,12 +2543,10 @@ def order_tick():
     // C: make camp where the chosen men stand, or put its fire out, or light it again (docs/survival.md, #68)
     if gl.button("c") == 1 and selected.length:
         march_off(selected)
-        camp_order(filter(selected) id: man_of(id) != nil)
+        if camp_order(filter(selected) id: man_of(id) != nil): camp_marked()
         selected = []
-    // X: the chosen men drop their packs where they stand, to move light; at an old tree's foot it is a cache (#67, #69)
-    if gl.button("x") == 1 and selected.length:
-        march_off(selected)
-        packs_drop(filter(selected) id: man_of(id) != nil)
+    // X: open the packs, or close them (it put them down where the men stood before D-180)
+    if gl.button("x") == 1 and selected.length: pack_open = not pack_open
     // (the right button is SDL's third, "mouse3", as Creel's own controls have it; on the Lobster this was first built
     // with it came as "mouse2", which is now the middle one, and a right click gave no order at all, Dominic
     // 2026-11-12: "I can select everyone, but I don't seem to... move anyone". Either gives the order.)
@@ -2517,7 +2555,21 @@ def order_tick():
     if not ids.length: return
     march_off(ids)
     hut_goal = -1  // (a new order: not on their way to a hut any more)
+    hide_ids = []
     let mm = mouse_milli()
+    // (the packs open and an old tree under the mouse: hide the packs at its foot)
+    let was_open = pack_open
+    pack_open = false
+    let hide_tree = if was_open: old_tree_near(clamp(int(mm.y / 1000.0), 0, H - 1) * W + clamp(int(mm.x / 1000.0), 0, W - 1)) else: -1
+    if hide_tree >= 0:
+        let g = camp_ground_near(hide_tree, -1)
+        hide_ids = ids
+        hide_at = int2 { (g % W) * TILE + TILE / 2, (g / W) * TILE + TILE / 2 }
+        hide_until = seen_s + 90.0
+        march(ids, hide_at.x, hide_at.y)
+        mark_at = gp(float(hide_at.x), float(hide_at.y))
+        mark_t = seen_s
+        return
     let foe = unit_at_screen(mouse_px())
     if foe >= 0 and not man_of(u_id[foe]):
         hunt_order(ids, u_id[foe])
@@ -2643,7 +2695,7 @@ def camera_tick(with_men:bool):
         let off = float2 { (if s.x < lo.x: s.x - lo.x elif s.x > hi.x: s.x - hi.x else: 0.0), (if s.y < lo.y: s.y - lo.y elif s.y > hi.y: s.y - hi.y else: 0.0) }
         cam += off / zoom * min(1.0, gl.delta_time() * 2.0)
     // the wheel: a step in or out, about the point under the mouse
-    let wheel = gl.mousewheel_delta()
+    let wheel = gl.mousewheel_delta() + (if gl.button("=") == 1 or gl.button("keypad +") == 1: 1 else: 0) - (if gl.button("-") == 1 or gl.button("keypad -") == 1: 1 else: 0)
     if wheel != 0:
         let under = from_screen(m)
         zoom_step = clamp(zoom_step + (if wheel > 0: 1 else: -1), 0, ZOOM_STEPS.length - 1)
@@ -3454,6 +3506,11 @@ def load_next():
 let said = []::string
 var hint_stage = 0  // 0 choose them, 1 send them, 2 the Tab key (nine seconds), 3 done
 var hint_t = 0.0
+// A line at the foot of the screen for a few seconds, once each, when the moment for it comes: what the men's words
+// do not say, which sign or key does it (Dominic, 2026-11-24: "What do i do next? is our final push planning little
+// tutorial at the start?"). D-181.
+var tip = ""
+var tip_until = 0.0
 var open_n = 0
 var order_seen = -10.0
 var order_ids = []::int
@@ -3554,8 +3611,47 @@ def way_tick():
         one_says("lost track", say_cfg("lost_track"), 3)
         way_until = seen_s + 20.0
 
+// The men sent to hide their packs put them down together at the tree's foot once most of them are there.
+def hide_tick():
+    if not hide_ids.length: return
+    let ids = filter(hide_ids) id: man_of(id) != nil and index_of(id) >= 0
+    let there = filter(ids) id: dist2(u_x[index_of(id)], u_y[index_of(id)], hide_at.x, hide_at.y) <= sq(4 * TILE)
+    if ids.length and there.length * 3 < ids.length * 2 and seen_s < hide_until: return
+    hide_ids = []
+    if not there.length: return
+    if packs_drop(there):
+        piles[piles.length - 1].x = hide_at.x
+        piles[piles.length - 1].y = hide_at.y
+        said.remove_obj("packs hidden")
+        one_says("packs hidden", say_cfg("packs_hidden"), 1)
+    else:
+        said.remove_obj("packs empty")
+        one_says("packs empty", say_cfg("packs_empty"), 1)
+
+def tip_once(key:string, text:string):
+    if (find(said): _ == key) >= 0 or seen_s < tip_until or hint_stage < 3: return
+    said.push(key)
+    tip = text
+    tip_until = seen_s + 12.0
+
 def guide_tick():
     if phase != "play" or script != "": return
+    // the first ten minutes, a step at a time: what the pointer is for; that the view comes closer; when the men tire
+    // or the light goes, how a camp is made; once the fire is lit, what it does; and in the morning, the way on
+    if clock_s > 40.0: tip_once("tip pointer", "The pointer changes over what the men can use. Right click it.")
+    if clock_s > 100.0: tip_once("tip zoom", "The wheel, or + and -, brings the view closer.")
+    var worn = 0
+    var living = 0
+    for(men) m:
+        if m.alive:
+            living++
+            if m.rested < 40000 or m.fed < 40000: worn++
+    if not camps_made() and (worn * 3 > living or (hour_now() >= 17.5 and not is_night())):
+        one_says("worn", say_cfg("worn"), 2)
+        tip_once("tip camp", "Choose the men and click the fire under them to make camp. They eat and sleep by it.")
+    if (exists(sv_camps) cp: fire_burning(cp)):
+        one_says("camp first", say_cfg("camp_first"), 1)
+        tip_once("tip night", "The night passes quickly once every man sleeps. A fire can be seen from far off.")
     way_tick()
     // the season turned: one of them says so (the sixth first-time play took the autumn trees for the new place's look)
     if season_said == "": season_said = season_now()
@@ -3616,6 +3712,7 @@ def guide_tick():
         hunt_alarm = false
         said.remove_obj("game away")
         one_says("game away", say_cfg("game_away"), 3)
+    hide_tick()
     if near_asked:
         near_asked = false
         said.remove_obj("as near")
@@ -3670,6 +3767,59 @@ def shaded_text(t:string, at:float2, a:float):
         gl.color(if shade > 0.0: float4 { 0.0, 0.0, 0.0, 0.7 * a } else: float4 { 0.97, 0.93, 0.82, a }):
             gl.translate(floor(at + float2 { shade, shade })): gl.text(t)
 
+// The packs, open: what the men carry between them, in a few lines on a dark board at the left.
+def pack_lines() -> [string]:
+    let ids = chosen_men()
+    var food = 0
+    let count = map(WARES) _: 0
+    var knowers = 0
+    for(men) m:
+        if m.alive:
+            food += m.food
+            for(m.wares) w: count[w]++
+            if knows_drain(m): knowers++
+    let days = bread_days()
+    let l = [ if food <= 0: "No food." else: "Food: {food} portions, {if days == 1: "a day" elif days < 1: "less than a day" else: "{days} days"} for them all." ]
+    let kinds = glist(gobj(survival_cfg, "wares"), "kinds")
+    var goods = 0
+    for(count) n, w:
+        if n > 0 and w < kinds.length:
+            goods += n
+            l.push(if n == 1: gstr(kinds[w], "one", "") else: replace_string(gstr(kinds[w], "line", "%"), "%", string(n)))
+    if knowers: l.push("{knowers} of them know how the Romans drained the land.")
+    if goods == 0 and knowers == 0: l.push("Nothing yet to bring home.")
+    var set_down = 0
+    for(piles) pl: if pl.kind == 0: set_down += pl.food + pl.wares.length
+    if set_down > 0: l.push("And the packs set down here hold {set_down} more.")
+    l.push("")
+    l.push(if ids.length < 20 and ids.length != (filter(men) m: m.alive).length: "Right click an old tree: these {ids.length} hide their packs at its foot." else: "Right click an old tree to hide the packs at its foot, and walk light.")
+    return l
+
+def draw_packs():
+    if not pack_open or phase != "play" or script != "": return
+    if not chosen_men().length:
+        pack_open = false
+        return
+    let ws = float(gl.window_size())
+    let l = pack_lines()
+    gl.set_font_name("../data/fonts/OldStandard/OldStandard-Regular.ttf")
+    let big = int(ws.y / 26.0)
+    let small = int(ws.y / 40.0)
+    gl.set_font_size(small)
+    var wide = 0.0
+    for(l) t: wide = max(wide, float(gl.text_size(t).x))
+    let pad = ws.y * 0.025
+    let step = float(small) * 1.45
+    let size = float2 { wide + pad * 2.0, float(big) * 1.5 + step * float(l.length) + pad * 2.0 }
+    let at = float2 { floor(ws.y * 0.04), floor(ws.y * 0.16) }
+    gl.set_shader("color")
+    gl.color(float4 { 0.05, 0.04, 0.03, 0.78 }): gl.translate(at): gl.rect(size)
+    gl.color(float4 { 0.82, 0.68, 0.46, 0.5 }): gl.translate(at + float2 { pad, pad + float(big) * 1.25 }): gl.rect(float2 { wide, 1.0 })
+    gl.set_font_size(big)
+    shaded_text("In the packs", at + float2 { pad, pad }, 1.0)
+    gl.set_font_size(small)
+    for(l) t, n: if t != "": shaded_text(t, at + float2 { pad, pad + float(big) * 1.5 + step * float(n) }, if n == l.length - 1: 0.7 else: 0.95)
+
 def draw_guide(dt:float):
     if phase != "play" or script != "" or shot != "": return
     let ws = float(gl.window_size())
@@ -3688,6 +3838,10 @@ def draw_guide(dt:float):
         let l = if hint_stage == 0: "Drag across the men to choose them" elif hint_stage == 1: "Right click to send them" else: "Tab brings the view back to the men"
         let w = float(gl.text_size(l).x)
         shaded_text(l, float2 { ws.x / 2.0 - w / 2.0, ws.y * 0.9 }, clamp(hint_t - 1.0, 0.0, 1.0) * 0.8)
+    if hint_stage >= 3 and seen_s < tip_until:
+        gl.set_font_size(int(ws.y / 40.0))
+        let w = float(gl.text_size(tip).x)
+        shaded_text(tip, float2 { ws.x / 2.0 - w / 2.0, ws.y * 0.9 }, clamp(min(seen_s - (tip_until - 12.0), tip_until - seen_s), 0.0, 1.0) * 0.85)
     if seen_s < way_until:
         // (the way on: a pale ring at the gate out, or at the screen's edge toward it, and two words)
         let g, has_gate = way_on()
@@ -3995,6 +4149,7 @@ while gl.frame():
             draw_speech()
             if not dragging and sign_under() < 0: draw_hover()
             draw_guide(dt)
+            draw_packs()
         if debug_line:
             gl.set_shader("color")
             gl.set_font_name(FONT)

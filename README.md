@@ -41,8 +41,9 @@ lobster lobsterfmt` in its `dev/`).
 
 Drag across the men to choose them (double-click a man for all of them) and right click to send
 them. The pointer shows what a right click will do: walk, gather, shoot, butcher, pick up, camp in
-a hut. Signs under the chosen men make camp (C), set the packs down (X) and halt. Space pauses, Tab
-finds the men, arrows or WASD move the view. Walk every man into the far edge of a place to move on.
+a hut. Signs under the chosen men make camp (C), open the packs (X) and halt; with the packs
+open, a right click on an old tree hides them at its foot. Space pauses, Tab finds the men, arrows
+or WASD move the view. Walk every man into the far edge of a place to move on.
 
 ## A download for macOS
 

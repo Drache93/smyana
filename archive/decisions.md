@@ -1220,3 +1220,23 @@ otherwise they sit at the foot of the screen in the middle. The men's mark at th
 Dominic, playing: "i can right clich a hut to search it -> but after ive taken things from it, i can still right click
 it". A hut the men are camped in no longer shows the camp's pointer or takes the order again, and the ruins no longer
 show the scholar's pointer once the drain is learned. Which of the game's things he meant is not certain (asked).
+
+## D-180 (2026-11-24, Dominic's direction, Claude's build): the pack's sign opens the packs; hiding is done at a tree
+
+Dominic: "I feel "put the packs down" should open a modal so you see whats in it? ... so opening the pack to see what
+you have", and hiding "should be done via interaction menu with the place you're hiding it, not dumping it randomly".
+The sign and X open a small board: food and the days it lasts, the goods for home in the tally's own words, who knows
+the drain. It supersedes D-096's X that dropped the packs where the men stood. With the board open, a right click on an
+old tree sends the chosen men to its foot, where they put the packs down together, each keeping a day's food. It works
+only with the board open because old trees are everywhere and a right click by one must stay a walk order. The sign is
+always there now. The test player's own caches are unchanged.
+
+## D-181 (2026-11-24, Dominic's notes, Claude's build): the first ten minutes say what to do next
+
+Dominic, playing: "the guys say they're tired and hungry . What do i do next? is our final push planning little
+tutorial at the start?" No tutorial screen (the UI stays minimal): the men say it and one line at the foot of the
+screen names the sign or key, each once. The pointer (40 s in), the zoom (100 s), making camp when a third of the men
+are tired or hungry or the light goes, what the fire does once it is lit. One man's panel adds "Make camp: a fire, a
+meal and sleep will mend it." while he is worn and not in a camp. Also from the same note: + and - zoom as the wheel
+does and the view comes two steps closer; crowns thin over a camp's fire; the order's ring shows where a new camp is.
+The lines are placeholders by Claude until Dominic rewrites them.

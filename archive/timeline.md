@@ -265,3 +265,4 @@ One line per moment worth remembering. Newest at the bottom.
 - 2026-11-24: the seventh first-time play walked past the first gate to the map's edge; past the gate is now out, and the way on shows in the first place (D-175).
 - 2026-11-24: the view goes with the men after an order (D-176).
 - 2026-11-24: Dominic's first note from playing: the signs no longer end up at the screen's edge (D-178).
+- 2026-11-24: Dominic's notes from playing: the pack's sign opens the packs and hiding is done at an old tree (D-180); the men and a line on screen say what to do next, closer zoom, fires seen through crowns (D-181).
