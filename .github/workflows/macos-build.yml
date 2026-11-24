@@ -7,7 +7,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    paths: [".github/workflows/macos-build.yml", "tools/package-macos.sh"]
+    paths: [".github/workflows/macos-build.yml", "tools/package-macos.sh", "tools/lobster.sh", "play.sh"]
 permissions:
   contents: read
 jobs:
@@ -18,20 +18,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - name: Lobster, at Creel's commit
+      - name: Lobster, as a player's first ./play.sh gets it (tools/lobster.sh)
         run: |
-          git clone https://github.com/Drache93/lobster "$RUNNER_TEMP/lobster"
-          git -C "$RUNNER_TEMP/lobster" checkout "$(cat creel/LOBSTER_VERSION)"
-          cd "$RUNNER_TEMP/lobster/dev"
-          cmake -B build -DCMAKE_BUILD_TYPE=Release
-          cmake --build build --target lobster -j 4
-          ls -la ../bin
+          env -u LOBSTER tools/lobster.sh
+          ls -la .lobster/bin
       - name: The route plays through with no window
         run: |
           cd src
-          "$RUNNER_TEMP/lobster/bin/lobster" run_check.lobster 2>&1 | grep -v 'warning:' | tee /dev/stderr | grep -q '^run_check: ok$'
+          ../.lobster/bin/lobster run_check.lobster 2>&1 | grep -v 'warning:' | tee /dev/stderr | grep -q '^run_check: ok$'
       - name: Package
-        run: tools/package-macos.sh "$RUNNER_TEMP/lobster" "$RUNNER_TEMP/out"
+        run: tools/package-macos.sh "$PWD/.lobster" "$RUNNER_TEMP/out"
       - uses: actions/upload-artifact@v4
         with:
           name: Smyana-macos

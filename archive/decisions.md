@@ -1258,3 +1258,13 @@ the calm ones it interrupts, and the end strokes up to -14.9. `data/music.json` 
 when it plays: calm and the fire's song to -24.5, wary and hiding -23, the hunts -20, the strokes -17.5, the menu -25,
 the moments -21 (the homecoming only 2 dB down, left the loudest thing in the game). The files are as made. Nobody
 has heard this mix; it is by the meter, and Dominic's ear overrules it.
+
+## D-184 (2026-11-24, Dominic's direction, Claude's build): players run ./play.sh; no signed macOS app
+
+Dominic: "installing lobster should be automatic in our script", and of a macOS build, "or not, if it means signing,
+let them just run `./play.sh` ?" It does mean signing (an Apple Developer ID and notarisation, or every player is
+stopped by Gatekeeper), so the way to play is a clone and `./play.sh`. `tools/lobster.sh` finds a Lobster or fetches
+the fork at the commit in `creel/LOBSTER_VERSION` and builds it into `.lobster/`, and says what to install when git,
+cmake or a compiler is missing; `play.sh`, `check.sh`, the lint and the tools all use it. Tried from nothing on Linux
+here; the macOS workflow now gets its Lobster the same way, so the Mac path is tried on every change. The unsigned zip
+(D-169) stays as it costs nothing. The README's mock-up gives way to pictures from the game (`docs/pictures/`).

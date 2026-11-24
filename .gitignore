@@ -3,3 +3,4 @@ memory_leaks.txt
 __pycache__/
 sound/out/
 build/
+.lobster/

@@ -39,7 +39,7 @@ Control-click) Smyana.command, choose Open, then Open again. If it still refuses
 then a space, drag the Smyana folder onto the Terminal window, and press Return. Then double-click again.
 
 Drag across the men to choose them (double-click a man for all of them). Right click to send them.
-C makes camp, X sets the packs down, Space pauses, Tab finds the men, arrows or WASD move the view.
+C makes camp, X opens the packs, Space pauses, Tab finds the men, arrows or WASD move the view, + and - zoom.
 Walk every man into the far edge of a place to move on.
 
 How the game was made, and by whom: README.md, and the archive at https://github.com/Drache93/smyana
