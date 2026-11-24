@@ -2829,7 +2829,13 @@ def play_food(ids:[int]) -> bool:
     play_food_was = clock_uh
     return going
 
+// pathonly: the test player never leaves the track for food (no hunting, gathering or fetching): what a player gets
+// who only walks on. Dominic, 2026-11-24: "if players can finish the game by just following the path. And the game
+// doesnt suggest anything other than that - then yes we need to rethink a bit right?"
+let path_only = has_s(args, "pathonly")
+
 def play_food_order(ids:[int]) -> bool:
+    if path_only: return false
     let alive = filter(men) m: m.alive
     let food = sum(map(alive) m: m.food)
     let room = sum(map(alive) m: pack_room(m))
@@ -3763,6 +3769,17 @@ def guide_tick():
     if first_say:
         first_say = false
         one_says("patrol ahead", say_cfg("patrol_ahead"), 1)
+        // (and where: two first-time plays went round a patrol they never saw, and could not tell how wide to go)
+        let c = men_centre()
+        var best = 1.0e12
+        for(patrols) pt:
+            for(patrol_alive(pt)) pid:
+                let at = gp(float(u_x[index_of(pid)]), float(u_y[index_of(pid)]))
+                if magnitude(at - c) < best:
+                    best = magnitude(at - c)
+                    find_mark = at
+                    find_until = seen_s + 25.0
+                    find_word = "Zaptiye"
     // (the first game the men can see: one of them says what it is and how it is come at)
     if (find(said): _ == "first game") < 0 and not is_night():
         let ws = float(gl.window_size())
@@ -3798,6 +3815,13 @@ def guide_tick():
         let wolves = (find(packs) pk: pk.state == W_FOLLOW and pack_alive(pk).length > 0) >= 0
         said.remove_obj("wary")
         one_says("wary", say_cfg(if wolves: "followed" else: "patrol_wary"), 2)
+        if wolves:
+            for(packs) pk:
+                let alive = pack_alive(pk)
+                if pk.state == W_FOLLOW and alive.length > 0:
+                    find_mark = gp(float(u_x[index_of(alive[0])]), float(u_y[index_of(alive[0])]))
+                    find_until = seen_s + 14.0
+                    find_word = "Wolves"
     danger_told = danger_was
     hide_tick()
     if near_asked:
@@ -3925,10 +3949,12 @@ def pack_rows() -> [int], [string]:
     let pics = [ 0 ]
     let words = [ if food <= 0: "No bread left" elif days < 1: "Bread for less than a day" elif days == 1: "Bread for a day" else: "Bread for {days} days" ]
     let kinds = glist(gobj(survival_cfg, "wares"), "kinds")
+    // (every kind of goods has its place in the bag, empty or not: what there is to bring home is the answer to
+    // "what am I collecting"; an empty place is drawn faint, its picture -(kind) - 1)
     for(count) n, w:
-        if n > 0 and w < kinds.length:
-            pics.push(w + 1)
-            words.push(if n == 1: gstr(kinds[w], "short_one", "") else: replace_string(gstr(kinds[w], "short", "%"), "%", string(n)))
+        if w < kinds.length:
+            pics.push(if n > 0: w + 1 else: -w - 2)
+            words.push(if n == 0: gstr(kinds[w], "short_none", "") elif n == 1: gstr(kinds[w], "short_one", "") else: replace_string(gstr(kinds[w], "short", "%"), "%", string(n)))
     if knowers:
         pics.push(5)
         words.push(if knowers == 1: "One man knows the Roman drain" else: "{knowers} men know the Roman drain")
@@ -4001,8 +4027,9 @@ def draw_packs():
     for(pics) what, n:
         let y = 15.0 + row * float(n)
         if n > 0: px(9.0, y - 2.0, bw - 18.0, 1.0, float4 { 0.6, 0.54, 0.42, 0.6 })
-        draw_pack_thing(what, at.x + 10.0 * k, at.y + (y + 1.0) * k, k)
-        gl.color(float4 { 0.17, 0.12, 0.08, 1.0 }):
+        draw_pack_thing(if what < 0: -what - 1 else: what, at.x + 10.0 * k, at.y + (y + 1.0) * k, k)
+        if what < 0: px(9.0, y, 12.0, 10.0, float4 { 0.84, 0.79, 0.66, 0.72 })
+        gl.color(float4 { 0.17, 0.12, 0.08, if what < 0: 0.45 else: 1.0 }):
             gl.translate(float2 { at.x + 24.0 * k, at.y + (y + 5.0) * k - float(size) * 0.62 }): gl.text(words[n])
     // (and under the bag, how the packs are hidden)
     gl.set_font_size(int(ws.y / 44.0))
