@@ -1439,3 +1439,15 @@ Inferred, not read: the white of the chemise at the saya's open front is from ph
 and not its colour.
 Not done: no children and no old men, because nothing was read on how they dressed; the women do not move, turn to the
 men or go in at night.
+
+## D-199 (2026-11-24, Claude's build): the lane through the village is cobbled
+
+D-196 left the lane earth. The sources read for D-196 say cobbles: "authentic cobblestone streets, lining one after the
+other charming yards" (bg-guide.org, Kovachevitsa); "the cobblestone streets of the village of Leshten" (Radio
+Bulgaria). The stones' size and the earth between them are from photographs of those lanes, not from the texts.
+Built: a tile of cobbles as a model (`cobbles(seed, fade)` in `tools/camp_vox.py`), two of them laid turn about along
+the lane between the yard walls and a third whose stones thin out where the lane leaves the village
+(`archive/images/2026-11-24/17-the-lane-is-cobbled.png`). They are drawn flat, under every shadow and everything that
+stands, as the shadows themselves are. The ground's own shader is Creel's, so the cobbles are laid on it and not
+painted into it. A first try clipped the stones at the tile's edge and every tile's seam showed as a dark line: the
+stones now run whole a little past the edge.

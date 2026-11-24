@@ -1147,13 +1147,17 @@ def collect_props():
                     if pr.name[0] != 't': add(frame_at.get(pr.name + "." + season + ".shadow", -1), pr.at.x, pr.at.y, -39996.0, float4_1)
                     add(frame_at.get(pr.name + "." + season, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
             else:
+                // (the lane's cobbles lie on the ground, under every shadow and everything that stands)
+                if starts_with(pr.name, "cobbles"):
+                    add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, -40002.0, float4_1, 1.0, 4)
                 // (a yard wall has none: a stretch's shadow runs out past its end and lay across the next stretch)
-                if pr.name.length < 4 or substring(pr.name, 0, 4) != "wall": add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39997.0, float4_1)
+                elif pr.name.length < 4 or substring(pr.name, 0, 4) != "wall": add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39997.0, float4_1)
                 // (the camp's horses and mules are marked like the men, so they keep their colour in the shade
                 // instead of reading as grey ghosts)
                 let beast = starts_with(pr.name, "horse") or starts_with(pr.name, "mule") or starts_with(pr.name, "rider")
-                add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0,
-                    if pr.kind == 3: 0 elif beast and pr.sp != "far": 4 else: 2)
+                if not starts_with(pr.name, "cobbles"):
+                    add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0,
+                        if pr.kind == 3: 0 elif beast and pr.sp != "far": 4 else: 2)
 
     add_lift = 0.0
     // the map's bridges (#20): a standing one's deck tile by tile, a broken one's two ends

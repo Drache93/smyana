@@ -534,6 +534,30 @@ def yard_wall(seed):
     return m
 
 
+def cobbles(seed, fade):
+    """A tile of the lane's cobbles ("authentic cobblestone streets", bg-guide.org, Kovachevitsa; "cobblestone
+    streets", Radio Bulgaria, Leshten): river and field stones of gneiss a hand or two across, set close in earth,
+    worn flat. Their size and the earth between are from photographs of the villages' lanes, not from those texts.
+    A tile square and two voxels thick, so tiles lie edge to edge; with fade, the stones thin out toward +x, where
+    the lane leaves the village and is earth again."""
+    X = 4.85 / 2
+    m = Model(X + 0.6, X + 0.6, 0.2)
+    rng = random.Random(seed)
+    # (the stones run a little over the tile's edge, whole, so no straight seam shows where two tiles meet)
+    y = -X - rng.uniform(0.0, 0.2)
+    while y < X + 0.1:
+        d = rng.uniform(0.2, 0.34)
+        x = -X - rng.uniform(0.0, 0.25)
+        while x < X + 0.1:
+            w = rng.uniform(0.2, 0.42)
+            keep = not fade or rng.random() < (1.0 - min(1.0, max(0.0, x + X) / (2 * X))) ** 1.3
+            if keep and rng.random() > 0.04:
+                m.box((x, y, 0.0), (x + w - 1.5 / M, y + d - 1.5 / M, 0.07 if rng.random() < 0.8 else 0.1), rng.choice([STONE, STONE2, STONE3, STONE, STONE2, ASH2]))
+            x += w
+        y += d
+    return m
+
+
 def fountain():
     """The village's fountain (a cheshma: Dolen's is named, the "Nikolovskata Cheshma", visitbulgaria.com): a wall of
     dressed gneiss with a slab over it, an iron spout in a niche, and a stone trough the animals drink from under it.
@@ -781,7 +805,7 @@ MULES = [("mule", "sacks"), ("mule_dun", "kegs"), ("bay", "baskets"), ("mule", "
 
 
 def models():
-    out = [("tent_canvas", tent0()), ("tent_rugs", tent1()), ("fireplace", fireplace()), ("woodpile", woodpile()), ("hut", hut()), ("wall", yard_wall(3)), ("fountain", fountain()), ("woman_0", woman(0)), ("woman_1", woman(1))]
+    out = [("tent_canvas", tent0()), ("tent_rugs", tent1()), ("fireplace", fireplace()), ("woodpile", woodpile()), ("hut", hut()), ("wall", yard_wall(3)), ("fountain", fountain()), ("woman_0", woman(0)), ("woman_1", woman(1)), ("cobbles_0", cobbles(5, False)), ("cobbles_1", cobbles(9, False)), ("cobbles_2", cobbles(13, True))]
     for i, (seed, X, Y, floors, bay) in enumerate(HOUSES): out.append(("house_%d" % i, house(seed, X, Y, floors, bay)))
     for i, (coat, blanket) in enumerate(HORSES):
         m, s = animal(coat, False)
