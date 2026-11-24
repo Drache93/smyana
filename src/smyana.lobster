@@ -2629,7 +2629,8 @@ def order_tick():
         let d = to_screen(find_mark) - ws / 2.0
         let pad = ws.y * 0.06
         let k = min((ws.x / 2.0 - pad) / max(abs(d.x), 1.0), (ws.y / 2.0 - pad) / max(abs(d.y), 1.0))
-        if k < 1.0 and magnitude(mouse_px() - (ws / 2.0 + d * k)) < ws.y * 0.06:
+        let ring = ws / 2.0 + d * k
+        if k < 1.0 and magnitude(mouse_px() - float2 { ring.x, min(ring.y, ws.y * 0.8) }) < ws.y * 0.06:
             mm = find_milli
             // (the ring on game is a hunt, as a click on the deer is: the tenth first-time play clicked it, the men
             // walked up to the herd, and it ran)
@@ -3819,6 +3820,50 @@ def guide_tick():
     if day >= 1 and hour_now() >= 6.0 and hour_now() < 9.0 and leg_id == gstr(route, "start", "") and not is_night() and (find(said): _ == "morning {day}") < 0:
         one_says("morning {day}", say_cfg("morning"), day)
         way_until = seen_s + 30.0
+    // each morning out of camp, and on coming into a place by day: what the nearest ground off the track holds, and a
+    // ring on it. (Dominic, 2026-11-24: "if players can finish the game by just following the path. And the game
+    // doesnt suggest anything other than that - then yes we need to rethink a bit". The tenth first-time play left the
+    // road for everything called out in the first place, and then walked twelve minutes through the beech valley
+    // with nothing called: the stands and the deer were past where the men see from the track.)
+    if hour_now() >= 6.0 and hour_now() < 15.0 and not is_night() and not camps_made() and phase_t > 14.0 and (find(said): _ == "look {leg_id} {day}") < 0 and (day >= 1 or leg_id != gstr(route, "start", "")):
+        var mx = 0
+        var my = 0
+        var n = 0
+        for(u_id) id, i:
+            if man_of(id):
+                mx += u_x[i] / 20
+                my += u_y[i] / 20
+                n++
+        if n > 0:
+            mx = mx * 20 / n
+            my = my * 20 / n
+            var best = sq(45 * TILE)
+            var bx = 0
+            var by = 0
+            var what = ""
+            for(stands) st:
+                let sx = (st.cell % W) * TILE + TILE / 2
+                let sy = (st.cell / W) * TILE + TILE / 2
+                if st.left > 0 and not st.called and dist2(sx, sy, mx, my) < best and dist2(sx, sy, mx, my) > sq(9 * TILE):
+                    best = dist2(sx, sy, mx, my)
+                    bx = sx
+                    by = sy
+                    what = "look_stand"
+            for(game) g:
+                let gi = index_of(g.id)
+                if gi >= 0 and g.state != G_DEAD and dist2(u_x[gi], u_y[gi], mx, my) < best and dist2(u_x[gi], u_y[gi], mx, my) > sq(9 * TILE):
+                    best = dist2(u_x[gi], u_y[gi], mx, my)
+                    bx = u_x[gi]
+                    by = u_y[gi]
+                    what = "look_game"
+            // (what is nine tiles off or nearer is in front of them already, and is called out as they come on it)
+            if what != "":
+                one_says("look {leg_id} {day}", say_cfg(what), 4)
+                find_mark = gp(float(bx), float(by))
+                find_milli = float2 { float(bx), float(by) }
+                find_until = seen_s + 30.0
+                find_word = "Right click to go and look"
+            else: said.push("look {leg_id} {day}")
     // the first night by a fire: wolves heard a long way off, and the man on watch says so. Nothing comes of it; it is
     // the first word of what the deeper woods hold (three first-time plays met nothing at all in twenty minutes)
     if day == 0 and is_night() and fires.length > 0 and (hour_now() >= 22.5 or hour_now() < 3.0) and (find(said): _ == "first howl") < 0:
@@ -4156,7 +4201,9 @@ def draw_guide(dt:float):
         let d = g - ws / 2.0
         let pad = ws.y * 0.06
         let k = min((ws.x / 2.0 - pad) / max(abs(d.x), 1.0), (ws.y / 2.0 - pad) / max(abs(d.y), 1.0))
-        let p = ws / 2.0 + d * min(k, 1.0)
+        // (not down among the foot's line of words)
+        let p1 = ws / 2.0 + d * min(k, 1.0)
+        let p = float2 { p1.x, min(p1.y, ws.y * 0.8) }
         let a = clamp(find_until - seen_s, 0.0, 1.0)
         let r = ws.y * 0.014 * (1.0 + 0.12 * sin(seen_s * 220.0))
         for(12) j:

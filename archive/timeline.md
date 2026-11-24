@@ -280,3 +280,4 @@ One line per moment worth remembering. Newest at the bottom.
 - 2026-11-24: second round of test playthroughs: 18, 16 and 8 of 20 home with hunting and gathering, nobody by the path alone (D-191).
 - 2026-11-24: the tenth first-time play; the way on stays on screen, a camp shot into wakes and fires back, the men will not camp beside zaptiye unasked twice (D-192).
 - 2026-11-24: the tall firs' trunks thin over the men; two lines at once no longer overlap (D-193).
+- 2026-11-24: each morning a man points at the nearest ground off the track that holds food (D-194).

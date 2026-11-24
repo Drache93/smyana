@@ -1367,3 +1367,15 @@ over a man as a crown does (D-103's fade is measured from the crown), and the tr
 game and the track. A tall trunk now thins to about a fifth where a man, game the men can see, or a camp's fire is
 behind it (`trunk_fade`; `archive/images/2026-11-24/11-the-fir-trunks-thin-over-the-men.png`). And two men's lines
 that would lie across each other are set one under the other.
+
+## D-194 (2026-11-24, Dominic's direction, Claude's build): each morning a man points off the track
+
+Dominic: "if players can finish the game by just following the path. And the game doesnt suggest anything other than
+that - then yes we need to rethink a bit right?" The tenth first-time play left the road for everything called out in
+the first place, then walked twelve minutes through the beech valley with nothing called: the stands and the deer were
+past where the men see from the track. Now, each morning out of camp and on coming into a place by day, one man says
+where the nearest ground off the track is that holds something (a stand not yet picked, or game), from nine to 45
+tiles off, and a ring goes on it for half a minute, "Right click to go and look"
+(`archive/images/2026-11-24/12-a-man-points-off-the-track-in-the-morning.png`). He does not know of caches or huts:
+those are still found by going. The picture shows the ring's words lying on the foot's line of words; the ring is kept
+higher since. Dominic's to overrule, the words most of all.
