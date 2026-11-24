@@ -8,8 +8,9 @@
 #   tools/playtest.sh stop
 # Actions: click X Y | rclick X Y | dclick X Y | drag X1 Y1 X2 Y2 | key K | hold K SECONDS | move X Y
 #   (K as xdotool names keys: c, x, space, Escape, Left, w ...)
+# What the log's names mean, for a player who cannot hear: tools/playtest-key.md.
 # Needs Xvfb, xdotool and ImageMagick's import. LOBSTER as for play.sh. PLAYTEST_DIR: where it keeps its files.
-LOBSTER="${LOBSTER:-$HOME/Dev/lobster/bin/lobster}"
+LOBSTER="$("$(dirname "$0")/lobster.sh")" || exit 1
 DIR="${PLAYTEST_DIR:-/tmp/smyana-playtest}"
 export DISPLAY=:77
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

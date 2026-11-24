@@ -115,6 +115,219 @@ Pencil sketch (the pipe, its drone and the kaval's two notes, nothing else):
 Pencil sketch (hummed, since the bench can't sing words; one voice, then five, and the knock):
 [`02-music-pencil-sketch-the-fire.ogg`](../archive/audio/2026-11-11/02-music-pencil-sketch-the-fire.ogg)
 
+As made (2026-11-23, D-161): [`song_19_the_fire.py`](../music/pieces/song_19_the_fire.py). The four lines called and
+answered at 66 beats a minute, a bar of the knock alone, then the last two lines by all the men together, slowing,
+the low D held. The knock is a stick on a log, not the drum of the sketch. The crackle is left to the game's own
+fire. Still hummed: real men's voices would be better and this is the track to record first.
+[`15-the-fire-designed.ogg`](../archive/audio/2026-11-23/15-the-fire-designed.ogg)
+
+## Sheet: summer day
+
+Made 2026-11-23 by Claude, the second song through the design stage. Dominic could not hear the sheet or the sketch
+first (his standing word that day: "Please dont ever wait for me, can wait async"), so this is **Claude's call**,
+his to change when he hears it.
+
+| | |
+|---|---|
+| **Where** | The village edge on the first morning, and every summer day after: green lane, the men setting out. The first music a player hears and the track heard most. |
+| **The one idea** | The lute walks. A tambura plays the tune at the men's own pace; the pipe does not run, it answers twice from far off. |
+| **Shape** | A beat that stops. Line A twice (home, a leap up a fifth, back by steps), the walk halts and a kaval answers across the valley; line B twice, higher, to the top G; the kaval again over the low strings; line A once more, slowing. |
+| **Who plays** | Tambura (tune, and its two low strings as the walk), a kaval far off, a flock's bells very far. |
+| **Who doesn't** | No gaida, no drone, no voices, no humming, no haze. |
+| **Home note and range** | G (summer's note in the rules above). The lute between G3 and G4, an octave under the first draft's kaval; the kaval above it, D5 to G5. |
+| **Space** | In the wood for the lute (some echo); across the valley for the kaval (the long echo). |
+| **Loud and soft** | The lute is steady; the quiet is the halt, when only the kaval is left. |
+| **Not like** | *Summer dusk* (a fiddle alone, no beat). *Spring morning* (quick, a kaval tune). *Autumn dusk* (a held pipe on E). The first draft of this track (kaval running by steps over a rocking lute). |
+| **Real model** | A tambura tune in plain 2/4 played alone, walking pace. |
+| **Open** | Does the bench's plucked lute carry a tune by itself? Is 80 steps a minute the men's pace on screen? Is it too plain to hear many times? |
+
+As made: 72 notes, 15 leaps and 14 notes said twice (the first draft: 50 notes, 2 leaps, 8 said twice); 116 seconds;
+no energy to speak of above 1200 Hz, 20% in 600 to 1300 Hz. Quiet to loud 8.9 dB. Track: `music/pieces/song_01_summer_day.py`.
+Renders: [`01-summer-day-designed.ogg`](../archive/audio/2026-11-23/01-summer-day-designed.ogg), pencil sketch
+[`02-pencil-summer-day.ogg`](../archive/audio/2026-11-23/02-pencil-summer-day.ogg).
+
+## Sheet: summer dusk
+
+Made 2026-11-23 by Claude, the third song through the design stage; **Claude's call**, unheard, as with summer day.
+
+| | |
+|---|---|
+| **Where** | A summer evening from 18h, as a man says "The light is going. We should make camp.", and on into the night until a fire is lit (then the men's own song takes over). |
+| **The one idea** | The fiddle asks and is not answered: three phrases end away from home, each followed by a long quiet, and the fourth comes home. |
+| **Shape** | A line and its silence. Phrases of 13 to 25 seconds with 5 to 7 seconds of nothing after each, in which the crickets and the fire are heard. Every phrase has a leap of a fourth or a fifth. |
+| **Who plays** | Gadulka alone. One low lute string touched before each phrase. |
+| **Who doesn't** | No drone (the first draft had a bagpipe's under it), no pipe, no kaval, no voices, no beat. |
+| **Home note and range** | G, as the summer day, but an hour lower in feeling: G3 to G4, bowed. |
+| **Space** | In the wood, near. |
+| **Loud and soft** | The fiddle swells on its held notes; the quiet between phrases is real quiet (13.6 dB from quiet to loud). |
+| **Not like** | *Summer day* (a beat, plucked). *The fire* (voices, a beat). *Autumn dusk* is its nearest neighbour, also slow and held: that one is a pipe on E over its drone that never stops; this one is a fiddle on G with nothing under it and gaps. *Autumn night* (a low fiddle with gaps) will have to fall where this one rises, when it is made. |
+| **Real model** | A gadulka player alone, slow and unmeasured. |
+| **Open** | Is the bench's fiddle good enough alone? Are the gaps too long once the forest's own sound is under them? Is it too close to autumn dusk? |
+
+As made: 20 notes of 3.2 seconds on average, none under a second, 6 leaps (the first draft: 33 notes of 1.2 seconds,
+23 under a second, 1 leap); 96 seconds. Track: `music/pieces/song_02_summer_dusk.py`. Renders:
+[`03-summer-dusk-designed.ogg`](../archive/audio/2026-11-23/03-summer-dusk-designed.ogg), pencil sketch
+[`04-pencil-summer-dusk.ogg`](../archive/audio/2026-11-23/04-pencil-summer-dusk.ogg).
+
+## Sheet: autumn day
+
+Made 2026-11-23 by Claude, the fourth song through the design stage, after Dominic heard summer day and summer dusk
+("Songs are good", 21:34). **Claude's call**, unheard.
+
+| | |
+|---|---|
+| **Where** | Autumn days: the beech valley gone orange, the fir woods in mist. |
+| **The one idea** | A call and its echo. A kaval calls across the valley; after a quiet the men give the same call back, low and hummed. |
+| **Shape** | Four calls, each a little longer (two notes, four, six, four), each with a fall or a climb of a fifth. The third climbs and is left open, and the men turn it home. The last is sounded together, the men two seconds behind. |
+| **Who plays** | Kaval; the men humming (closed lips, not the open voice he heard as a trumpet); a trace of haze. |
+| **Who doesn't** | No drone, no pipe, no lute, no beat. |
+| **Home note and range** | E, autumn's note. The kaval E4 to E5; the men an octave under. |
+| **Space** | Across the valley: the long echo, the only calm track so far that has it. |
+| **Loud and soft** | Quiet between call and answer (12 dB from quiet to loud). |
+| **Not like** | *Summer day* (a beat, plucked). *Summer dusk* (one fiddle, unanswered: here every call is answered). *Autumn dusk* (one pipe that holds over its drone). |
+| **Real model** | Shepherds calling across a valley on the kaval; men's unison humming. |
+| **Open** | 72% of its energy sits between 300 and 600 Hz, the band the first draft crowded: is it too soft and round ("too soft now", he said of the first autumn mist)? Does the bench's hum pass for men? |
+
+As made: the kaval has 16 notes of 3.2 seconds, none under a second, 6 leaps (first draft: 35 notes of 1.5 seconds,
+21 under a second); 116 seconds. Track: `music/pieces/song_03_autumn_day.py`. Renders:
+[`05-autumn-day-designed.ogg`](../archive/audio/2026-11-23/05-autumn-day-designed.ogg), pencil sketch
+[`06-pencil-autumn-day.ogg`](../archive/audio/2026-11-23/06-pencil-autumn-day.ogg).
+
+## Sheet: autumn night
+
+Made 2026-11-23 by Claude, the fifth song through the design stage. **Claude's call**, unheard.
+
+| | |
+|---|---|
+| **Where** | Autumn nights, in turn with the men's own song once a fire is lit. |
+| **The one idea** | The fiddle sinks: one line goes down the whole piece like a stair, and reaches the bottom. |
+| **Shape** | A stair down. Each phrase falls a third or a fourth, climbs back one step and rests; the next begins on that rest. From B3 to the low E2, an octave and a half. A drone rises only under the last note. |
+| **Who plays** | A low gadulka. A drone for the last twenty seconds. |
+| **Who doesn't** | No kaval, no voices, no lute, no haze, no drone until the end. |
+| **Home note and range** | E. B3 down to E2, the lowest tune in the score. |
+| **Space** | In the wood, dark. |
+| **Loud and soft** | Real quiet between phrases (22 dB from quiet to loud, the widest so far). |
+| **Not like** | *Summer dusk* is the other lone fiddle: it rises to questions on G and never gets a drone; this one only falls, on E, an octave lower, and lands. *Autumn dusk* (a pipe that holds, its drone from the start). |
+| **Real model** | None close; a slow gadulka lament played low. |
+| **Open** | Does the bench's fiddle hold together that low? Is 22 dB too wide over the night's crickets and fire? |
+
+As made: 15 notes of 3.8 seconds, 7 moves down and 4 up (first draft: 24 notes of 1.8 seconds, 13 down and 10 up,
+ending where it began); 96 seconds. Track: `music/pieces/song_05_autumn_night.py`. Renders:
+[`07-autumn-night-designed.ogg`](../archive/audio/2026-11-23/07-autumn-night-designed.ogg), pencil sketch
+[`08-pencil-autumn-night.ogg`](../archive/audio/2026-11-23/08-pencil-autumn-night.ogg).
+
+## Sheet: winter day
+
+Made 2026-11-23 by Claude, the sixth song through the design stage. **Claude's call**, unheard.
+
+| | |
+|---|---|
+| **Where** | Winter days in the snow: the pass, the ridge, the way home. |
+| **The one idea** | The cold slows it: a lute's single notes, the wait between them growing until it has all but stopped. |
+| **Shape** | A pulse that slows. Home and the fifth above it (D, A), one note at a time, 3.5 seconds apart at first and 8.5 at the end. One kaval phrase of four notes in the middle, far off, in a gap of twenty seconds. |
+| **Who plays** | Tambura. A kaval once. |
+| **Who doesn't** | No fiddle, no pipe, no drone, no voices, no haze. |
+| **Home note and range** | D, winter's note. The lute D2 to A3. |
+| **Space** | The open snow: the long cold echo, each note left to die in it. |
+| **Loud and soft** | Mostly the echo's tail and the wind (22 dB from quiet to loud). |
+| **Not like** | *Summer day* is the other lute piece: that one walks in time and carries a tune; this has no tune and slows to nothing. |
+| **Real model** | None. |
+| **Open** | Is it music enough, or only a clock running down? |
+
+Track: `music/pieces/song_06_winter_day.py`; 16 plucked notes and 4 on the kaval in 112 seconds. Renders:
+[`09-winter-day-designed.ogg`](../archive/audio/2026-11-23/09-winter-day-designed.ogg), pencil sketch
+[`10-pencil-winter-day.ogg`](../archive/audio/2026-11-23/10-pencil-winter-day.ogg).
+
+## Sheet: winter night
+
+Made 2026-11-23 by Claude, the seventh song through the design stage. **Claude's call**, unheard.
+
+| | |
+|---|---|
+| **Where** | Winter nights, the deepest point of the run. |
+| **The one idea** | A man hums the song of home and cannot finish it. |
+| **Shape** | Three tries at the main theme, each getting further: its first line; the first and second; the first, second and the climb of the third, held on its top note and left. The fourth line, the one that comes home, is never heard: it is kept for the spring and the homecoming. |
+| **Who plays** | One man humming, lips closed. |
+| **Who doesn't** | Everyone else. No open voice (the bench's sounded like a trumpet to Dominic), no instrument. |
+| **Home note and range** | D, the men's own note; the theme an octave and a tone under where it is written, D3 to D4. |
+| **Space** | At the fire, close: almost no echo. He is beside you. |
+| **Loud and soft** | The quiet after each try (15 dB from quiet to loud). |
+| **Not like** | *The fire* (the men together, a beat). *Autumn day* (the men hum an answer, far off, to a kaval). Here one man, near, alone. |
+| **Real model** | A man humming to himself. |
+| **Open** | The theme itself is still first-draft work, quick and stepwise, and has no sheet: slowed to 1.6 times its length here. Does the bench's hum pass for one man close by? A real voice would be better and is still undecided (docs/music-tracks.md, "Singing"). |
+
+Track: `music/pieces/song_07_winter_night.py`; 114 seconds; 88% of its energy between 150 and 300 Hz. Renders:
+[`11-winter-night-designed.ogg`](../archive/audio/2026-11-23/11-winter-night-designed.ogg), pencil sketch
+[`12-pencil-winter-night.ogg`](../archive/audio/2026-11-23/12-pencil-winter-night.ogg).
+
+## Sheet: spring day
+
+Made 2026-11-23 by Claude, the eighth song through the design stage. **Claude's call**, unheard.
+
+| | |
+|---|---|
+| **Where** | Spring days, the last places before home. |
+| **The one idea** | The walk again, and the song finished: the summer's walking lute comes back higher and quicker, and a kaval plays the two lines of the home song the man in the winter night could not reach. |
+| **Shape** | The summer day's shape with the song laid in its two rests. Line A twice; the song's third line, the climb; line B twice; the fourth line, down and home, heard for the first time in the run; line A once more under one long home note. |
+| **Who plays** | Tambura (the tune and the walking low strings), a low kaval with the men now, a flock's bells nearer than in summer. |
+| **Who doesn't** | No voices (the first draft's far women were the bench's open voice), no drone, no fiddle. |
+| **Home note and range** | A for the song, a fourth above where it is written; the lute's tune sits on C above it. The lute C4 to C5, the kaval under it, G3 to A4. |
+| **Space** | In the open, near. The kaval is no longer across the valley. |
+| **Loud and soft** | Steady: the walk never stops this time (6 dB from quiet to loud, the narrowest of the calm tracks). |
+| **Not like** | *Summer day* on purpose is its twin: the same lines, but a fourth up, 88 steps a minute against 80, the kaval near and low and playing the song, and no halt. *Spring morning* (quick, a kaval dance tune). |
+| **Real model** | None beyond the summer day's. |
+| **Open** | Will anyone hear that it is the summer's tune come back, four seasons later? Is the home song, still first-draft work, good enough to be what comes home? |
+
+Track: `music/pieces/song_09_spring_day.py`; 110 seconds. A first render had the kaval above the lute and a third of
+the energy between 600 and 1300 Hz; it was put an octave down (17%). Renders:
+[`13-spring-day-designed.ogg`](../archive/audio/2026-11-23/13-spring-day-designed.ogg), pencil sketch
+[`14-pencil-spring-day.ogg`](../archive/audio/2026-11-23/14-pencil-spring-day.ogg).
+
+## Sheet: the Ottomans
+
+| | |
+|---|---|
+| **Where** | A patrol has seen the men. A loop, for as long as the danger lasts. |
+| **The one idea** | The drum is here and the pipe is not. |
+| **Shape** | Sixteen bars at 92 beats a minute (42 s). Four bars of the drum alone, four with the pipe far off, four of the drum heavier, four with the pipe again. |
+| **Who plays** | Their big drum, close and dry: dum, tek tek, dum, tek, a short roll every fourth bar. Their pipe, across the valley: two calls of long notes (1.6 s a note; the first draft's ran at half a second), more echo than pipe. |
+| **Who doesn't** | No second pipe holding a note. Nothing of the men's: no kaval, no lute, no hum. |
+| **Home note and scale** | E, with their own scale (E F G sharp A B C): the wide step from F to G sharp is kept, since it says whose pipe it is. |
+| **Space** | Two spaces at once, the only track that has them: the drum in the player's chest, the pipe a valley away with its top taken off by the air. |
+| **Loud and soft** | The drum does not let up. The pipe comes and goes. |
+| **Not like** | Every calm track (no beat, or the men's own walk). The first draft (a pipe running in front). |
+| **Answers** | "ottomans sounds too synth" (Dominic, 2026-11-11): the bench's reed is a bare buzz close up, so it is never heard close up. |
+| **Open** | Only his ear can say whether a far buzz passes. The drum is the bench's too; its boom is very low, so the beater's knock was added for small speakers. A real zurna recording would still be better. |
+
+Made (2026-11-23, D-162): [`song_14_ottomans.py`](../music/pieces/song_14_ottomans.py).
+[`17-ottomans-designed.ogg`](../archive/audio/2026-11-23/17-ottomans-designed.ogg), the pipe's calls alone:
+[`18-pencil-ottomans.ogg`](../archive/audio/2026-11-23/18-pencil-ottomans.ogg)
+
+## Sheet: wolves and bears
+
+| | |
+|---|---|
+| **Where** | Wolves rush a man on his own, or the bear is up on its hind legs and coming. Under the trees, often at night. A loop, for as long as it lasts. |
+| **The one idea** | The men's own dance drum, played too fast, that keeps stopping dead. |
+| **Shape** | 48 bars of plain 2/4 at 152 beats a minute (38 s), in six eights. Each eight is six bars at a run and two bars of nothing. The plain beat; heavier; the switch alone and soft; heavier; the heaviest, a blow on every beat; the plain beat again. |
+| **Who plays** | The tapan and nothing else in front: the heavy skin on the beat, the switch on the halves between and ruffling into the next bar. Under the third, fifth and sixth eights one low string of the gadulka, scraped: F, the half step over home, and down to E. |
+| **Who doesn't** | No tune: animals have no music. No pipe. No drone that holds (the wary track and the Ottomans' pipe have the long sounds). |
+| **Home note** | E, with F over it. |
+| **Space** | In the wood: close, a short echo. |
+| **Loud and soft** | It does not swell. It is all there or it is gone, seven and a half seconds of the loop being the six silences. |
+| **Not like** | The Ottomans (slow, heavy, a far pipe: their drum walks, this one runs). Wary (no beat at all). The first draft (uneven twos and threes, two drones). |
+| **Real model** | The tapan under a pravo horo: "dance tunes are mostly plain 2/4", and the uneven metres belong to Thrace and the Shope country ([`rhodope-music-style.md`](rhodope-music-style.md)). The first draft's uneven groups were borrowed from there without care. |
+| **Open** | Only an ear can say whether a dance beat with holes in it reads as fear or as a dance. If it reads as a dance, the fix is fewer bars at a run and longer holes. Claude's call: Dominic has not heard the sheet or the sketch. |
+
+Made (2026-11-24, D-171): [`song_12_beasts.py`](../music/pieces/song_12_beasts.py).
+[`01-beasts-designed.ogg`](../archive/audio/2026-11-24/01-beasts-designed.ogg), the drum alone and dry:
+[`02-pencil-beasts.ogg`](../archive/audio/2026-11-24/02-pencil-beasts.ogg)
+
+As made: the bench's drum is nearly all below 150 Hz (the first draft had 0.2% of its sound between 600 and 1300 Hz),
+so the beater's knock from the Ottomans' track is laid over the heavy skin and the switch is brought five times
+forward; 2.2% now sits in that band, with the Ottomans at 3.9%. The loop starts on a blow, so its seam is a drum's
+attack after two bars of silence and not a click.
+
 ## Autumn dusk, as made (2026-11-11, evening)
 
 Dominic, 21:13 UTC: "for the music for phase 1, lets focus on just getting that music creation solid. So we make one

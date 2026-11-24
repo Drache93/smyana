@@ -6,10 +6,34 @@
   "opening": ["Which way? The lane runs east, down to the beeches.", "A long road. Out over the ridge, and home by spring."],
   "opening_s": 7,
   "dusk": "The light is going. We should make camp.",
+  "season_autumn": "The leaves are turning. Summer is behind us.",
+  "season_winter": "That is winter in the air. Keep the fires high.",
+  "season_spring": "The snow is going. Spring, and the road home.",
+  "season_summer": "Summer again.",
+  "way_on": "The track goes on across this place. That way.",
+  "lost_track": "We have lost the track. The way on lies over there.",
+  "bread_low": "A day's bread left between us. We must hunt, or gather, before it is gone.",
   "last_bread": "That is the last of the bread.",
   "hungry": "My belly is empty. The wood has food, if we look.",
   "starving": "I can't go much further without food.",
-  "no_way": "No way through there."
+  "no_way": "No way through there.",
+  "as_near": "No way up there from here. This is as near as we get.",
+  "worn": "The men are tired, and hungry with it. A fire, a meal and a night's sleep.",
+  "camp_first": "There, it has caught. We eat now, and sleep till first light.",
+  "packs_hidden": "Under the roots, and leaves over them. We will know the tree.",
+  "packs_empty": "There is nothing in the packs to leave.",
+  "morning": "East again, down the lane. The beeches are not far.",
+  "rose_unripe": "Hips, but hard and green inside yet. Come the autumn.",
+  "rose_bare": "The birds have had the best of this one. There will be better bushes.",
+  "gathered": "A few handfuls more in the packs. It all helps.",
+  "dark": "We cannot walk on blind. Make a fire here.",
+  "first_game": "Roe deer, there among the trees. Meat, if we come up slow and stop short of them.",
+  "game_down": "One down. Send men to it with the knife, and the meat is ours.",
+  "game_away": "They are away. We came on them too fast.",
+  "patrol_ahead": "Zaptiye on the road ahead, resting. They have not seen us. Round through the trees, or wait till they ride on.",
+  "followed": "We are followed. Wolves, keeping their distance. Stay together, and keep a fire at night.",
+  "patrol_wary": "The zaptiye have noticed something. Off the road, into the trees, and keep still.",
+  "first_howl": "Wolves. A long way off yet. They keep clear of a fire."
  },
  "fed": {
   "_doc": "Hunger. 'per_hour' is how much a man awake loses an hour, more by 'work' hundredths while he fells or digs and 'loaded' while he carries; 'asleep' asleep. A hot meal at a lit fire fills him, a cold one gives 'cold_meal'. At 0 he loses 'starving_hp' health an hour (0.8: a man with nothing to eat lasts about two days more, slow and weak, and mends when he is fed; it was 1.5, a day, until 2026-11-22, when playthroughs lost whole bands in one foodless day on the pass).",
@@ -419,8 +443,8 @@
    "cache": {
     "weight": 3,
     "food": [
-     12,
-     22
+     20,
+     32
     ],
     "goods": [
      0,

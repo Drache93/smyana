@@ -117,6 +117,28 @@ def stands_grow():
                 let hi = if am.length > 1: as_int(am[1]) else: lo
                 stands.push(Stand { c, k, lo + threat_hash(seed, k * 31 + placed, 3) % (hi - lo + 1) })
                 placed++
+    // (the first place: one more stand of its first light-loving find, a short walk from where the men set out and
+    // just off the lane. The stands keep away from the gates, so two first-time players never saw one in twenty
+    // minutes and never learned to gather, 2026-11-22 and 23. It is the last stand, so the others stay where they
+    // were. D-156.)
+    let first = find(finds) f: gstr(f, "where", "light") == "light"
+    if leg_id == gstr(route, "start", "") and gate_rects.length and first >= 0:
+        var g = gate_rects[0]
+        for(gate_rects) r: if r[0] < g[0]: g = r
+        let gx = (g[0] + g[2]) / 2
+        let gy = (g[1] + g[3]) / 2
+        var best = -1
+        var best_h = 1 << 30
+        for(W * H) c:
+            let d = abs(c % W - gx) + abs(c / W - gy)
+            if d >= 9 and d <= 14 and terrain[c] == grass and walks[0][c] == 1 and far[c] >= 2 and far[c] <= 4 and open_round(c, 1) >= 8:
+                let h = threat_hash(seed, c, 9)
+                if h < best_h:
+                    best_h = h
+                    best = c
+        if best >= 0:
+            let am = glist(finds[first], "amount")
+            stands.push(Stand { best, first, if am.length: as_int(am[0]) else: 4 })
     // (what was taken before, still taken)
     let was = forage_memory.get(forage_key)
     if was: for(stands) s, n: if n < was.length: s.left = was[n]
@@ -145,12 +167,27 @@ def forage_order(ids:[int], c:int) -> bool:
             let x = sx + int(cos(a) * float(TILE) * 0.9)
             let y = sy + int(sin(a) * float(TILE) * 0.6)
             foragers.push(Forager { id, k, x, y, since: tick })
-            issue_cmd(0, CMD_MOVE, [ id ], x, y, 0, 0)
+            send_men([ id ], x, y)
             sent++
     return sent > 0
 
 // Whether this man is gathering (he works: his hunger falls faster).
 def foraging(uid:int) -> bool: return (find(foragers) f: f.id == uid) >= 0
+
+// A picker who is done walks back to where most of the others are, if that is more than six tiles off.
+def forage_back(uid:int):
+    let i = index_of(uid)
+    if i < 0: return
+    var cx = 0
+    var cy = 0
+    var n = 0
+    for(men) m:
+        let j = index_of(m.uid)
+        if m.alive and j >= 0 and m.uid != uid and not foraging(m.uid):
+            cx += u_x[j]
+            cy += u_y[j]
+            n++
+    if n > 0 and dist2(u_x[i], u_y[i], cx / n, cy / n) > sq(6 * TILE): send_men([ uid ], cx / n, cy / n)
 
 // Every ten sim ticks (route_tick): a man at his spot gathers one a gather_s into his pack, till the stand is bare or
 // his pack full; one sent elsewhere gives up.
@@ -164,7 +201,12 @@ def forage_tick():
         if i < 0 or not m or f.stand >= stands.length or stands[f.stand].kind >= finds.length: false
         else:
             let s = stands[f.stand]
-            if s.left <= 0 or pack_room(m) <= 0 or (tick > f.since + TICK_HZ and dist2(u_tx[i], u_ty[i], f.x, f.y) > TILE * TILE): false
+            if s.left <= 0 or pack_room(m) <= 0:
+                // (done: back to the others, if they are a way off; the third agent playtest's pickers stayed where
+                // the stand had been and the band was in pieces, 2026-11-22)
+                forage_back(f.id)
+                false
+            elif tick > f.since + TICK_HZ and dist2(u_tx[i], u_ty[i], f.x, f.y) > TILE * TILE: false
             elif u_moving[i] == 1 or dist2(u_x[i], u_y[i], f.x, f.y) > TILE * TILE * 2: true
             else:
                 f.work += 10  // (it is called every ten ticks)

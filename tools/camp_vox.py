@@ -354,6 +354,156 @@ def hut():
     return m
 
 
+# ---- the village's houses ---------------------------------------------------------------------------------------
+def courses(m, rng, X, Y, z0, z1, t=0.5, dy=0.0):
+    """Four walls of coursed gneiss round a box X by Y (half sizes), from z0 to z1, the joints dark behind the stones."""
+    z = z0
+    while z < z1:
+        h = min(rng.uniform(0.12, 0.2), z1 - z)
+        for side in range(4):
+            along = X if side < 2 else Y
+            s = -along
+            while s < along:
+                w = rng.uniform(0.25, 0.6)
+                c = rng.choice([STONE, STONE2, STONE3, STONE, STONE2, ASH2])
+                a, b = s, min(s + w, along)
+                d = rng.uniform(-0.03, 0.03)
+                g = 1.0 / M
+                if side == 0: lo, hi = (a, -Y + d + dy, z), (b - g, -Y + t + dy, z + h - g)
+                elif side == 1: lo, hi = (a, Y - t, z), (b - g, Y + d, z + h - g)
+                elif side == 2: lo, hi = (-X + d, a + dy * (a < 0), z), (-X + t, b - g, z + h - g)
+                else: lo, hi = (X - t, a + dy * (a < 0), z), (X + d, b - g, z + h - g)
+                m.box(lo, hi, c)
+                s += w
+        z += h
+    m.box((-X + 0.03, -Y + 0.03 + dy, z0), (X - 0.03, Y - 0.03, z1), ASH, over=False)
+
+
+def slab_roof(m, rng, X, Y, Hw, Hr, ov, rows):
+    """A low gable roof of split gneiss slabs (the Rhodope 'tikli'), the ridge along x, each row lapping the one below."""
+    for side in (-1, 1):
+        for r in range(rows):
+            y0 = side * (Y + ov) * (1 - r / rows)
+            y1 = side * (Y + ov) * (1 - (r + 1.25) / rows)
+            z0 = Hw - 0.08 + (Hr - Hw + 0.08) * r / rows
+            z1 = Hw - 0.08 + (Hr - Hw + 0.08) * (r + 1.25) / rows
+            x = -X - ov
+            while x < X + ov:
+                w = rng.uniform(0.45, 0.95)
+                c = rng.choice([STONE2, STONE3, STONE, STONE2, ASH2, STONE])
+                xa, xb = x, min(x + w, X + ov)
+                lift = rng.uniform(-0.02, 0.04)
+                def slab(g, y0=y0, y1=y1, z0=z0, z1=z1, xa=xa, xb=xb, lift=lift):
+                    xx, yy, zz = g[..., 0], g[..., 1], g[..., 2]
+                    f = (yy - y0) / (y1 - y0)
+                    want = z0 + (z1 - z0) * f + lift
+                    return (xx >= xa) & (xx <= xb - 1.0 / M) & (f >= 0) & (f <= 1) & (zz >= want - 0.1) & (zz <= want)
+                m.put((xa, min(y0, y1), z0 - 0.15), (xb, max(y0, y1), z1 + 0.15), slab, c)
+                x += w
+    m.box((-X - ov, -0.16, Hr - 0.04), (X + ov, 0.16, Hr + 0.09), STONE3)
+
+
+def house(seed, X, Y, floors, bay):
+    """A house of the men's village, as the old houses of the Western Rhodope villages are (the village is made up;
+    Kovachevitsa is its model): "two, three and even four storeys", "the builders used stone and wood", roofs "covered
+    entirely in stone slates" (Radio Bulgaria, 30 Oct 2024); "the ground floor ... sheltering the domestic animals",
+    "the very residence was located on the upper one or two floors", "bow-windows overlooking the narrow cobblestone
+    streets", "from the stone foundations, up to the stone roof, covered in the famous stone plates 'tikli'"
+    (bulgarianproperties.com, 2007). So: coursed gneiss walls, a wide low door for the animals below, small windows
+    with wooden frames above, a timber bay standing out from the top storey on brackets, plastered white, a low slab
+    roof with wide eaves and a stone chimney. The plaster's white and the bay's depth are from photographs of the
+    village, not from the two texts. X, Y: half the footprint in metres; floors: the storeys' heights; bay: how wide
+    the bay is (0: none). The front is on -y."""
+    rng = random.Random(seed)
+    Hw = sum(floors)
+    Hr = Hw + Y * 0.42
+    ov = 0.55
+    m = Model(X + ov + 0.3, Y + ov + 0.9, Hr + 1.2)
+    courses(m, rng, X, Y, 0.0, Hw)
+    # the gable ends
+    for sx in (-1, 1):
+        def gable(g, sx=sx):
+            x, y, zz = g[..., 0], g[..., 1], g[..., 2]
+            return (np.abs(x - sx * (X - 0.25)) <= 0.25) & (zz >= Hw) & (zz <= Hw + (Hr - Hw) * (1 - np.abs(y) / Y) - 0.06)
+        m.put((sx * X - 0.5 if sx > 0 else sx * X, -Y, Hw), (sx * X if sx > 0 else sx * X + 0.5, Y, Hr), gable,
+              lambda g: np.where((np.floor(g[..., 2] * M / 5) + np.floor(g[..., 1] * M / 12)) % 3 == 0, STONE2, STONE))
+    # timber belts between the storeys (laid in the wall against earthquakes), all round
+    z = 0.0
+    for f in floors[:-1]:
+        z += f
+        m.box((-X - 0.02, -Y - 0.02, z - 0.07), (X + 0.02, Y + 0.02, z + 0.07), WOOD2)
+        m.box((-X + 0.5, -Y + 0.5, z - 0.07), (X - 0.5, Y - 0.5, z + 0.07), ASH)
+    # the door below: wide and low, of planks, a stone step
+    dx = -X * 0.35
+    m.box((dx - 0.75, -Y - 0.05, 0.0), (dx + 0.75, -Y + 0.3, 1.75), 0)
+    m.put((dx - 0.72, -Y + 0.1, 0.0), (dx + 0.72, -Y + 0.2, 1.72), lambda g: g[..., 0] > -1e9,
+          lambda g: np.where(np.floor(g[..., 0] * M / 4) % 2 == 0, WOOD, WOOD2))
+    m.box((dx - 0.95, -Y - 0.03, 1.75), (dx + 0.95, -Y + 0.3, 1.93), WOOD2)
+    m.box((dx - 0.9, -Y - 0.3, 0.0), (dx + 0.9, -Y + 0.02, 0.08), STONE3)
+    # windows: small, dark, wood round them; none on the ground floor but a slit
+    def window(x, y_face, z, w=0.42, h=0.62, front=True):
+        if front:
+            m.box((x - w / 2 - 0.07, y_face - 0.04, z - 0.07), (x + w / 2 + 0.07, y_face + 0.12, z + h + 0.07), WOOD2)
+            m.box((x - w / 2, y_face - 0.05, z), (x + w / 2, y_face + 0.14, z + h), INSIDE)
+            m.box((x - 0.02, y_face - 0.05, z), (x + 0.02, y_face + 0.02, z + h), WOOD2)
+        else:
+            m.box((y_face - 0.12, x - w / 2 - 0.07, z - 0.07), (y_face + 0.04, x + w / 2 + 0.07, z + h + 0.07), WOOD2)
+            m.box((y_face - 0.14, x - w / 2, z), (y_face + 0.05, x + w / 2, z + h), INSIDE)
+    m.box((X * 0.45 - 0.08, -Y - 0.05, 1.0), (X * 0.45 + 0.08, -Y + 0.12, 1.4), INSIDE)
+    z = floors[0]
+    for k, f in enumerate(floors[1:]):
+        top = k == len(floors) - 2
+        n = max(2, int(X * 2 / 1.9))
+        for i in range(n):
+            x = -X + (i + 0.5) * 2 * X / n
+            if top and bay and abs(x) < bay / 2 + 0.3: continue
+            window(x, -Y, z + f * 0.38)
+        for yy in (-Y * 0.4, Y * 0.35):
+            window(yy, X, z + f * 0.38, front=False)
+        z += f
+    # the bay: timber and plaster, out over the street on brackets, its own windows in a row
+    if bay:
+        z0 = Hw - floors[-1] + 0.05
+        out = 0.7
+        m.box((-bay / 2, -Y - out, z0), (bay / 2, -Y + 0.3, Hw - 0.02), WHITE)
+        m.box((-bay / 2 + 0.06, -Y - out + 0.06, z0 + 0.06), (bay / 2 - 0.06, -Y + 0.3, Hw - 0.08), ASH)
+        m.box((-bay / 2, -Y - out, z0), (bay / 2, -Y - out + 0.06, Hw - 0.02), WHITE)
+        m.box((-bay / 2 - 0.03, -Y - out - 0.03, z0 - 0.1), (bay / 2 + 0.03, -Y + 0.3, z0 + 0.04), WOOD2)
+        for sx in (-1, 1):
+            m.box((sx * bay / 2 - 0.05, -Y - out - 0.02, z0), (sx * bay / 2 + 0.05, -Y - out + 0.08, Hw), WOOD2)
+            m.capsule((sx * (bay / 2 - 0.15), -Y + 0.05, z0 - 0.75), (sx * (bay / 2 - 0.15), -Y - out + 0.05, z0 - 0.08), 0.06, 0.06, WOOD2)
+        nb = max(2, int(bay / 0.85))
+        for i in range(nb):
+            window(-bay / 2 + (i + 0.5) * bay / nb, -Y - out, z0 + floors[-1] * 0.33, w=0.4, h=0.7)
+        m.box((-bay / 2 - 0.02, -Y - out - 0.03, z0 + floors[-1] * 0.33 - 0.14), (bay / 2 + 0.02, -Y - out + 0.03, z0 + floors[-1] * 0.33 - 0.07), WOOD2)
+    # (hollow inside: only its faces are ever seen, and a solid house is five million voxels)
+    m.box((-X + 0.62, -Y + 0.62, 0.0), (X - 0.62, Y - 0.62, Hw - 0.1), 0)
+    slab_roof(m, rng, X, Y + (0.35 if bay else 0.0), Hw, Hr, ov, 9)
+    # the rafters' ends under the eaves
+    x = -X - ov + 0.2
+    while x < X + ov:
+        for sy in (-1, 1): m.box((x - 0.04, sy * (Y + ov) - 0.25 * (sy > 0), Hw - 0.2), (x + 0.04, sy * (Y + ov) + 0.25 * (sy < 0), Hw - 0.12), POLE2, over=False)
+        x += 0.6
+    # the chimney: a stone stack with a slab on four stones over it
+    cx, cy = X * 0.4, Y * 0.25
+    cz = Hw + (Hr - Hw) * (1 - cy / Y)
+    m.box((cx - 0.3, cy - 0.3, cz - 0.3), (cx + 0.3, cy + 0.3, cz + 0.9), STONE)
+    m.put((cx - 0.3, cy - 0.3, cz - 0.3), (cx + 0.3, cy + 0.3, cz + 0.9), lambda g: np.floor(g[..., 2] * M / 4) % 3 == 0, STONE2)
+    for sx in (-1, 1):
+        for sy in (-1, 1): m.box((cx + sx * 0.22 - 0.06, cy + sy * 0.22 - 0.06, cz + 0.9), (cx + sx * 0.22 + 0.06, cy + sy * 0.22 + 0.06, cz + 1.08), STONE2)
+    m.box((cx - 0.2, cy - 0.2, cz + 0.86), (cx + 0.2, cy + 0.2, cz + 0.92), CHAR)
+    m.box((cx - 0.42, cy - 0.42, cz + 1.08), (cx + 0.42, cy + 0.42, cz + 1.16), STONE3)
+    # (only the skin is kept: a voxel with all six neighbours solid is never seen)
+    s = m.v > 0
+    inner = np.zeros_like(s)
+    inner[1:-1, 1:-1, 1:-1] = s[1:-1, 1:-1, 1:-1] & s[:-2, 1:-1, 1:-1] & s[2:, 1:-1, 1:-1] & s[1:-1, :-2, 1:-1] & s[1:-1, 2:, 1:-1] & s[1:-1, 1:-1, :-2] & s[1:-1, 1:-1, 2:]
+    m.v[inner] = 0
+    return m
+
+
+HOUSES = [(41, 3.4, 3.0, (2.3, 2.2), 2.6), (42, 2.9, 2.8, (2.3, 2.1, 2.2), 2.2), (43, 3.6, 2.7, (2.2, 2.2), 0.0)]
+
+
 # ---- the horses and mules --------------------------------------------------------------------------------------
 COATS = {
     # coat, its shade (belly, legs), mane and tail, lower legs, muzzle
@@ -529,6 +679,7 @@ MULES = [("mule", "sacks"), ("mule_dun", "kegs"), ("bay", "baskets"), ("mule", "
 
 def models():
     out = [("tent_canvas", tent0()), ("tent_rugs", tent1()), ("fireplace", fireplace()), ("woodpile", woodpile()), ("hut", hut())]
+    for i, (seed, X, Y, floors, bay) in enumerate(HOUSES): out.append(("house_%d" % i, house(seed, X, Y, floors, bay)))
     for i, (coat, blanket) in enumerate(HORSES):
         m, s = animal(coat, False)
         riding_saddle(m, s, blanket)

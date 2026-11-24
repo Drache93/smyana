@@ -1,11 +1,11 @@
 #!/bin/sh
 # Smyana's lint: every Lobster file of ours is in lobsterfmt's layout, and our files compile with no warnings.
 #   src/lint.sh [--fix]    --fix writes the formatting (warnings are still yours to fix). Exit 1 on anything found.
-#   LOBSTER=<path to the lobster binary> (default ~/Dev/lobster/bin/lobster); lobsterfmt is beside it.
+#   Lobster as play.sh finds it (tools/lobster.sh), with lobsterfmt beside it.
 # Warnings in Creel's files are Creel's to fix (creel/check.sh), so only files under src/ count here.
 # "use `let` to declare x" doesn't count when another program assigns x (run_check.lobster doesn't see smyana.lobster set hour_force).
 cd "$(dirname "$0")" || exit 1
-LOBSTER="${LOBSTER:-$HOME/Dev/lobster/bin/lobster}"
+LOBSTER="$(../tools/lobster.sh fmt)" || exit 1
 LOBSTERFMT="${LOBSTERFMT:-$(dirname "$LOBSTER")/lobsterfmt}"
 PROGRAMS="smyana.lobster run_check.lobster"
 out="$(mktemp)"

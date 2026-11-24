@@ -119,13 +119,21 @@ def hunt_enter(place:string):
             // a path; the chamois anywhere off the trail, on their rocks; docs/off-the-path.md)
             var hx = -1
             var hy = -1
-            let at_end = kind != "chamois" and n_herd < side_paths.length
-            for(60) tries:
+            // ('by_trail': [from, to] tiles from where the men come in: this herd stands six to eight tiles off the
+            // trail there, where men walking the trail see it. The fifth first-time play met no animal in 21
+            // minutes: the village edge's deer were at the end of a side path nobody took. D-163)
+            let by_trail = glist(h, "by_trail")
+            let shown = by_trail.length == 2 and herd == 0 and trail_cells.length > 0
+            let at_end = not shown and kind != "chamois" and n_herd < side_paths.length
+            for(if shown: 240 else: 60) tries:
                 let hh = threat_hash(run_seed + herd * 7 + hk * 31, tries, leg_hash(place) + n_herd)
                 let ends = if at_end: side_paths[(n_herd + run_seed) % side_paths.length].cells else: []
                 let c = if at_end: ends[ends.length - 1] elif trail_cells.length: trail_cells[hh % trail_cells.length] else: hh % (W * H)
                 let a = float(hh / 7 % 360)
-                let r = float((if at_end: 1 + hh / 13 % 3 else: 8 + hh / 13 % 13) * TILE)
+                let r = float((if shown: 6 + hh / 13 % 3 elif at_end: 1 + hh / 13 % 3 else: 8 + hh / 13 % 13) * TILE)
+                if shown:
+                    let d = dist2((c % W) * TILE, (c / W) * TILE, mx, my)
+                    if d < sq(as_int(by_trail[0]) * TILE) or d > sq(as_int(by_trail[1]) * TILE): continue
                 let x, y = reachable_near(reach, (c % W) * TILE + TILE / 2 + int(cos(a) * r), (c / W) * TILE + TILE / 2 + int(sin(a) * r))
                 if hx < 0 and dist2(x, y, mx, my) > sq(20 * TILE) and x > 3 * TILE and y > 3 * TILE and x < (W - 3) * TILE and y < (H - 3) * TILE:
                     hx = x
@@ -302,7 +310,7 @@ def butcher_order(ids:[int], k:int) -> bool:
         if m and index_of(id) >= 0:
             butchers = filter(butchers) b: b.id != id
             butchers.push(Butcher { id, cc.uid, 0, since: tick })
-            issue_cmd(0, CMD_MOVE, [ id ], cc.x + (id % 3 - 1) * 400, cc.y + (id / 3 % 3 - 1) * 400, 0, 0)
+            send_men([ id ], cc.x + (id % 3 - 1) * 400, cc.y + (id / 3 % 3 - 1) * 400)
             sent = true
     return sent
 

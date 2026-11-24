@@ -907,3 +907,364 @@ bread, hungry, starving, "No way through there." when an order can't be followed
 screen until the first order is given; the word Paused; a word under a sign the mouse is on; a small ring at the
 screen's edge toward the men when none is in view (a click on it, Tab or F goes to them). The men's words are bigger and
 nearer their heads. All the words are Claude's placeholders and Dominic's to change.
+
+## D-145: the calm music turns with the light (2026-11-22)
+
+Claude, after two agent playtests: a calm track no longer always plays through. When the light's mood or the season
+turns, or a fire is lit at night, a track that has played half a minute fades over four seconds and the track for now
+begins (data/music.json "turn_min_s", "turn_fade_s", "turn_gap_s"). Still a swap of whole tracks, never a blend
+(D-042). Before, the dusk track came after dark and the fire's song an hour before dawn.
+
+## D-146: a man who has given up walking is helped on (2026-11-22)
+
+Claude: a man standing far from where he was sent, with Creel's stuck count at its limit three looks running, is stood
+on the walkable tile beside him nearest his goal and sent again (src/smyana/route.lobster, unstick_men). A safety net
+for a wedge on the gorge's ford that held a whole band for five days; the cause, in Creel's steering, is not found.
+
+## D-147: the forest has a sound (2026-11-23)
+
+Dominic, 2026-11-22: "I think biggest gap is music and sounds". Claude: six beds made from noise and sine waves like
+the guns (sound/forest.py: wind, small birds, crickets, rain, a stream, a fire), each a loop faded up and down by the
+season, the hour, the weather and what is in view, and five calls heard now and then (cuckoo in spring, woodpecker in
+summer, jay in autumn, raven in winter, an owl at night). Levels and timings in data/audio.json "forest". Made without
+being heard (a cloud session has no ears): measured and looked at as spectrograms only, so Dominic's ear is the test.
+
+## D-148: the men have a sound (2026-11-23)
+
+Claude: the men's feet are a bed like the forest's (leaves, snow where it lies, wading in a ford), as loud as the
+number walking in view, so twenty men are one sound. Single sounds as they happen: a low "hm" in answer to an order
+(not a word: the men's voices are not written yet), gathering, the knife, packs set down, a fire lit (sound/men.py;
+data/audio.json bus "Men"). And a volley is thinned in `hear` (src/smyana/heard.lobster): of one sound many times in a
+third of a second, the first three play and then one a tenth of a second, quieter. The third agent playtest counted
+seventeen booms in one second. Made unheard, like the forest's: Dominic's ear is the test.
+
+## D-149: water is bubbles, birds wander, a fire is its wood (2026-11-23)
+
+Dominic's ear on the first reels (2026-11-23): birds "robotic, like data"; the stream "sounds pretty weird"; the fire
+"super windy"; footsteps "cut a bit at high or low band"; wading "like pushing sand around". Claude's rules for the
+synthesised sounds from now on: water is made of bubbles and drops, with noise only as a faint spray; a bird's note
+never holds a clean pitch and birds are mostly far off with silences; a camp fire is cracks with almost no flame
+roar; a filtered noise never has a hard band edge or a hole in the middle. Wind, leaves and rain stay as they were.
+
+## D-150: the night runs on once every man is asleep (2026-11-23)
+
+The third agent playtest (2026-11-22) sat through about two minutes of dark at each camp with nothing to do and asked
+for a way to skip the night. Claude's call, with no button added (the UI stays minimal): once every living man in
+the place is asleep, the night's hours run at `asleep_speed` (route.json, 800: about twenty seconds for the rest of
+the night) in place of the night's usual 250. One man still up, on the road or lost in the dark holds it at 250, so
+bringing everyone in to the fire is what ends the night. The needs run on the clock, so a night costs and gives what
+it did. The day's length is left alone for now: the same playtest found the days too short for the walk, but that
+player's men were frozen or scattered for much of it; to be judged again from the fourth play.
+
+## D-151: a man leaves his block before a new order (2026-11-23)
+
+Two agent playtests (2026-11-22, 23) had most of the band answer an order ("hm") and stand still for a minute or two
+until Halt. Found by Claude in Creel's `commands.lobster`: a move to within five tiles of where a block of men was
+last sent is taken as the same order again and dropped (`block_same_order`), and that holds for a block that has
+arrived, or stands stopped in thick wood. Halt clears a man's block, which is why it freed them. Creel's rule suits a
+wide RTS map; here five tiles is most of the screen. Every walk order of ours now goes through `send_men`
+(route.lobster): a man who is standing, or whose block has arrived, or who is sent more than a tile and a half from
+its goal, leaves the block first. Creel itself is not changed. Not yet seen to cure it in a played run: the cause is
+read from the code, and the next agent play is the test.
+
+## D-152: quiet between the calm tracks again; the menu's own track; small honesty fixes (2026-11-23)
+
+From the fourth agent playtest, Claude's calls:
+
+- `gap_s` 1 to 70: Dominic said on 2026-11-13 "music should play in a loop for now", when the game had no other
+  sound. The forest has its own now (D-147), and the player heard the summer day's tune nine times in 22 minutes. A
+  turn of the light or a fire lit at night ends the quiet early. His to overturn.
+- The menu plays `24_menu`, which had never been played; it fades as the game starts.
+- The bread count takes in the men's own packs set down: setting them down brought "That is the last of the bread".
+- A dog rose that is only a bush answers a right click with a man's line (unripe in summer, stripped later): both
+  first-time players went to the red hips first and got nothing, nine clicks in the fourth play. The lines are
+  Claude's placeholders, with the rest of `says`.
+- A later morning still at the village edge, a man says which way again.
+
+## D-153: the sleeping night is the whole game run faster, not the clock (2026-11-23)
+
+Supersedes how D-150 does it, not what it is for. With only the clock run faster while the men slept, the test bot
+lost every man on seed 1 (twice) and brought 9 home on seed 2; three runs side by side on seed 1 found it: fast clock
+alone, nobody home; the new walk orders alone, 12 home; neither, 16. The game and what the wood gives come back by
+the sim's ticks, so a night with fewer ticks in it is a poorer country. Now, when every man is asleep at night, the
+whole sim runs at `asleep_speed` (400: four times) till one wakes or day comes: every night has the ticks it had,
+and the player waits a quarter of the time. The bot's own runs do not use it (they are already run fast). Claude.
+
+## D-154: summer day is a walking lute (2026-11-23)
+
+The second song through the design stage (D-073), and Claude's call throughout, since Dominic had said not to wait
+for him: the summer day track is a tambura tune at walking pace on G, with a kaval answering twice from far off, in
+place of the first draft's kaval running over a rocking lute. Chosen first for music draft 2 because it is the track
+a player hears first and most. Sheet: docs/music-design.md "Sheet: summer day". Unheard by anyone yet.
+
+## D-155: summer dusk is a fiddle that asks and is not answered (2026-11-23)
+
+The third song through the design stage, Claude's call, unheard: a gadulka alone on G, four slow phrases with long
+quiet after each, three of them ending away from home; no drone. In place of the first draft's fiddle running by
+steps over a bagpipe's drone. Sheet: docs/music-design.md "Sheet: summer dusk".
+
+## D-156: strawberries in sight of the start (2026-11-23)
+
+The stands of what the wood gives keep sixteen tiles from a place's gates, so at the village edge the nearest was
+thirty tiles on, and neither first-time player found one in twenty minutes or learned that gathering exists. The
+first place now grows one more stand of its first light-loving find (wild strawberries in summer) nine to fourteen
+tiles from where the men set out, just off the lane: it is on the opening screen, a man calls it out, and the pointer
+turns to the basket over it. Claude. Picture: `archive/images/2026-11-23/01-strawberries-on-the-opening-screen.png`.
+
+## D-157: autumn day is a call and its echo (2026-11-23)
+
+Dominic on the remade summer day and summer dusk, 2026-11-23 21:34: "Songs are good". So draft 2 goes on in that
+way, one song at a time, each Claude's call until he hears it. The fourth through the design stage: autumn day is a
+kaval calling across the valley and the men humming the call back, on E, with no drone. Sheet: docs/music-design.md
+"Sheet: autumn day".
+
+## D-158: autumn night is a fiddle that sinks (2026-11-23)
+
+The fifth song through the design stage, Claude's call, unheard: a low gadulka whose one line goes down a stair from
+B3 to E2 over the whole piece, a drone rising only under the last note. Sheet: docs/music-design.md "Sheet: autumn
+night".
+
+## D-159: winter day slows to nothing; on winter nights a man hums the song of home and cannot finish it (2026-11-23)
+
+The sixth and seventh songs through the design stage, Claude's calls, unheard. Winter day: a lute's single notes on
+D and A, the wait between them growing from 3.5 to 8.5 seconds, one far kaval phrase. Winter night: one man humming
+the main theme in three tries, each further, never reaching its last line, which is kept for the spring and the
+homecoming. The open sung voice is not used. Sheets: docs/music-design.md.
+
+## D-160: spring day is the summer's walk come back, with the song finished (2026-11-23)
+
+The eighth song through the design stage, Claude's call, unheard. The summer day's lute tune returns a fourth higher
+and quicker, and a low kaval plays the home song's third and fourth lines: the last line, which the winter night
+withheld (D-159), is heard here for the first time. Spring morning stays as it is: it is the tune Dominic himself
+heard as "spring or morning time" (2026-11-10). Sheet: docs/music-design.md "Sheet: spring day".
+
+## D-161: the fire song is made from its sheet: one man starts, the others answer (2026-11-23)
+
+The ninth song through the design stage, Claude's call, unheard. Made as the sheet of 2026-11-11 asked: four lines,
+each hummed by one man and then by all, a stick knocked on a log every four beats, no instrument. Added in the making:
+the last two lines once more by all the men together, slowing to a held low D. The first draft (the main theme hummed
+with no beat) is replaced. It is still the bench's hum, not men: real voices remain the wish for this track.
+
+## D-162: the Ottomans are a drum close by and a pipe far off (2026-11-23)
+
+The first danger track through the design stage, Claude's call, unheard. Dominic, 2026-11-11: "ottomans sounds too
+synth". The bench's zurna is a bare buzz and was in front; now their drum is close and dry and the pipe is only two
+far calls of long notes, darkened and mostly echo. The wide step of their scale is kept. A knock was added to the
+drum so that small speakers carry it. The other danger tracks (wary, hiding, beasts, bandits, chase) are not remade.
+
+## D-163: the first place has roe deer in sight of the trail (2026-11-23)
+
+Claude's call, from the fifth first-time play ("In 21 minutes nothing happened to me except walking and sleeping. No
+animal, no stranger, no choice"). The village edge's one herd was set at the end of a side path nobody took. Now a
+herd in data/hunting.json may have 'by_trail': it stands six to eight tiles off the trail, 24 to 34 tiles from where
+the men come in, and the village edge's herd (two or three roe, was one or two) is such a one. When the first game is
+both seen by the men and on the screen, one man names it and says how it is come at (Claude's placeholder words). On
+the first night, with a fire lit, wolves howl twice far off and a man says the fire keeps them away: nothing comes.
+The side paths' herds elsewhere are unchanged. This is a first answer only; Friday's work on the opening goes on.
+
+## D-164: the trailside deer are a second herd; the side path keeps its own (2026-11-23)
+
+Corrects D-163 the same night (Claude). With the village edge's only herd moved to the trail, the test bot, which
+looks for the first deer down the side path, found none and lost its early meat: 8 of 20 home on seed 1 and nobody on
+seed 2, twice. The herd down the side path is back as it was (one or two roe) and the deer by the trail are a second
+herd of two. With that the bot brings 14 and 15 of 20 home (seeds 1 and 2). The same seed with the old data gave 5
+home in one run and 17 in another: the bot's runs vary widely, more so when two run at once.
+
+## D-165: the first meeting with a patrol is certain (2026-11-24)
+
+Claude's call, after Dominic's "Just keep working. Just go until everything's done." (2026-11-24). The fifth first-time
+play met "no stranger, no choice" in 21 minutes; chance meetings were one place in four and never the first two. Now,
+if no patrol has been met, three zaptiye rest on the trail of the beech valley on the way out, fourteen to twenty
+tiles short of the gate the men leave by (data/threats.json meet.first). When the men come within sixteen tiles one of
+them says so (Claude's placeholder: "Zaptiye on the road ahead, resting. They have not seen us. Round through the
+trees, or wait till they ride on."), and the patrol rests three hours more and rides on ahead. So the first hour holds
+the game's own choice (Dominic, 2026-11-13: avoid a patrol, camp and wait them out): go round, wait, or fight three.
+
+## D-166: a click on ground the men cannot reach sends them to the nearest they can (2026-11-24)
+
+Claude's call. The fifth play was told "No way through there" five times at the village edge for rock ledges that did
+not read as walls. A walk order onto unwalkable ground now goes to the nearest ground the men can walk to, and the
+order's ring is drawn there. The ledges' look is unchanged.
+
+## D-167: the village is six stone houses by the lane, and the title screen looks back at them (2026-11-24)
+
+Claude's call, for Dominic's "Village is stretch goal so something to see leaving and returning to" (2026-11-22). Three
+house models (tools/camp_vox.py, house) from what the sources say of the old houses of the Western Rhodope villages:
+two and three storeys of stone and wood, the animals below and the family above, bow windows over the street, roofs
+of stone slabs (Radio Bulgaria, 30 Oct 2024; bulgarianproperties.com, 2007; quoted in the code). The white plaster of
+the bay and its depth are from photographs, not from those texts. Six houses stand on the village edge map west of
+the gate, two of them either side of the lane where the men set out, each on three tiles by three nobody walks
+through. The title screen's view sits four tiles back up the lane from the men so the houses are behind them. The
+village is not named and not entered. Found on the way: the view's "middle of the men" counted the deer and any patrol
+as men, so the title screen and the Tab key sat between the men and the deer; it counts the men only now.
+Also, to D-165: the first patrol does not put off the chance of a meeting in the next place.
+
+## D-168: the run ends over the village edge, not on a dark screen (2026-11-24)
+
+Claude's call, the other half of "something to see leaving and returning to". The last walk, down the lane, no longer
+unloads the place: the end's words ("Home.", who came back, what they carry) come up over the village edge as the men
+left it, the houses either side of them, the view going slowly to the gate, under a half veil. With nobody left alive
+the words stand on the dark as before. The years-later ending that shows what the knowledge built stays cut (plan,
+"What is cut first").
+
+## D-169: the macOS download is a zip built on GitHub, unsigned; credits and the AI disclosure written (2026-11-24)
+
+Claude's call, within Dominic's "macOS only ... Readme shows how easy it is to run" (2026-11-22). A workflow builds
+the Lobster fork at Creel's commit on a GitHub Mac, runs the route check, and zips the game with the binary and a
+Smyana.command to double-click (tools/package-macos.sh; the folder was run from a clean place on Linux first). It is
+not signed or notarised: the first start needs right-click, Open. CREDITS.md says who made what and is the AI
+disclosure. The letters and the end's words are set in the title's typeface (Old Standard), not Droid Sans. Not
+decided, and Dominic's: the repo's licence (there is none, so normal copyright applies for now).
+
+## D-170 (2026-11-24, Claude): the loaves and the walk between places say what they are
+
+Two things first-time players asked that the screen did not answer. The loaves beside the signs now show "Food for 4
+days" under them when the mouse is on them. And the letter between places has a line under it, "Three hours on the
+road. They come in after dark.", from the exit's hours and the hour of leaving: the fifth play (2026-11-23) lost an
+afternoon to the crossing and was told to make camp four seconds after arriving, with nothing to say the hours had
+been walked. The hours themselves are unchanged (they are part of the food and warmth balance). The macOS build runs
+on `macos-latest`: a `macos-14` job was cancelled the moment it started, three times, while a Linux job in the same
+run went through. Its first green run built Lobster, ran the route check on the Mac and uploaded `Smyana-macos`.
+
+## D-171 (2026-11-24, Claude): the wolves' and bear's track is the men's dance drum that keeps stopping
+
+Of the six danger tracks the game calls for only three (wary, the Ottomans, the beasts), so the beasts' track was the
+next to go through the design stage. Its first draft was nearly inaudible on small speakers (0.2% of its sound between
+600 and 1300 Hz), clicked at its seam, and used uneven groups of two and three, which the style research says belong
+to Thrace and the Shope country and not the Rhodopes. The new one (`music/pieces/song_12_beasts.py`, sheet in
+`docs/music-design.md`) is a plain hard 2/4 on the tapan at 152, six bars at a run and two of silence, with one low
+gadulka string scraped under three of the six eights. Claude's call throughout: Dominic has not heard it. Hiding,
+bandits and the chase are left as first drafts, since nothing in the game plays them.
+
+## D-172 (2026-11-24, Claude): smoke from the village's chimneys
+
+Each of the six houses at the village edge has a thread of pale smoke from its chimney, drawn in the lit world so the
+hour's light falls on it, leaning east with the wind. It is the cheapest sign that somebody is at home, on the title
+screen and behind the end's words. The chimney tops are worked out from the house models' own measures
+(`tools/camp_vox.py`), turned as each house is turned. There are still no people in the village.
+
+## D-173 (2026-11-24, Claude): the way on, and what else the sixth first-time play could not find
+
+The sixth agent play (`archive/playtests/2026-11-24-06-first-time-player.md`) never left the second place: it walked
+to the right of the screen, which is north-east on the map, met the rocks and spent twenty minutes lost. It met no
+deer and no patrol, because both are along the track it had left. So:
+
+- **The way on.** Coming into each place after the first, a man says the track goes on "that way", and for twenty
+  seconds a pale ring with the words "The way on" sits at the gate out, or at the screen's edge toward it. When the
+  men have been more than ten tiles off the track for a minute and a half of daylight (not camped), a man says they
+  have lost it and the ring comes back; not again for four minutes, since going off the track is what the wood is for
+  (Dominic, 2026-11-13). This is a mark on the screen, against "ideally no UI"; it is there twenty seconds at a time.
+- **The hut over the cliff.** A hut order now only sends men to ground they can walk to; with none, it is an ordinary
+  walk, which goes as near as it can, and no more "No way through there" under a flame pointer.
+- **The signs hold still** while the mouse is on or near them (under walking men they slid from under the click), and
+  the loaves' word and the men's words stay inside the screen.
+- **The seasons are said** by one of the men when they turn, and after the first order a line says that Tab brings
+  the view back to the men.
+- **The grunt at an order** comes at most every eight seconds ("I heard it about sixty times").
+
+The men's new lines are Claude's placeholders, like the rest. Not done from that report: the strawberries it could not
+find, the view following the men, rain and birdsong swapping within seconds, the fire song missing on some nights.
+
+## D-174 (2026-11-24, Claude): more meat on an animal and more in a cache
+
+Six runs of the test player on new seeds ended with 0, 1, 0 and 0 men home and two more starving on the way (the 14
+and 15 of D-164 were two lucky seeds). They ran out of food from the pass homeward every time. A day costs the band
+about 25 portions; a roe gave 24, a chamois 30, a boar 60, a cache 12 to 22. Now a roe gives 36, a chamois 44, a boar
+84 and a cache 20 to 32. The premise holds (food from hunting, caches and finds, never a wage). Four runs on the new
+numbers are going as this is written; the numbers stand or move by what they bring home.
+
+D-174, what it brought home (2026-11-24, later): on seeds 1, 2, 3 and 6 the test player came home with 12, 15, 13 and
+16 of 20 men, where seeds 1, 2, 3 and 6 had brought 0, 1, 0 and 0 before. The numbers stand.
+
+## D-175 (2026-11-24, Claude): out of the first place, and three things said
+
+The seventh first-time play (`archive/playtests/2026-11-24-07-first-time-player.md`, cut short at 8:45) walked the
+men through the first gate to the very edge of the map, where they stood in a row and nothing happened: a gate was a
+box of four tiles by eight, and they had gone past it. So:
+
+- **Past the gate is out.** The men leave a place when all of them are in its gate or beyond it toward the map's edge
+  (within eight tiles either side of it).
+- **The way on shows in the first place too**, for thirty seconds with "The lane runs east" and with each morning's
+  reminder there: east is down and to the right, and three players have now gone right.
+- **"No way up there from here. This is as near as we get."** when an order is moved more than three tiles to ground
+  the men can reach (D-166 moved it silently, and men at a cliff's foot looked like men who had stopped obeying).
+- **The hunt's end is said**: "One down. Send men to it with the knife, and the meat is ours." or "They are away. We
+  came on them too fast."
+
+Not done from that report: the view following the men, the deer that reads as a post, the hard-edged black shade
+under the trees by the cliff, men sitting at the fire, the hips line said twice, why the men go (the letters are
+Dominic's to write).
+
+## D-176 (2026-11-24, Claude): the view goes with the men
+
+Both of today's first-time players lost the men off the screen at every long order and had to find Tab. Now, after an
+order or Tab, the view eases after the men as they near its edge and keeps them in its middle part. Moving the view by
+hand (keys or the screen's edge) lets go of them until the next order or Tab, so looking around still works. The men's
+mark at the screen's edge stays for when they are out of sight.
+
+## D-177 (2026-11-24, Claude): Creel is pinned
+
+A fresh clone took Creel at its main (`git submodule update --init --remote` in the README and `play.sh`), and
+Creel's main has since gained a global `road` that clashes with names in Smyana, so a fresh clone did not build (found
+by the browser spike thread). Both now take the commit this repo pins (bc10f1c), which builds; the macOS workflow
+already did. Moving to a newer Creel is a deliberate step, with the names fixed in the same change.
+
+## D-178 (2026-11-24, Dominic's note, Claude's fix): the signs leave the screen's edge
+
+Dominic, playing: "the pointer showing where your guys are (off screen) is great. But their controls also follow you,
+so end up at the edge of the screen". The signs stay under the chosen men while that is well inside the screen;
+otherwise they sit at the foot of the screen in the middle. The men's mark at the edge is kept as it is.
+
+## D-179 (2026-11-24, Dominic's note, Claude's fix): no pointer for what is already done
+
+Dominic, playing: "i can right clich a hut to search it -> but after ive taken things from it, i can still right click
+it". A hut the men are camped in no longer shows the camp's pointer or takes the order again, and the ruins no longer
+show the scholar's pointer once the drain is learned. Which of the game's things he meant is not certain (asked).
+
+## D-180 (2026-11-24, Dominic's direction, Claude's build): the pack's sign opens the packs; hiding is done at a tree
+
+Dominic: "I feel "put the packs down" should open a modal so you see whats in it? ... so opening the pack to see what
+you have", and hiding "should be done via interaction menu with the place you're hiding it, not dumping it randomly".
+The sign and X open a small board: food and the days it lasts, the goods for home in the tally's own words, who knows
+the drain. It supersedes D-096's X that dropped the packs where the men stood. With the board open, a right click on an
+old tree sends the chosen men to its foot, where they put the packs down together, each keeping a day's food. It works
+only with the board open because old trees are everywhere and a right click by one must stay a walk order. The sign is
+always there now. The test player's own caches are unchanged.
+
+## D-181 (2026-11-24, Dominic's notes, Claude's build): the first ten minutes say what to do next
+
+Dominic, playing: "the guys say they're tired and hungry . What do i do next? is our final push planning little
+tutorial at the start?" No tutorial screen (the UI stays minimal): the men say it and one line at the foot of the
+screen names the sign or key, each once. The pointer (40 s in), the zoom (100 s), making camp when a third of the men
+are tired or hungry or the light goes, what the fire does once it is lit. One man's panel adds "Make camp: a fire, a
+meal and sleep will mend it." while he is worn and not in a camp. Also from the same note: + and - zoom as the wheel
+does and the view comes two steps closer; crowns thin over a camp's fire; the order's ring shows where a new camp is.
+The lines are placeholders by Claude until Dominic rewrites them.
+
+## D-182 (2026-11-24, Claude): what the eighth first-time play found
+
+It reached the third place in 32 minutes with all twenty men, the first play to do so
+(`archive/playtests/2026-11-24-08-first-time-player.md`). Fixed from its list: a camp is made in a hut only if the men
+can walk to it (the fire sign did nothing twice by the beech valley's hut over the cliff); the way on shows again each
+morning and when Tab finds the men; "They are away" is said only of game on the screen; a man says when a day's bread
+is left; the night is a little lighter and the men lifted more in it (exposure -0.62 to -0.5, unit_lift 0.7 to 1.0),
+which is a change to the look and is Dominic's to overrule. Not done: arriving at night, the patrol unseen, the wary
+music in the fir woods with nothing in sight, the place's name on arrival.
+
+## D-183 (2026-11-24, Claude): the score's tracks sit at one loudness for each kind
+
+Measured with ffmpeg's ebur128, the calm tracks were made between -23.2 and -26.6 LUFS, the wary track quieter than
+the calm ones it interrupts, and the end strokes up to -14.9. `data/music.json` "trim" now adds a few dB to each track
+when it plays: calm and the fire's song to -24.5, wary and hiding -23, the hunts -20, the strokes -17.5, the menu -25,
+the moments -21 (the homecoming only 2 dB down, left the loudest thing in the game). The files are as made. Nobody
+has heard this mix; it is by the meter, and Dominic's ear overrules it.
+
+## D-184 (2026-11-24, Dominic's direction, Claude's build): players run ./play.sh; no signed macOS app
+
+Dominic: "installing lobster should be automatic in our script", and of a macOS build, "or not, if it means signing,
+let them just run `./play.sh` ?" It does mean signing (an Apple Developer ID and notarisation, or every player is
+stopped by Gatekeeper), so the way to play is a clone and `./play.sh`. `tools/lobster.sh` finds a Lobster or fetches
+the fork at the commit in `creel/LOBSTER_VERSION` and builds it into `.lobster/`, and says what to install when git,
+cmake or a compiler is missing; `play.sh`, `check.sh`, the lint and the tools all use it. Tried from nothing on Linux
+here; the macOS workflow now gets its Lobster the same way, so the Mac path is tried on every change. The unsigned zip
+(D-169) stays as it costs nothing. The README's mock-up gives way to pictures from the game (`docs/pictures/`).

@@ -236,4 +236,38 @@ One line per moment worth remembering. Newest at the bottom.
   laid where nobody could reach it. Fixed, with a volley that takes more than one beast (D-140), twice the meat
   (D-141) and slower hunger: 11 and 12 of 20 men home on two seeds, the third stuck at a gate.
 - 2026-11-22 (evening): two agent playtests quit before ten minutes; first clarity fixes in (the men say the goal, Paused, sign labels, a mark toward the men), D-144.
+- 2026-11-23: the forest has a sound: wind, birds, crickets, rain, stream and fire beds, and five bird calls (D-147).
+- 2026-11-23 (morning): Dominic heard the reels; birds, stream, fire, footsteps and wading remade from his notes (D-149).
+- 2026-11-23 (afternoon): Dominic passed reel 2 but for the wading, remade from the stream's water.
+- 2026-11-23 (afternoon): the night runs on once every man is asleep (D-150); a fourth agent playtest sent out.
+- 2026-11-23 (evening): fourth agent playtest (22 minutes); men deaf to orders traced to Creel's blocks and worked round (D-151); quiet between tracks, the menu's track, the dog rose's line (D-152).
+- 2026-11-23 (night): music draft 2 begins: summer day remade as a walking lute through the design stage (D-154).
+- 2026-11-23 (night): summer dusk remade through the design stage (D-155).
+- 2026-11-23 (night): a strawberry patch in sight of the start, so gathering is learned in the first minute (D-156).
+- 2026-11-23 (late): fifth agent playtest reached the second place; a round of small fixes from it.
+- 2026-11-23 (late): Dominic: "Songs are good"; autumn day remade as a call and its echo (D-157).
+- 2026-11-23 (late): autumn night remade as a fiddle that sinks (D-158).
+- 2026-11-23 (late): the winter pair remade (D-159).
+- 2026-11-23 (late): spring day remade (D-160).
+- 2026-11-23 (late): the fire song made from its sheet, call and answer (D-161).
+- 2026-11-23 (late): the Ottomans remade as a close drum and a far pipe (D-162).
+- 2026-11-23 (late): roe deer in sight of the trail in the first place, far wolves on the first night (D-163).
+- 2026-11-23 (night): the trailside deer made a second herd after the test bot starved without the first (D-164).
+- 2026-11-24: Dominic: "Just keep working. Just go until everything's done."; a certain first patrol in the beech valley (D-165), clicks on ledges go to the nearest ground (D-166).
+- 2026-11-24: the village: six stone houses with slab roofs by the lane, seen on the title screen (D-167).
+- 2026-11-24: the run ends over the village edge with the houses in view (D-168).
+- 2026-11-24: a macOS build workflow, CREDITS.md with the AI disclosure, the letters in the title's typeface (D-169).
+- 2026-11-24: the loaves and the walk between places say what they are; the macOS build is green on GitHub (D-170).
+- 2026-11-24: the wolves' and bear's music remade through the design stage (D-171).
+- 2026-11-24: smoke from the village's chimneys (D-172).
+- 2026-11-24: the sixth first-time play got lost in the second place; a "way on" mark and line, and other fixes (D-173). More meat and bigger caches after six starved bot runs (D-174).
+- 2026-11-24: with D-174's food the test player brings 12 to 16 of 20 men home on four seeds; the rain's sound no longer flickers.
+- 2026-11-24: the seventh first-time play walked past the first gate to the map's edge; past the gate is now out, and the way on shows in the first place (D-175).
+- 2026-11-24: the view goes with the men after an order (D-176).
+- 2026-11-24: Dominic's first note from playing: the signs no longer end up at the screen's edge (D-178).
+- 2026-11-24: Dominic's notes from playing: the pack's sign opens the packs and hiding is done at an old tree (D-180); the men and a line on screen say what to do next, closer zoom, fires seen through crowns (D-181).
 - 2026-11-24: browser build spike: Smyana builds for WebAssembly and runs in a browser after four Lobster fixes (32-bit slots, folder listing, Ogg, asyncify); speed on a real GPU still to measure.
+- 2026-11-24: Dominic's own words on the name open the README and the itch.io page.
+- 2026-11-24: the eighth first-time play reached the third place with all twenty men; its camp, way-on, night and food notes fixed (D-182).
+- 2026-11-24: the score's tracks trimmed to one loudness for each kind, by the meter (D-183).
+- 2026-11-24: Dominic: players just run ./play.sh; it now fetches and builds Lobster itself, and the README shows the game (D-184).

@@ -85,7 +85,7 @@ def packs_fetch(ids:[int], k:int):
     for(ids) id, n:
         if man_of(id):
             fetchers.push(Fetch { id, p, since: tick })
-            issue_cmd(0, CMD_MOVE, [ id ], p.x + (n % 3 - 1) * 400, p.y + (n / 3 % 3 - 1) * 400, 0, 0)
+            send_men([ id ], p.x + (n % 3 - 1) * 400, p.y + (n / 3 % 3 - 1) * 400)
 
 // A man's pack where he fell (threats_on_death).
 def pack_falls(m:Man, x:int, y:int):

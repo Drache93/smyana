@@ -163,6 +163,20 @@ def winter_depth() -> int:
     let y = year_here() % 4000
     return if y < 2000: y / 2 else: (4000 - y) / 2
 
+// Men sent somewhere (every order of ours to walk goes through here). Creel walks men who are sent together as a
+// block, and a block told to go within five tiles of where it was last told is taken as "the same again" and the
+// order is dropped, even when the block has long arrived and stands there. In Creel's own game that spares a
+// re-shuffle; here five tiles is most of the screen, and it is why men answered and stood still till Halt (the third
+// and fourth agent playtests, 2026-11-22 and 23; D-151). So a man leaves his block before the order, unless he is
+// walking and it is to nearly the same spot.
+def send_men(ids:[int], x:int, y:int):
+    for(ids) id:
+        let i = index_of(id)
+        if i >= 0 and u_block[i] > 0:
+            let b = u_block[i] - 1
+            if u_moving[i] == 0 or fb_state[b] == BLOCK_THERE or dist2(fb_gx[b], fb_gy[b], x, y) > TILE * TILE * 2: u_block[i] = 0
+    issue_cmd(0, CMD_MOVE, ids, x, y, 0, 0)
+
 def ticks_per_hour() -> int: return gint(route, "day_minutes", 8) * 60 * TICK_HZ / 24
 
 // ---- the clock of the day (issue #13)
@@ -183,6 +197,16 @@ def is_night() -> bool:
     let ends = gint(n, "to", 5)
     let h = if hour_force >= 0.0: int(hour_force) else: (gint(route, "start_hour", 7) + clock_uh / 1000000) % 24
     return if falls > ends: h >= falls or h < ends else: h >= falls and h < ends
+
+// Every living man here is asleep (and there is one): the night has nothing in it to watch, and the game runs it
+// faster (D-150; the game's main loop).
+def all_asleep() -> bool:
+    var n = 0
+    for(men) m:
+        if m.alive and index_of(m.uid) >= 0:
+            if not is_asleep(m.uid): return false
+            n++
+    return n > 0
 
 def clock_tick():
     clock_uh += 1000000 / ticks_per_hour() * (if is_night(): gint(gobj(route, "night"), "speed", 100) else: 100) / 100
@@ -552,7 +576,7 @@ def walk_in(edge:string):
     let step = 7 * TILE
     let tx = cx + (if edge == "west": step elif edge == "east": -step else: 0)
     let ty = cy + (if edge == "north": step elif edge == "south": -step else: 0)
-    if ids.length: issue_cmd(0, CMD_MOVE, ids, tx, ty, 0, 0)
+    if ids.length: send_men(ids, tx, ty)
 
 // Each man's health and load as they are now, and who has died.
 def men_read():
@@ -592,7 +616,7 @@ def mend_bridge(ids:[int], k:int) -> bool:
 // A man walking with the others who has not moved for half a minute, far from where he was sent, is sent on by himself.
 // (2026-11-12, a playthrough: after the bear came into a night's camp, the man it mauled stood waiting on his block
 // and his block waited on him, so nobody could leave by the gate. Creel's block steering, sim side; this is the safety
-// net while that is found.) Every 200 ticks.
+// net while that is found.) Every 80 ticks.
 let unstick_d = dictionary<int, int>(32)      // a man's id: how far he was from where he was sent at the last look (tenths of a tile)
 let unstick_looks = dictionary<int, int>(32)  // how many looks running he has come no nearer
 def unstick_men():
@@ -607,7 +631,34 @@ def unstick_men():
             if n >= 3:
                 unstick_looks.set(m.uid, 0)
                 print "(unstick: man {m.uid} {d / 10} tiles from where he was sent and no nearer: sent on by himself)"
-                issue_cmd(0, CMD_MOVE, [ m.uid ], u_tx[i], u_ty[i], 0, 0)
+                send_men([ m.uid ], u_tx[i], u_ty[i])
+        elif u_moving[i] == 0 and d > 50 and u_stuck[i] >= STUCK_LIMIT and u_foe[i] == 0 and not is_asleep(m.uid):
+            // (2026-11-22, a playthrough: a man wedged on the first tile of the gorge's ford gave up every order to
+            // walk on, and the other twelve waited five days at the gate for him and starved. Given up on his way
+            // eight looks running, he is stood on the tile beside him that is nearest where he was going, and sent
+            // again. The cause is in Creel's steering, not found yet: D-146.)
+            let n = unstick_looks.get(m.uid, 0) + 1
+            unstick_looks.set(m.uid, n)
+            if n >= 8:
+                unstick_looks.set(m.uid, 0)
+                let cx = u_x[i] / TILE
+                let cy = u_y[i] / TILE
+                var best = -1
+                var best_d = dist2(u_x[i], u_y[i], u_tx[i], u_ty[i])
+                for(9) k:
+                    let x = cx + k % 3 - 1
+                    let y = cy + k / 3 - 1
+                    if x >= 0 and y >= 0 and x < W and y < H and walks[lane(i)][y * W + x] == 1:
+                        let far = dist2(x * TILE + TILE / 2, y * TILE + TILE / 2, u_tx[i], u_ty[i])
+                        if far < best_d:
+                            best_d = far
+                            best = y * W + x
+                if best >= 0:
+                    print "(unstick: man {m.uid} given up at {cx},{cy}, {d / 10} tiles from where he was sent: stood on {best % W},{best / W} and sent again)"
+                    u_x[i] = (best % W) * TILE + TILE / 2
+                    u_y[i] = (best / W) * TILE + TILE / 2
+                    u_stuck[i] = 0
+                    send_men([ m.uid ], u_tx[i], u_ty[i])
         else: unstick_looks.set(m.uid, 0)
         unstick_d.set(m.uid, d)
 
@@ -621,7 +672,9 @@ def route_tick() -> string:
     for(u_carry) n, i:
         if n > 0 and u_carry_kind[i] == spoil: u_carry[i] = 0
     if tick % 10 != 0 or run_over(): return ""
-    if tick % 200 == 0: unstick_men()
+    // (every four seconds, so a man held by his block is sent on in twelve: at ten it took half a minute and more, and
+    // the third agent playtest gave five orders to thirteen men who stood deaf until Halt, 2026-11-22)
+    if tick % 80 == 0: unstick_men()
     survival_tick()
     forage_tick()
     hunt_tick()
@@ -659,7 +712,11 @@ def route_tick() -> string:
                 let y = u_y[i] / TILE
                 var here = false
                 for(gate_rects) r, g:
-                    if in_rect(r, x, y):
+                    // (in the gate, or past it toward the map's edge: the seventh first-time play, 2026-11-24, sent
+                    // the men through the first gate to the very edge of the place, where they stood in a row
+                    // against the dark and nothing happened)
+                    let past = y >= r[1] - 8 and y <= r[3] + 8 and (if r[0] + r[2] > W: x > r[2] else: x < r[0])
+                    if in_rect(r, x, y) or past:
                         inside[g]++
                         here = true
                 if here: in_any++
