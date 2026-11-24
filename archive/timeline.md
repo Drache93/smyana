@@ -288,3 +288,4 @@ One line per moment worth remembering. Newest at the bottom.
 - 2026-11-24: the lane through the village is cobbled (D-199).
 - 2026-11-24: "They are away" no longer comes before or after a kill of the same chase (D-200).
 - 2026-11-24: the eleventh first-time play (the homecoming): the game now ends on its name, with the ending's music; two bots, 14 of 20 home and one band lost (D-202).
+- 2026-11-24: by the morning after the men are indoors (D-203).

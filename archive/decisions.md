@@ -1493,3 +1493,13 @@ Two bots played the whole run on this build. One brought 14 of 20 home through t
 twenty: in the pass one man was held up in the map's corner, the band stood at the gate in the winter cold for him for
 four and a half minutes of the run's clock, went on with no strength left and was cut down by the patrol. A man held
 up is now stood up to three tiles nearer where he was sent at a time, not one (`unstick_nudge`, route.lobster).
+
+## D-203 (2026-11-24, Claude): by the morning after, the men are indoors
+
+The eleventh first-time play: "The men stand scattered on the lane like statues with rifles still on their shoulders
+... The line 'took down their rifles again' plays over men who never put them away." The morning after is the next
+day, so the men are no longer on the lane: they are taken out of the picture behind the dark between the end's words
+and the morning, and the village is the women, the animals and the smoke
+(`archive/images/2026-11-24/21-the-morning-after-the-men-indoors.png`). The evening's walk up the lane is as it was.
+Also checked by playing the end again: when the homecoming's music is over the ending's begins, and the run's clock
+goes on after it (the agent's game had stopped there).

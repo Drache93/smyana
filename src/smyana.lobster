@@ -4537,6 +4537,13 @@ while gl.frame():
     if phase == "end" and script == "" and men_alive() > 0 and (phase_t > end_read_s() + 5.0 or (phase_t > 3.0 and (gl.button("mouse1") == 1 or gl.button("space") == 1 or gl.button("return") == 1))):
         hour_force = 8.5
         weather_force = "clear"
+        // (by the morning the men are indoors: stood on the lane with their rifles still on their shoulders they made
+        // the morning a still of the evening, the eleventh first-time play. Behind the dark between the two.)
+        for(u_id) id, i:
+            if man_of(id):
+                u_x[i] = (W - 4) * TILE
+                u_y[i] = 4 * TILE + (i % 8) * TILE
+                send_men([ id ], u_x[i], u_y[i])
         set_phase("after")
     if phase == "after":
         cam += (gp(9000.0, 51500.0) - cam) * min(1.0, dt * 0.1)
