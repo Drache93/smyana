@@ -269,3 +269,4 @@ One line per moment worth remembering. Newest at the bottom.
 - 2026-11-24: browser build spike: Smyana builds for WebAssembly and runs in a browser after four Lobster fixes (32-bit slots, folder listing, Ogg, asyncify); speed on a real GPU still to measure.
 - 2026-11-24: Dominic's own words on the name open the README and the itch.io page.
 - 2026-11-24: the eighth first-time play reached the third place with all twenty men; its camp, way-on, night and food notes fixed (D-182).
+- 2026-11-24: the score's tracks trimmed to one loudness for each kind, by the meter (D-183).

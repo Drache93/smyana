@@ -1250,3 +1250,11 @@ morning and when Tab finds the men; "They are away" is said only of game on the 
 is left; the night is a little lighter and the men lifted more in it (exposure -0.62 to -0.5, unit_lift 0.7 to 1.0),
 which is a change to the look and is Dominic's to overrule. Not done: arriving at night, the patrol unseen, the wary
 music in the fir woods with nothing in sight, the place's name on arrival.
+
+## D-183 (2026-11-24, Claude): the score's tracks sit at one loudness for each kind
+
+Measured with ffmpeg's ebur128, the calm tracks were made between -23.2 and -26.6 LUFS, the wary track quieter than
+the calm ones it interrupts, and the end strokes up to -14.9. `data/music.json` "trim" now adds a few dB to each track
+when it plays: calm and the fire's song to -24.5, wary and hiding -23, the hunts -20, the strokes -17.5, the menu -25,
+the moments -21 (the homecoming only 2 dB down, left the loudest thing in the game). The files are as made. Nobody
+has heard this mix; it is by the meter, and Dominic's ear overrules it.

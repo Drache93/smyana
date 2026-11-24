@@ -34,7 +34,11 @@ def score_load():
     score_wait = as_float(at(score_cfg, "first_wait_s"))
     volume_load()
 
-def score_volume() -> float: return db_to_volume(as_float(at(score_cfg, "db"))) * float(music_level) / 10.0
+// (each track's own trim on top, data/music.json "trim": the tracks were made a few dB apart, measured 2026-11-24)
+def score_volume() -> float:
+    let trims = gobj(score_cfg, "trim")
+    let trim = if score_track != "" and has(trims, score_track): as_float(at(trims, score_track)) else: 0.0
+    return db_to_volume(as_float(at(score_cfg, "db")) + trim) * float(music_level) / 10.0
 
 def score_stop(fade_s:float = 0.0):
     if score_id > 0:
