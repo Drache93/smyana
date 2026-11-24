@@ -1379,3 +1379,10 @@ tiles off, and a ring goes on it for half a minute, "Right click to go and look"
 (`archive/images/2026-11-24/12-a-man-points-off-the-track-in-the-morning.png`). He does not know of caches or huts:
 those are still found by going. The picture shows the ring's words lying on the foot's line of words; the ring is kept
 higher since. Dominic's to overrule, the words most of all.
+
+## D-195 (2026-11-24, Claude, from the tenth first-time play): a line said again is worded another way
+
+Six of the men's lines were heard twice or more, word for word. A line's key may now have other wordings beside it in
+`data/survival.json` ("<key>_more"); the first time it is said as written, and after that the others take turns. Given
+to seven lines: the light going, game down, game away, wolves following, the unripe and the bare rose bush, a hut
+seen. The words are Claude's, Dominic's to change.

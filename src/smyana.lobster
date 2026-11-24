@@ -3613,12 +3613,23 @@ var order_ids = []::int
 var order_from = float2_0
 var order_tick_no = 0
 
-def say_cfg(k:string) -> string: return gstr(sv_cfg("says"), k, "")
+// A line of the men's by its key. Said again, it is worded another way where the data has other wordings for it
+// ("<key>_more"): the tenth first-time play heard six lines twice or more, word for word (2026-11-24).
+let say_times = dictionary<string, int>(32)   // a key: how many times its line has been said
+let say_key = dictionary<string, string>(64)  // a wording: its key
+def say_cfg(k:string) -> string:
+    let more = gstrs(sv_cfg("says"), k + "_more")
+    let n = say_times.get(k, 0)
+    let text = if n == 0 or not more.length: gstr(sv_cfg("says"), k, "") else: more[(n - 1) % more.length]
+    say_key.set(text, k)
+    return text
 
 // One of the men says it: the first of `ids` who is there, else any man.
 def one_says(key:string, text:string, n:int):
     if text == "" or (find(said): _ == key) >= 0: return
     said.push(key)
+    let sk = say_key.get(text, "")
+    if sk != "": say_times.set(sk, say_times.get(sk, 0) + 1)
     let there = filter(men) m: m.alive and index_of(m.uid) >= 0
     // (one of the five nearest the middle of the view, so the words are where the player is looking: the third agent
     // playtest found them at the screen's corner, over a man at the edge of the band)
