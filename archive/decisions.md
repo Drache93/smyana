@@ -1503,3 +1503,11 @@ and the morning, and the village is the women, the animals and the smoke
 (`archive/images/2026-11-24/21-the-morning-after-the-men-indoors.png`). The evening's walk up the lane is as it was.
 Also checked by playing the end again: when the homecoming's music is over the ending's begins, and the run's clock
 goes on after it (the agent's game had stopped there).
+
+## D-204 (2026-11-24, Claude): a right click on "The way on" sends the men to the gate itself
+
+The eleventh first-time play crossed the last place by right clicking the ring at the picture's edge "over and over.
+Each click moved the men about a quarter of a screen, then they stood ... It took about 15 clicks to cross the map."
+The ring at the edge stands for the gate, as the ring on a find stands for the find (D-190), so a right click on it is
+now an order to the gate, the whole way. Played by hand: one click took the band across the last place to the lane.
+The view does not follow them; Tab brings it back, as before.

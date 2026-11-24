@@ -2032,6 +2032,7 @@ var pack_open = false
 var find_mark = float2_0  // art px
 var find_until = 0.0      // seen_s
 var find_word = ""
+var way_until = 0.0        // till when "The way on" and its ring show (seen_s)
 var find_milli = float2_0  // where it is on the map (thousandths of a tile), for a click on the ring itself
 var hide_ids = []::int     // the men on their way to hide their packs
 var hide_at = int2_0       // where, in sim units
@@ -2660,6 +2661,19 @@ def order_tick():
                     mark_at = gp(float(u_x[deer]), float(u_y[deer]))
                     mark_t = seen_s
                     return
+    // (and a right click on "The way on" at the picture's edge is an order to the gate itself, the whole way: the
+    // eleventh first-time play clicked the ring fifteen times to cross a place, each click a quarter of a screen)
+    if seen_s < way_until and mm == mouse_milli():
+        let ws = float(gl.window_size())
+        let exits = gobj(leg_now(), "exits")
+        for(gate_names) name, g:
+            if has(exits, name):
+                let r = gate_rects[g]
+                let gm = float2 { float(r[0] + r[2] + 1) * 500.0, float(r[1] + r[3] + 1) * 500.0 }
+                let d = to_screen(gp(gm.x, gm.y)) - ws / 2.0
+                let pad = ws.y * 0.07
+                let k = min((ws.x / 2.0 - pad) / max(abs(d.x), 1.0), (ws.y / 2.0 - pad) / max(abs(d.y), 1.0))
+                if k < 1.0 and magnitude(mouse_px() - (ws / 2.0 + d * k)) < ws.y * 0.06: mm = gm
     // (the packs open and an old tree under the mouse: hide the packs at its foot)
     let was_open = pack_open
     pack_open = false
@@ -3683,7 +3697,6 @@ def men_mark() -> float2:
 // says. There is no map, compass, path or signpost". East on the map is down and to the right on the screen, and it
 // had walked to the right. So: a man says where the track goes as they come into a place, and again when they have
 // been well off it for a minute and a half of daylight, and for twenty seconds a pale ring shows the way.
-var way_until = 0.0
 var still_since = 0.0  // since when no man has been walking (seen_s)
 var season_said = ""
 var rain_heard = false  // the rain is hard enough to hush the birds
