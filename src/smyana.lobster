@@ -2281,7 +2281,8 @@ var hunt_said_n = 0
 var camp_shot_at = -1000.0   // when a camp was last shot into and the men told (seen_s)
 var hunt_asked_at = -1000.0  // when the men were last sent after game (seen_s)
 var hunt_alarm = false
-var rose_asked = false  // a right click has just sent the men to a dog rose that is no stand
+var hunt_away_at = -1.0  // when "They are away" is to be said, by seen_s (-1: not)
+var rose_asked = false   // a right click has just sent the men to a dog rose that is no stand
 
 def march(ids:[int], x:int, y:int):
     let here = filter(ids) id: index_of(id) >= 0
@@ -3944,6 +3945,9 @@ def guide_tick():
     if game_shot > hunt_said_n:
         hunt_said_n = game_shot
         hunt_alarm = false
+        hunt_away_at = -1.0
+        // (and of this chase nothing more is said: "They are away" after "One down" read as the kill undone)
+        hunt_asked_at = -1000.0
         said.remove_obj("game down")
         one_says("game down", say_cfg("game_down"), 2)
     // (only of game the men were sent after in the last minute: the ninth first-time play was told "They are away" ten
@@ -3951,6 +3955,11 @@ def guide_tick():
     elif game_alarmed_seen() and seen_s - hunt_asked_at < 60.0: hunt_alarm = true
     elif hunt_alarm:
         hunt_alarm = false
+        hunt_away_at = seen_s + 6.0
+    // (said six seconds after the game settles, and not at all if one falls in them: the tenth first-time play was
+    // told "They are away" and then saw a deer drop to a shot already in the air)
+    elif hunt_away_at > 0.0 and seen_s >= hunt_away_at:
+        hunt_away_at = -1.0
         said.remove_obj("game away")
         one_says("game away", say_cfg("game_away"), 3)
     // the wary music's reason, said: wolves following, or a patrol that has noticed something (the eighth first-time

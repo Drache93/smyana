@@ -286,3 +286,4 @@ One line per moment worth remembering. Newest at the bottom.
 - 2026-11-24: the homecoming (the men walk up the lane, cold chimneys for the men lost) and the morning after (D-197).
 - 2026-11-24: women stand at the gates and the fountain, dressed from sources on the saya (D-198).
 - 2026-11-24: the lane through the village is cobbled (D-199).
+- 2026-11-24: "They are away" no longer comes before or after a kill of the same chase (D-200).

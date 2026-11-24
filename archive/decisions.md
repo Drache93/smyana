@@ -1451,3 +1451,10 @@ the lane between the yard walls and a third whose stones thin out where the lane
 stands, as the shadows themselves are. The ground's own shader is Creel's, so the cobbles are laid on it and not
 painted into it. A first try clipped the stones at the tile's edge and every tile's seam showed as a dark line: the
 stones now run whole a little past the edge.
+
+## D-200 (2026-11-24, Claude's build): "They are away" waits, and is not said of a chase that killed
+
+The tenth first-time play was told "They are away. We came on them too fast." and then a deer dropped: the herd had
+settled while a shot was still to land. And after "One down" the same chase could still end in "They are away", which
+read as the kill undone. Now the line waits six seconds after the game settles and is dropped if one falls in them,
+and a kill ends what is said of that chase (`hunt_away_at`, smyana.lobster).
