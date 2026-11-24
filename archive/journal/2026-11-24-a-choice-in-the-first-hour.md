@@ -39,3 +39,10 @@ is why the hand harness "lost the men" this morning.
 
 Not done: the houses do not change by season (no snow on the roofs), there is no smoke, no people, and the homecoming
 still ends on lines of text over whatever the view holds.
+
+## Home
+
+The end was a dark screen with lines of text. It is now the same lines over the village edge (D-168): the men stand
+at the gate between the houses. The test bot came in at night, so the first picture of it is dark:
+
+![Home, at night, over the village edge](../images/2026-11-24/02-home-at-night-over-the-village-edge.png)

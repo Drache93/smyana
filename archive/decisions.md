@@ -1098,3 +1098,11 @@ through. The title screen's view sits four tiles back up the lane from the men s
 village is not named and not entered. Found on the way: the view's "middle of the men" counted the deer and any patrol
 as men, so the title screen and the Tab key sat between the men and the deer; it counts the men only now.
 Also, to D-165: the first patrol does not put off the chance of a meeting in the next place.
+
+## D-168: the run ends over the village edge, not on a dark screen (2026-11-24)
+
+Claude's call, the other half of "something to see leaving and returning to". The last walk, down the lane, no longer
+unloads the place: the end's words ("Home.", who came back, what they carry) come up over the village edge as the men
+left it, the houses either side of them, the view going slowly to the gate, under a half veil. With nobody left alive
+the words stand on the dark as before. The years-later ending that shows what the knowledge built stays cut (plan,
+"What is cut first").

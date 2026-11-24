@@ -3710,10 +3710,17 @@ while gl.frame():
         ground_season_tick()
     if phase == "arriving" and phase_t >= 1.5: set_phase("play")
     if phase == "leaving" and phase_t >= 1.5:
+        let last = gbool(gobj(gobj(route, "legs"), gstr(exit_by(leave_edge), "to", "")), "end", false)
         route_leave(leave_edge)
-        letter = gstrs(gobj(route, "letters"), gstr(exit_by(leave_edge), "letter", ""))
-        letter_loaded = false
-        set_phase("letter")
+        if last:
+            // (the last walk, down the lane into the village: no letter and nothing to load. The village edge stays
+            // as it is behind the end's words, D-168)
+            set_phase("end")
+            score_moment("homecoming")
+        else:
+            letter = gstrs(gobj(route, "letters"), gstr(exit_by(leave_edge), "letter", ""))
+            letter_loaded = false
+            set_phase("letter")
     if phase == "letter":
         if not letter_loaded and phase_t > 0.3:  // (the letter is on the screen first: the load stops the picture for its length)
             load_next()
@@ -3742,6 +3749,12 @@ while gl.frame():
             draw_lines(letter, phase_t, int(float(gl.window_size().y) / 34.0))
             if letter_loaded and phase_t > 1.5: draw_go_on(phase_t - 1.5)
         elif phase == "end":
+            // (home: the words over the village edge, the view going slowly up the lane to the houses, D-168. With
+            // nobody left the words stand on the dark, where the last man fell.)
+            if men_alive() > 0 and gstr(su_map, "id", "") == "village_edge":
+                cam += (gp(10500.0, 51000.0) - cam) * min(1.0, dt * 0.35)
+                draw_world(acc / 0.05)
+                veil(1.0 - clamp(phase_t / 3.0, 0.0, 1.0) * 0.5)
             draw_lines(tally_lines(), phase_t, int(float(gl.window_size().y) / 30.0))
         else:
             draw_world(acc / 0.05)
@@ -3771,7 +3784,7 @@ while gl.frame():
             gl.set_font_size(16)
             gl.color(float4 { 1.0, 1.0, 1.0, 0.8 }):
                 gl.translate(float2 { 10.0, 8.0 }): gl.text("{leg_id}  {season_now()} {year_here()}  {int(hour_now())}h  {atmo_mood}  men {men_alive()}  {int(1.0 / max(dt, 0.001))} fps  {phase}")
-    if shot != "" and not shot_taken and (clock_s >= shot_at or (phase == "end" and phase_t > 5.0)) and (arg_of("in") == "" or arg_of("in") == phase or arg_of("in") == leg_id):
+    if shot != "" and not shot_taken and (clock_s >= shot_at or (phase == "end" and phase_t > (if script == "play": 1.8 else: 5.0))) and (arg_of("in") == "" or arg_of("in") == phase or arg_of("in") == leg_id):
         gl.screenshot(shot)
         shot_taken = true
         print "shot {shot} at {clock_s} s: {leg_id}, {phase}, tick {tick}"
