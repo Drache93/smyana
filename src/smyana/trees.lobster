@@ -223,7 +223,12 @@ def vox_tree_text() -> string:
     vox_tree_hash = vox_tree_text_now()
     return vox_tree_hash
 
+// The key is kept beside the baked pictures as well (baked/trees_key.txt, written whenever it changes here), so the
+// browser build (the "web" argument, tools/web/) can leave the 37 MB of models out of its download and take it from
+// there: its pictures are always the baked ones.
 def vox_tree_text_now() -> string:
+    let key_file = "{BAKE_DIR}/trees_key.txt"
+    if has_s(command_line_arguments(), "web"): return read_file(key_file) or ""
     var t = read_file("../art/trees/vox/feet.txt") or ""
     let names = tokenize(t, " \n", "")
     for(names.length / 3) i:
@@ -231,7 +236,9 @@ def vox_tree_text_now() -> string:
         // (each model's length and its last bytes, not a hash of all 28 MB: that took 0.7 s of every start; the tool
         // writes whole new files, so a changed tree changes these)
         for(files) f: t += "{f.length} {substring(f, max(0, f.length - 4096), min(4096, f.length))}"
-    return sha256_text(t)
+    let key = sha256_text(t)
+    if (read_file(key_file) or "") != key: write_file(key_file, key)
+    return key
 
 // leaves: the model's leaves alone, or its wood alone; whole: both (a sapling, one picture).
 def vox_tree(look:vglook, name:string, leaves:bool, cling:bool = false, whole:bool = false) -> vgrid:
