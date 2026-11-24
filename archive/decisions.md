@@ -1208,3 +1208,9 @@ A fresh clone took Creel at its main (`git submodule update --init --remote` in 
 Creel's main has since gained a global `road` that clashes with names in Smyana, so a fresh clone did not build (found
 by the browser spike thread). Both now take the commit this repo pins (bc10f1c), which builds; the macOS workflow
 already did. Moving to a newer Creel is a deliberate step, with the names fixed in the same change.
+
+## D-178 (2026-11-24, Dominic's note, Claude's fix): the signs leave the screen's edge
+
+Dominic, playing: "the pointer showing where your guys are (off screen) is great. But their controls also follow you,
+so end up at the edge of the screen". The signs stay under the chosen men while that is well inside the screen;
+otherwise they sit at the foot of the screen in the middle. The men's mark at the edge is kept as it is.

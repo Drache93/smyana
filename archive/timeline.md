@@ -264,3 +264,4 @@ One line per moment worth remembering. Newest at the bottom.
 - 2026-11-24: with D-174's food the test player brings 12 to 16 of 20 men home on four seeds; the rain's sound no longer flickers.
 - 2026-11-24: the seventh first-time play walked past the first gate to the map's edge; past the gate is now out, and the way on shows in the first place (D-175).
 - 2026-11-24: the view goes with the men after an order (D-176).
+- 2026-11-24: Dominic's first note from playing: the signs no longer end up at the screen's edge (D-178).

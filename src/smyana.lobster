@@ -2001,8 +2001,14 @@ def sign_boxes(n:int) -> [float3], float2:
         men_foot = max(men_foot, p.y)
     let loaves_w = 9.0 * k * float(clamp(bread_days(), 1, 8)) + gap
     let total = float(n) * side + float(max(0, n - 1)) * gap + gap * 2.0 + loaves_w
-    var x0 = clamp(sx / float(max(1, ids.length)) - total / 2.0, ws.y * 0.03, ws.x - ws.y * 0.03 - total)
-    var y0 = clamp(men_foot + 10.0 * k, ws.y * 0.08, ws.y - side - ws.y * 0.04)
+    var x0 = sx / float(max(1, ids.length)) - total / 2.0
+    var y0 = men_foot + 10.0 * k
+    // (with the men off the screen, or so near its edge that the signs would be pushed against it, the signs sit at
+    // the foot of the screen in the middle. Dominic, 2026-11-24: "their controls also follow you, so end up at the
+    // edge of the screen")
+    if x0 < ws.y * 0.03 or x0 > ws.x - ws.y * 0.03 - total or y0 < ws.y * 0.08 or y0 > ws.y - side - ws.y * 0.04:
+        x0 = ws.x / 2.0 - total / 2.0
+        y0 = ws.y * 0.86
     // (they stay where they are while the mouse is on or near them: under walking men they slid away from the click,
     // which then landed on the ground as an order, twice in the sixth first-time play, 2026-11-24)
     let m = mouse_px()
