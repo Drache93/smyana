@@ -1340,3 +1340,22 @@ The second round, four playthroughs on D-190's numbers (a missed supper takes 20
 came home. No run stopped: the man walking on the spot was moved on each time (`unstick_nudge`, 83 to 150 times a run,
 which says how often Creel's steering leaves a man behind, D-146). So a band that hunts and gathers comes home, most
 of it; a band that only walks does not. Kept as it is, Dominic's to overrule.
+
+## D-192 (2026-11-24, Claude, from the tenth first-time play): the way on stays, and a camp answers when shot at
+
+The tenth first-time play (`archive/playtests/2026-11-24-10-first-time-player.md`) said the first place now pulls a
+player off the road: the line about four days' bread, then a cache, a deer, strawberries and a hut within four
+minutes, each with a ring. After that it found these, and each is changed, Dominic's to overrule:
+- "The way on" was gone when it was wanted, the fifth play running to lose the track. It now stays on screen all day
+  while the men are out of camp. This is more on the screen than the rule of almost no interface likes; two words and
+  a ring at the edge.
+- A camp was shot into for a minute and nobody stirred. Now at the first shot one man says "They are shooting into
+  the camp! Up, and to the rifles!", a ring goes on whoever fired, the men are chosen and they fire back
+  (`archive/images/2026-11-24/10-a-camp-shot-into-wakes-and-fires-back.png`).
+- The men said "We should make camp", and nine seconds after the fire was lit they said there were zaptiye ahead.
+  Asked to make a new camp with zaptiye within 22 tiles, the men now say no and why, once, with a ring on the
+  zaptiye; asked again within half a minute they light it.
+- Two huts were walked to and neither took the camp: the men were given a minute to reach a hut. Now four.
+- A right click on the ring over game is a hunt, as a click on the deer is (it was a walk, and the herd ran).
+Not done, and noted: the fir woods' trunks hide the track and the men; the later places are quiet for minutes at a
+time; several lines repeat word for word; the clock jumps between places so a day can be two minutes' walk.

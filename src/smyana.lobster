@@ -2058,6 +2058,28 @@ def sign_under() -> int:
     for(boxes) b, j: if m.x >= b.x and m.x < b.x + b.z and m.y >= b.y and m.y < b.y + b.z: return what[j]
     return -1
 
+// Asked to make a new camp with unwary zaptiye within 22 tiles: the men say no, once; asked again within half a minute
+// they do it. (The tenth first-time play was told "We should make camp", lit the fire, was told of the zaptiye nine
+// seconds later, and was shot at in its sleep, 2026-11-24.)
+var camp_refused_at = -1000.0
+var camp_refused_say = false
+def camp_refused(ids:[int]) -> bool:
+    if camps_made() or seen_s - camp_refused_at < 30.0 or script != "": return false
+    for(patrols) pt:
+        for(patrol_alive(pt)) pid:
+            let j = index_of(pid)
+            for(ids) id:
+                let i = index_of(id)
+                if i >= 0 and dist2(u_x[i], u_y[i], u_x[j], u_y[j]) < sq(22 * TILE):
+                    camp_refused_at = seen_s
+                    camp_refused_say = true
+                    find_mark = gp(float(u_x[j]), float(u_y[j]))
+                    find_milli = float2 { float(u_x[j]), float(u_y[j]) }
+                    find_until = seen_s + 25.0
+                    find_word = "Zaptiye"
+                    return true
+    return false
+
 // A camp just ordered: the order's ring where its fire will be, so the place is seen even among trees.
 def camp_marked():
     if not sv_camps.length: return
@@ -2077,7 +2099,7 @@ def sign_order(what:int):
     if what == 0:
         // (a new camp lets the men go, so its signs are out of the way; putting a fire out or lighting it again
         // keeps them chosen for the order that follows, the third agent playtest, 2026-11-22)
-        if camp_order(ids):
+        if not camp_refused(ids) and camp_order(ids):
             selected = []
             camp_marked()
     elif what == 2: issue_cmd(0, CMD_STOP, ids, 0, 0, 0, 0)
@@ -2232,6 +2254,7 @@ var gathered_said = 0
 var far_howl_again = 0.0  // when the second far howl of the first night comes (watched seconds; 0: none due)
 var near_asked = false    // an order was moved to the nearest ground the men can reach
 var hunt_said_n = 0
+var camp_shot_at = -1000.0   // when a camp was last shot into and the men told (seen_s)
 var hunt_asked_at = -1000.0  // when the men were last sent after game (seen_s)
 var hunt_alarm = false
 var rose_asked = false  // a right click has just sent the men to a dog rose that is no stand
@@ -2569,7 +2592,7 @@ def order_tick():
     // C: make camp where the chosen men stand, or put its fire out, or light it again (docs/survival.md, #68)
     if gl.button("c") == 1 and selected.length:
         march_off(selected)
-        if camp_order(filter(selected) id: man_of(id) != nil): camp_marked()
+        if not camp_refused(selected) and camp_order(filter(selected) id: man_of(id) != nil): camp_marked()
         selected = []
     // X: open the packs, or close them (it put them down where the men stood before D-180)
     if gl.button("x") == 1 and selected.length: pack_open = not pack_open
@@ -2590,7 +2613,20 @@ def order_tick():
         let d = to_screen(find_mark) - ws / 2.0
         let pad = ws.y * 0.06
         let k = min((ws.x / 2.0 - pad) / max(abs(d.x), 1.0), (ws.y / 2.0 - pad) / max(abs(d.y), 1.0))
-        if k < 1.0 and magnitude(mouse_px() - (ws / 2.0 + d * k)) < ws.y * 0.06: mm = find_milli
+        if k < 1.0 and magnitude(mouse_px() - (ws / 2.0 + d * k)) < ws.y * 0.06:
+            mm = find_milli
+            // (the ring on game is a hunt, as a click on the deer is: the tenth first-time play clicked it, the men
+            // walked up to the herd, and it ran)
+            if find_word == "Right click to hunt":
+                var deer = -1
+                for(u_id) id, i:
+                    if game_of(id) >= 0 and (deer < 0 or dist2(u_x[i], u_y[i], int(mm.x), int(mm.y)) < dist2(u_x[deer], u_y[deer], int(mm.x), int(mm.y))): deer = i
+                if deer >= 0:
+                    hunt_order(ids, u_id[deer])
+                    hunt_asked_at = seen_s
+                    mark_at = gp(float(u_x[deer]), float(u_y[deer]))
+                    mark_t = seen_s
+                    return
     // (the packs open and an old tree under the mouse: hide the packs at its foot)
     let was_open = pack_open
     pack_open = false
@@ -3645,6 +3681,10 @@ def way_tick():
     // (and again each morning, and whenever Tab finds the men: the eighth first-time play had the ring on arriving in
     // the dark and never again, and was lost for three minutes after going round a patrol, 2026-11-24)
     if gl.button("tab") == 1: way_until = max(way_until, seen_s + 12.0)
+    // (and all day out of camp: the tenth first-time play lost the track for three and a half minutes in the fir
+    // woods with the ring gone, the fifth play in a row to lose it. Two words at the screen's edge, Dominic's to
+    // overrule.)
+    if not is_night() and not camps_made() and not paused and leg_id != "": way_until = max(way_until, seen_s + 2.0)
     // (and whenever the men have stood still a few seconds by day, out of camp: a player who has stopped is a player
     // working out where to go. Four first-time plays in a row lost the way once the ring had gone.)
     var walking = false
@@ -3777,6 +3817,10 @@ def guide_tick():
     if food_gathered > gathered_said and not foragers.length:
         gathered_said = food_gathered
         one_says("gathered {food_gathered}", say_cfg("gathered"), 2)
+    if camp_refused_say:
+        camp_refused_say = false
+        said.remove_obj("camp near")
+        one_says("camp near", say_cfg("camp_near"), 0)
     // dark, and no camp: the men will not walk on blind
     if first_say:
         first_say = false
@@ -4272,6 +4316,22 @@ while gl.frame():
             // (the patrols hear the shots and think; where each ball landed, and Creel's own misses, a shot whose
             // target had moved off the spot)
             threats_after_step(fired)
+            // (a camp shot into: the men are up at the first shot (survival_heard_shot); one of them says so, a
+            // ring goes on whoever fired, the men are chosen and they fire back. The tenth first-time play's camp
+            // was shot at for a minute and nobody stirred, 2026-11-24)
+            if script == "" and phase == "play" and camps_made() and seen_s - camp_shot_at > 45.0:
+                for(fired) id:
+                    let i = index_of(id)
+                    if i >= 0 and not man_of(id) and man_of(u_foe[i]) and seen_s - camp_shot_at > 45.0:
+                        camp_shot_at = seen_s
+                        said.remove_obj("camp shot")
+                        one_says("camp shot", say_cfg("camp_shot"), 0)
+                        find_mark = gp(float(u_x[i]), float(u_y[i]))
+                        find_milli = float2 { float(u_x[i]), float(u_y[i]) }
+                        find_until = seen_s + 20.0
+                        find_word = "Zaptiye"
+                        selected = filter(u_id) mid: man_of(mid) != nil
+                        guns_order(selected, id)
             ambush_tick()
             let snow = snow_lying() > 300
             for(threats_landed()) l:

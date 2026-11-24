@@ -35,7 +35,9 @@
   "game_away": "They are away. We came on them too fast.",
   "patrol_ahead": "Zaptiye on the road ahead, resting. They have not seen us. Round through the trees, or wait till they ride on.",
   "followed": "We are followed. Wolves, keeping their distance. Stay together, and keep a fire at night.",
-  "patrol_wary": "The zaptiye have noticed something. Off the road, into the trees, and keep still.",
+  "camp_shot": "They are shooting into the camp! Up, and to the rifles!",
+ "camp_near": "Not here. There are zaptiye close by, and a fire would bring them. Further off, in the trees. Or ask again, and we light it.",
+ "patrol_wary": "The zaptiye have noticed something. Off the road, into the trees, and keep still.",
   "first_howl": "Wolves. A long way off yet. They keep clear of a fire."
  },
  "fed": {

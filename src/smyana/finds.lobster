@@ -135,14 +135,15 @@ def hut_order(ids:[int], hut:int) -> bool:
         send_men([ id ], (o % W) * TILE + 200 + (n * 137) % 600, (o / W) * TILE + 200 + (n * 251) % 600)
     return true
 
-// Every ten sim ticks (route_tick): the men sent to a hut make camp in it as they get there; given up in a minute or
+// Every ten sim ticks (route_tick): the men sent to a hut make camp in it as they get there; given up in four minutes (a
+// minute was too few for a hut twelve tiles off: the tenth first-time play walked to two and neither took, 2026-11-24) or
 // when sent elsewhere.
 def finds_tick():
     if hut_goal < 0: return
     let hx = (hut_goal % W) * TILE + TILE / 2
     let hy = (hut_goal / W) * TILE + TILE / 2
     let here = filter(hut_goers) id: index_of(id) >= 0
-    if not here.length or tick - hut_sent > 60 * TICK_HZ or (find(huts) c: c == hut_goal) < 0:
+    if not here.length or tick - hut_sent > 240 * TICK_HZ or (find(huts) c: c == hut_goal) < 0:
         hut_goal = -1
         return
     if (find(here) id: dist2(u_x[index_of(id)], u_y[index_of(id)], hx, hy) <= sq(3 * TILE)) >= 0:
