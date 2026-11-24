@@ -2506,6 +2506,7 @@ def patch_under(mm:float2) -> int:
 // The music turns with the threats (docs/threats.md): wary, then the hunting threat's own loop; when it is over, the
 // end stroke and quiet, or the lament if a man fell in it (#64).
 var danger_was = ""
+var danger_told = ""   // the danger the men last spoke of
 var danger_killed = 0  // men_killed when it began
 def danger_tick():
     if music_arg != "": return
@@ -3729,6 +3730,13 @@ def guide_tick():
         hunt_alarm = false
         said.remove_obj("game away")
         one_says("game away", say_cfg("game_away"), 3)
+    // the wary music's reason, said: wolves following, or a patrol that has noticed something (the eighth first-time
+    // play heard the wary track through a whole night in the fir woods and never knew what the danger was)
+    if danger_was == "wary" and danger_told != "wary":
+        let wolves = (find(packs) pk: pk.state == W_FOLLOW and pack_alive(pk).length > 0) >= 0
+        said.remove_obj("wary")
+        one_says("wary", say_cfg(if wolves: "followed" else: "patrol_wary"), 2)
+    danger_told = danger_was
     hide_tick()
     if near_asked:
         near_asked = false
