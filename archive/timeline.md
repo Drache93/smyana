@@ -272,3 +272,4 @@ One line per moment worth remembering. Newest at the bottom.
 - 2026-11-24: the score's tracks trimmed to one loudness for each kind, by the meter (D-183).
 - 2026-11-24: Dominic: players just run ./play.sh; it now fetches and builds Lobster itself, and the README shows the game (D-184).
 - 2026-11-24: Dominic chose the GPL, version 3; LICENSE added (D-185).
+- 2026-11-24: Dominic: "fallen trees over the cliff?"; fallen trunks keep two tiles from any step in the ground.

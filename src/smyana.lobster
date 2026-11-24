@@ -357,7 +357,15 @@ def build_props():
                 let sp = if wood == "oak": (if r < 6: "oak" else: "hornbeam") elif wood == "beech": (if r < 5: "beech" elif r < 8: "oak" else: "hornbeam") else: (if r < 4: "spruce" elif r < 7: "fir" else: "beech")
                 props.push(Prop { 5, 0, "sapling_" + sp, "", centre, c })
             if (h2 / 100) % 100 < 6: props.push(Prop { 5, 0, "bush{h2 % BUSH_KINDS}", "", centre + iso(float((h2 / 13) % 600) - 300.0, float((h2 / 19) % 600) - 300.0), c })
-            elif (h2 / 100) % 100 == 99: props.push(Prop { 6, 0, "log{h2 % LOG_KINDS}", "", centre, c })
+            elif (h2 / 100) % 100 == 99:
+                // (not where the ground steps up or down within two tiles: a trunk lay across a ledge's edge and
+                // hung out over the drop. Dominic, playing, 2026-11-24: "fallen trees over the cliff?")
+                var flat = true
+                for(25) k:
+                    let x = c % W + k % 5 - 2
+                    let y = c / W + k / 5 - 2
+                    if x >= 0 and y >= 0 and x < W and y < H and level[y * W + x] != level[c]: flat = false
+                if flat: props.push(Prop { 6, 0, "log{h2 % LOG_KINDS}", "", centre, c })
     // the camp, where the place has one laid out ("camp": [name, x, y in milli-tiles] each: the tents, the woodpile,
     // the horses and the mules; the fireplace comes with the fire): nothing grows under it
     let camp = glist(su_map, "camp")
