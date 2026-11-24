@@ -2629,8 +2629,8 @@ def order_tick():
         let d = to_screen(find_mark) - ws / 2.0
         let pad = ws.y * 0.06
         let k = min((ws.x / 2.0 - pad) / max(abs(d.x), 1.0), (ws.y / 2.0 - pad) / max(abs(d.y), 1.0))
-        let ring = ws / 2.0 + d * k
-        if k < 1.0 and magnitude(mouse_px() - float2 { ring.x, min(ring.y, ws.y * 0.8) }) < ws.y * 0.06:
+        let ring_at = ws / 2.0 + d * k
+        if k < 1.0 and magnitude(mouse_px() - float2 { ring_at.x, min(ring_at.y, ws.y * 0.8) }) < ws.y * 0.06:
             mm = find_milli
             // (the ring on game is a hunt, as a click on the deer is: the tenth first-time play clicked it, the men
             // walked up to the herd, and it ran)
