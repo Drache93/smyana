@@ -3472,6 +3472,7 @@ def men_mark() -> float2:
 // been well off it for a minute and a half of daylight, and for twenty seconds a pale ring shows the way.
 var way_until = 0.0
 var season_said = ""
+var rain_heard = false  // the rain is hard enough to hush the birds
 var amb_ack_s = -100.0  // when a man last grunted at an order
 var off_trail_s = 0.0
 var off_trail_at = 0.0
@@ -3683,7 +3684,10 @@ def ambience_tick(dt:float):
     let kind, hard = weather_now()
     let night = is_night()
     let h = hour_now()
-    let raining = kind == "rain" and hard > 150
+    // (with a gap between starting and stopping: at one line the birds and the rain swapped every few seconds as a
+    // shower came on, the sixth first-time play, 2026-11-24)
+    rain_heard = kind == "rain" and hard > (if rain_heard: 100 else: 220)
+    let raining = rain_heard
     // the wind: a little always, more as it blows, more over snow and bare boughs
     bed_want(BED_WIND, 0.3 + float(wind_now()) / 1000.0 * 0.7 + (if season == "winter": 0.2 else: 0.0))
     // small birds: by day, a chorus at first light, quiet by dusk; most in spring, few in winter, none in hard rain

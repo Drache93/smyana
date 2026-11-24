@@ -1172,3 +1172,6 @@ and 15 of D-164 were two lucky seeds). They ran out of food from the pass homewa
 about 25 portions; a roe gave 24, a chamois 30, a boar 60, a cache 12 to 22. Now a roe gives 36, a chamois 44, a boar
 84 and a cache 20 to 32. The premise holds (food from hunting, caches and finds, never a wage). Four runs on the new
 numbers are going as this is written; the numbers stand or move by what they bring home.
+
+D-174, what it brought home (2026-11-24, later): on seeds 1, 2, 3 and 6 the test player came home with 12, 15, 13 and
+16 of 20 men, where seeds 1, 2, 3 and 6 had brought 0, 1, 0 and 0 before. The numbers stand.
