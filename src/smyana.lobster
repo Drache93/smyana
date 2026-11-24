@@ -2486,6 +2486,12 @@ def draw_title(a:float, items:float) -> int:
     if items > 0.0:
         let m = mouse_px()
         let size = int(ws.y / 26.0)
+        // (a band of shade behind the words: "Start" lay pale on the men themselves, the eleventh first-time play)
+        let top = ws.y * 0.66 - float(size) * 0.6
+        let tall = float(MENU_ITEMS.length) * float(size) * 2.0 + float(size) * 0.4
+        for(6) k:
+            let grow = float(k) * float(size) * 0.22
+            gl.color(float4 { 0.02, 0.02, 0.015, 0.09 * items }): gl.translate(float2 { 0.0, top - grow }): gl.rect(float2 { ws.x, tall + grow * 2.0 })
         for(MENU_ITEMS) t, i:
             let y = ws.y * 0.66 + float(i) * float(size) * 2.0
             gl.set_font_size(size)

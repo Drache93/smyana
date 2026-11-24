@@ -1518,3 +1518,9 @@ The eleventh first-time play: "Arrival is abrupt. Control is taken with no word.
 would help." Coming home, when the band is within thirty tiles of the village's end of the map, one man says once:
 "Smoke over the trees. Those are our own chimneys." (`home_seen`, data/survival.json). The words are Claude's and are
 Dominic's to rewrite.
+
+## D-206 (2026-11-24, Claude): the menu's words on a band of shade
+
+The eleventh first-time play: "'Start' and 'Quit' are small, pale, and drawn over the men; 'Start' sits on top of a
+man." The menu's words now stand on the same soft band of shade as the morning after's
+(`archive/images/2026-11-24/22-the-title-over-the-village.jpg`, also the README's title picture).
