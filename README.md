@@ -21,7 +21,7 @@ come home. The
 plan for the last days is in [`docs/final-push.md`](docs/final-push.md).
 
 ```sh
-git submodule update --init --remote   # the Creel engine, at its main
+git submodule update --init   # the Creel engine, at the commit this repo pins
 ./play.sh                     # the game (windowed: ./play.sh windowed)
 ./check.sh                    # the checks, with no window: lint, then the whole route
 src/lint.sh --fix             # lobsterfmt's layout for every file of ours (lint lists warnings too)

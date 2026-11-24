@@ -1201,3 +1201,10 @@ Both of today's first-time players lost the men off the screen at every long ord
 order or Tab, the view eases after the men as they near its edge and keeps them in its middle part. Moving the view by
 hand (keys or the screen's edge) lets go of them until the next order or Tab, so looking around still works. The men's
 mark at the screen's edge stays for when they are out of sight.
+
+## D-177 (2026-11-24, Claude): Creel is pinned
+
+A fresh clone took Creel at its main (`git submodule update --init --remote` in the README and `play.sh`), and
+Creel's main has since gained a global `road` that clashes with names in Smyana, so a fresh clone did not build (found
+by the browser spike thread). Both now take the commit this repo pins (bc10f1c), which builds; the macOS workflow
+already did. Moving to a newer Creel is a deliberate step, with the names fixed in the same change.
