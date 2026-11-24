@@ -2002,6 +2002,12 @@ var sign_held = float3_0  // where the signs last sat (x, y; z: 1 once they have
 // sends the chosen men to hide their packs at its foot. Dominic, 2026-11-24: "opening the pack to see what you have",
 // and hiding "should be done via interaction menu with the place you're hiding it, not dumping it randomly". D-180)
 var pack_open = false
+// (what a man has just called out, a stand of fruit, game, a hut: a small ring on it for a few seconds, at the screen's
+// edge if it is out of view, so the call can be followed. Dominic, 2026-11-24: "feels too easy to just walk forward on
+// the first map"; four first-time plays heard "Strawberries!" and never found them. D-189)
+var find_mark = float2_0  // art px
+var find_until = 0.0      // seen_s
+var find_word = ""
 var hide_ids = []::int  // the men on their way to hide their packs
 var hide_at = int2_0    // where, in sim units
 var hide_until = 0.0    // and till when they keep trying (seen_s)
@@ -2338,7 +2344,11 @@ def man_says(uid:int, text:string):
 
 def draw_speech():
     let k, uid = stand_seen()
-    if k >= 0: man_says(uid, gstr(forage_finds()[stands[k].kind], "call", ""))
+    if k >= 0:
+        man_says(uid, gstr(forage_finds()[stands[k].kind], "call", ""))
+        find_mark = gp(float((stands[k].cell % W) * 1000 + 500), float((stands[k].cell / W) * 1000 + 500))
+        find_until = seen_s + 16.0
+        find_word = "Right click to gather"
     let now = seen_s
     speech = filter(speech) sp: sp.until > now and sp.text != "" and index_of(sp.id) >= 0
     if not speech.length: return
@@ -3701,6 +3711,29 @@ def guide_tick():
     if day >= 1 and hour_now() >= 6.0 and hour_now() < 9.0 and not is_night() and (find(said): _ == "way day {day}") < 0:
         said.push("way day {day}")
         way_until = max(way_until, seen_s + 30.0)
+    // a hut within a morning's stroll of the men, not yet spoken of: one of them points it out
+    if not is_night():
+        for(huts) hc, hk:
+            let key = "hut {leg_id} {hk}"
+            if (find(said): _ == key) < 0:
+                var near = false
+                for(u_id) id, i: if man_of(id) and dist2(u_x[i], u_y[i], (hc % W) * TILE, (hc / W) * TILE) < sq(14 * TILE): near = true
+                if near:
+                    one_says(key, say_cfg("hut_seen"), 1)
+                    find_mark = gp(float((hc % W) * 1000 + 500), float((hc / W) * 1000 + 500))
+                    find_until = seen_s + 16.0
+                    find_word = "A hut"
+        // (and a cache under its stones, or wild bees in a hollow trunk)
+        for(piles) pl:
+            let key = "pile {leg_id} {pl.x} {pl.y}"
+            if pl.kind != 0 and (find(said): _ == key) < 0:
+                var near = false
+                for(u_id) id, i: if man_of(id) and dist2(u_x[i], u_y[i], pl.x, pl.y) < sq(12 * TILE): near = true
+                if near:
+                    one_says(key, say_cfg(if pl.kind == PILE_HONEY: "honey_seen" else: "cache_seen"), 2)
+                    find_mark = gp(float(pl.x), float(pl.y))
+                    find_until = seen_s + 16.0
+                    find_word = "Right click to take"
     // the opening: where the road goes, and what the year is for
     let opening = gstrs(sv_cfg("says"), "opening")
     if open_n < opening.length and phase_t > 2.0 + float(open_n * gint(sv_cfg("says"), "opening_s", 7)) and leg_id == gstr(route, "start", ""):
@@ -3738,7 +3771,11 @@ def guide_tick():
             if g.state != G_DEAD and i >= 0 and (find(said): _ == "first game") < 0 and men_see(i):
                 // (and the player can: the words wait till the game is well inside the picture)
                 let s = to_screen(gp(float(u_x[i]), float(u_y[i])))
-                if s.x > ws.x * 0.08 and s.y > ws.y * 0.1 and s.x < ws.x * 0.92 and s.y < ws.y * 0.9: one_says("first game", say_cfg("first_game"), 2)
+                if s.x > ws.x * 0.08 and s.y > ws.y * 0.1 and s.x < ws.x * 0.92 and s.y < ws.y * 0.9:
+                    one_says("first game", say_cfg("first_game"), 2)
+                    find_mark = gp(float(u_x[i]), float(u_y[i]))
+                    find_until = seen_s + 10.0
+                    find_word = "Right click to hunt"
     if is_night() and not camps_made() and hour_now() >= 21.5: one_says("dark {day}", say_cfg("dark"), 3)
     // the hunt's end, said: one down (and what to do with it), or the game away ("Deer gone, no result shown ... I
     // never learnt whether we hit", the seventh first-time play)
@@ -3780,7 +3817,9 @@ def guide_tick():
             // (only with the bread gone: a man is hungry every evening before the meal, and the third agent playtest
             // was told of empty bellies beside four loaves, 2026-11-22)
             if bread_days() <= 0 and m.fed < 15000: one_says("starving {day}", say_cfg("starving"), 1)
-            elif bread_days() <= 0 and m.fed < 40000: one_says("hungry {day}", say_cfg("hungry"), 2)
+            elif bread_days() <= 0 and m.fed < 40000:
+                one_says("hungry {day}", say_cfg("hungry"), 2)
+                tip_once("tip hunger", "Hungry men walk slower and weaken. Game and what grows off the path will feed them.")
     // an order that can't be followed: three seconds on, nobody has moved and they are nowhere near it
     if mark_t != order_seen:
         order_seen = mark_t
@@ -4009,6 +4048,23 @@ def draw_guide(dt:float):
             let w = float(gl.text_size("The way on").x)
             shaded_text("The way on", float2 { clamp(p.x - w / 2.0, 4.0, ws.x - w - 4.0), p.y + (if p.y > ws.y * 0.8: -r * 3.0 else: r * 1.4) }, a)
             gl.set_shader("color")
+    if seen_s < find_until:
+        // (what was called out: a smaller ring on it, warm in colour, its word under it)
+        let g = to_screen(find_mark)
+        let d = g - ws / 2.0
+        let pad = ws.y * 0.06
+        let k = min((ws.x / 2.0 - pad) / max(abs(d.x), 1.0), (ws.y / 2.0 - pad) / max(abs(d.y), 1.0))
+        let p = ws / 2.0 + d * min(k, 1.0)
+        let a = clamp(find_until - seen_s, 0.0, 1.0)
+        let r = ws.y * 0.014 * (1.0 + 0.12 * sin(seen_s * 220.0))
+        for(12) j:
+            let a0 = 30.0 * float(j)
+            gl.color(float4 { 0.98, 0.82, 0.5, 0.9 * a }):
+                gl.line(p + float2 { cos(a0), sin(a0) } * r, p + float2 { cos(a0 + 30.0), sin(a0 + 30.0) } * r, 2.0)
+        gl.set_font_size(int(ws.y / 50.0))
+        let w = float(gl.text_size(find_word).x)
+        shaded_text(find_word, float2 { clamp(p.x - w / 2.0, 4.0, ws.x - w - 4.0), p.y + (if p.y > ws.y * 0.8: -r * 3.4 else: r * 1.6) }, a * 0.9)
+        gl.set_shader("color")
     if not men_in_view():
         // (a small pale ring with a dot, where the signs' hand would be: the men are that way; a click on it goes there)
         let p = men_mark()

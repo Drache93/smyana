@@ -14,7 +14,7 @@
   "lost_track": "We have lost the track. The way on lies over there.",
   "bread_low": "A day's bread left between us. We must hunt, or gather, before it is gone.",
   "last_bread": "That is the last of the bread.",
-  "hungry": "My belly is empty. The wood has food, if we look.",
+  "hungry": "Nothing in my belly since yesterday, and it is in my legs already. The wood has food, if we look.",
   "starving": "I can't go much further without food.",
   "no_way": "No way through there.",
   "as_near": "No way up there from here. This is as near as we get.",
@@ -27,6 +27,9 @@
   "rose_bare": "The birds have had the best of this one. There will be better bushes.",
   "gathered": "A few handfuls more in the packs. It all helps.",
   "dark": "We cannot walk on blind. Make a fire here.",
+  "hut_seen": "A shepherds' hut, off the track there. A roof for the night, if we want one.",
+  "cache_seen": "Stones heaped by hand, over there. Somebody has left a cache.",
+  "honey_seen": "Bees, in that hollow trunk. Honey for us, and wax for the candles at home.",
   "first_game": "Roe deer, there among the trees. Meat, if we come up slow and stop short of them.",
   "game_down": "One down. Send men to it with the knife, and the meat is ours.",
   "game_away": "They are away. We came on them too fast.",
@@ -42,6 +45,7 @@
   "loaded": 125,
   "asleep": 1.2,
   "cold_meal": 50,
+  "missed_meal": 30,
   "starving_hp": 0.8
  },
  "warm": {
@@ -74,9 +78,11 @@
   "heal_hp": 1
  },
  "pace": {
-  "_doc": "Below 'low' a need takes up to 'most' hundredths off a man's pace, each need its own share.",
+  "_doc": "Below 'low' cold or tiredness takes up to 'most' hundredths off a man's pace, each its own share. Hunger takes up to 'most_hungry' from 'hungry' down (2026-11-24: an empty pack cost nothing a player could see).",
   "low": 30,
-  "most": 12
+  "most": 12,
+  "hungry": 40,
+  "most_hungry": 22
  },
  "camp": {
   "_doc": "Making camp (C): the men stand round the fire, the nearest 'ring_tiles' from it, and lay a fire: it costs 'wood' off their backs and takes 'lay_s' seconds, or 'lay_bare_s' if none of them carries wood, while two of them go off for dead wood (50 until 2026-11-13: Dominic, playing, \"telling them to make camp, i got no fire\"; the fireplace now shows while it is laid). A man within 'in_tiles' of it is in the camp; at night he sleeps there. The camp is struck when no man has been within 'in_tiles' for 'struck_s'. Woken by a shot, a man stays up 'woken_s'. The meal is at the first camp after 'meal_hour'.",

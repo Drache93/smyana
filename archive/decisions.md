@@ -1298,3 +1298,14 @@ Three first-time plays (the sixth, eighth and ninth) each listed stretches of ab
 every day, about a third of the game. The quiet between two calm tracks goes from 70 seconds to 40 (D-152 had it at
 70), and a new track is held back only when the light turns within 45 seconds, not 90. By the numbers the longest
 quiet in a day falls from about 110 seconds to about 85, and most are 40.
+
+## D-189 (2026-11-24, Dominic's question, Claude's answer and build): hunger bites, and what is called out can be found
+
+Dominic: "feels too easy to just walk forward on the first map, that said i then came across a deer which meant things
+started to get interesting. is our gameplay loop strong enough?" Claude's answer: not yet; walking on is safe and
+enough (`archive/notes/2026-11-24-dominic-is-the-loop-strong-enough.md`). Two changes, his to overrule:
+- A night in camp with nothing to eat takes 30 off a man's hunger at once ('missed_meal'), so he is hungry the next
+  morning and not a day later; hunger slows a man by up to 22 hundredths from 40 down (it was 12 from 30). A man says
+  so and one line names the cure. Whether the test player still gets home on this is being run.
+- What a man calls out gets a small warm ring for sixteen seconds, at the screen's edge if it is out of view: a stand
+  of fruit, the first game, a hut, a cache, wild bees (the last three are newly called out at all).
