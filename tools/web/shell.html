@@ -19,6 +19,13 @@
 <div id="load"><div>Смяна</div><div id="bar"><div id="fill"></div></div><div id="what">Loading</div></div>
 <script>
   var SETTINGS = '/settings.txt';
+  // How many pixels it draws: by default up to 1.5 for each of the page's (a Retina screen has 2), #full (or ?full)
+  // for all of the screen's, #low for one each, the sharpness traded against the frames a second.
+  var RES = /full/.test(location.hash + location.search) ? 'full' : /low/.test(location.hash + location.search) ? 'low' : 'mid';
+  if (RES === 'mid') {
+    var ratio = Math.min(window.devicePixelRatio || 1, 1.5);
+    try { Object.defineProperty(window, 'devicePixelRatio', { get: function () { return ratio; }, configurable: true }); } catch (e) {}
+  }
   var Module = {
     canvas: document.getElementById('canvas'),
     // "web": the game knows it is in a browser (no Quit, the tree key from baked/); ?args=... adds the game's own.
@@ -26,6 +33,7 @@
     // The settings (volumes, the HUD's size) live in the browser's own memory between visits: the game's files are
     // in memory and gone on a reload, so settings.txt is put back before it starts and saved whenever it changes.
     preRun: [function () {
+      if (RES !== 'low') ENV.LOBSTER_WEB_HIGH_DPI = '1';
       try { var t = localStorage.getItem('smyana-settings'); if (t) FS.writeFile(SETTINGS, t); } catch (e) {}
       setInterval(function () {
         try { localStorage.setItem('smyana-settings', FS.readFile(SETTINGS, { encoding: 'utf8' })); } catch (e) {}
