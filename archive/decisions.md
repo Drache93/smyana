@@ -1194,3 +1194,10 @@ box of four tiles by eight, and they had gone past it. So:
 Not done from that report: the view following the men, the deer that reads as a post, the hard-edged black shade
 under the trees by the cliff, men sitting at the fire, the hips line said twice, why the men go (the letters are
 Dominic's to write).
+
+## D-176 (2026-11-24, Claude): the view goes with the men
+
+Both of today's first-time players lost the men off the screen at every long order and had to find Tab. Now, after an
+order or Tab, the view eases after the men as they near its edge and keeps them in its middle part. Moving the view by
+hand (keys or the screen's edge) lets go of them until the next order or Tab, so looking around still works. The men's
+mark at the screen's edge stays for when they are out of sight.

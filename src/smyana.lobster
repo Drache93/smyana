@@ -2597,7 +2597,10 @@ def cam_keep():
     let c = float2 { clamp(t.x, rim, float(W * 1000) - rim), clamp(t.y, rim, float(H * 1000) - rim) }
     if c != t: cam += iso(c.x, c.y) - iso(t.x, t.y)
 
-def camera_tick():
+var cam_follow = true  // the view goes with the men till the player moves it
+var cam_mark = 0.0
+
+def camera_tick(with_men:bool):
     let ws = float(gl.window_size())
     let m = mouse_px()
     let sp = CAM_SPEED * ws.y * gl.delta_time() / zoom
@@ -2615,6 +2618,19 @@ def camera_tick():
             if m.x >= ws.x - 4.0: d.x += 1.0
             if m.y >= ws.y - 4.0: d.y += 1.0
     cam += d * sp
+    // The view goes with the men (D-176): while they walk on an order and the player has not moved the view since, it
+    // eases after them as they near its edge, so they stay in the middle part of it. Moving the view by hand lets go
+    // of them till the next order or Tab. ("The view does not follow the men ... every order needed Tab or the arrow
+    // keys first", the sixth and seventh first-time plays, 2026-11-24.)
+    if d != float2_0: cam_follow = false
+    elif mark_t != cam_mark or gl.button("tab") == 1: cam_follow = true
+    cam_mark = mark_t
+    if cam_follow and with_men and not dragging:
+        let s = to_screen(men_centre())
+        let lo = ws * float2 { 0.32, 0.3 }
+        let hi = ws * float2 { 0.68, 0.62 }
+        let off = float2 { (if s.x < lo.x: s.x - lo.x elif s.x > hi.x: s.x - hi.x else: 0.0), (if s.y < lo.y: s.y - lo.y elif s.y > hi.y: s.y - hi.y else: 0.0) }
+        cam += off / zoom * min(1.0, gl.delta_time() * 2.0)
     // the wheel: a step in or out, about the point under the mouse
     let wheel = gl.mousewheel_delta()
     if wheel != 0:
@@ -3824,7 +3840,7 @@ while gl.frame():
             guide_tick()
             select_tick()
             order_tick()
-        if phase != "menu": camera_tick()
+        if phase != "menu": camera_tick(phase == "play" and script != "tour")
         // (once every man sleeps the whole world runs faster till one wakes or the day comes, D-150: a first-time
         // player sat through two minutes of dark at each camp with nothing to do, 2026-11-22. The first try ran only
         // the clock faster, and the test bot's men starved: the game and the wood's food come back by the tick.)
