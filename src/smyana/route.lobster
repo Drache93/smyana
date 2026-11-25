@@ -679,6 +679,8 @@ def unstick_men():
             if d < unstick_d.get(m.uid, 1 << 30) - 5: unstick_sent.set(m.uid, 0)
         unstick_d.set(m.uid, d)
 
+var gate_called = false  // a man left behind has just been called on to the gate, for one of the others to say so
+
 def route_tick() -> string:
     run_ticks++
     clock_tick()
@@ -759,6 +761,7 @@ def route_tick() -> string:
                     let i = index_of(m.uid)
                     if m.alive and i >= 0 and not in_rect(r, u_x[i] / TILE, u_y[i] / TILE) and u_foe[i] == 0 and u_moving[i] == 0 and not is_asleep(m.uid):
                         print "(gate: {m.name} is called on to the others)"
+                        gate_called = true
                         send_men([ m.uid ], (r[0] + r[2]) * TILE / 2 + TILE / 2, (r[1] + r[3]) * TILE / 2 + TILE / 2)
     if not waiting: gate_wait = 0
     return ""

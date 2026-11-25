@@ -1151,7 +1151,10 @@ def collect_props():
                 if starts_with(pr.name, "cobbles"):
                     add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, -40002.0, float4_1, 1.0, 2)
                 // (a yard wall has none: a stretch's shadow runs out past its end and lay across the next stretch)
-                elif pr.name.length < 4 or substring(pr.name, 0, 4) != "wall": add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39997.0, float4_1)
+                // (nor a house or the room over a street: drawn as they are, clearing the shade off themselves, all that
+                // was left of a house's shadow was a dark bar lying out on the meadow three tiles from it, which the
+                // twelfth first-time play took for the shadow of something that was not there)
+                elif not starts_with(pr.name, "wall") and not starts_with(pr.name, "house") and not starts_with(pr.name, "span"): add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39997.0, float4_1)
                 // (the camp's horses and mules are marked like the men, so they keep their colour in the shade
                 // instead of reading as grey ghosts)
                 // (a house is lit by its own bake, as the ruins are: stood close, each house's shadow on the ground was
@@ -2369,7 +2372,7 @@ def hover_cursor() -> int:
     // men are camped in)
     if at_ruin(mc) and not drain_learned(): return CURSOR_STUDY
     let hut = hut_near(int(mm.x), int(mm.y), 1)
-    if hut >= 0 and not (exists(sv_camps) cp: cp.hut and dist2(cp.x, cp.y, (huts[hut] % W) * TILE, (huts[hut] / W) * TILE) < sq(4 * TILE)): return CURSOR_CAMP
+    if hut >= 0 and not (exists(sv_camps) cp: cp.hut and dist2(cp.x, cp.y, (hut % W) * TILE, (hut / W) * TILE) < sq(4 * TILE)): return CURSOR_CAMP
     if pile_near(int(mm.x), int(mm.y)) >= 0: return CURSOR_TAKE
     if pack_open and hide_tree_under(mm) >= 0: return CURSOR_TAKE
     if patch_under(mm) >= 0: return CURSOR_GATHER
@@ -2594,6 +2597,17 @@ def patch_under(mm:float2) -> int:
 
 // The music turns with the threats (docs/threats.md): wary, then the hunting threat's own loop; when it is over, the
 // end stroke and quiet, or the lament if a man fell in it (#64).
+// Every living man here stands in a camp whose fire has caught (and there is one).
+def all_by_the_fire() -> bool:
+    var n = 0
+    for(men) m:
+        let i = index_of(m.uid)
+        if m.alive and i >= 0:
+            let k = camp_of(i)
+            if k < 0 or u_moving[i] == 1 or not fire_burning(sv_camps[k]): return false
+            n++
+    return n > 0
+
 var danger_was = ""
 var danger_told = ""   // the danger the men last spoke of
 var danger_killed = 0  // men_killed when it began
@@ -2716,7 +2730,7 @@ def order_tick():
         return
     // (a shepherds' hut under the mouse: make camp in it, smyana/finds.lobster)
     let hut = hut_near(int(mm.x), int(mm.y), 1)
-    if hut >= 0 and not (exists(sv_camps) cp: cp.hut and dist2(cp.x, cp.y, (huts[hut] % W) * TILE, (huts[hut] / W) * TILE) < sq(4 * TILE)) and hut_order(ids, hut):
+    if hut >= 0 and not (exists(sv_camps) cp: cp.hut and dist2(cp.x, cp.y, (hut % W) * TILE, (hut / W) * TILE) < sq(4 * TILE)) and hut_order(ids, hut):
         mark_at = gp(mm.x, mm.y)
         mark_t = seen_s
         return
@@ -2765,10 +2779,24 @@ def order_tick():
         let i0 = index_of(ids[0])
         let reach = reach_side(0, u_kind[i0], cell_of(u_x[i0], u_y[i0]))
         let x, y = reachable_near(reach, clamp(int(mm.x), 0, W * TILE - 1), clamp(int(mm.y), 0, H * TILE - 1))
-        march(ids, x, y)
+        // (most of the band sent on, and a man standing idle a long way off who was missed by the drag: he comes too.
+        // The twelfth first-time play left one man in the village; the band then stood in the gate out with nothing
+        // happening till he had been called the whole way across the place, by which time it was dark)
+        var going = ids
+        if ids.length * 4 >= men_alive() * 3:
+            let strays = filter(men) m:
+                let i = index_of(m.uid)
+                m.alive and i >= 0 and (find(ids) id: id == m.uid) < 0 and u_moving[i] == 0 and u_foe[i] == 0 and u_task[i] != GATHER and u_task[i] != BUILD and not foraging(m.uid) and not butchering(m.uid) and not studying(m.uid) and camp_of(i) < 0 and not is_asleep(m.uid) and dist2(u_x[i], u_y[i], u_x[i0], u_y[i0]) > sq(10 * TILE)
+            if strays.length: going = append(ids, map(strays) m: m.uid)
+        march(going, x, y)
         // (told when it is far from where the mouse was: men who stopped at a cliff's foot without a word looked
         // like men who had stopped obeying, the seventh first-time play, 2026-11-24)
-        if dist2(x, y, int(mm.x), int(mm.y)) > sq(3 * TILE): near_asked = true
+        // (but not of ground out past a gate, at the map's edge: that is the way on, and "No way up there" was said of
+        // it twice in the twelfth first-time play)
+        let mtx = int(mm.x) / TILE
+        let mty = int(mm.y) / TILE
+        let past_gate = exists(gate_rects) r: mty >= r[1] - 8 and mty <= r[3] + 8 and (if r[0] + r[2] > W: mtx > r[2] else: mtx < r[0])
+        if dist2(x, y, int(mm.x), int(mm.y)) > sq(3 * TILE) and not past_gate: near_asked = true
         // (a dog rose that is only a bush: two first-time players went straight to its red hips, right-clicked nine
         // times and were told nothing, 2026-11-22 and 23. Now a man says why there is nothing to pick: guide_tick.)
         rose_asked = (find(props) pr: pr.kind == 5 and pr.name.length >= 4 and substring(pr.name, 0, 4) == "rose" and abs(pr.cell % W - x / TILE) <= 1 and abs(pr.cell / W - y / TILE) <= 1) >= 0
@@ -3619,6 +3647,11 @@ def heard_tick():
         heard_next = clock_s + 30.0
         heard_line("clock", "{gstr(leg_now(), "name", "")}, {season_now()}, {int(hour_now())}h, {men_alive()} men")
 
+// The women who come down the lane at the homecoming: their props, where each is and how far she comes (milli-tiles).
+var greeters = []::int
+var greeter_at = []::float2
+var greeter_to = []::float2
+
 def set_phase(p:string):
     phase = p
     phase_t = 0.0
@@ -3926,6 +3959,17 @@ def guide_tick():
     if food_gathered > gathered_said and not foragers.length:
         gathered_said = food_gathered
         one_says("gathered {food_gathered}", say_cfg("gathered"), 2)
+    // (a cache or the honey taken: what was in it. The twelfth first-time play took a cache and "never saw a line
+    // saying what was in it")
+    if find_taken != 0:
+        one_says("taken {leg_id} {find_taken}", say_cfg(if find_taken == PILE_HONEY: "honey_taken" else: "cache_taken"), 2)
+        find_taken = 0
+    // (the band stood at the way on and a man still coming: said, so that standing there does not look like nothing
+    // happening, which is how the twelfth first-time play took it)
+    if gate_called:
+        gate_called = false
+        said.remove_obj("gate wait")
+        one_says("gate wait", say_cfg("gate_wait"), 1)
     if camp_refused_say:
         camp_refused_say = false
         said.remove_obj("camp near")
@@ -3982,6 +4026,14 @@ def guide_tick():
         hunt_asked_at = -1000.0
         said.remove_obj("game down")
         one_says("game down", say_cfg("game_down"), 2)
+        // (and a ring on it for half a minute: a roe deer down in the undergrowth could not be seen, and the twelfth
+        // first-time play swept the pointer over the grass for the first and never found the second)
+        if carcasses.length:
+            let cc = carcasses[carcasses.length - 1]
+            find_mark = gp(float(cc.x), float(cc.y))
+            find_milli = float2 { float(cc.x), float(cc.y) }
+            find_until = seen_s + 30.0
+            find_word = "Right click to butcher"
     // (only of game the men were sent after in the last minute: the ninth first-time play was told "They are away" ten
     // times, of herds it had not seen and while the men slept)
     elif game_alarmed_seen() and seen_s - hunt_asked_at < 60.0: hunt_alarm = true
@@ -4470,7 +4522,10 @@ while gl.frame():
         // (once every man sleeps the whole world runs faster till one wakes or the day comes, D-150: a first-time
         // player sat through two minutes of dark at each camp with nothing to do, 2026-11-22. The first try ran only
         // the clock faster, and the test bot's men starved: the game and the wood's food come back by the tick.)
-        let rush = if phase == "play" and script == "" and is_night() and all_asleep(): float(gint(gobj(route, "night"), "asleep_speed", 100)) / 100.0 else: 1.0
+        // (and the evening before it, from six, once every man sits at a fire that has caught and nothing threatens:
+        // 'evening_speed'. The twelfth first-time play: "Once the fire is lit there is nothing to do ... Five nights
+        // is a long time to watch a dark screen")
+        let rush = if phase != "play" or script != "": 1.0 elif is_night() and all_asleep(): float(gint(gobj(route, "night"), "asleep_speed", 100)) / 100.0 elif hour_now() >= 18.0 and danger_was == "" and all_by_the_fire(): float(gint(gobj(route, "night"), "evening_speed", 100)) / 100.0 else: 1.0
         if not paused: acc = min(acc + dt * fast * rush, 0.5 * fast * rush)
         while acc >= 0.05:
             p_id = copy(u_id)
@@ -4563,6 +4618,12 @@ while gl.frame():
         ground_season_tick()
     if phase == "home":
         cam += (men_centre() - cam) * min(1.0, dt * 0.9)
+        // (the women come down the lane to meet them, one after another, each as far as her own place among the men)
+        for(greeters) g, k:
+            if phase_t > float(k) * 0.8 and greeter_at[k].x < greeter_to[k].x:
+                greeter_at[k] = float2 { min(greeter_to[k].x, greeter_at[k].x + dt * 760.0), greeter_at[k].y }
+                props[g].at = gp(greeter_at[k].x, greeter_at[k].y) - float2 { 0.0, abs(sin(phase_t * 520.0 + float(k) * 70.0)) * 1.6 }
+                props[g].cell = int(greeter_at[k].y / 1000.0) * W + int(greeter_at[k].x / 1000.0)
         if phase_t >= 14.0: set_phase("end")
     // (the end's words read, or clicked past: the morning after, D-197)
     if phase == "end" and script == "" and men_alive() > 0 and (phase_t > end_read_s() + 5.0 or (phase_t > 3.0 and (gl.button("mouse1") == 1 or gl.button("space") == 1 or gl.button("return") == 1))):
@@ -4598,6 +4659,14 @@ while gl.frame():
                 // words: D-197)
                 set_phase("home")
                 selected = []
+                greeters = []
+                greeter_at = []
+                greeter_to = []
+                for(5) k:
+                    greeter_at.push(float2 { 300.0 + float(k % 2) * 500.0, 50250.0 + float((k * 3) % 5) * 330.0 })
+                    greeter_to.push(float2 { 2700.0 + float(k) * 1750.0, 0.0 })
+                    greeters.push(props.length)
+                    props.push(Prop { 4, 0, "woman{k % 4}", "", gp(greeter_at[k].x, greeter_at[k].y), 50 * W })
                 var n = 0
                 for(u_id) id:
                     if man_of(id):

@@ -86,9 +86,13 @@ def finds_enter(place:string):
         print "find: {place} {kind} at {end % W},{end / W}, down the {[ "deer track", "sheep path", "cart track" ][sp.size]}"
         placed++
 
-// The hut at or next to cell c (within `tiles`), or -1.
+// The cell of the hut within `tiles` of (x, y), or -1.
+// (the cell, not its place in `huts`: it gave the place till 2026-11-25 and three of its five callers took it for the
+// cell, so a right click on a hut under the flame was only a walk, and no camp was ever made in one: the twelfth
+// first-time play lost a night to it)
 def hut_near(x:int, y:int, tiles:int) -> int:
-    return find(huts) c: dist2((c % W) * TILE + TILE / 2, (c / W) * TILE + TILE / 2, x, y) <= sq(tiles * TILE)
+    let k = find(huts) c: dist2((c % W) * TILE + TILE / 2, (c / W) * TILE + TILE / 2, x, y) <= sq(tiles * TILE)
+    return if k >= 0: huts[k] else: -1
 
 // Right-click a hut with men chosen: they walk to it and make camp in it when the first of them is at its door.
 var hut_goers = []::int
