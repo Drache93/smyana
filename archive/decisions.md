@@ -1558,3 +1558,15 @@ along the fence. The wall on the houses' side of the lane is now that (`fenced_w
 `archive/images/2026-11-25/03-the-lanes-wall-with-its-fence.png`). The wall on the near side stays low and bare, so
 it does not hide the men on the lane. The homecoming and the end were played again through the new village
 (`04-the-end-over-the-new-village.png`).
+
+## D-210 (2026-11-25, Dominic's direction, Claude's build): streets between the houses, and rooms over them
+
+Dominic: "Village is missing streets. In between the houses, normally there'll be streets with maybe the houses
+connecting to each other over the top of them." (`archive/notes/2026-11-25-dominic-the-village-is-missing-streets.md`)
+D-208's rows of houses stood on grass with nothing between them. Now cobbled streets a tile wide run between the
+rows either side of the lane and up from the lane between the houses (two each side), the men can walk them, and at
+six places a room is built across a street from one house to the next: the upper storey on beams, plastered, with its
+own windows and slab roof (`street_room`, tools/camp_vox.py; frames span0 and span1). Twenty-four houses, where D-208
+had twenty-nine: the streets took the room. Picture: `archive/images/2026-11-25/05-streets-between-the-houses.png`.
+The room over the street is built from Dominic's words and the houses' own look; no picture or text of one has been
+read, so its shape is a guess to be checked. The chimneys' smoke is moved to where the new houses' chimneys are.

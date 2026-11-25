@@ -559,6 +559,59 @@ def house(seed, X, Y, floors, kind):
     return m
 
 
+def street_room(seed):
+    """A room built across a street from one house to the next (Dominic, 2026-11-25: "the houses connecting to each
+    other over the top of them"): the upper storey carried over the street on beams, plastered white, a row of windows
+    each side, a low roof of slabs. It spans along x, 6 m; the street runs under it along y. Its measures follow the
+    houses' own upper storey; no text or picture of one has been read yet, so its look is the houses' look."""
+    rng = random.Random(seed)
+    X, Y, z0, z1 = 3.0, 1.5, 2.3, 4.4
+    ov, pitch = 0.45, 0.4
+    m = Model(X + 0.1, Y + ov + 0.1, z1 + pitch * (Y + ov) + 0.3)
+    # the beams it stands on, from wall to wall, and boards over them
+    y = -Y + 0.15
+    while y < Y:
+        m.box((-X, y - 0.08, z0 - 0.2), (X, y + 0.08, z0), POLE2)
+        y += 0.55
+    m.box((-X, -Y, z0), (X, Y, z0 + 0.08), WOOD2)
+    def plaster(g):
+        h = np.mod(np.floor(g[..., 0] * M * 0.37) + np.floor(g[..., 2] * M * 0.61) * 3 + np.floor(g[..., 1] * M * 0.53) * 5, 23)
+        return np.where(h == 0, CANVAS, WHITE).astype(np.uint8)
+    m.put((-X, -Y, z0 + 0.08), (X, Y, z1), lambda g: g[..., 0] > -1e9, plaster)
+    m.box((-X, -Y - 0.03, z0), (X, Y + 0.03, z0 + 0.16), WOOD2)
+    m.box((-X, -Y - 0.03, z1 - 0.18), (X, Y + 0.03, z1), WOOD2)
+    n = 4
+    for i in range(n):
+        sx = -X + 0.5 + (i + 0.5) * (2 * X - 1.0) / n
+        for y in (-Y, Y):
+            m.box((sx - 0.32, y - 0.05, z0 + 0.6), (sx + 0.32, y + 0.05, z0 + 1.65), WOOD2)
+            m.box((sx - 0.25, y - 0.06, z0 + 0.67), (sx + 0.25, y + 0.06, z0 + 1.58), INSIDE)
+            m.box((sx - 0.02, y - 0.06, z0 + 0.67), (sx + 0.02, y + 0.06, z0 + 1.58), WOOD2)
+    m.box((-X + 0.2, -Y + 0.2, z0 + 0.1), (X - 0.2, Y - 0.2, z1 - 0.2), 0)
+    # its roof: slabs in rows down each side from a ridge along x
+    m.box((-X, -Y - ov + 0.05, z1 - 0.02), (X, Y + ov - 0.05, z1 + 0.04), WOOD2, over=False)
+    EY, roww, sd = Y + ov, 0.42, rng.randrange(1000)
+    def parts(g):
+        d = EY - np.abs(g[..., 1])
+        return d, np.floor(d / roww)
+    def inside(g):
+        d, row = parts(g)
+        top = z1 + 0.04 + pitch * row * roww + pitch * (d - row * roww) * 0.35
+        return (d >= 0) & (g[..., 2] <= top) & (g[..., 2] >= top - 0.13 - pitch * roww)
+    def colour(g):
+        d, row = parts(g)
+        cell = np.floor((g[..., 0] + row * 0.31) / 0.62)
+        h = np.mod((cell * 7 + row * 13 + sd).astype(int) * 2654435 // 1000, 6)
+        return np.array([STONE2, STONE3, STONE, STONE2, ASH2, STONE], np.uint8)[h]
+    m.put((-X, -EY, z1 - 0.4), (X, EY, z1 + pitch * EY + 0.3), inside, colour)
+    m.box((-X, -0.15, z1 + pitch * EY - 0.02), (X, 0.15, z1 + pitch * EY + 0.1), STONE3)
+    s = m.v > 0
+    inner = np.zeros_like(s)
+    inner[1:-1, 1:-1, 1:-1] = s[1:-1, 1:-1, 1:-1] & s[:-2, 1:-1, 1:-1] & s[2:, 1:-1, 1:-1] & s[1:-1, :-2, 1:-1] & s[1:-1, 2:, 1:-1] & s[1:-1, 1:-1, :-2] & s[1:-1, 1:-1, 2:]
+    m.v[inner] = 0
+    return m
+
+
 HOUSES = [(41, 3.3, 3.0, (2.3, 2.2, 2.1), "gallery"), (42, 3.0, 2.8, (2.3, 2.1, 2.2), "both"), (43, 3.4, 2.7, (2.2, 2.3), "bay")]
 
 
@@ -907,7 +960,7 @@ MULES = [("mule", "sacks"), ("mule_dun", "kegs"), ("bay", "baskets"), ("mule", "
 
 
 def models():
-    out = [("tent_canvas", tent0()), ("tent_rugs", tent1()), ("fireplace", fireplace()), ("woodpile", woodpile()), ("hut", hut()), ("wall", yard_wall(3)), ("wall_fence", fenced_wall(4)), ("fountain", fountain()), ("woman_0", woman(0)), ("woman_1", woman(1)), ("cobbles_0", cobbles(5, False)), ("cobbles_1", cobbles(9, False)), ("cobbles_2", cobbles(13, True))]
+    out = [("tent_canvas", tent0()), ("tent_rugs", tent1()), ("fireplace", fireplace()), ("woodpile", woodpile()), ("hut", hut()), ("wall", yard_wall(3)), ("wall_fence", fenced_wall(4)), ("street_room", street_room(6)), ("fountain", fountain()), ("woman_0", woman(0)), ("woman_1", woman(1)), ("cobbles_0", cobbles(5, False)), ("cobbles_1", cobbles(9, False)), ("cobbles_2", cobbles(13, True))]
     for i, (seed, X, Y, floors, kind) in enumerate(HOUSES): out.append(("house_%d" % i, house(seed, X, Y, floors, kind)))
     for i, (coat, blanket) in enumerate(HORSES):
         m, s = animal(coat, False)

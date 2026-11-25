@@ -1159,7 +1159,7 @@ def collect_props():
                 let beast = starts_with(pr.name, "horse") or starts_with(pr.name, "mule") or starts_with(pr.name, "rider")
                 if not starts_with(pr.name, "cobbles"):
                     add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0,
-                        if pr.kind == 3 or starts_with(pr.name, "house"): 0 elif beast and pr.sp != "far": 4 else: 2)
+                        if pr.kind == 3 or starts_with(pr.name, "house") or starts_with(pr.name, "span"): 0 elif beast and pr.sp != "far": 4 else: 2)
 
     add_lift = 0.0
     // the map's bridges (#20): a standing one's deck tile by tile, a broken one's two ends
@@ -1441,9 +1441,9 @@ def draw_world(alpha:float):
     if atmo_on: atmo_end(cam_px, zoom, 1.5)
 
 // The village's hearths (D-172): a thread of smoke from each house's chimney, so that somebody is at home. Where each
-// chimney's top is comes from tools/camp_vox.py's house(): 0.4 of the half length along the house and a quarter of the
-// half depth behind its ridge, 1.16 m over the roof there (metres from the middle of the floor; HOUSES there).
-let CHIMNEYS = [ float3 { 1.36, 0.75, 6.6 }, float3 { 1.16, 0.7, 8.64 }, float3 { 1.44, 0.68, 6.41 } ]
+// chimney's top is comes from tools/camp_vox.py's house(): the first of its two chimneys, 0.45 of the half length along
+// the house and 0.3 of the half depth behind its middle (metres from the middle of the floor; HOUSES there, D-208).
+let CHIMNEYS = [ float3 { 1.49, 0.9, 8.76 }, float3 { 1.35, 0.84, 8.69 }, float3 { 1.53, 0.81, 6.68 } ]
 let TILE_M = 4.85  // (metres a tile, as the camp's models are cut: 135.76 voxels a tile at 28 a metre)
 
 def draw_chimney_smoke():

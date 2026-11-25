@@ -294,3 +294,4 @@ One line per moment worth remembering. Newest at the bottom.
 - 2026-11-24: three bots play the finished build: 14, 17 and 6 of 20 home (D-207).
 - 2026-11-25: Dominic: "Village looks quite wrong", with a photograph. The houses are rebuilt from it and set close (D-208).
 - 2026-11-25: the lane's wall gets its fence of boards and its little roof (D-209).
+- 2026-11-25: Dominic: the village is missing streets. Cobbled streets between the houses, and rooms built over them (D-210).
