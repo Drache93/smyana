@@ -4,6 +4,7 @@ fireplace 19 19
 woodpile 17 15
 hut 58 55
 wall 68 9
+wall_fence 68 8
 fountain 31 18
 woman_0 7 9
 woman_1 7 9

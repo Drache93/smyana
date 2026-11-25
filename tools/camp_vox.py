@@ -592,6 +592,50 @@ def yard_wall(seed):
     return m
 
 
+def fenced_wall(seed):
+    """A stretch of the lane's wall as in Dominic's photograph of 2026-11-25: the stone wall lower, a fence of dark
+    upright boards between posts on top of it, and a narrow roof of slabs along the fence's top. Its measures are
+    read off the photograph against the houses' doors."""
+    X, T, H, F = 2.4, 0.24, 0.85, 0.8
+    m = Model(X + 0.1, T + 0.35, H + F + 0.45)
+    rng = random.Random(seed)
+    g = 1.0 / M
+    z = 0.0
+    while z < H:
+        h = min(rng.uniform(0.12, 0.2), H - z)
+        s = -X
+        while s < X:
+            w = rng.uniform(0.25, 0.6)
+            d = rng.uniform(-0.03, 0.03)
+            m.box((s, -T + d, z), (min(s + w, X) - g, T + d, z + h - g), rng.choice([STONE, STONE2, STONE3, STONE, STONE2, ASH2]))
+            s += w
+        z += h
+    m.box((-X + 0.03, -T + 0.04, 0), (X - 0.03, T - 0.04, H), ASH, over=False)
+    # the fence: posts, two rails, upright boards with a gap between
+    m.put((-X, -0.03, H), (X, 0.03, H + F), lambda gg: np.floor((gg[..., 0] + X) * M / 3) % 2 == 0,
+          lambda gg: np.where(np.floor((gg[..., 0] + X) * M / 6) % 3 == 0, BAY2, WOOD2).astype(np.uint8))
+    for zz in (H + 0.12, H + F - 0.14):
+        m.box((-X, -0.06, zz), (X, 0.06, zz + 0.07), WOOD2)
+    x = -X + 0.05
+    while x < X:
+        m.box((x - 0.06, -0.07, H), (x + 0.06, 0.07, H + F + 0.02), POLE2)
+        x += (2 * X - 0.1) / 4
+    # its little roof: two rows of slabs either side of a ridge
+    for side in (-1, 1):
+        s = -X
+        while s < X:
+            w = rng.uniform(0.3, 0.55)
+            c = rng.choice([STONE2, STONE3, STONE, STONE2])
+            def slab(gg, side=side):
+                f = np.abs(gg[..., 1]) / 0.3
+                want = H + F + 0.2 - 0.16 * f
+                return (gg[..., 1] * side >= 0) & (f <= 1) & (gg[..., 2] <= want) & (gg[..., 2] >= want - 0.08)
+            m.put((s, -0.3, H + F), (min(s + w, X) - g, 0.3, H + F + 0.25), slab, c)
+            s += w
+    m.box((-X, -0.05, H + F + 0.16), (X, 0.05, H + F + 0.24), STONE3)
+    return m
+
+
 def cobbles(seed, fade):
     """A tile of the lane's cobbles ("authentic cobblestone streets", bg-guide.org, Kovachevitsa; "cobblestone
     streets", Radio Bulgaria, Leshten): river and field stones of gneiss a hand or two across, set close in earth,
@@ -863,7 +907,7 @@ MULES = [("mule", "sacks"), ("mule_dun", "kegs"), ("bay", "baskets"), ("mule", "
 
 
 def models():
-    out = [("tent_canvas", tent0()), ("tent_rugs", tent1()), ("fireplace", fireplace()), ("woodpile", woodpile()), ("hut", hut()), ("wall", yard_wall(3)), ("fountain", fountain()), ("woman_0", woman(0)), ("woman_1", woman(1)), ("cobbles_0", cobbles(5, False)), ("cobbles_1", cobbles(9, False)), ("cobbles_2", cobbles(13, True))]
+    out = [("tent_canvas", tent0()), ("tent_rugs", tent1()), ("fireplace", fireplace()), ("woodpile", woodpile()), ("hut", hut()), ("wall", yard_wall(3)), ("wall_fence", fenced_wall(4)), ("fountain", fountain()), ("woman_0", woman(0)), ("woman_1", woman(1)), ("cobbles_0", cobbles(5, False)), ("cobbles_1", cobbles(9, False)), ("cobbles_2", cobbles(13, True))]
     for i, (seed, X, Y, floors, kind) in enumerate(HOUSES): out.append(("house_%d" % i, house(seed, X, Y, floors, kind)))
     for i, (coat, blanket) in enumerate(HORSES):
         m, s = animal(coat, False)

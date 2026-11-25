@@ -1550,3 +1550,11 @@ neighbour's roof.
 Not from the photograph, still to do or to be told: the ground is flat where the photograph's village climbs a
 slope; the walls along the lane are bare stone, without the photograph's wooden fences and little roofs on top; the
 yard walls between the houses of D-196 are gone, there being no room for them.
+
+## D-209 (2026-11-25, Claude, from Dominic's photograph): a fence on the lane's wall
+
+The photograph's walls along the lane are low stone with a fence of dark boards on top and a narrow roof of slabs
+along the fence. The wall on the houses' side of the lane is now that (`fenced_wall`, tools/camp_vox.py;
+`archive/images/2026-11-25/03-the-lanes-wall-with-its-fence.png`). The wall on the near side stays low and bare, so
+it does not hide the men on the lane. The homecoming and the end were played again through the new village
+(`04-the-end-over-the-new-village.png`).
