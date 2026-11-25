@@ -1531,3 +1531,22 @@ After D-202 to D-206, three bots played the whole run (`script:play fast:40`, se
 came home, with 5, 5 and 3 animals shot. All three reached the village and its end; none stuck. Seed 1, which lost
 every man on the build before (D-202), brought 14 home. The spread (6 to 17) is the patrol's and the winter's doing
 and is left as it is.
+
+## D-208 (2026-11-25, Dominic's direction and photograph, Claude's build): the village's houses rebuilt
+
+Dominic, with a photograph: "Village looksnwuote wrong." (`archive/notes/2026-11-25-dominic-the-village-looks-wrong.md`;
+the photograph is a watermarked stock picture and is described there, not kept.) He was right: the houses of D-166 and
+D-196 were bare grey stone to the eaves with small windows and gabled roofs, and stood apart on lawns. The texts read
+for them say only "stone and wood", storeys and slab roofs; the look had been guessed.
+From the photograph, the houses now have: a ground storey of rough stone; one or two storeys above it plastered
+white, a little out over the stone, with rows of tall windows in dark frames, dark timber belts and corner posts; a
+wooden gallery with a plank railing, or a bay of red-brown planks, or both; a low hipped roof of slabs with eaves
+nearly a metre wide and dark boards under them; two white chimneys with slab caps (`house` and `hip_roof`,
+tools/camp_vox.py). And they stand as the photograph's do: twenty-nine of them, two tiles apart, in three rows either
+side of the lane, the rows set off from each other so the roofs stack up behind one another
+(`archive/images/2026-11-25/01-the-village-rebuilt-from-dominics-photo.png`; `02` is the new houses still standing
+apart). A house is now lit by its own bake as the ruins are: stood close, each one's ground shadow was laid over its
+neighbour's roof.
+Not from the photograph, still to do or to be told: the ground is flat where the photograph's village climbs a
+slope; the walls along the lane are bare stone, without the photograph's wooden fences and little roofs on top; the
+yard walls between the houses of D-196 are gone, there being no room for them.

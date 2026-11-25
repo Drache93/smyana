@@ -9,7 +9,7 @@
 // path's end, smyana/finds.lobster), horse0..7 and mule0..7. A horse or
 // mule n is the animal n % 4 facing one way (n < 4) or the other: they face the camera's right or its left.
 
-let CAMP_BAKE = "camp 13"
+let CAMP_BAKE = "camp 14"
 let CAMP_DIR = "../art/camp/vox"
 let CAMP_ANIMALS = 4
 // (house0..2: the village's houses, their fronts to the camera; house3..5 the same three with their fronts

@@ -1154,10 +1154,12 @@ def collect_props():
                 elif pr.name.length < 4 or substring(pr.name, 0, 4) != "wall": add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39997.0, float4_1)
                 // (the camp's horses and mules are marked like the men, so they keep their colour in the shade
                 // instead of reading as grey ghosts)
+                // (a house is lit by its own bake, as the ruins are: stood close, each house's shadow on the ground was
+                // laid over its neighbour's roof and walls)
                 let beast = starts_with(pr.name, "horse") or starts_with(pr.name, "mule") or starts_with(pr.name, "rider")
                 if not starts_with(pr.name, "cobbles"):
                     add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0,
-                        if pr.kind == 3: 0 elif beast and pr.sp != "far": 4 else: 2)
+                        if pr.kind == 3 or starts_with(pr.name, "house"): 0 elif beast and pr.sp != "far": 4 else: 2)
 
     add_lift = 0.0
     // the map's bridges (#20): a standing one's deck tile by tile, a broken one's two ends
