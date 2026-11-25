@@ -1379,3 +1379,194 @@ tiles off, and a ring goes on it for half a minute, "Right click to go and look"
 (`archive/images/2026-11-24/12-a-man-points-off-the-track-in-the-morning.png`). He does not know of caches or huts:
 those are still found by going. The picture shows the ring's words lying on the foot's line of words; the ring is kept
 higher since. Dominic's to overrule, the words most of all.
+
+## D-195 (2026-11-24, Claude, from the tenth first-time play): a line said again is worded another way
+
+Six of the men's lines were heard twice or more, word for word. A line's key may now have other wordings beside it in
+`data/survival.json` ("<key>_more"); the first time it is said as written, and after that the others take turns. Given
+to seven lines: the light going, game down, game away, wolves following, the unripe and the bare rose bush, a hut
+seen. The words are Claude's, Dominic's to change.
+
+## D-196 (2026-11-24, Dominic's ask, Claude's build): the village has yards, a fountain and animals
+
+Dominic: "Flesh out the village a bit more also" (`archive/notes/2026-11-24-dominic-flesh-out-the-village.md`). What
+was read first, as the evidence rule asks, though nothing here is planted: Kovachevitsa's houses "are perched close to
+one another in an attempt to take up as little space as the sparse mountain terrain allows" (Radio Bulgaria, "A tale
+hewn in stone"); "authentic cobblestone streets, lining one after the other charming yards", "stacked unhewn stones
+cemented with a mixture of clay and water" (bg-guide.org, Kovachevitsa); Leshten's "stone walls" and "picturesque
+yards" (Radio Bulgaria, "An autumn walk along the cobblestone streets of the village of Leshten"); Dolen's named
+fountain, the "Nikolovskata Cheshma", and its people's "livestock breeding" (visitbulgaria.com); the animals kept on
+the houses' ground floors (D-167's sources). None of the pages gives a wall's height or a fountain's shape: those are
+from photographs of the villages, and are said so in `tools/camp_vox.py`.
+Built: five more houses (eleven, the same three models), walls of coursed gneiss with slabs along the top either side
+of the lane and between the yards, a wall fountain with its trough on the lane, three woodpiles, two mules and a horse
+in the yards (`archive/images/2026-11-24/13-the-village-with-yard-walls-and-a-fountain.png`). A wall has no shadow of
+its own: a stretch's shadow ran past its end and lay on the next.
+Not done: the lane is still earth, not cobbles; there are no people; no church.
+
+## D-197 (2026-11-24, Claude's build, the words stand-ins for Dominic's): the homecoming and the morning after
+
+Until now the run ended with the men stood at the village's gate and the end's words over them (D-168). Now:
+- In the last place, coming home, a house has smoke only if its man came back: with half the men lost, half the
+  chimneys are cold, spread through the village. The player sees it walking in.
+- At the gate the men walk on by themselves up the lane between the yard walls, the view going with them, for
+  fourteen seconds. Then the end's words as before ("Home.", who came back, what they carry).
+- When those are read, or at a click, it is the next morning, clear: the village in morning light, and at the foot of
+  the picture a line at a time for each thing that came home, from `data/survival.json`'s "after": the hearths, the
+  herbs, the wax, the hides, the wool, the Romans' drain if a man who learned it is home, and a last line, "In late
+  summer the men took down their rifles again." The last line stays.
+The frame set on 2026-11-22 stands: this is not the full village in three states or the years-later ending that shows
+each thing built. Nothing in the village changes with what was brought but the smoke. The lines are Claude's and are
+there to be rewritten by Dominic.
+Found playing it by hand: one man missed by the drag stood at the far gate, the other nineteen stood in the gate home,
+and nothing happened or was said. With three quarters of the band in a gate out for six seconds, a man standing
+elsewhere is now called on to them (`gate_wait`, route.lobster).
+
+## D-198 (2026-11-24, Claude's build): the women of the village
+
+Dominic asked for more of the village (D-196), and D-196 left it with no people. The men leave and come home to
+somebody, so the first people are the women, stood at their gates and by the fountain.
+Read first (the evidence rule, used for dress as for plants): for "the Rhodopes and parts of Pirin (Blagoevgrad)" a
+long-sleeved saya to the calf or ankle (eliznik.org.uk, women's open tunic, saya); in the Blagoevgrad region "quite
+dark" and of wool even in summer, with "the black or red woollen belt" and an apron "most often woollen - red,
+striped" (Radio Bulgaria, the history of the black saya); married women in "square headscarves made of white home-made
+cloth" with the ends loose at the back (eliznik.org.uk, women's headwear); "knitted patterned socks and leather
+sandals (tsarvuli)" (eliznik.org.uk, aprons and tunics).
+Built: two women (`woman(kind)` in `tools/camp_vox.py`), one with a red apron and a red belt, one with a striped apron
+and a black belt, stood seven times about the lane and the yards, turned two ways
+(`archive/images/2026-11-24/16-the-women-of-the-village.png`). They stand still.
+Inferred, not read: the white of the chemise at the saya's open front is from photographs; the pages name the chemise
+and not its colour.
+Not done: no children and no old men, because nothing was read on how they dressed; the women do not move, turn to the
+men or go in at night.
+
+## D-199 (2026-11-24, Claude's build): the lane through the village is cobbled
+
+D-196 left the lane earth. The sources read for D-196 say cobbles: "authentic cobblestone streets, lining one after the
+other charming yards" (bg-guide.org, Kovachevitsa); "the cobblestone streets of the village of Leshten" (Radio
+Bulgaria). The stones' size and the earth between them are from photographs of those lanes, not from the texts.
+Built: a tile of cobbles as a model (`cobbles(seed, fade)` in `tools/camp_vox.py`), two of them laid turn about along
+the lane between the yard walls and a third whose stones thin out where the lane leaves the village
+(`archive/images/2026-11-24/17-the-lane-is-cobbled.png`). They are drawn flat, under every shadow and everything that
+stands, as the shadows themselves are. The ground's own shader is Creel's, so the cobbles are laid on it and not
+painted into it. A first try clipped the stones at the tile's edge and every tile's seam showed as a dark line: the
+stones now run whole a little past the edge.
+
+## D-200 (2026-11-24, Claude's build): "They are away" waits, and is not said of a chase that killed
+
+The tenth first-time play was told "They are away. We came on them too fast." and then a deer dropped: the herd had
+settled while a shot was still to land. And after "One down" the same chase could still end in "They are away", which
+read as the kill undone. Now the line waits six seconds after the game settles and is dropped if one falls in them,
+and a kill ends what is said of that chase (`hunt_away_at`, smyana.lobster).
+
+## D-201 (2026-11-24, Claude): the open pack's look, checked against a source
+
+D-186 said the torba's look was from memory, not from a source. Read now: a torba from Shiroka Laka in the Rhodopes,
+about 1950, wool, 42 by 42 cm: "Red, black, yellow plaid sewn together on two sides to make a bag", "Braided strands
+of red, green and gold have attached tassles of different colors" (Museum of International Folk Art, Santa Fe, object
+A.2012.84.16). So the square shape, the wool, the red and black and the tassels stand. Ours is striped where that one
+is plaid, and cream where that one is yellow; the record says nothing of a strap or a flap, so ours are still from
+memory. It is a century later than the game. Left as drawn.
+
+## D-202 (2026-11-24, Claude): what the eleventh first-time play and two bots' runs found at the end
+
+An agent played the last place by hand to the end
+(`archive/playtests/2026-11-24-11-first-time-player-the-homecoming.md`). It got all twenty home, and then: "It played
+five lines of text over a frozen village and then stopped dead ... no end screen, no menu, and nothing I pressed did
+anything." Done about it:
+- The game ends. When the morning after's last line has been read the picture darkens, the game's name comes up over
+  the village, and "Click to leave" under it; a click or a key closes the game (in a browser the name stands). Pictures: `archive/images/2026-11-24/18-the-morning-after-on-a-band-of-shade.png`, `19-the-game-ends-on-its-name.png`, and the bug as the agent saw it, `20-bug-dark-squares-on-the-lane-and-the-maps-edge.png`.
+- The ending's music (23_ending) had never been played anywhere. It now follows the homecoming's when that is over,
+  and no track of the forest's begins over the village after it.
+- "Three or four big square patches of darker, bluish cobbles": a tile of cobbles was shaded as a man is, whole, by
+  the shade at its middle, so a man's shadow on a tile's middle darkened the tile. The cobbles now take shade as the
+  ground does.
+- "The top-left corner of the screen is a flat black void": the view at the end looked past the map's edge. The men
+  walk two tiles less far up the lane and the views of the end and of the morning after are three tiles further in.
+- The morning after's words stand on a soft band of shade ("thin pale serif with no backing ... over grass, wall and
+  tree leaves").
+- "A woman with a log through her": she stood on a fallen log. Moved to the lane's side.
+Not done: the men still stand on the lane with their rifles and the women do not come to them; the houses, the yard's
+bare ground and the menu's words are as they were. The agent did not see the screen that says how many came back: the
+harness counts the run's clock, which stands still there.
+Two bots played the whole run on this build. One brought 14 of 20 home through the new village. The other lost all
+twenty: in the pass one man was held up in the map's corner, the band stood at the gate in the winter cold for him for
+four and a half minutes of the run's clock, went on with no strength left and was cut down by the patrol. A man held
+up is now stood up to three tiles nearer where he was sent at a time, not one (`unstick_nudge`, route.lobster).
+
+## D-203 (2026-11-24, Claude): by the morning after, the men are indoors
+
+The eleventh first-time play: "The men stand scattered on the lane like statues with rifles still on their shoulders
+... The line 'took down their rifles again' plays over men who never put them away." The morning after is the next
+day, so the men are no longer on the lane: they are taken out of the picture behind the dark between the end's words
+and the morning, and the village is the women, the animals and the smoke
+(`archive/images/2026-11-24/21-the-morning-after-the-men-indoors.png`). The evening's walk up the lane is as it was.
+Also checked by playing the end again: when the homecoming's music is over the ending's begins, and the run's clock
+goes on after it (the agent's game had stopped there).
+
+## D-204 (2026-11-24, Claude): a right click on "The way on" sends the men to the gate itself
+
+The eleventh first-time play crossed the last place by right clicking the ring at the picture's edge "over and over.
+Each click moved the men about a quarter of a screen, then they stood ... It took about 15 clicks to cross the map."
+The ring at the edge stands for the gate, as the ring on a find stands for the find (D-190), so a right click on it is
+now an order to the gate, the whole way. Played by hand: one click took the band across the last place to the lane.
+The view does not follow them; Tab brings it back, as before.
+
+## D-205 (2026-11-24, Claude's stand-in for Dominic's words): a man sees the village's smoke
+
+The eleventh first-time play: "Arrival is abrupt. Control is taken with no word. A line as the lane comes into view
+would help." Coming home, when the band is within thirty tiles of the village's end of the map, one man says once:
+"Smoke over the trees. Those are our own chimneys." (`home_seen`, data/survival.json). The words are Claude's and are
+Dominic's to rewrite.
+
+## D-206 (2026-11-24, Claude): the menu's words on a band of shade
+
+The eleventh first-time play: "'Start' and 'Quit' are small, pale, and drawn over the men; 'Start' sits on top of a
+man." The menu's words now stand on the same soft band of shade as the morning after's
+(`archive/images/2026-11-24/22-the-title-over-the-village.jpg`, also the README's title picture).
+
+## D-207 (2026-11-24, Claude): three bots play the finished build
+
+After D-202 to D-206, three bots played the whole run (`script:play fast:40`, seeds 1 to 3): 14, 17 and 6 of 20 men
+came home, with 5, 5 and 3 animals shot. All three reached the village and its end; none stuck. Seed 1, which lost
+every man on the build before (D-202), brought 14 home. The spread (6 to 17) is the patrol's and the winter's doing
+and is left as it is.
+
+## D-208 (2026-11-25, Dominic's direction and photograph, Claude's build): the village's houses rebuilt
+
+Dominic, with a photograph: "Village looksnwuote wrong." (`archive/notes/2026-11-25-dominic-the-village-looks-wrong.md`;
+the photograph is a watermarked stock picture and is described there, not kept.) He was right: the houses of D-166 and
+D-196 were bare grey stone to the eaves with small windows and gabled roofs, and stood apart on lawns. The texts read
+for them say only "stone and wood", storeys and slab roofs; the look had been guessed.
+From the photograph, the houses now have: a ground storey of rough stone; one or two storeys above it plastered
+white, a little out over the stone, with rows of tall windows in dark frames, dark timber belts and corner posts; a
+wooden gallery with a plank railing, or a bay of red-brown planks, or both; a low hipped roof of slabs with eaves
+nearly a metre wide and dark boards under them; two white chimneys with slab caps (`house` and `hip_roof`,
+tools/camp_vox.py). And they stand as the photograph's do: twenty-nine of them, two tiles apart, in three rows either
+side of the lane, the rows set off from each other so the roofs stack up behind one another
+(`archive/images/2026-11-25/01-the-village-rebuilt-from-dominics-photo.png`; `02` is the new houses still standing
+apart). A house is now lit by its own bake as the ruins are: stood close, each one's ground shadow was laid over its
+neighbour's roof.
+Not from the photograph, still to do or to be told: the ground is flat where the photograph's village climbs a
+slope; the walls along the lane are bare stone, without the photograph's wooden fences and little roofs on top; the
+yard walls between the houses of D-196 are gone, there being no room for them.
+
+## D-209 (2026-11-25, Claude, from Dominic's photograph): a fence on the lane's wall
+
+The photograph's walls along the lane are low stone with a fence of dark boards on top and a narrow roof of slabs
+along the fence. The wall on the houses' side of the lane is now that (`fenced_wall`, tools/camp_vox.py;
+`archive/images/2026-11-25/03-the-lanes-wall-with-its-fence.png`). The wall on the near side stays low and bare, so
+it does not hide the men on the lane. The homecoming and the end were played again through the new village
+(`04-the-end-over-the-new-village.png`).
+
+## D-210 (2026-11-25, Dominic's direction, Claude's build): streets between the houses, and rooms over them
+
+Dominic: "Village is missing streets. In between the houses, normally there'll be streets with maybe the houses
+connecting to each other over the top of them." (`archive/notes/2026-11-25-dominic-the-village-is-missing-streets.md`)
+D-208's rows of houses stood on grass with nothing between them. Now cobbled streets a tile wide run between the
+rows either side of the lane and up from the lane between the houses (two each side), the men can walk them, and at
+six places a room is built across a street from one house to the next: the upper storey on beams, plastered, with its
+own windows and slab roof (`street_room`, tools/camp_vox.py; frames span0 and span1). Twenty-four houses, where D-208
+had twenty-nine: the streets took the room. Picture: `archive/images/2026-11-25/05-streets-between-the-houses.png`.
+The room over the street is built from Dominic's words and the houses' own look; no picture or text of one has been
+read, so its shape is a guess to be checked. The chimneys' smoke is moved to where the new houses' chimneys are.

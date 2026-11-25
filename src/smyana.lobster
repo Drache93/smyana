@@ -1147,12 +1147,19 @@ def collect_props():
                     if pr.name[0] != 't': add(frame_at.get(pr.name + "." + season + ".shadow", -1), pr.at.x, pr.at.y, -39996.0, float4_1)
                     add(frame_at.get(pr.name + "." + season, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0, 2)
             else:
-                add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39997.0, float4_1)
+                // (the lane's cobbles lie on the ground, under every shadow and everything that stands)
+                if starts_with(pr.name, "cobbles"):
+                    add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, -40002.0, float4_1, 1.0, 2)
+                // (a yard wall has none: a stretch's shadow runs out past its end and lay across the next stretch)
+                elif pr.name.length < 4 or substring(pr.name, 0, 4) != "wall": add(frame_at.get(pr.name + ".shadow", -1), pr.at.x, pr.at.y, -39997.0, float4_1)
                 // (the camp's horses and mules are marked like the men, so they keep their colour in the shade
                 // instead of reading as grey ghosts)
+                // (a house is lit by its own bake, as the ruins are: stood close, each house's shadow on the ground was
+                // laid over its neighbour's roof and walls)
                 let beast = starts_with(pr.name, "horse") or starts_with(pr.name, "mule") or starts_with(pr.name, "rider")
-                add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0,
-                    if pr.kind == 3: 0 elif beast and pr.sp != "far": 4 else: 2)
+                if not starts_with(pr.name, "cobbles"):
+                    add(frame_at.get(pr.name, -1), pr.at.x, pr.at.y, pr.at.y, float4_1, 1.0,
+                        if pr.kind == 3 or starts_with(pr.name, "house") or starts_with(pr.name, "span"): 0 elif beast and pr.sp != "far": 4 else: 2)
 
     add_lift = 0.0
     // the map's bridges (#20): a standing one's deck tile by tile, a broken one's two ends
@@ -1434,9 +1441,9 @@ def draw_world(alpha:float):
     if atmo_on: atmo_end(cam_px, zoom, 1.5)
 
 // The village's hearths (D-172): a thread of smoke from each house's chimney, so that somebody is at home. Where each
-// chimney's top is comes from tools/camp_vox.py's house(): 0.4 of the half length along the house and a quarter of the
-// half depth behind its ridge, 1.16 m over the roof there (metres from the middle of the floor; HOUSES there).
-let CHIMNEYS = [ float3 { 1.36, 0.75, 6.6 }, float3 { 1.16, 0.7, 8.64 }, float3 { 1.44, 0.68, 6.41 } ]
+// chimney's top is comes from tools/camp_vox.py's house(): the first of its two chimneys, 0.45 of the half length along
+// the house and 0.3 of the half depth behind its middle (metres from the middle of the floor; HOUSES there, D-208).
+let CHIMNEYS = [ float3 { 1.49, 0.9, 8.76 }, float3 { 1.35, 0.84, 8.69 }, float3 { 1.53, 0.81, 6.68 } ]
 let TILE_M = 4.85  // (metres a tile, as the camp's models are cut: 135.76 voxels a tile at 28 a metre)
 
 def draw_chimney_smoke():
@@ -1444,9 +1451,18 @@ def draw_chimney_smoke():
     if not camp.length: return
     let t = gl.time()
     gl.set_shader("color")
+    // (coming home, a hearth for each house whose man came back: with half the men lost, half the chimneys are cold.
+    // D-197)
+    var houses = 0
+    for(camp) e: if as_str(e.a[0]).length == 6 and substring(as_str(e.a[0]), 0, 5) == "house": houses++
+    let lit = if leg_id == "village_home" and men.length > 0: (houses * men_alive() + men.length - 1) / men.length else: houses
+    var house_n = 0
     for(camp) e, i:
         let name = as_str(e.a[0])
         if name.length == 6 and substring(name, 0, 5) == "house":
+            house_n++
+            // (which are cold is spread through the village, not one end of it)
+            if (house_n * 7) % houses >= lit: continue
             let n = string_to_int(substring(name, 5, 1))
             let c = CHIMNEYS[n % 3]
             // (house0..2 are turned half round, house3..5 a quarter: camp.lobster's CAMP_THING_TURNS)
@@ -2018,6 +2034,7 @@ var pack_open = false
 var find_mark = float2_0  // art px
 var find_until = 0.0      // seen_s
 var find_word = ""
+var way_until = 0.0        // till when "The way on" and its ring show (seen_s)
 var find_milli = float2_0  // where it is on the map (thousandths of a tile), for a click on the ring itself
 var hide_ids = []::int     // the men on their way to hide their packs
 var hide_at = int2_0       // where, in sim units
@@ -2267,7 +2284,9 @@ var hunt_said_n = 0
 var camp_shot_at = -1000.0   // when a camp was last shot into and the men told (seen_s)
 var hunt_asked_at = -1000.0  // when the men were last sent after game (seen_s)
 var hunt_alarm = false
-var rose_asked = false  // a right click has just sent the men to a dog rose that is no stand
+var hunt_away_at = -1.0    // when "They are away" is to be said, by seen_s (-1: not)
+var ending_played = false  // the ending's music has been begun
+var rose_asked = false     // a right click has just sent the men to a dog rose that is no stand
 
 def march(ids:[int], x:int, y:int):
     let here = filter(ids) id: index_of(id) >= 0
@@ -2469,6 +2488,12 @@ def draw_title(a:float, items:float) -> int:
     if items > 0.0:
         let m = mouse_px()
         let size = int(ws.y / 26.0)
+        // (a band of shade behind the words: "Start" lay pale on the men themselves, the eleventh first-time play)
+        let top = ws.y * 0.66 - float(size) * 0.6
+        let tall = float(MENU_ITEMS.length) * float(size) * 2.0 + float(size) * 0.4
+        for(6) k:
+            let grow = float(k) * float(size) * 0.22
+            gl.color(float4 { 0.02, 0.02, 0.015, 0.09 * items }): gl.translate(float2 { 0.0, top - grow }): gl.rect(float2 { ws.x, tall + grow * 2.0 })
         for(MENU_ITEMS) t, i:
             let y = ws.y * 0.66 + float(i) * float(size) * 2.0
             gl.set_font_size(size)
@@ -2644,6 +2669,19 @@ def order_tick():
                     mark_at = gp(float(u_x[deer]), float(u_y[deer]))
                     mark_t = seen_s
                     return
+    // (and a right click on "The way on" at the picture's edge is an order to the gate itself, the whole way: the
+    // eleventh first-time play clicked the ring fifteen times to cross a place, each click a quarter of a screen)
+    if seen_s < way_until and mm == mouse_milli():
+        let ws = float(gl.window_size())
+        let exits = gobj(leg_now(), "exits")
+        for(gate_names) name, g:
+            if has(exits, name):
+                let r = gate_rects[g]
+                let gm = float2 { float(r[0] + r[2] + 1) * 500.0, float(r[1] + r[3] + 1) * 500.0 }
+                let d = to_screen(gp(gm.x, gm.y)) - ws / 2.0
+                let pad = ws.y * 0.07
+                let k = min((ws.x / 2.0 - pad) / max(abs(d.x), 1.0), (ws.y / 2.0 - pad) / max(abs(d.y), 1.0))
+                if k < 1.0 and magnitude(mouse_px() - (ws / 2.0 + d * k)) < ws.y * 0.06: mm = gm
     // (the packs open and an old tree under the mouse: hide the packs at its foot)
     let was_open = pack_open
     pack_open = false
@@ -3613,12 +3651,23 @@ var order_ids = []::int
 var order_from = float2_0
 var order_tick_no = 0
 
-def say_cfg(k:string) -> string: return gstr(sv_cfg("says"), k, "")
+// A line of the men's by its key. Said again, it is worded another way where the data has other wordings for it
+// ("<key>_more"): the tenth first-time play heard six lines twice or more, word for word (2026-11-24).
+let say_times = dictionary<string, int>(32)   // a key: how many times its line has been said
+let say_key = dictionary<string, string>(64)  // a wording: its key
+def say_cfg(k:string) -> string:
+    let more = gstrs(sv_cfg("says"), k + "_more")
+    let n = say_times.get(k, 0)
+    let text = if n == 0 or not more.length: gstr(sv_cfg("says"), k, "") else: more[(n - 1) % more.length]
+    say_key.set(text, k)
+    return text
 
 // One of the men says it: the first of `ids` who is there, else any man.
 def one_says(key:string, text:string, n:int):
     if text == "" or (find(said): _ == key) >= 0: return
     said.push(key)
+    let sk = say_key.get(text, "")
+    if sk != "": say_times.set(sk, say_times.get(sk, 0) + 1)
     let there = filter(men) m: m.alive and index_of(m.uid) >= 0
     // (one of the five nearest the middle of the view, so the words are where the player is looking: the third agent
     // playtest found them at the screen's corner, over a man at the edge of the band)
@@ -3656,7 +3705,6 @@ def men_mark() -> float2:
 // says. There is no map, compass, path or signpost". East on the map is down and to the right on the screen, and it
 // had walked to the right. So: a man says where the track goes as they come into a place, and again when they have
 // been well off it for a minute and a half of daylight, and for twenty seconds a pale ring shows the way.
-var way_until = 0.0
 var still_since = 0.0  // since when no man has been walking (seen_s)
 var season_said = ""
 var rain_heard = false  // the rain is hard enough to hush the birds
@@ -3913,12 +3961,25 @@ def guide_tick():
                     find_until = seen_s + 10.0
                     find_word = "Right click to hunt"
     if is_night() and not camps_made() and hour_now() >= 21.5: one_says("dark {day}", say_cfg("dark"), 3)
+    // (coming home: the village's smoke over the trees, said once, so the lane and the end do not come from nowhere;
+    // "Arrival is abrupt", the eleventh first-time play. Claude's stand-in for Dominic's words.)
+    if leg_id == "village_home" and (find(said): _ == "home seen") < 0:
+        var sum_x = 0
+        var men_n = 0
+        for(u_x.length) i:
+            if man_of(u_id[i]):
+                sum_x += u_x[i]
+                men_n++
+        if men_n > 0 and sum_x / men_n < 30 * TILE: one_says("home seen", say_cfg("home_seen"), 4)
     // the hunt's end, said: one down (and what to do with it), or the game away ("Deer gone, no result shown ... I
     // never learnt whether we hit", the seventh first-time play)
     if game_shot < hunt_said_n: hunt_said_n = game_shot
     if game_shot > hunt_said_n:
         hunt_said_n = game_shot
         hunt_alarm = false
+        hunt_away_at = -1.0
+        // (and of this chase nothing more is said: "They are away" after "One down" read as the kill undone)
+        hunt_asked_at = -1000.0
         said.remove_obj("game down")
         one_says("game down", say_cfg("game_down"), 2)
     // (only of game the men were sent after in the last minute: the ninth first-time play was told "They are away" ten
@@ -3926,6 +3987,11 @@ def guide_tick():
     elif game_alarmed_seen() and seen_s - hunt_asked_at < 60.0: hunt_alarm = true
     elif hunt_alarm:
         hunt_alarm = false
+        hunt_away_at = seen_s + 6.0
+    // (said six seconds after the game settles, and not at all if one falls in them: the tenth first-time play was
+    // told "They are away" and then saw a deer drop to a shot already in the air)
+    elif hunt_away_at > 0.0 and seen_s >= hunt_away_at:
+        hunt_away_at = -1.0
         said.remove_obj("game away")
         one_says("game away", say_cfg("game_away"), 3)
     // the wary music's reason, said: wolves following, or a patrol that has noticed something (the eighth first-time
@@ -4000,6 +4066,46 @@ def shaded_text(t:string, at:float2, a:float):
     for([ 1.0, 0.0 ]) shade:
         gl.color(if shade > 0.0: float4 { 0.0, 0.0, 0.0, 0.7 * a } else: float4 { 0.97, 0.93, 0.82, a }):
             gl.translate(floor(at + float2 { shade, shade })): gl.text(t)
+
+// How long the end's words take to come up (draw_lines' own pace).
+def end_read_s() -> float: return 0.6 + float(tally_lines().length) * 1.4 + 1.2
+
+// The morning after the men come home (D-197): what the village makes of what they brought, a line at a time at the
+// foot of the picture, over the village in clear morning light, on a band of shade so the words read over grass and
+// leaves alike. When the last has been read the picture darkens and the game's name stands over it: the end (the
+// eleventh first-time play sat at the last line with no sign the game was over).
+let AFTER_EACH = 7.0
+
+// How long into the morning after its last words have been read.
+def after_fin(t:float) -> float: return t - 3.0 - float(after_lines().length) * AFTER_EACH - 3.0
+
+def draw_after(t:float):
+    let texts = after_lines()
+    if t < 0.0 or not texts.length: return
+    let n = min(int(t / AFTER_EACH), texts.length - 1)
+    let u = t - float(n) * AFTER_EACH
+    let fin = after_fin(t + 3.0)
+    let a = if n == texts.length - 1: clamp(min(u / 1.2, 1.0 - fin / 2.0), 0.0, 1.0) else: clamp(min(u / 1.2, (AFTER_EACH - u) / 1.2), 0.0, 1.0)
+    let ws = float(gl.window_size())
+    gl.set_shader("color")
+    gl.set_font_name(FONT)
+    gl.set_font_size(int(ws.y / 28.0))
+    let w = float(gl.text_size(texts[n]))
+    let at = float2 { floor(ws.x / 2.0 - w.x / 2.0), floor(ws.y * 0.8) }
+    for(6) k:
+        let grow = float(k) * w.y * 0.16
+        gl.color(float4 { 0.02, 0.02, 0.015, 0.11 * a }): gl.translate(float2 { 0.0, at.y - w.y * 0.35 - grow }): gl.rect(float2 { ws.x, w.y * 1.7 + grow * 2.0 })
+    shaded_text(texts[n], at, a)
+    if fin > 0.0:
+        let fa = clamp(fin / 3.0, 0.0, 1.0)
+        veil(fa * 0.55)
+        draw_title(fa, 0.0)
+        if fin > 5.0 and not has_s(args, "web"):
+            gl.set_shader("color")
+            gl.set_font_name(FONT)
+            gl.set_font_size(int(ws.y / 36.0))
+            let leave = "Click to leave"
+            shaded_text(leave, float2 { floor(ws.x / 2.0 - float(gl.text_size(leave).x) / 2.0), floor(ws.y * 0.9) }, clamp((fin - 5.0) / 2.0, 0.0, 0.8))
 
 // The packs, open (D-186. Dominic, 2026-11-24: "we need to design a pack looking UI, not a plane box"): a torba, the
 // woven wool shoulder bag of the Rhodopes, drawn in the signs' own hand with its flap thrown back and its strap over
@@ -4354,12 +4460,13 @@ while gl.frame():
             for(u_id) id, i: send_men([ id ], u_x[i], u_y[i])
             set_phase("play")
     elif gl.button("space") == 1: paused = not paused
-    if phase == "menu" or phase == "play" or phase == "arriving" or phase == "leaving":
+    if phase == "menu" or phase == "play" or phase == "arriving" or phase == "leaving" or phase == "home" or phase == "after":
         if phase == "play":
             guide_tick()
             select_tick()
             order_tick()
-        if phase != "menu": camera_tick(phase == "play" and script != "tour")
+        // (not at the homecoming or after it: the view goes up the lane by itself, past where the rim keeps it)
+        if phase != "menu" and phase != "home" and phase != "after": camera_tick(phase == "play" and script != "tour")
         // (once every man sleeps the whole world runs faster till one wakes or the day comes, D-150: a first-time
         // player sat through two minutes of dark at each camp with nothing to do, 2026-11-22. The first try ran only
         // the clock faster, and the test bot's men starved: the game and the wood's food come back by the tick.)
@@ -4439,6 +4546,13 @@ while gl.frame():
                 let ahead = mood_hour(name) - hour_now()
                 turn_h = min(turn_h, if ahead > 0.0: ahead else: ahead + 24.0)
             score_hold = turn_h * float(ticks_per_hour()) / float(TICK_HZ) / (if is_night(): float(gint(gobj(route, "night"), "speed", 100)) / 100.0 else: 1.0) < 45.0
+            // (home, and the morning after: when the homecoming's music is over the ending's follows, once, and then
+            // nothing: no track of the forest's begins over the village)
+            if phase == "home" or phase == "after":
+                if score_track == "" and not ending_played:
+                    ending_played = true
+                    score_moment("ending")
+                score_wait = 9999.0
             score_tick(dt, season_now(), mood_now(), fires.length > 0)
         danger_tick()
         if phase == "leaving": beds_hush()
@@ -4447,6 +4561,25 @@ while gl.frame():
         if not paused: howl_tick(dt)
         if debug_line: score_keys()
         ground_season_tick()
+    if phase == "home":
+        cam += (men_centre() - cam) * min(1.0, dt * 0.9)
+        if phase_t >= 14.0: set_phase("end")
+    // (the end's words read, or clicked past: the morning after, D-197)
+    if phase == "end" and script == "" and men_alive() > 0 and (phase_t > end_read_s() + 5.0 or (phase_t > 3.0 and (gl.button("mouse1") == 1 or gl.button("space") == 1 or gl.button("return") == 1))):
+        hour_force = 8.5
+        weather_force = "clear"
+        // (by the morning the men are indoors: stood on the lane with their rifles still on their shoulders they made
+        // the morning a still of the evening, the eleventh first-time play. Behind the dark between the two.)
+        for(u_id) id, i:
+            if man_of(id):
+                u_x[i] = (W - 4) * TILE
+                u_y[i] = 4 * TILE + (i % 8) * TILE
+                send_men([ id ], u_x[i], u_y[i])
+        set_phase("after")
+    if phase == "after":
+        cam += (gp(9000.0, 51500.0) - cam) * min(1.0, dt * 0.1)
+        // (the game's name is up: a click or a key and the game closes)
+        if after_fin(phase_t) > 5.0 and not has_s(args, "web") and (gl.button("mouse1") == 1 or gl.button("space") == 1 or gl.button("return") == 1 or gl.button("escape") == 1): break
     if phase == "arriving" and phase_t >= 1.5:
         set_phase("play")
         // (the men come into a new place still chosen, once the player has learned to choose them: the eighth and ninth
@@ -4458,8 +4591,18 @@ while gl.frame():
         if last:
             // (the last walk, down the lane into the village: no letter and nothing to load. The village edge stays
             // as it is behind the end's words, D-168)
-            set_phase("end")
             score_moment("homecoming")
+            if script != "": set_phase("end")
+            else:
+                // (the men walk on up the lane between the yard walls, the view going with them, before the end's
+                // words: D-197)
+                set_phase("home")
+                selected = []
+                var n = 0
+                for(u_id) id:
+                    if man_of(id):
+                        send_men([ id ], (3 + n % 9) * TILE + 300 + (n * 137) % 400, (50 + (n / 9) % 2) * TILE + 300 + (n * 251) % 400)
+                        n++
         else:
             letter = gstrs(gobj(route, "letters"), gstr(exit_by(leave_edge), "letter", ""))
             letter_loaded = false
@@ -4497,10 +4640,14 @@ while gl.frame():
             // (home: the words over the village edge, the view going slowly up the lane to the houses, D-168. With
             // nobody left the words stand on the dark, where the last man fell.)
             if men_alive() > 0 and gstr(su_map, "id", "") == "village_edge":
-                cam += (gp(10500.0, 51000.0) - cam) * min(1.0, dt * 0.35)
+                cam += (gp(8500.0, 50500.0) - cam) * min(1.0, dt * 0.2)
                 draw_world(acc / 0.05)
                 veil(1.0 - clamp(phase_t / 3.0, 0.0, 1.0) * 0.5)
             draw_lines(tally_lines(), phase_t, int(float(gl.window_size().y) / 30.0))
+        elif phase == "after":
+            draw_world(acc / 0.05)
+            veil(1.0 - clamp(phase_t / 3.0, 0.0, 1.0))
+            draw_after(phase_t - 3.0)
         else:
             draw_world(acc / 0.05)
             draw_breaths()

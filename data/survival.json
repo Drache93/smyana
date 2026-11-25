@@ -6,6 +6,7 @@
   "opening": ["Which way? The lane runs east, down to the beeches.", "A long road. Out over the ridge, and home by spring.", "Bread for four days in the packs. After that we eat what the mountain gives us: game, fruit, what others have left."],
   "opening_s": 7,
   "dusk": "The light is going. We should make camp.",
+  "dusk_more": ["The sun is nearly down. Time to find a place for the fire.", "Evening. We make camp, or we walk blind."],
   "season_autumn": "The leaves are turning. Summer is behind us.",
   "season_winter": "That is winter in the air. Keep the fires high.",
   "season_spring": "The snow is going. Spring, and the road home.",
@@ -24,17 +25,24 @@
   "packs_empty": "There is nothing in the packs to leave.",
   "morning": "East again, down the lane. The beeches are not far.",
   "rose_unripe": "Hips, but hard and green inside yet. Come the autumn.",
+  "rose_unripe_more": ["More hips, and green yet."],
   "rose_bare": "The birds have had the best of this one. There will be better bushes.",
+  "rose_bare_more": ["Nothing left on this bush either."],
   "gathered": "A few handfuls more in the packs. It all helps.",
   "dark": "We cannot walk on blind. Make a fire here.",
   "hut_seen": "A shepherds' hut, off the track there. A roof for the night, if we want one.",
+  "hut_seen_more": ["Another hut, off the track there. Dry, at least, if the night is bad.", "A hut over there. Shepherds leave them empty by now."],
   "cache_seen": "Stones heaped by hand, over there. Somebody has left a cache.",
   "honey_seen": "Bees, in that hollow trunk. Honey for us, and wax for the candles at home.",
   "first_game": "Roe deer, there among the trees. Meat, if we come up slow and stop short of them.",
   "game_down": "One down. Send men to it with the knife, and the meat is ours.",
+  "game_down_more": ["It is down. The knife to it, and the meat into the packs.", "That one will not run. Send men with the knife."],
+  "home_seen": "Smoke over the trees. Those are our own chimneys.",
   "game_away": "They are away. We came on them too fast.",
+  "game_away_more": ["Gone. They heard us coming.", "Away again. Slower, the next time, and stop short."],
   "patrol_ahead": "Zaptiye on the road ahead, resting. They have not seen us. Round through the trees, or wait till they ride on.",
   "followed": "We are followed. Wolves, keeping their distance. Stay together, and keep a fire at night.",
+  "followed_more": ["The wolves are behind us still. Keep close.", "They have not given us up, those wolves. A fire tonight."],
   "look_stand": "There is ground off the track that way where things grow. Worth the walk, before we go on.",
  "look_game": "Game keeps to the quiet ground over that way. Meat for the road, if we come up on them slowly.",
  "camp_shot": "They are shooting into the camp! Up, and to the rifles!",
@@ -506,5 +514,18 @@
     "short": "% bundles of wool", "short_one": "A bundle of wool", "short_none": "No wool yet"
    }
   ]
+ },
+ "after": {
+  "_doc": "The morning after the men come home (D-197): a line for each thing that came back, shown one at a time over the village. 'some_lost': % the men who did not come. Claude's stand-ins: Dominic's to rewrite.",
+  "all_home": "In the morning every chimney in the village was smoking.",
+  "one_lost": "In the morning one hearth in the village stayed cold.",
+  "some_lost": "In the morning % hearths in the village stayed cold.",
+  "herbs": "The herbs and the mountain tea were hung to dry under the eaves, against the winter's coughs.",
+  "wax": "The wax went for candles, for the church and for the long evenings.",
+  "hides": "The hides were scraped and tanned. By autumn there were shoes for the children.",
+  "wool": "The wool was washed in the river and spun through the summer.",
+  "drain": "And along the lane they dug a drain the way the Romans laid theirs, and the spring mud ran off down it.",
+  "nothing": "They brought back nothing but themselves, and were counted at the fountain all the same.",
+  "last": "In late summer the men took down their rifles again."
  }
 }

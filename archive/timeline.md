@@ -281,3 +281,17 @@ One line per moment worth remembering. Newest at the bottom.
 - 2026-11-24: the tenth first-time play; the way on stays on screen, a camp shot into wakes and fires back, the men will not camp beside zaptiye unasked twice (D-192).
 - 2026-11-24: the tall firs' trunks thin over the men; two lines at once no longer overlap (D-193).
 - 2026-11-24: each morning a man points at the nearest ground off the track that holds food (D-194).
+- 2026-11-24: Dominic merges pull request 128 and asks for more of the village; lines said again are worded another way (D-195).
+- 2026-11-24: the village gets five more houses, yard walls, a fountain and animals (D-196).
+- 2026-11-24: the homecoming (the men walk up the lane, cold chimneys for the men lost) and the morning after (D-197).
+- 2026-11-24: women stand at the gates and the fountain, dressed from sources on the saya (D-198).
+- 2026-11-24: the lane through the village is cobbled (D-199).
+- 2026-11-24: "They are away" no longer comes before or after a kill of the same chase (D-200).
+- 2026-11-24: the eleventh first-time play (the homecoming): the game now ends on its name, with the ending's music; two bots, 14 of 20 home and one band lost (D-202).
+- 2026-11-24: by the morning after the men are indoors (D-203).
+- 2026-11-24: a right click on "The way on" sends the men the whole way to the gate (D-204).
+- 2026-11-24: coming home, a man sees the village's smoke and says so (D-205).
+- 2026-11-24: three bots play the finished build: 14, 17 and 6 of 20 home (D-207).
+- 2026-11-25: Dominic: "Village looks quite wrong", with a photograph. The houses are rebuilt from it and set close (D-208).
+- 2026-11-25: the lane's wall gets its fence of boards and its little roof (D-209).
+- 2026-11-25: Dominic: the village is missing streets. Cobbled streets between the houses, and rooms built over them (D-210).

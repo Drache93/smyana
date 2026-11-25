@@ -125,3 +125,18 @@ def tally_lines() -> [string]:
     if knowers.length: said.push("{knowers.length} of them know how the Romans drained the land.")
     elif drain_learned(): said.push("The men who learned the Roman drain did not come home.")
     return said
+
+// The morning after (D-197): what the village makes of what came home, a line for each thing that did, from
+// data/survival.json's "after". The words are Claude's stand-ins for Dominic's.
+def after_lines() -> [string]:
+    let cfg = gobj(survival_cfg, "after")
+    let home = filter(men) m: m.alive
+    let gone_n = men.length - home.length
+    let said = [ if gone_n == 0: gstr(cfg, "all_home", "") elif gone_n == 1: gstr(cfg, "one_lost", "") else: replace_string(gstr(cfg, "some_lost", ""), "%", "{gone_n}") ]
+    let count = map(WARES) _: 0
+    for(home) m: for(m.wares) w: count[w]++
+    for(count) n, w: if n > 0: said.push(gstr(cfg, WARES[w], ""))
+    if (find(home) m: knows_drain(m)) >= 0: said.push(gstr(cfg, "drain", ""))
+    if said.length == 1: said.push(gstr(cfg, "nothing", ""))
+    said.push(gstr(cfg, "last", ""))
+    return filter(said) l: l != ""
