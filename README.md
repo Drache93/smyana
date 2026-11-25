@@ -52,7 +52,7 @@ them. The pointer shows what a right click will do: walk, gather, shoot, butcher
 a hut. Signs under the chosen men make camp (C), open the packs (X) and halt; with the packs
 open, a right click on an old tree hides them at its foot. Space pauses, Tab finds the men, arrows
 or WASD move the view, the wheel or + and - zoom. Walk every man into the far edge of a place to
-move on.
+move on; a pale ring marks the way, and a right click on it sends the men there.
 
 Who made what, and the AI disclosure, are in [`CREDITS.md`](CREDITS.md).
 
