@@ -15,3 +15,11 @@ faster, and women come down the lane at the homecoming.
 
 Not done: the play's biggest complaint, that nothing threatens the men in the first half hour, is a design question
 for Dominic, not a bug.
+
+## The test bot afterwards (night of 2026-11-25 to 26)
+
+On the build with D-211 to D-214: seeds 1, 2 and 4 came home with 8, 14 and 15 of 20. Seed 3 ran out its five days
+in the pass on the way home with six men left, five of them standing in the gate and the sixth eight tiles off: a
+slow, hungry run that fought a patrol, not a stall. The bot's own rule for huts on the way home did something for
+the first time after D-211 and sent it to a hut up to thirty tiles back; it now takes only one within sixteen tiles
+that is not behind it.

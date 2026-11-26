@@ -3222,8 +3222,11 @@ def tour_tick():
                 // (on the cold way home, a shepherds' hut within reach: the night in it, its fire unseen)
                 let cx = sum(map(ids) id: u_x[index_of(id)]) / ids.length
                 let cy = sum(map(ids) id: u_y[index_of(id)]) / ids.length
-                let hut = if outbound(): -1 else: hut_near(cx, cy, 30)
-                if hut >= 0:
+                // (one not behind them: home is west, and a hut thirty tiles back up the road cost a band the day's walk
+                // every day, till it stood five days in the pass. That was the first run after D-211, when this order
+                // first did anything)
+                let hut = if outbound(): -1 else: hut_near(cx, cy, 16)
+                if hut >= 0 and (hut % W) * TILE <= cx + 4 * TILE:
                     hut_order(ids, hut)
                     print "play: {leg_id} to the shepherds\' hut for the night at {int(clock_s)} s"
                 else: issue_cmd(0, CMD_STOP, ids, 0, 0, 0, 0)
