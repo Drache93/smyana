@@ -295,3 +295,5 @@ One line per moment worth remembering. Newest at the bottom.
 - 2026-11-25: Dominic: "Village looks quite wrong", with a photograph. The houses are rebuilt from it and set close (D-208).
 - 2026-11-25: the lane's wall gets its fence of boards and its little roof (D-209).
 - 2026-11-25: Dominic: the village is missing streets. Cobbled streets between the houses, and rooms built over them (D-210).
+- 2026-11-25: twelfth first-time play, the whole game cold. A right click on a hut never made camp, since the huts went in: fixed (D-211). A ring on a kill, a man left behind follows, the evening by the fire runs faster (D-212, D-213).
+- 2026-11-26: the test bot on the new build: 8, 14 and 15 of 20 home, one run out of days in the pass. Tall trunks rooted below the picture thin (D-215).

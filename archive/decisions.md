@@ -1570,3 +1570,55 @@ own windows and slab roof (`street_room`, tools/camp_vox.py; frames span0 and sp
 had twenty-nine: the streets took the room. Picture: `archive/images/2026-11-25/05-streets-between-the-houses.png`.
 The room over the street is built from Dominic's words and the houses' own look; no picture or text of one has been
 read, so its shape is a guess to be checked. The chimneys' smoke is moved to where the new houses' chimneys are.
+
+## D-211 (2026-11-25, Claude, from the twelfth first-time play): a right click on a hut makes camp in it
+
+The twelfth first-time play (`archive/playtests/2026-11-25-12-first-time-player.md`) right-clicked a shepherds' hut
+twice under the flame pointer: "The men walked there and no camp was made", and the second time "The men stood beside
+it in the dark for a whole night". `hut_near` gave a hut's place in the list of huts, and three of its five callers
+took what it gave for the hut's cell on the map; so the order to a hut was only ever a walk, and no camp was ever made
+in a hut, by a click or by the men choosing one for the night on the cold way home. It has been so since the huts went
+in (D-131's finds). `hut_near` now gives the cell. Played by hand in the fir woods in winter: the men go to the hut,
+the fire is laid inside, "There, it has caught."
+
+## D-212 (2026-11-25, Claude, from the twelfth first-time play): what the game did not say or show
+
+- A man missed by the drag and left standing far off comes too when most of the band is sent on (three quarters of
+  them or more, and he idle, awake, not in a camp, more than ten tiles away). The play left one man in the village,
+  walked the other nineteen to the way on, and stood there "and nothing happened" till dark.
+- When the band stands in the gate out and a man is called on to them, one of them says so: "We are not all here. We
+  go on when the last of us has come up." (Claude's stand-in words.)
+- "No way up there from here" is not said of ground out past a gate.
+- A fresh kill has a ring on it for half a minute, "Right click to butcher": "Carcasses cannot be seen; the second
+  was never found."
+- Taking from a cache or the honey, a man says what it was ("Food under the stones, put by for the road. Into the
+  packs with it."; "Honey, and the wax with it. Into the packs." Claude's stand-ins).
+- A house and a room over a street have no ground shadow sprite: drawn clearing the shade off themselves, all that
+  was left of each house's shadow was a dark bar out on the meadow, which the play took for "shadows of things that
+  are not there". Pictures: `archive/images/2026-11-25/06-shadow-bars-on-the-meadow.png` (the bug) and `07`.
+
+## D-213 (2026-11-25, Claude, from the twelfth first-time play): the evening by the fire runs faster
+
+"Once the fire is lit there is nothing to do for 60-90 seconds of clock ... Five nights is a long time to watch a dark
+screen." D-150 runs the night faster once every man sleeps, but they do not sleep till nine. From six in the evening,
+with every man at a fire that has caught and no danger, the game now runs at three times its pace till then
+(`evening_speed` in data/route.json).
+
+Left from that play, deliberately or for want of time: the first half hour has no threat that bites (it is the
+gentle part by design, D-189 made hunger the first cost); the fir woods' tall trunks and long shadows cover much of
+the screen; the houses are three models; lines repeat ("Game keeps to the quiet ground", three times).
+
+## D-214 (2026-11-25, Claude): women come down the lane at the homecoming
+
+D-198's women stood still while the men walked in. As the men come up the lane (phase "home") five women now come
+down it from the far end to meet them, one after another, each stopping at her own place among them, and they are
+still standing on the lane the morning after. They are the village's own figures moved along the lane with a small
+step, not walking figures. Seen only in its end state so far (the morning after); the walk itself is unchecked.
+
+## D-215 (2026-11-26, Claude, from the twelfth first-time play): a tall trunk rooted below the picture thins
+
+"In the fir woods the bare trunks and their long stripe shadows cover the whole screen, the men and the icon row. It
+is the hardest place to read." A tall fir whose foot is at the picture's lower edge or below it shows only as a dark
+bar up the whole picture. It now thins as its foot nears the edge, to a third where the foot is out of sight (D-193
+already thins a trunk a man stands behind). The trunks whose feet are in the picture are as they were: the wood is
+still a wood of tall trunks. Picture: `archive/images/2026-11-26/01-fir-trunks-rooted-below-the-picture-thinned.png`.

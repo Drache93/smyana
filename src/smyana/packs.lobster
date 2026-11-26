@@ -78,6 +78,7 @@ class Fetch:
     since:int = 0  // the tick he was sent (his order reaches him a tick or two later)
 
 var fetchers = []::Fetch
+var find_taken = 0  // a cache or honey just taken from (its Pile kind), for a man to say what was in it
 
 def packs_fetch(ids:[int], k:int):
     let p = piles[k]
@@ -102,6 +103,7 @@ def packs_tick():
         if i < 0 or not m or (find(piles) p: p == f.pile) < 0: false
         elif dist2(u_x[i], u_y[i], f.pile.x, f.pile.y) > r * r: tick <= f.since + TICK_HZ or u_moving[i] == 1 or dist2(u_tx[i], u_ty[i], f.pile.x, f.pile.y) <= r * r
         else:
+            if f.pile.kind != 0: find_taken = f.pile.kind
             let tf = min(f.pile.food, pack_room(m))
             m.food += tf
             f.pile.food -= tf
