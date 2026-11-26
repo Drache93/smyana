@@ -1083,6 +1083,10 @@ def trunk_fade(foot:float2) -> float:
     for(eyes) e:
         if e.y < foot.y + 6.0 and e.y > foot.y - TALL_H * ART_UP * 1.6:
             least = min(least, clamp((abs(e.x - foot.x) - 14.0) / 18.0, 0.22, 1.0))
+    // (and a trunk rooted at the picture's foot or below it is only a dark bar up the whole picture, with no foot to
+    // say what it is: it thins, to a third where its foot is out of sight. The twelfth first-time play: "the bare
+    // trunks and their long stripe shadows cover the whole screen, the men and the icon row")
+    least = min(least, clamp(1.0 - (foot.y - (view_hi.y - 110.0)) / 150.0 * 0.67, 0.33, 1.0))
     return least
 
 def collect_props():

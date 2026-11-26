@@ -1614,3 +1614,11 @@ D-198's women stood still while the men walked in. As the men come up the lane (
 down it from the far end to meet them, one after another, each stopping at her own place among them, and they are
 still standing on the lane the morning after. They are the village's own figures moved along the lane with a small
 step, not walking figures. Seen only in its end state so far (the morning after); the walk itself is unchecked.
+
+## D-215 (2026-11-26, Claude, from the twelfth first-time play): a tall trunk rooted below the picture thins
+
+"In the fir woods the bare trunks and their long stripe shadows cover the whole screen, the men and the icon row. It
+is the hardest place to read." A tall fir whose foot is at the picture's lower edge or below it shows only as a dark
+bar up the whole picture. It now thins as its foot nears the edge, to a third where the foot is out of sight (D-185
+already thins a trunk a man stands behind). The trunks whose feet are in the picture are as they were: the wood is
+still a wood of tall trunks. Picture: `archive/images/2026-11-26/01-fir-trunks-rooted-below-the-picture-thinned.png`.
