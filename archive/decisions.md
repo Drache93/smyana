@@ -1619,6 +1619,6 @@ step, not walking figures. Seen only in its end state so far (the morning after)
 
 "In the fir woods the bare trunks and their long stripe shadows cover the whole screen, the men and the icon row. It
 is the hardest place to read." A tall fir whose foot is at the picture's lower edge or below it shows only as a dark
-bar up the whole picture. It now thins as its foot nears the edge, to a third where the foot is out of sight (D-185
+bar up the whole picture. It now thins as its foot nears the edge, to a third where the foot is out of sight (D-193
 already thins a trunk a man stands behind). The trunks whose feet are in the picture are as they were: the wood is
 still a wood of tall trunks. Picture: `archive/images/2026-11-26/01-fir-trunks-rooted-below-the-picture-thinned.png`.
